@@ -138,10 +138,27 @@ Sort: severity from `high` to `low`, then activities, indicators and tactics, ea
 
 ### report
 
-One row per count: `files`, `scripts`, `outputs`, `indicators` and one row per indicator type,
-`activities` and one row per activity, `tactics`, and `intel hits` when `--intelfile` is given.
+One row per line of the report, in five sections. A selector picks a section; none picks all.
+
+| Section | Selector | A row is |
+| --- | --- | --- |
+| `summary` | `-summary` | a count: `files`, `scripts`, `outputs`, `indicators` and one per type, `activities` and one per activity, `tactics`, and `intel hits` with `--intelfile` |
+| `script`, `output`, `other` | `-files` | a notable file, under its role: one that holds a finding at or above `--severity`, which is `high` unless given |
+| `impact` | `-impact` | a consequence the evidence shows |
+| `remediation` | `-remediation` | an action that undoes what was done |
+| `mitigation` | `-mitigation` | an action that prevents a repeat |
 
 | Column | JSON key | Value |
 | --- | --- | --- |
-| `METRIC` | `metric` | the name of the count |
-| `VALUE` | `value` | distinct values; on an `activities <name>` row, the lines that show the activity |
+| `ITEM` | `item` | the name of the count, the path of the file, the impact or the action |
+| `SECTION` | `section` | the section; a notable file carries its role |
+| `VALUE` | `value` | a number on a summary row, where an `activities <name>` row counts the lines that show the activity; elsewhere `low`, `medium` or `high`: the severity of a file or an impact, the priority of an action |
+| `DETAIL` | `detail` | on a file, what was found: activities, tools with their tactic, watchlist attributions; on an impact, its statement and the hosts or addresses affected; on an action, what to do; `-` on a summary row |
+| `BASIS` (wide) | `basis` | on an impact or an action, the activities, tool tactics and watchlist attributions that call for it |
+| `FILES` (wide) | `files` | on a script, the files it writes; on another file, the scripts that write it; on an impact or an action, the files that show it |
+
+Sort: the sections in the order above; files in time order; impacts from `high` to `low`;
+remediation before mitigation, each from `high` to `low`.
+
+An impact says what the evidence shows was done. The tool does not run a script, so it cannot say
+whether a step succeeded.

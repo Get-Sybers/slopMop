@@ -19,6 +19,7 @@ about evidence touch no file, and every static table is a data file validated at
 | `internal/tactic` | classifies commands by MITRE ATT&CK tactic and ranks each tactic's severity using `tactics.json` |
 | `internal/activity` | recognises what a line of evidence does (a role assignment, a mailbox read, a Key Vault secret read) and the tactics of it, using `activities.json` |
 | `internal/indicator` | extracts security indicators (IPs, URLs, hashes, CVEs, GUIDs, Microsoft cloud endpoints, OAuth scopes) using `indicators.json` |
+| `internal/assess` | turns what a run found into its impacts and the remediation and mitigation they call for, using `impacts.json` and `actions.json` |
 | `internal/intel` | matches extracted indicators against an operator-supplied watchlist: a JSON array or a STIX 2.1 bundle; an entry that is an address range matches every address inside it |
 | `internal/trace` | reconstructs the timeline from scripts and outputs: ordering, tool extraction, tactic classification, activity detection, indicator counting, output linking |
 | `internal/evidencetest` | embeds the fixtures and copies one into a temporary folder for a test |
@@ -28,6 +29,7 @@ Imports run one way:
 
 ```text
 cmd/slopmop -> command -> cli, render, trace -> parse, structured, tactic, activity, intel -> indicator
+                       |-> assess -> tactic
                                    |-> inventory -> evidence -> nametime
 ```
 
@@ -42,6 +44,8 @@ cmd/slopmop -> command -> cli, render, trace -> parse, structured, tactic, activ
 | `internal/command/nouns.json` | nouns, verbs, aliases, summaries, columns | names and summaries present; columns pass the table check; every declared verb has an implementation and every implementation a declaration |
 | `internal/tactic/tactics.json` | MITRE ATT&CK tactics, the severity of each and the commands each claims | every tactic has a name, a severity of `low`, `medium` or `high` and at least one command; no command appears in two tactics |
 | `internal/activity/activities.json` | each activity's name, tactics and patterns, and the contexts some patterns need | names are present and unique; every activity has a tactic and a pattern; paths and a known context go together; every pattern compiles; `command` rejects a tactic that `tactics.json` lacks |
+| `internal/assess/impacts.json` | each impact's name, severity and statement, what triggers it and the indicator types to list as affected | names are present and unique; a statement and a severity of `low`, `medium` or `high`; something triggers each; `command` rejects an activity, a tactic or an indicator type the other tables lack |
+| `internal/assess/actions.json` | each action's name, kind, priority and text, and what triggers it | as for an impact; the kind is `remediation` or `mitigation` |
 | `internal/indicator/indicators.json` | indicator types and their regex patterns | every entry has a type and a pattern; every pattern compiles |
 | `internal/structured/formats.json` | the extensions of each structured format, the field names that hold a command, and the HTML elements that hold a command, are kept verbatim or are dropped | the formats are `json`, `xml`, `html` in that order; extensions are lower-case, dotted and in one format; names are lower-case letters and digits, listed once, and an element is in one list |
 
@@ -145,8 +149,9 @@ the operations it shows.
 - A step's tactics are those of its tools plus those of its activities.
 - `report list` counts, for each activity, the lines that show it. A loop counts once: the tool
   does not run the script.
-- `certutil`, `bitsadmin` and `reg` do too many things for a name to say which, so they have no
-  tactic in `tactics.json`: the activity found on the line gives one.
+- A name has a tactic in `tactics.json` only when the name alone says what the command does.
+  `certutil`, `bitsadmin`, `reg`, `curl`, `wget`, `Invoke-WebRequest`, `Invoke-RestMethod` and the
+  Python `requests` calls have none: the activity found on the line gives one.
 
 | Activity | Tactics |
 | --- | --- |
@@ -211,3 +216,19 @@ PowerShell `-EncodedCommand`, in any of its abbreviations, and a Base64 literal 
   searched for activities and indicators with the rest of the file.
 - Two layers are read: a payload that carries an encoded command is decoded once more.
 - A payload over 1 MiB of Base64 is left alone, and a file yields at most 32 payloads.
+
+## 10. Assessment
+
+`report list` ends with what the findings mean and what to do about them. Both come from data
+files, and `assess` holds no knowledge of its own.
+
+- An impact or an action applies when one of its triggers is in the evidence: an activity, the
+  tactic of a tool that ran, or a watchlist match. The tactics an activity adds do not trigger
+  anything: the activity is named directly, so a reflective load is not read as log clearing.
+- The basis and the files of each row say why it is there, so a reader can check the claim.
+- An impact lists up to five affected values of the indicator types it names, taken from the
+  files that show it; an address is cut to its host.
+- A test fails when an activity has no impact or no action, so a finding cannot be reported and
+  then left out of the assessment.
+- A notable file is one whose activities, tool tactics or watchlist matches reach the severity
+  asked for. A watchlist match is `high`.

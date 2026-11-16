@@ -80,6 +80,16 @@ func LoadPatterns() (Table, error) {
 	return Table{patterns: patterns}, nil
 }
 
+// Has reports whether the table declares the indicator type.
+func (t Table) Has(typ string) bool {
+	for _, p := range t.patterns {
+		if p.typ == typ {
+			return true
+		}
+	}
+	return false
+}
+
 // Extract returns every indicator found in text, deduplicated by value and
 // sorted by start position.
 func (t Table) Extract(text string) []Match {

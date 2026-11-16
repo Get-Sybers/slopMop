@@ -1,15 +1,34 @@
-METRIC                        VALUE
-files                         17
-scripts                       7
-outputs                       9
-indicators                    22
-indicators Domain             9
-indicators Email              3
-indicators IPv4               4
-indicators MD5                2
-indicators SHA1               1
-indicators URL                3
-activities                    1
-activities CertificateExport  1
-tactics                       4
-intel hits                    2
+ITEM                                    SECTION      VALUE   DETAIL
+files                                   summary      17      -
+scripts                                 summary      7       -
+outputs                                 summary      9       -
+indicators                              summary      22      -
+indicators Domain                       summary      9       -
+indicators Email                        summary      3       -
+indicators IPv4                         summary      4       -
+indicators MD5                          summary      2       -
+indicators SHA1                         summary      1       -
+indicators URL                          summary      3       -
+activities                              summary      2       -
+activities CertificateExport            summary      1       -
+activities FileUpload                   summary      1       -
+tactics                                 summary      4       -
+intel hits                              summary      2       -
+20250301_101530_step01_recon.txt        output       high    watchlist STORM-0940
+20250301_101800_step02_enum.sh          script       high    nxc (CredentialAccess), watchlist STORM-0940
+20250301_101845_step02_enum.log         output       high    watchlist STORM-0940
+20250301_102300_step03_adsync.sh        script       high    nxc (CredentialAccess), adconnectdump.py (CredentialAccess)
+20250301_103200_step05_certs.sh         script       high    certipy (CredentialAccess), watchlist STORM-0940
+20250301_104000_step06_auth.sh          script       high    certipy (CredentialAccess), secretsdump.py (CredentialAccess), nxc (CredentialAccess), watchlist STORM-0940
+20250301_104500_step07_exfil.sh         script       high    FileUpload, CertificateExport, nxc (CredentialAccess), watchlist STORM-0940
+Credentials exposed                     impact       high    Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.
+Known threat infrastructure involved    impact       high    The evidence names infrastructure on the watchlist, which ties the activity to a known actor.
+Data may have left the environment      impact       high    A transfer out was run. Confirm what was sent and where.
+Environment mapped                      impact       low     Identities, resources or configuration were listed. Later steps were probably aimed with the result.
+Rotate what was read                    remediation  high    Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.
+Block and hunt the infrastructure       remediation  high    Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.
+Scope the data taken                    remediation  high    Establish from audit logs which mailboxes, chats, sites and files were read or sent out, and assess that data as breached.
+Follow what was enumerated              remediation  low     Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
+Constrain living-off-the-land binaries  mitigation   medium  Use application control to stop system binaries that have no need to from fetching files or running code.
+Protect credentials on hosts            mitigation   medium  Turn on protection for the local security authority and its credential store, and restrict who may debug processes.
+Filter outbound traffic                 mitigation   medium  Deny outbound connections from servers by default and allow them by destination.

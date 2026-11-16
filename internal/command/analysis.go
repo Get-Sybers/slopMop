@@ -2,8 +2,10 @@ package command
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/get-sybers/slopmop/internal/activity"
+	"github.com/get-sybers/slopmop/internal/assess"
 	"github.com/get-sybers/slopmop/internal/cli"
 	"github.com/get-sybers/slopmop/internal/indicator"
 	"github.com/get-sybers/slopmop/internal/intel"
@@ -27,6 +29,7 @@ type pipeline struct {
 	activities activity.Table
 	patterns   indicator.Table
 	formats    structured.Table
+	assessment assess.Table
 }
 
 func loadPipeline() (pipeline, error) {
@@ -52,7 +55,40 @@ func loadPipeline() (pipeline, error) {
 	if err != nil {
 		return pipeline{}, err
 	}
-	return pipeline{tactics: tactics, activities: activities, patterns: patterns, formats: formats}, nil
+	assessment, err := loadAssessment(tactics, activities, patterns)
+	if err != nil {
+		return pipeline{}, err
+	}
+	return pipeline{
+		tactics: tactics, activities: activities, patterns: patterns, formats: formats, assessment: assessment,
+	}, nil
+}
+
+// loadAssessment checks that the impact and action tables name only what
+// the other tables declare.
+func loadAssessment(tactics tactic.Table, activities activity.Table, patterns indicator.Table) (assess.Table, error) {
+	table, err := assess.LoadTable()
+	if err != nil {
+		return assess.Table{}, err
+	}
+	known := activities.Names()
+	named, namedTactics, namedTypes := table.Names()
+	for _, name := range named {
+		if !slices.Contains(known, name) {
+			return assess.Table{}, fmt.Errorf("the assessment tables name the activity %q, which activities.json lacks", name)
+		}
+	}
+	for _, name := range namedTactics {
+		if !tactics.Has(name) {
+			return assess.Table{}, fmt.Errorf("the assessment tables name the tactic %q, which tactics.json lacks", name)
+		}
+	}
+	for _, typ := range namedTypes {
+		if !patterns.Has(typ) {
+			return assess.Table{}, fmt.Errorf("impacts.json names the indicator type %q, which indicators.json lacks", typ)
+		}
+	}
+	return table, nil
 }
 
 func (p pipeline) run(a *cli.Args) (analysis, error) {

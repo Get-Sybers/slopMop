@@ -332,6 +332,8 @@ func TestLolbinViews(t *testing.T) {
 		{"lolbin-trace", []string{"trace", "list"}},
 		{"lolbin-trace-wide", []string{"trace", "list", "-o", "wide"}},
 		{"lolbin-finding-activity", []string{"finding", "list", "-activity", "-o", "wide"}},
+		{"lolbin-report", []string{"report", "list"}},
+		{"lolbin-report-wide", []string{"report", "list", "-files", "-impact", "-remediation", "-mitigation", "-o", "wide"}},
 	}
 	for _, v := range views {
 		t.Run(v.golden, func(t *testing.T) {
@@ -348,6 +350,78 @@ func TestLolbinViews(t *testing.T) {
 	}
 	if !strings.Contains(roles, "step07_cleanup.bat") {
 		t.Errorf("scripts = %q, want the batch file among them", roles)
+	}
+}
+
+// A report is its sections in a fixed order, and a selector picks one.
+func TestReportSections(t *testing.T) {
+	folder := evidencetest.Copy(t, "lolbin")
+	base := []string{"report", "list", "--inputdir", folder, "--intelfile", watchlist, "--no-headers", "-o", "wide"}
+	whole, err := run(t, base...)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var joined string
+	for _, section := range []string{"-summary", "-files", "-impact", "-remediation", "-mitigation"} {
+		part, partErr := run(t, append(base, section)...)
+		if partErr != nil {
+			t.Fatal(partErr)
+		}
+		if part == "" {
+			t.Errorf("%s is empty", section)
+		}
+		joined += part
+	}
+	// Column widths differ between a part and the whole, so compare the words.
+	if got, want := strings.Fields(joined), strings.Fields(whole); !slices.Equal(got, want) {
+		t.Errorf("the sections together differ from the whole report")
+	}
+	files, err := run(t, "report", "list", "--inputdir", folder, "-files", "-q")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(files, "20261020_101500_step04_persist.ps1\n") || strings.Contains(files, "recon_20261020_100030.txt") {
+		t.Errorf("notable files = %q, want the persistence script and not the recon output", files)
+	}
+}
+
+func TestReportSeverity(t *testing.T) {
+	folder := evidencetest.Copy(t, "lolbin")
+	count := func(level string) int {
+		args := []string{"report", "list", "--inputdir", folder, "-files", "-q"}
+		if level != "" {
+			args = append(args, "--severity", level)
+		}
+		out, err := run(t, args...)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return strings.Count(out, "\n")
+	}
+	high, medium, low := count("high"), count("medium"), count("low")
+	if count("") != high || high >= medium || medium >= low {
+		t.Errorf("notable files: default %d, high %d, medium %d, low %d; want the default to be high and each level to add files", count(""), high, medium, low)
+	}
+	out, err := run(t, "report", "list", "--inputdir", folder, "--severity", "dire")
+	if !errors.Is(err, cli.ErrUsage) || err.Error() != `--severity takes low, medium or high, not "dire"` {
+		t.Errorf("error = %v, want the usage error that names the levels", err)
+	}
+	if out != "" {
+		t.Errorf("output = %q, want none", out)
+	}
+}
+
+// An activity with no impact or no action would be found and then left out
+// of the report an analyst acts on.
+func TestAssessmentCoversEveryActivity(t *testing.T) {
+	pipe, err := loadPipeline()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, name := range pipe.activities.Names() {
+		if !pipe.assessment.Covers(name) {
+			t.Errorf("%s has no impact or no action", name)
+		}
 	}
 }
 

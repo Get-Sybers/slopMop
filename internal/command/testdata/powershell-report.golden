@@ -1,14 +1,26 @@
-METRIC                        VALUE
-files                         16
-scripts                       6
-outputs                       9
-indicators                    13
-indicators Base64Blob         1
-indicators Domain             4
-indicators EncodedCommand     1
-indicators GUID               1
-indicators IPv4               3
-indicators SHA1               3
-activities                    1
-activities CertificateExport  1
-tactics                       4
+ITEM                                    SECTION      VALUE   DETAIL
+files                                   summary      16      -
+scripts                                 summary      6       -
+outputs                                 summary      9       -
+indicators                              summary      13      -
+indicators Base64Blob                   summary      1       -
+indicators Domain                       summary      4       -
+indicators EncodedCommand               summary      1       -
+indicators GUID                         summary      1       -
+indicators IPv4                         summary      3       -
+indicators SHA1                         summary      3       -
+activities                              summary      1       -
+activities CertificateExport            summary      1       -
+tactics                                 summary      4       -
+20250302_090500_step02_sync.ps1         script       high    invoke-command (LateralMovement)
+20250302_090900_step03_sync_retry.ps1   script       high    get-credential (CredentialAccess), invoke-command (LateralMovement)
+20250302_091500_step04_certs.ps1        script       high    invoke-command (LateralMovement)
+20250302_092200_step05_export.ps1       script       high    CertificateExport, export-certificate (CredentialAccess), new-selfsignedcertificate (CredentialAccess)
+Credentials exposed                     impact       high    Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.
+Movement to other systems               impact       high    Tools that reach other systems were run. Hosts beyond this one may be affected.
+Environment mapped                      impact       low     Identities, resources or configuration were listed. Later steps were probably aimed with the result.
+Revoke sessions and reset identities    remediation  high    Revoke the sessions and tokens of every identity in the evidence and reset its credentials.
+Rotate what was read                    remediation  high    Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.
+Follow what was enumerated              remediation  low     Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
+Constrain living-off-the-land binaries  mitigation   medium  Use application control to stop system binaries that have no need to from fetching files or running code.
+Protect credentials on hosts            mitigation   medium  Turn on protection for the local security authority and its credential store, and restrict who may debug processes.

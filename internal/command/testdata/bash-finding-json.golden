@@ -8,9 +8,17 @@
     "attribution": null
   },
   {
+    "finding": "FileUpload",
+    "severity": "high",
+    "tactic": "Exfiltration",
+    "indicator": null,
+    "files": "20250301_104500_step07_exfil.sh",
+    "attribution": null
+  },
+  {
     "finding": "Domain",
     "severity": "high",
-    "tactic": "CredentialAccess, Exfiltration",
+    "tactic": "CredentialAccess",
     "indicator": "adfs.corp.example",
     "files": "20250301_103200_step05_certs.sh",
     "attribution": null
@@ -18,7 +26,7 @@
   {
     "finding": "Domain",
     "severity": "high",
-    "tactic": "CredentialAccess, Exfiltration",
+    "tactic": "CredentialAccess",
     "indicator": "ca01.corp.example",
     "files": "20250301_101530_step01_recon.txt, 20250301_103200_step05_certs.sh, 20250301_103240_certipy_find.txt",
     "attribution": null
@@ -26,7 +34,7 @@
   {
     "finding": "Domain",
     "severity": "high",
-    "tactic": "CredentialAccess, Discovery, Execution, Exfiltration",
+    "tactic": "CredentialAccess, Discovery, Execution",
     "indicator": "corp.example",
     "files": "20250301_101800_step02_enum.sh, 20250301_101845_step02_enum.log, 20250301_102300_step03_adsync.sh, 20250301_102700_step03_adsync_v2.sh, 20250301_103200_step05_certs.sh, 20250301_103240_certipy_find.txt, 20250301_104000_step06_auth.sh, 20250301_104010_step06_auth.txt",
     "attribution": null
@@ -42,7 +50,7 @@
   {
     "finding": "Email",
     "severity": "high",
-    "tactic": "CredentialAccess, Exfiltration",
+    "tactic": "CredentialAccess",
     "indicator": "MSOL_USER@corp.example",
     "files": "20250301_103200_step05_certs.sh",
     "attribution": null
@@ -50,7 +58,7 @@
   {
     "finding": "Email",
     "severity": "high",
-    "tactic": "CredentialAccess, Exfiltration",
+    "tactic": "CredentialAccess",
     "indicator": "administrator@corp.example",
     "files": "20250301_103200_step05_certs.sh, 20250301_103240_certipy_find.txt, 20250301_104010_step06_auth.txt",
     "attribution": null
@@ -74,7 +82,7 @@
   {
     "finding": "IPv4",
     "severity": "high",
-    "tactic": "CredentialAccess, Discovery, Exfiltration",
+    "tactic": "CredentialAccess, Discovery",
     "indicator": "10.20.1.5",
     "files": "20250301_101530_step01_recon.txt, 20250301_101800_step02_enum.sh, 20250301_101845_step02_enum.log, 20250301_103200_step05_certs.sh, 20250301_104000_step06_auth.sh",
     "attribution": null
@@ -132,7 +140,7 @@
     "severity": "high",
     "tactic": "Exfiltration",
     "indicator": null,
-    "files": "20250301_103200_step05_certs.sh, 20250301_104500_step07_exfil.sh",
+    "files": "20250301_104500_step07_exfil.sh",
     "attribution": null
   },
   {

@@ -174,11 +174,13 @@
         "(?i)\\.Download(?:String|Data|File)(?:Async|TaskAsync)?\\(",
         "(?i)\\binvoke-webrequest\\b.*\\s-outfile\\b",
         "(?i)\\biwr\\b.*\\s-outfile\\b",
-        "(?i)\\b(?:curl|wget)(?:\\.exe)?\\b.*\\s-(?:o|-output|outfile)\\b",
+        "(?i)\\bcurl(?:\\.exe)?\\b.*\\s-(?:o|-output|-remote-name)\\b",
+        "(?i)\\bwget(?:\\.exe)?\\b\\s.*(?:https?|ftp)://",
         "(?i)\\bHttpClient\\b.*\\.Get(?:String|ByteArray|Stream)?Async\\(",
-        "(?i)\\b(?:HttpWebRequest|WebRequest)\\]::Create\\("
+        "(?i)\\b(?:HttpWebRequest|WebRequest)\\]::Create\\(",
+        "(?i)\\burlretrieve\\("
       ],
-      "unless": "(?i)/upload\\b|-transfertype\\s+upload\\b"
+      "unless": "(?i)/upload\\b|-transfertype\\s+upload\\b|--post-(?:file|data)\\b|--spider\\b"
     },
     {
       "name": "FileUpload",
@@ -186,7 +188,13 @@
       "patterns": [
         "(?i)\\bbitsadmin(?:\\.exe)?\\b.*/upload\\b",
         "(?i)\\bstart-bitstransfer\\b.*-transfertype\\s+upload\\b",
-        "(?i)\\.Upload(?:File|Data|String|Values)(?:Async|TaskAsync)?\\("
+        "(?i)\\.Upload(?:File|Data|String|Values)(?:Async|TaskAsync)?\\(",
+        "(?i)\\bcurl(?:\\.exe)?\\b.*\\s(?:-T|--upload-file|--data-binary\\s+@|-F\\s+\\S*=@)",
+        "(?i)\\bwget(?:\\.exe)?\\b.*--post-file\\b",
+        "(?i)\\b(?:invoke-webrequest|invoke-restmethod)\\b.*\\s-infile\\b",
+        "(?i)\\biwr\\b.*\\s-infile\\b",
+        "(?i)\\birm\\b.*\\s-infile\\b",
+        "(?i)\\brequests\\.(?:post|put)\\(.*\\bfiles\\s*="
       ]
     },
     {
@@ -197,7 +205,8 @@
         "(?i)\\.Download(?:String|Data)\\(.*\\|\\s*(?:iex|invoke-expression)\\b",
         "(?i)\\b(?:invoke-webrequest|invoke-restmethod)\\b.*\\|\\s*(?:iex|invoke-expression)\\b",
         "(?i)\\biwr\\b.*\\|\\s*(?:iex|invoke-expression)\\b",
-        "(?i)\\birm\\b.*\\|\\s*(?:iex|invoke-expression)\\b"
+        "(?i)\\birm\\b.*\\|\\s*(?:iex|invoke-expression)\\b",
+        "(?i)\\b(?:curl|wget)(?:\\.exe)?\\b.*\\|\\s*(?:sudo\\s+)?(?:ba|z|da)?sh\\b"
       ]
     },
     {

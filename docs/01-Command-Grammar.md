@@ -65,7 +65,9 @@ rows print, then the command fails with exit code 1 and an error that names each
 | `slopmop file list --inputdir case42/ai_workdir --recursive` | every file in the directory and its sub-folders |
 | `slopmop trace list --inputdir case42/ai_workdir -r` | the timeline across the sub-folders |
 | `slopmop finding list --inputdir case42/ai_workdir -activity -r` | the activities found, across the sub-folders |
-| `slopmop report list --inputdir case42/ai_workdir --intelfile watchlist.json` | the counts, with the watchlist matches |
+| `slopmop report list --inputdir case42/ai_workdir --intelfile watchlist.json` | the whole report, with the watchlist matches |
+| `slopmop report list --inputdir case42/ai_workdir -impact -remediation` | two sections of the report |
+| `slopmop report list --inputdir case42/ai_workdir -files --severity medium` | the files with a finding of medium severity or above |
 
 ## 5. Fails
 

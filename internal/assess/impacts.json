@@ -1,0 +1,86 @@
+[
+  {
+    "name": "Privileged access obtained",
+    "severity": "high",
+    "statement": "A principal was given a privileged role or permission. Treat what it governs as under attacker control until reviewed.",
+    "activities": ["GlobalAdministratorAssignment", "RoleAssignment", "AppRoleAssignment"],
+    "tactics": ["PrivilegeEscalation"]
+  },
+  {
+    "name": "Credentials exposed",
+    "severity": "high",
+    "statement": "Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.",
+    "activities": ["KeyVaultSecretRead", "KeyVaultKeyUnwrap", "LsassDump", "RegistryHiveDump", "CertificateExport"],
+    "tactics": ["CredentialAccess"],
+    "affected": ["KeyVaultEndpoint"]
+  },
+  {
+    "name": "Persistence established",
+    "severity": "high",
+    "statement": "A way back in was created: a credential, a run key, a task or a service. Access survives a password reset.",
+    "activities": ["AppCredentialAddition", "RunKeyPersistence", "ScheduledTaskCreation", "ServiceCreation"],
+    "tactics": ["Persistence"]
+  },
+  {
+    "name": "Valid identity used",
+    "severity": "high",
+    "statement": "The attacker signed in as an identity that exists. Sign-in controls did not stop it.",
+    "activities": ["TokenRequest"],
+    "tactics": ["InitialAccess"]
+  },
+  {
+    "name": "Known threat infrastructure involved",
+    "severity": "high",
+    "statement": "The evidence names infrastructure on the watchlist, which ties the activity to a known actor.",
+    "watchlist": true
+  },
+  {
+    "name": "Data collected",
+    "severity": "high",
+    "statement": "Mail, chat or documents were read in bulk. Treat their content as disclosed.",
+    "activities": ["MailboxAccess", "TeamsMessageAccess", "SharePointEnumeration"],
+    "tactics": ["Collection"],
+    "affected": ["Email"]
+  },
+  {
+    "name": "Data may have left the environment",
+    "severity": "high",
+    "statement": "A transfer out was run. Confirm what was sent and where.",
+    "activities": ["FileUpload"],
+    "tactics": ["Exfiltration"]
+  },
+  {
+    "name": "Outside hosts contacted",
+    "severity": "high",
+    "statement": "Files or commands were fetched from, or a channel was opened to, hosts outside the environment.",
+    "activities": ["FileDownload", "DownloadAndExecute", "NetworkSocket"],
+    "tactics": ["CommandAndControl"],
+    "affected": ["IPv4"]
+  },
+  {
+    "name": "Movement to other systems",
+    "severity": "high",
+    "statement": "Tools that reach other systems were run. Hosts beyond this one may be affected.",
+    "tactics": ["LateralMovement"]
+  },
+  {
+    "name": "Defences and logging impaired",
+    "severity": "high",
+    "statement": "Logs were cleared or security tooling was interfered with. Records of this period are incomplete.",
+    "activities": ["EventLogClearing", "AmsiBypass"],
+    "tactics": ["DefenseEvasion"]
+  },
+  {
+    "name": "Code run outside normal controls",
+    "severity": "medium",
+    "statement": "Code was run in ways that avoid application control and leave little on disk.",
+    "activities": ["ReflectiveCodeLoading", "NativeApiCall", "SignedBinaryProxyExecution", "RuntimeCompilation", "DownloadAndExecute", "ProcessStart"]
+  },
+  {
+    "name": "Environment mapped",
+    "severity": "low",
+    "statement": "Identities, resources or configuration were listed. Later steps were probably aimed with the result.",
+    "activities": ["GraphDirectoryEnumeration", "AzureResourceEnumeration", "KeyVaultKeyEnumeration", "DirectorySearch", "RegistryQuery"],
+    "tactics": ["Discovery"]
+  }
+]

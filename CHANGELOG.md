@@ -6,6 +6,32 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Added
+
+- `report list` lists the notable files after the counts: each script, output or other file that
+  holds a finding at or above `--severity` (`high` unless given), with what was found in it and the
+  files it is linked to.
+- `report list` gives an impact report: what the findings mean, such as credentials exposed,
+  persistence established or defences impaired, with the files that show it and the hosts or
+  addresses affected.
+- `report list` gives a remediation and a mitigation report: the actions the findings call for,
+  each with a priority.
+- Selectors `-summary`, `-files`, `-impact`, `-remediation` and `-mitigation` for `report list`.
+- Package `internal/assess` and its data files `impacts.json` and `actions.json`, embedded and
+  validated at load. A test fails when an activity has no impact or no action.
+- Activities recognise an upload by `curl`, `wget`, `Invoke-WebRequest`, `Invoke-RestMethod` and
+  the Python `requests` calls, a download by `wget` and `urlretrieve`, and `curl` piped to a shell.
+- `cli.Usagef`, the usage error of a verb that rejects the value of a param.
+
+### Changed
+
+- The columns of `report list` are ITEM, SECTION, VALUE and DETAIL, with BASIS and FILES in the
+  wide view; they were METRIC and VALUE. The counts keep their names and are the `summary` section.
+- `curl`, `wget`, `Invoke-WebRequest`, `Invoke-RestMethod`, the Python `requests` and `urllib`
+  calls, `openssl` and `base64` have no tactic of their own: they were Exfiltration whatever they
+  did. The activity on the line gives the tactic.
+- The Python `socket` calls are CommandAndControl; they were Exfiltration.
+
 ## [0.2.1] - 2026-11-16
 
 ### Added
