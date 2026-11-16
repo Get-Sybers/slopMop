@@ -54,6 +54,12 @@ func (t Table) Severity(tactic string) Severity {
 	return Low
 }
 
+// Has reports whether the table declares the tactic.
+func (t Table) Has(tactic string) bool {
+	_, ok := t.severity[tactic]
+	return ok
+}
+
 // LoadTactics reads and validates the embedded tactics.json.
 func LoadTactics() (Table, error) {
 	entries, err := decode(raw)

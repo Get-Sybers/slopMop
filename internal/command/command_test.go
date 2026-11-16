@@ -244,4 +244,94 @@ func TestRecursiveReportsFoldersBelowTheLimit(t *testing.T) {
 			}
 		})
 	}
+	for _, noun := range []string{"finding", "report"} {
+		t.Run(noun, func(t *testing.T) {
+			out, err := run(t, noun, "list", "--inputdir", folder, "-r")
+			if err == nil || !strings.Contains(err.Error(), "1 folder(s) not read") {
+				t.Errorf("error = %v, want the folder that was not read", err)
+			}
+			if out == "" {
+				t.Error("no rows before the error")
+			}
+		})
+	}
+}
+
+// The aggregates read sub-folders only when asked, as file and trace do.
+func TestAggregatesRecursive(t *testing.T) {
+	folder := evidencetest.Copy(t, "entra")
+	nest(t, folder, "step05", "vault")
+	nest(t, folder, "agent_", "logs/run1")
+	flat, err := run(t, "finding", "list", "-activity", "-q", "--inputdir", folder)
+	if err != nil {
+		t.Fatal(err)
+	}
+	deep, err := run(t, "findings", "ls", "-activity", "-q", "--recursive", "--inputdir", folder)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, name := range []string{"KeyVaultSecretRead", "KeyVaultKeyUnwrap", "AzureResourceEnumeration"} {
+		if strings.Contains(flat, name) || !strings.Contains(deep, name) {
+			t.Errorf("%s: want it only in the recursive findings\nflat: %q\nrecursive: %q", name, flat, deep)
+		}
+	}
+	for _, c := range []struct{ golden, flag string }{
+		{"entra-nested-report-flat", ""},
+		{"entra-nested-report-recursive", "-r"},
+	} {
+		args := []string{"report", "list", "--inputdir", folder}
+		if c.flag != "" {
+			args = append(args, c.flag)
+		}
+		out, err := run(t, args...)
+		if err != nil {
+			t.Fatal(err)
+		}
+		golden.Check(t, c.golden, []byte(out))
+	}
+}
+
+// The scenario of the entra fixture, with the attacker's range as the watchlist.
+func TestActivityViews(t *testing.T) {
+	folder := evidencetest.Copy(t, "entra")
+	ranges := filepath.Join(t.TempDir(), "ranges.json")
+	if err := os.WriteFile(ranges, []byte(`[{"value": "144.172.64.0/24", "attribution": "STORM-0940"}]`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	views := []struct {
+		golden string
+		args   []string
+	}{
+		{"entra-trace", []string{"trace", "list"}},
+		{"entra-trace-range-wide", []string{"trace", "list", "-o", "wide", "--intelfile", ranges}},
+		{"entra-trace-range-json", []string{"trace", "list", "-script", "-o", "json", "--intelfile", ranges}},
+		{"entra-finding-activity", []string{"finding", "list", "-activity", "-o", "wide"}},
+		{"entra-finding-activity-quiet", []string{"finding", "list", "-activity", "-q"}},
+		{"entra-finding-range", []string{"finding", "list", "-indicator", "--intelfile", ranges}},
+		{"entra-report-range", []string{"report", "list", "--intelfile", ranges}},
+	}
+	for _, v := range views {
+		t.Run(v.golden, func(t *testing.T) {
+			out, err := run(t, append(v.args, "--inputdir", folder)...)
+			if err != nil {
+				t.Fatal(err)
+			}
+			golden.Check(t, v.golden, []byte(out))
+		})
+	}
+}
+
+func TestPipelineRejectsAnUnknownTactic(t *testing.T) {
+	pipe, err := loadPipeline()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, name := range pipe.activities.Tactics() {
+		if !pipe.tactics.Has(name) {
+			t.Errorf("activities.json names %s, which tactics.json lacks", name)
+		}
+	}
+	if pipe.tactics.Has("NoSuchTactic") {
+		t.Error("Has reports a tactic the table lacks")
+	}
 }

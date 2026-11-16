@@ -1,0 +1,317 @@
+// Package activity recognises what a line of evidence does: a role
+// assignment, a mailbox read, a Key Vault secret read. A tactic table names
+// the command that ran; this table names the operation it carried out.
+package activity
+
+import (
+	"bytes"
+	_ "embed"
+	"encoding/json"
+	"fmt"
+	"regexp"
+	"regexp/syntax"
+	"strings"
+	"unicode/utf8"
+)
+
+//go:embed activities.json
+var raw []byte
+
+// continued joins a line that ends in a bash backslash or a PowerShell
+// backtick to the line after it.
+//
+//nolint:gochecknoglobals // a constant replacer
+var continued = strings.NewReplacer("\\\r\n", " ", "\\\n", " ", "`\r\n", " ", "`\n", " ")
+
+type document struct {
+	// Contexts names patterns that say what a whole text is about.
+	Contexts   map[string]string `json:"contexts"`
+	Activities []entry           `json:"activities"`
+}
+
+type entry struct {
+	Name     string   `json:"name"`
+	Tactics  []string `json:"tactics"`
+	Patterns []string `json:"patterns,omitempty"`
+	// Paths count only in a text that matches the entry's context: a script
+	// often holds a host in one variable and builds each address from it.
+	Context string   `json:"context,omitempty"`
+	Paths   []string `json:"paths,omitempty"`
+	// Unless is an optional pattern; a line that matches it does not count.
+	// RE2 has no lookahead, so the exclusion is checked here.
+	Unless string `json:"unless,omitempty"`
+}
+
+// Hit is one activity found in a text.
+type Hit struct {
+	Name    string
+	Tactics []string
+	// Lines is the number of distinct lines that show the activity.
+	Lines int
+}
+
+// Table holds the compiled activity patterns, in the order of the data file.
+type Table struct {
+	contexts   map[string]pattern
+	activities []compiled
+}
+
+type compiled struct {
+	name     string
+	tactics  []string
+	patterns []pattern
+	context  string
+	paths    []pattern
+	unless   *regexp.Regexp
+}
+
+// pattern is a compiled expression and the literals one of which every
+// match holds, in lower case. Looking for a literal is far cheaper than
+// running the expression, so only the lines that hold one are tried.
+type pattern struct {
+	rx       *regexp.Regexp
+	literals [][]byte
+}
+
+// LoadActivities decodes activities.json and compiles each pattern.
+func LoadActivities() (Table, error) {
+	return decode(raw)
+}
+
+func decode(data []byte) (Table, error) {
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.DisallowUnknownFields()
+	var doc document
+	if err := dec.Decode(&doc); err != nil {
+		return Table{}, fmt.Errorf("activities.json: %w", err)
+	}
+	if dec.More() {
+		return Table{}, fmt.Errorf("activities.json: trailing data")
+	}
+	if len(doc.Activities) == 0 {
+		return Table{}, fmt.Errorf("activities.json: no activities")
+	}
+	t := Table{contexts: map[string]pattern{}}
+	for name, expr := range doc.Contexts {
+		p, err := compile(expr)
+		if err != nil {
+			return Table{}, fmt.Errorf("activities.json context %s: %w", name, err)
+		}
+		t.contexts[name] = p
+	}
+	seen := map[string]bool{}
+	for i, e := range doc.Activities {
+		_, known := t.contexts[e.Context]
+		switch {
+		case e.Name == "":
+			return Table{}, fmt.Errorf("activities.json[%d]: empty name", i)
+		case seen[e.Name]:
+			return Table{}, fmt.Errorf("activities.json[%d]: %s is named twice", i, e.Name)
+		case len(e.Tactics) == 0:
+			return Table{}, fmt.Errorf("activities.json[%d] %s: no tactics", i, e.Name)
+		case len(e.Patterns)+len(e.Paths) == 0:
+			return Table{}, fmt.Errorf("activities.json[%d] %s: no patterns", i, e.Name)
+		case (e.Context == "") != (len(e.Paths) == 0):
+			return Table{}, fmt.Errorf("activities.json[%d] %s: paths and a context go together", i, e.Name)
+		case e.Context != "" && !known:
+			return Table{}, fmt.Errorf("activities.json[%d] %s: unknown context %q", i, e.Name, e.Context)
+		}
+		seen[e.Name] = true
+		c := compiled{name: e.Name, tactics: e.Tactics, context: e.Context}
+		var err error
+		if c.patterns, err = compileAll(e.Patterns); err != nil {
+			return Table{}, fmt.Errorf("activities.json[%d] %s: %w", i, e.Name, err)
+		}
+		if c.paths, err = compileAll(e.Paths); err != nil {
+			return Table{}, fmt.Errorf("activities.json[%d] %s: %w", i, e.Name, err)
+		}
+		if e.Unless != "" {
+			if c.unless, err = regexp.Compile(e.Unless); err != nil {
+				return Table{}, fmt.Errorf("activities.json[%d] %s unless: %w", i, e.Name, err)
+			}
+		}
+		t.activities = append(t.activities, c)
+	}
+	return t, nil
+}
+
+func compileAll(exprs []string) ([]pattern, error) {
+	compiled := make([]pattern, 0, len(exprs))
+	for _, expr := range exprs {
+		p, err := compile(expr)
+		if err != nil {
+			return nil, err
+		}
+		compiled = append(compiled, p)
+	}
+	return compiled, nil
+}
+
+func compile(expr string) (pattern, error) {
+	rx, err := regexp.Compile(expr)
+	if err != nil {
+		return pattern{}, err
+	}
+	p := pattern{rx: rx}
+	if tree, err := syntax.Parse(expr, syntax.Perl); err == nil {
+		for _, lit := range required(tree) {
+			p.literals = append(p.literals, []byte(lit))
+		}
+	}
+	return p, nil
+}
+
+// minLiteral is the shortest literal worth looking for; a shorter one is in
+// nearly every line.
+const minLiteral = 3
+
+// required returns lower-case literals of which every match of re holds at
+// least one, or nil when the expression promises none.
+func required(re *syntax.Regexp) []string {
+	switch re.Op {
+	case syntax.OpLiteral:
+		lit := strings.ToLower(string(re.Rune))
+		for _, r := range lit {
+			if r >= utf8.RuneSelf {
+				return nil
+			}
+		}
+		if len(lit) < minLiteral {
+			return nil
+		}
+		return []string{lit}
+	case syntax.OpCapture, syntax.OpPlus:
+		return required(re.Sub[0])
+	case syntax.OpRepeat:
+		if re.Min > 0 {
+			return required(re.Sub[0])
+		}
+	case syntax.OpConcat:
+		// Every part must match, so any part's literals serve; the longest are the rarest.
+		var best []string
+		for _, sub := range re.Sub {
+			if lits := required(sub); shortest(lits) > shortest(best) {
+				best = lits
+			}
+		}
+		return best
+	case syntax.OpAlternate:
+		var all []string
+		for _, sub := range re.Sub {
+			lits := required(sub)
+			if lits == nil {
+				return nil
+			}
+			all = append(all, lits...)
+		}
+		return all
+	}
+	return nil
+}
+
+func shortest(lits []string) int {
+	if len(lits) == 0 {
+		return 0
+	}
+	n := len(lits[0])
+	for _, lit := range lits[1:] {
+		n = min(n, len(lit))
+	}
+	return n
+}
+
+// Tactics lists every tactic name the table assigns, so a caller that holds
+// the tactic table can check that each one exists.
+func (t Table) Tactics() []string {
+	seen := map[string]bool{}
+	var names []string
+	for _, a := range t.activities {
+		for _, name := range a.tactics {
+			if !seen[name] {
+				seen[name] = true
+				names = append(names, name)
+			}
+		}
+	}
+	return names
+}
+
+// Detect returns the activities a text shows, in the order of the data
+// file. A command continued over several lines counts as one line.
+func (t Table) Detect(text string) []Hit {
+	if strings.Contains(text, "\\\n") || strings.Contains(text, "\\\r") || strings.Contains(text, "`\n") || strings.Contains(text, "`\r") {
+		text = continued.Replace(text)
+	}
+	// Only A to Z are folded, so an offset in lower is the same offset in text.
+	lower := []byte(text)
+	for i, c := range lower {
+		if c >= 'A' && c <= 'Z' {
+			lower[i] = c + ('a' - 'A')
+		}
+	}
+	inContext := map[string]bool{}
+	for name, p := range t.contexts {
+		inContext[name] = len(p.lines(text, lower, nil, 1)) > 0
+	}
+	var hits []Hit
+	for _, a := range t.activities {
+		patterns := a.patterns
+		if inContext[a.context] {
+			patterns = append(patterns[:len(patterns):len(patterns)], a.paths...)
+		}
+		lines := map[int]bool{}
+		for _, p := range patterns {
+			for _, start := range p.lines(text, lower, a.unless, -1) {
+				lines[start] = true
+			}
+		}
+		if len(lines) > 0 {
+			hits = append(hits, Hit{Name: a.name, Tactics: a.tactics, Lines: len(lines)})
+		}
+	}
+	return hits
+}
+
+// lines returns the start of each line the pattern matches and unless does
+// not, stopping after limit lines when limit is positive.
+func (p pattern) lines(text string, lower []byte, unless *regexp.Regexp, limit int) []int {
+	var found []int
+	tried := map[int]bool{}
+	try := func(pos int) (next int) {
+		start, end := lineAround(text, pos)
+		if !tried[start] {
+			tried[start] = true
+			line := text[start:end]
+			if p.rx.MatchString(line) && (unless == nil || !unless.MatchString(line)) {
+				found = append(found, start)
+			}
+		}
+		return end
+	}
+	if len(p.literals) == 0 {
+		for pos := 0; pos < len(text) && len(found) != limit; pos++ {
+			pos = try(pos)
+		}
+		return found
+	}
+	for _, lit := range p.literals {
+		for pos := 0; len(found) != limit; {
+			i := bytes.Index(lower[pos:], lit)
+			if i < 0 {
+				break
+			}
+			pos = try(pos + i)
+		}
+	}
+	return found
+}
+
+// lineAround returns the bounds of the line that holds the byte at pos.
+func lineAround(text string, pos int) (start, end int) {
+	start = strings.LastIndexByte(text[:pos], '\n') + 1
+	end = len(text)
+	if i := strings.IndexByte(text[pos:], '\n'); i >= 0 {
+		end = pos + i
+	}
+	return start, end
+}

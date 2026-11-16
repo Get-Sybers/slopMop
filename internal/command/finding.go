@@ -2,6 +2,7 @@ package command
 
 import (
 	"errors"
+	"slices"
 	"sort"
 	"strings"
 
@@ -13,11 +14,13 @@ import (
 )
 
 const (
+	kindActivity  = "activity"
 	kindIndicator = "indicator"
 	kindTactic    = "tactic"
 )
 
-// finding is one detection: a distinct indicator value, or a tactic cluster.
+// finding is one detection: an activity, a distinct indicator value, or a
+// tactic cluster.
 type finding struct {
 	kind         string
 	label        string
@@ -41,10 +44,12 @@ func (e Env) findingList(v verbSpec) (*cli.Verb, error) {
 	}
 	spec := cli.Spec{
 		Selectors: map[string]string{
+			kindActivity:  "show only activity findings",
 			kindIndicator: "show only indicator findings",
 			kindTactic:    "show only tactic findings",
 		},
 		Params:   map[string]string{inputDir: "<folder>", intelFile: "<file>"},
+		Switches: recursiveSwitch(),
 		Required: []string{inputDir},
 	}
 	return cli.ListVerb(v.Summary, spec, func(a *cli.Args) error {
@@ -68,12 +73,15 @@ func (e Env) findingList(v verbSpec) (*cli.Verb, error) {
 			}
 			table.Rows = append(table.Rows, row)
 		}
-		return render.Write(e.Stdout, table, e.options(a.Output))
+		if err := render.Write(e.Stdout, table, e.options(a.Output)); err != nil {
+			return err
+		}
+		return skippedError(result.skipped)
 	}), nil
 }
 
-// listFindings aggregates the timeline: one finding per distinct indicator
-// and one per tactic, most severe first.
+// listFindings aggregates the timeline: one finding per activity, one per
+// distinct indicator and one per tactic, most severe first.
 func listFindings(a analysis, tactics tactic.Table) []finding {
 	// An output inherits the tactics of the scripts that write it.
 	inherited := map[string][]string{}
@@ -82,11 +90,21 @@ func listFindings(a analysis, tactics tactic.Table) []finding {
 			inherited[out] = append(inherited[out], s.Tactics...)
 		}
 	}
+	byActivity := map[string]*finding{}
 	byIndicator := map[string]*finding{}
 	byTactic := map[string]*finding{}
 	var order []*finding
 	for _, s := range a.timeline.Steps {
 		path := s.File.Path
+		for _, hit := range s.Activities {
+			f, ok := byActivity[hit.Name]
+			if !ok {
+				f = &finding{kind: kindActivity, label: hit.Name, tactics: slices.Clone(hit.Tactics)}
+				byActivity[hit.Name] = f
+				order = append(order, f)
+			}
+			f.files = appendUnique(f.files, path)
+		}
 		if s.File.Role == evidence.Script {
 			for _, name := range s.Tactics {
 				f, ok := byTactic[name]

@@ -1,0 +1,112 @@
+[
+  {
+    "name": "20261015_090000_step01_token.sh",
+    "role": "script",
+    "size": 471,
+    "lines": 8,
+    "modified": "2026-10-15T09:00:03Z",
+    "sha256": "68ea86f685cf59e20f19849fd3a97ed4239d9fe4fa23e5e4d7cbe82c79abed3c",
+    "name_time": "20261015_090000",
+    "note": null
+  },
+  {
+    "name": "20261015_090500_step02_recon.ps1",
+    "role": "script",
+    "size": 392,
+    "lines": 5,
+    "modified": "2026-10-15T09:05:03Z",
+    "sha256": "3a8b5389ce3c2ccc0cfc1efdb6740474bdf9d97731d500e372478ac2ef30ddf6",
+    "name_time": "20261015_090500",
+    "note": null
+  },
+  {
+    "name": "20261015_091000_step03_escalate.ps1",
+    "role": "script",
+    "size": 558,
+    "lines": 5,
+    "modified": "2026-10-15T09:10:03Z",
+    "sha256": "ce6bdc02d4a6bbeb1d16fcd929a4f1bf66605dd56b0459def4802da94ea0220b",
+    "name_time": "20261015_091000",
+    "note": null
+  },
+  {
+    "name": "20261015_092000_step04_collect.py",
+    "role": "script",
+    "size": 751,
+    "lines": 13,
+    "modified": "2026-10-15T09:20:03Z",
+    "sha256": "4e65cca687d96850f7136b7f5c3e9308a7dc1613ae41999be94b2901248ca8d2",
+    "name_time": "20261015_092000",
+    "note": null
+  },
+  {
+    "name": "20261015_093000_step05_vault.sh",
+    "role": "script",
+    "size": 551,
+    "lines": 8,
+    "modified": "2026-10-15T09:30:03Z",
+    "sha256": "499c890a78e95dcb56d62e9961f7327a6c442a8502764505d82f661636b814bb",
+    "name_time": "20261015_093000",
+    "note": null
+  },
+  {
+    "name": "agent_20261015_093500.jsonl",
+    "role": "output",
+    "size": 513,
+    "lines": 3,
+    "modified": "2026-10-15T09:35:03Z",
+    "sha256": "674461c3c664270ea109d263a1cbe38bfacb31b2743f6a343b18ca986a2467f2",
+    "name_time": "20261015_093500",
+    "note": null
+  },
+  {
+    "name": "collect_20261015_092040.txt",
+    "role": "output",
+    "size": 81,
+    "lines": 1,
+    "modified": "2026-10-15T09:20:43Z",
+    "sha256": "3da84e12164576bffb8018c3e135cd8f8e5050cc9b20660daa9089af527d9e0d",
+    "name_time": "20261015_092040",
+    "note": null
+  },
+  {
+    "name": "directory_20261015_090530.txt",
+    "role": "output",
+    "size": 96,
+    "lines": 1,
+    "modified": "2026-10-15T09:05:33Z",
+    "sha256": "24f01da11856a9247e9ebcbba7e925603e836a3c474a7a6a5852fba474aaf6f4",
+    "name_time": "20261015_090530",
+    "note": null
+  },
+  {
+    "name": "secrets_20261015_093030.txt",
+    "role": "output",
+    "size": 20,
+    "lines": 2,
+    "modified": "2026-10-15T09:30:33Z",
+    "sha256": "dece3a43c8ea70975e7e3968269a096b70a3feb5fdd83f0d30ccdf8747a421b3",
+    "name_time": "20261015_093030",
+    "note": null
+  },
+  {
+    "name": "token_20261015_090010.json",
+    "role": "output",
+    "size": 42,
+    "lines": 1,
+    "modified": "2026-10-15T09:00:13Z",
+    "sha256": "25366e5811d789045a94837937a8dd87f6c64315057f71ca07daef21469895ce",
+    "name_time": "20261015_090010",
+    "note": null
+  },
+  {
+    "name": "vaults_20261015_093010.txt",
+    "role": "output",
+    "size": 19,
+    "lines": 2,
+    "modified": "2026-10-15T09:30:13Z",
+    "sha256": "5b58753722d16be65082912d75c9d54583daf18c1f8ab9e03b6615b9fc293fb9",
+    "name_time": "20261015_093010",
+    "note": null
+  }
+]

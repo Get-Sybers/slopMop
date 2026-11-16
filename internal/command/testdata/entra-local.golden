@@ -1,0 +1,12 @@
+NAME                                 ROLE    SIZE   LINES  MODIFIED
+20261015_090000_step01_token.sh      script  471 B  8      2026-10-15T19:00:03+10:00
+20261015_090500_step02_recon.ps1     script  392 B  5      2026-10-15T19:05:03+10:00
+20261015_091000_step03_escalate.ps1  script  558 B  5      2026-10-15T19:10:03+10:00
+20261015_092000_step04_collect.py    script  751 B  13     2026-10-15T19:20:03+10:00
+20261015_093000_step05_vault.sh      script  551 B  8      2026-10-15T19:30:03+10:00
+agent_20261015_093500.jsonl          output  513 B  3      2026-10-15T19:35:03+10:00
+collect_20261015_092040.txt          output  81 B   1      2026-10-15T19:20:43+10:00
+directory_20261015_090530.txt        output  96 B   1      2026-10-15T19:05:33+10:00
+secrets_20261015_093030.txt          output  20 B   2      2026-10-15T19:30:33+10:00
+token_20261015_090010.json           output  42 B   1      2026-10-15T19:00:13+10:00
+vaults_20261015_093010.txt           output  19 B   2      2026-10-15T19:30:13+10:00

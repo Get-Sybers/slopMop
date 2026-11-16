@@ -98,3 +98,50 @@ NAME                                   ROLE    SIZE   LINES  MODIFIED
 | `NOTE` (wide) | `note` | `binary`, `oversize`, `unreadable`, or `-` |
 
 Sort: name, in byte order. `NAME TIME` is text from the name: `--tz` does not shift it.
+
+### trace
+
+One row per file, in time order: the time in the file name, or else the modified time.
+
+| Column | JSON key | Value |
+| --- | --- | --- |
+| `STEP` | `step` | the number of the script this file belongs to; `0` before the first script |
+| `NAME` | `name` | the path below the input directory |
+| `ROLE` | `role` | `script`, `output` or `other` |
+| `TIME` | `time` | the timestamp in the file name as it stands, or else the modified time |
+| `TOOLS` | `tools` | the commands the file runs or records |
+| `TACTICS` | `tactics` | the tactics of those tools and of the activities |
+| `TRANSFORMS` | `transforms` | encodings and ciphers applied |
+| `ACTIVITIES` (wide) | `activities` | the activities the file shows, in the order of `activities.json` |
+| `OUTPUTS` (wide) | `outputs` | the files a script writes |
+| `INDICATORS` (wide) | `indicators` | the number of distinct indicators |
+| `INTEL` (wide) | `intel` | watchlist matches as `attribution: value`; `-` without `--intelfile` |
+| `NOTE` (wide) | `note` | `binary`, `oversize`, `unreadable`, or `-` |
+
+A list is one cell joined with `, `. The default view cuts a list to 60 bytes.
+
+### finding
+
+One row per activity, per distinct indicator and per tactic. The selectors `-activity`,
+`-indicator` and `-tactic` choose among them.
+
+| Column | JSON key | Value |
+| --- | --- | --- |
+| `FINDING` | `finding` | the activity's name, the indicator's type, or `tactic` |
+| `SEVERITY` | `severity` | the highest severity among the tactics; `high` for a watchlist match |
+| `TACTIC` | `tactic` | the tactics of the activity, or of the files that hold the indicator |
+| `INDICATOR` | `indicator` | the indicator's value; `-` on an activity or tactic row |
+| `FILES` | `files` | the files that show it |
+| `ATTRIBUTION` | `attribution` | the watchlist attributions of an indicator; `-` otherwise |
+
+Sort: severity from `high` to `low`, then activities, indicators and tactics, each by name.
+
+### report
+
+One row per count: `files`, `scripts`, `outputs`, `indicators` and one row per indicator type,
+`activities` and one row per activity, `tactics`, and `intel hits` when `--intelfile` is given.
+
+| Column | JSON key | Value |
+| --- | --- | --- |
+| `METRIC` | `metric` | the name of the count |
+| `VALUE` | `value` | distinct values; on an `activities <name>` row, the lines that show the activity |

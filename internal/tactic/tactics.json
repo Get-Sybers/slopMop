@@ -1,5 +1,12 @@
 [
   {
+    "tactic": "InitialAccess",
+    "severity": "high",
+    "commands": [
+      "evilginx", "evilginx2", "gophish", "modlishka", "muraena"
+    ]
+  },
+  {
     "tactic": "Discovery",
     "severity": "low",
     "commands": [
@@ -104,6 +111,14 @@
       "subprocess.run", "subprocess.call", "subprocess.popen",
       "subprocess.check_call", "subprocess.check_output",
       "subprocess.getoutput", "subprocess.getstatusoutput"
+    ]
+  },
+  {
+    "tactic": "PrivilegeEscalation",
+    "severity": "high",
+    "commands": [
+      "runas", "pkexec", "juicypotato", "printspoofer", "godpotato",
+      "roguepotato", "sweetpotato", "invoke-tokenmanipulation"
     ]
   },
   {

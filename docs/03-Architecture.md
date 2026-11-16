@@ -17,20 +17,21 @@ about evidence touch no file, and every static table is a data file validated at
 | `internal/parse` | extracts commands, variables and file references from bash, PowerShell and Python scripts |
 | `internal/structured` | decodes JSON, XML and HTML reports into their text values and recorded commands using `formats.json` |
 | `internal/tactic` | classifies commands by MITRE ATT&CK tactic and ranks each tactic's severity using `tactics.json` |
+| `internal/activity` | recognises what a line of evidence does (a role assignment, a mailbox read, a Key Vault secret read) and the tactics of it, using `activities.json` |
 | `internal/indicator` | extracts security indicators (IPs, URLs, hashes, CVEs, GUIDs, Microsoft cloud endpoints, OAuth scopes) using `indicators.json` |
-| `internal/intel` | matches extracted indicators against an operator-supplied watchlist: a JSON array or a STIX 2.1 bundle |
-| `internal/trace` | reconstructs the timeline from scripts and outputs: ordering, tool extraction, tactic classification, indicator counting, output linking |
+| `internal/intel` | matches extracted indicators against an operator-supplied watchlist: a JSON array or a STIX 2.1 bundle; an entry that is an address range matches every address inside it |
+| `internal/trace` | reconstructs the timeline from scripts and outputs: ordering, tool extraction, tactic classification, activity detection, indicator counting, output linking |
 | `internal/evidencetest` | embeds the fixtures and copies one into a temporary folder for a test |
 | `internal/golden` | compares test output with a golden file; owns the `-update` flag |
 
 Imports run one way:
 
 ```text
-cmd/slopmop -> command -> cli, render, trace -> parse, structured, tactic, intel -> indicator
+cmd/slopmop -> command -> cli, render, trace -> parse, structured, tactic, activity, intel -> indicator
                                    |-> inventory -> evidence -> nametime
 ```
 
-`cli` and `render` import no other internal package. `parse`, `structured`, `tactic` and
+`cli` and `render` import no other internal package. `parse`, `structured`, `tactic`, `activity` and
 `indicator` import no other internal package. `evidencetest` and `golden` are imported by tests only.
 
 ## 2. Data files
@@ -40,6 +41,7 @@ cmd/slopmop -> command -> cli, render, trace -> parse, structured, tactic, intel
 | `internal/inventory/roles.json` | each role's summary, extensions and shebang patterns | the roles are `script`, `output`, `other` in that order; extensions are lower-case, dotted and in one role; patterns compile; `other` takes neither |
 | `internal/command/nouns.json` | nouns, verbs, aliases, summaries, columns | names and summaries present; columns pass the table check; every declared verb has an implementation and every implementation a declaration |
 | `internal/tactic/tactics.json` | MITRE ATT&CK tactics, the severity of each and the commands each claims | every tactic has a name, a severity of `low`, `medium` or `high` and at least one command; no command appears in two tactics |
+| `internal/activity/activities.json` | each activity's name, tactics and patterns, and the contexts some patterns need | names are present and unique; every activity has a tactic and a pattern; paths and a known context go together; every pattern compiles; `command` rejects a tactic that `tactics.json` lacks |
 | `internal/indicator/indicators.json` | indicator types and their regex patterns | every entry has a type and a pattern; every pattern compiles |
 | `internal/structured/formats.json` | the extensions of each structured format, the field names that hold a command, and the HTML elements that hold a command, are kept verbatim or are dropped | the formats are `json`, `xml`, `html` in that order; extensions are lower-case, dotted and in one format; names are lower-case letters and digits, listed once, and an element is in one list |
 
@@ -113,8 +115,47 @@ abandons its rule. A date and time without `Z` is marked local: the name does no
 AgentScriptTrace golden test in the VelociSacci repository (`tests/golden/fixtures/`), copied byte
 for byte. They hold CRLF, UTF-16, byte-order-mark and binary files on purpose.
 
+`entra` belongs to this repository. It is an agent's run against Entra ID, Microsoft Graph and
+Azure Key Vault in bash, PowerShell and Python, with a JSON Lines log, and it shows every activity
+of `activities.json` except the plain role assignment.
+
 - `.gitattributes` marks every `testdata` path `-text`, so a checkout never converts them.
 - `.gitignore`, `.editorconfig`, `.yamllint`, `.gitleaks.toml` and the fixer hooks leave `testdata` alone.
 - A checkout does not keep modified times, so `<fixture>.times.json` states one per file and
   `evidencetest.Copy` applies it. Each is three seconds after the file-name timestamp, so the two
   never coincide in a golden file.
+
+## 7. Activities
+
+A tactic table names the command that ran. `curl`, `Invoke-RestMethod` and `az` say nothing about
+what a call does, so `activity.Detect` reads the text of every file, script or output, and names
+the operations it shows.
+
+- An activity is found where one of its patterns matches a line. A command continued over lines
+  with a bash backslash or a PowerShell backtick is one line.
+- A script often keeps a host in one variable and builds each address from it. An activity can
+  therefore declare `paths`: patterns that count only in a text that matches the activity's
+  `context` somewhere, such as the Microsoft Graph host. Graph resource names in a path are matched
+  in their documented case, so `/Users/bob` is not `/users`.
+- `unless` drops a line: a read is not counted as a write, and the most specific activity wins.
+- A pattern is tried only on the lines that hold a literal every match of it must hold. The
+  literals are derived from the pattern at load, and a test fails when a pattern has none.
+- A step's tactics are those of its tools plus those of its activities.
+- `report list` counts, for each activity, the lines that show it. A loop counts once: the tool
+  does not run the script.
+
+| Activity | Tactics |
+| --- | --- |
+| `GlobalAdministratorAssignment` | PrivilegeEscalation, Persistence |
+| `RoleAssignment` | PrivilegeEscalation, Persistence |
+| `AppRoleAssignment` | Persistence, PrivilegeEscalation |
+| `AppCredentialAddition` | Persistence |
+| `TokenRequest` | InitialAccess |
+| `GraphDirectoryEnumeration` | Discovery |
+| `MailboxAccess` | Collection |
+| `TeamsMessageAccess` | Collection |
+| `SharePointEnumeration` | Collection, Exfiltration |
+| `KeyVaultSecretRead` | CredentialAccess |
+| `KeyVaultKeyUnwrap` | CredentialAccess |
+| `KeyVaultKeyEnumeration` | Discovery |
+| `AzureResourceEnumeration` | Discovery |

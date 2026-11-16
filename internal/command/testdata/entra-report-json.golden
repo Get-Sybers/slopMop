@@ -1,0 +1,110 @@
+[
+  {
+    "metric": "files",
+    "value": 11
+  },
+  {
+    "metric": "scripts",
+    "value": 5
+  },
+  {
+    "metric": "outputs",
+    "value": 6
+  },
+  {
+    "metric": "indicators",
+    "value": 32
+  },
+  {
+    "metric": "indicators Domain",
+    "value": 6
+  },
+  {
+    "metric": "indicators Email",
+    "value": 2
+  },
+  {
+    "metric": "indicators EntraLoginEndpoint",
+    "value": 1
+  },
+  {
+    "metric": "indicators GUID",
+    "value": 4
+  },
+  {
+    "metric": "indicators GraphEndpoint",
+    "value": 11
+  },
+  {
+    "metric": "indicators IPv4",
+    "value": 2
+  },
+  {
+    "metric": "indicators KeyVaultEndpoint",
+    "value": 3
+  },
+  {
+    "metric": "indicators OAuthScope",
+    "value": 1
+  },
+  {
+    "metric": "indicators URL",
+    "value": 2
+  },
+  {
+    "metric": "activities",
+    "value": 12
+  },
+  {
+    "metric": "activities AppCredentialAddition",
+    "value": 1
+  },
+  {
+    "metric": "activities AppRoleAssignment",
+    "value": 2
+  },
+  {
+    "metric": "activities AzureResourceEnumeration",
+    "value": 1
+  },
+  {
+    "metric": "activities GlobalAdministratorAssignment",
+    "value": 1
+  },
+  {
+    "metric": "activities GraphDirectoryEnumeration",
+    "value": 4
+  },
+  {
+    "metric": "activities KeyVaultKeyEnumeration",
+    "value": 2
+  },
+  {
+    "metric": "activities KeyVaultKeyUnwrap",
+    "value": 1
+  },
+  {
+    "metric": "activities KeyVaultSecretRead",
+    "value": 3
+  },
+  {
+    "metric": "activities MailboxAccess",
+    "value": 1
+  },
+  {
+    "metric": "activities SharePointEnumeration",
+    "value": 2
+  },
+  {
+    "metric": "activities TeamsMessageAccess",
+    "value": 1
+  },
+  {
+    "metric": "activities TokenRequest",
+    "value": 2
+  },
+  {
+    "metric": "tactics",
+    "value": 7
+  }
+]

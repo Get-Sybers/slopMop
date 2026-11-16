@@ -72,6 +72,9 @@ func ExtractBash(text string) Script {
 	seen := map[string]bool{}
 	lines := strings.Split(text, "\n")
 	var hereEnd string
+	// held is a command whose lines so far each ended in a backslash.
+	var held string
+	heldNo := 0
 
 	for i, raw := range lines {
 		lineNo := i + 1
@@ -82,7 +85,14 @@ func ExtractBash(text string) Script {
 			}
 			continue
 		}
+		if held != "" {
+			line, lineNo, held = held+" "+line, heldNo, ""
+		}
 		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		if strings.HasSuffix(line, `\`) && !strings.HasSuffix(line, `\\`) {
+			held, heldNo = strings.TrimSpace(strings.TrimSuffix(line, `\`)), lineNo
 			continue
 		}
 		if m := matchHereDoc(line); m != nil {
@@ -317,6 +327,10 @@ func extractBashCommands(line string, lineNo int, s *Script) {
 }
 
 func findTool(words []string) string {
+	// The words of "for NAME in LIST" are data, not a command.
+	if len(words) > 0 && (words[0] == "for" || words[0] == "select") {
+		return ""
+	}
 	for _, w := range words {
 		if rxAssign.MatchString(w) {
 			continue

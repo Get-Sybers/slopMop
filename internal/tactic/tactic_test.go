@@ -160,3 +160,21 @@ func TestDecodeRejectsSeverity(t *testing.T) {
 		t.Error("an unknown severity is accepted")
 	}
 }
+
+func TestHas(t *testing.T) {
+	tab, err := LoadTactics()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, name := range []string{"Discovery", "InitialAccess", "PrivilegeEscalation"} {
+		if !tab.Has(name) {
+			t.Errorf("Has(%q) = false, want true", name)
+		}
+		if tab.Severity(name).Rank() == 0 {
+			t.Errorf("Severity(%q) has no rank", name)
+		}
+	}
+	if tab.Has("NoSuchTactic") || tab.Has("") {
+		t.Error("Has reports a tactic the table lacks")
+	}
+}

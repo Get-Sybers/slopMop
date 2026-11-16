@@ -218,3 +218,52 @@ func TestCampaigns(t *testing.T) {
 		}
 	}
 }
+
+func TestMatchAddressRange(t *testing.T) {
+	data := []byte(`[
+		{"value": "144.172.64.0/24", "attribution": "STORM-0940"},
+		{"value": "10.0.0.7/8", "type": "IPv4", "attribution": "LAB"},
+		{"value": "144.172.64.99", "attribution": "STORM-0940"}
+	]`)
+	wl, err := LoadWatchlist(data)
+	if err != nil {
+		t.Fatalf("LoadWatchlist: %v", err)
+	}
+	tests := []struct {
+		name string
+		ind  indicator.Match
+		want []string
+	}{
+		{"inside the range", indicator.Match{Type: "IPv4", Value: "144.172.64.128"}, []string{"STORM-0940"}},
+		{"range and exact entry give one hit", indicator.Match{Type: "IPv4", Value: "144.172.64.99"}, []string{"STORM-0940"}},
+		{"outside the range", indicator.Match{Type: "IPv4", Value: "144.172.65.1"}, nil},
+		{"host bits in the entry are masked", indicator.Match{Type: "IPv4", Value: "10.200.3.4"}, []string{"LAB"}},
+		{"the range written as it is", indicator.Match{Type: "IPv4", Value: "144.172.64.0/24"}, []string{"STORM-0940"}},
+		{"another range is not an address", indicator.Match{Type: "IPv4", Value: "144.172.64.0/25"}, nil},
+		{"type still filters", indicator.Match{Type: "Domain", Value: "10.1.1.1"}, nil},
+		{"not an address", indicator.Match{Type: "Domain", Value: "evil.example.com"}, nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var got []string
+			for _, h := range wl.Match([]indicator.Match{tt.ind}) {
+				got = append(got, h.Attribution)
+			}
+			if len(got) != len(tt.want) || (len(got) > 0 && got[0] != tt.want[0]) {
+				t.Errorf("Match(%s) = %q, want %q", tt.ind.Value, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestLoadWatchlistBundleAddressRange(t *testing.T) {
+	data := []byte(`{"type":"bundle","objects":[{"type":"indicator","name":"STORM-0940",
+		"pattern":"[ipv4-addr:value = '144.172.64.0/24']","pattern_type":"stix"}]}`)
+	wl, err := LoadWatchlist(data)
+	if err != nil {
+		t.Fatalf("LoadWatchlist: %v", err)
+	}
+	if hits := wl.Match([]indicator.Match{{Type: "IPv4", Value: "144.172.64.60"}}); len(hits) != 1 {
+		t.Errorf("hits = %+v, want one from the bundle's range", hits)
+	}
+}

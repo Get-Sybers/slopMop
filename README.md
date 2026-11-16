@@ -25,6 +25,9 @@ The grammar is `slopmop NOUN VERB [selectors] [--params] [output flags] [positio
 | `slopmop file list --inputdir <folder>` | lists the files directly in the input directory |
 | `slopmop file list --inputdir <folder> --recursive` | lists the files in its sub-folders too |
 | `slopmop trace list --inputdir <folder>` | traces the scripts and outputs in the input directory |
+| `slopmop finding list --inputdir <folder>` | lists the activities, indicators and tactics found |
+| `slopmop report list --inputdir <folder>` | counts them |
+| `slopmop campaign list --intelfile <file>` | lists the attributions in a watchlist |
 
 The input directory is always named on the command line with `--inputdir`; nothing is remembered
 between runs.

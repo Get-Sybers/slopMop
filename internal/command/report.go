@@ -27,6 +27,7 @@ func (e Env) reportList(v verbSpec) (*cli.Verb, error) {
 	}
 	spec := cli.Spec{
 		Params:   map[string]string{inputDir: "<folder>", intelFile: "<file>"},
+		Switches: recursiveSwitch(),
 		Required: []string{inputDir},
 	}
 	return cli.ListVerb(v.Summary, spec, func(a *cli.Args) error {
@@ -42,20 +43,28 @@ func (e Env) reportList(v verbSpec) (*cli.Verb, error) {
 			}
 			table.Rows = append(table.Rows, row)
 		}
-		return render.Write(e.Stdout, table, e.options(a.Output))
+		if err := render.Write(e.Stdout, table, e.options(a.Output)); err != nil {
+			return err
+		}
+		return skippedError(result.skipped)
 	}), nil
 }
 
-// listMetrics counts distinct values across the whole timeline. The intel
-// row is present only when a watchlist was given.
+// listMetrics counts distinct values across the whole timeline; an activity
+// row counts the lines that show it. The intel row is present only when a
+// watchlist was given.
 func listMetrics(a analysis) []metric {
 	roles := map[evidence.Role]int{}
 	indicators := map[string]map[string]bool{}
 	tactics := map[string]bool{}
 	hits := map[string]bool{}
+	activities := map[string]int{}
 	total := 0
 	for _, s := range a.timeline.Steps {
 		roles[s.File.Role]++
+		for _, hit := range s.Activities {
+			activities[hit.Name] += hit.Lines
+		}
 		for _, name := range s.Tactics {
 			tactics[name] = true
 		}
@@ -85,6 +94,15 @@ func listMetrics(a analysis) []metric {
 	sort.Strings(types)
 	for _, typ := range types {
 		metrics = append(metrics, metric{"indicators " + typ, len(indicators[typ])})
+	}
+	metrics = append(metrics, metric{"activities", len(activities)})
+	names := make([]string, 0, len(activities))
+	for name := range activities {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	for _, name := range names {
+		metrics = append(metrics, metric{"activities " + name, activities[name]})
 	}
 	metrics = append(metrics, metric{"tactics", len(tactics)})
 	if a.watchlist != nil {

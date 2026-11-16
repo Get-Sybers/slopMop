@@ -40,6 +40,10 @@
     "value": 3
   },
   {
+    "metric": "activities",
+    "value": 0
+  },
+  {
     "metric": "tactics",
     "value": 3
   }

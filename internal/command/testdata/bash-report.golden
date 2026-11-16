@@ -9,4 +9,5 @@ indicators IPv4    4
 indicators MD5     2
 indicators SHA1    1
 indicators URL     3
+activities         0
 tactics            4

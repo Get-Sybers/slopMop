@@ -1,0 +1,1 @@
+{"value":[{"userPrincipalName":"alice@corp.example"},{"userPrincipalName":"bob@corp.example"}]}

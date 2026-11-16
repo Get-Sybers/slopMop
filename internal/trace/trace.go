@@ -3,10 +3,12 @@
 package trace
 
 import (
+	"slices"
 	"sort"
 	"strings"
 	"time"
 
+	"github.com/get-sybers/slopmop/internal/activity"
 	"github.com/get-sybers/slopmop/internal/evidence"
 	"github.com/get-sybers/slopmop/internal/indicator"
 	"github.com/get-sybers/slopmop/internal/intel"
@@ -22,6 +24,7 @@ type Step struct {
 	Tools      []string
 	Tactics    []string
 	Transforms []string
+	Activities []activity.Hit
 	Outputs    []string
 	Indicators int
 	Matches    []indicator.Match
@@ -36,10 +39,11 @@ type Timeline struct {
 // Tables holds the data tables a timeline is built with. Watchlist may be
 // nil; when it is set, extracted indicators are matched against it.
 type Tables struct {
-	Tactics   tactic.Table
-	Patterns  indicator.Table
-	Formats   structured.Table
-	Watchlist *intel.Watchlist
+	Tactics    tactic.Table
+	Activities activity.Table
+	Patterns   indicator.Table
+	Formats    structured.Table
+	Watchlist  *intel.Watchlist
 }
 
 // Build reads the inventory result and produces a trace timeline.
@@ -79,6 +83,15 @@ func Build(files []evidence.File, texts map[string]string, tables Tables) Timeli
 			s.Transforms = uniqueMethods(p.Transforms)
 		}
 		if text := content[f.Path]; text != "" {
+			// An activity adds its tactics to those of the commands that ran.
+			s.Activities = tables.Activities.Detect(text)
+			for _, a := range s.Activities {
+				for _, name := range a.Tactics {
+					if !slices.Contains(s.Tactics, name) {
+						s.Tactics = append(s.Tactics, name)
+					}
+				}
+			}
 			matches := tables.Patterns.Extract(text)
 			s.Indicators = len(matches)
 			s.Matches = matches

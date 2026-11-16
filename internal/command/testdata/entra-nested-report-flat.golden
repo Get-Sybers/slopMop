@@ -1,0 +1,23 @@
+METRIC                                    VALUE
+files                                     9
+scripts                                   4
+outputs                                   5
+indicators                                25
+indicators Domain                         4
+indicators Email                          2
+indicators EntraLoginEndpoint             1
+indicators GUID                           4
+indicators GraphEndpoint                  10
+indicators IPv4                           1
+indicators OAuthScope                     1
+indicators URL                            2
+activities                                8
+activities AppCredentialAddition          1
+activities AppRoleAssignment              1
+activities GlobalAdministratorAssignment  1
+activities GraphDirectoryEnumeration      4
+activities MailboxAccess                  1
+activities SharePointEnumeration          2
+activities TeamsMessageAccess             1
+activities TokenRequest                   2
+tactics                                   6

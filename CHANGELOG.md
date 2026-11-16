@@ -6,6 +6,36 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-16
+
+### Added
+
+- Activity detection: `internal/activity` and its data file `activities.json` name what a line of
+  evidence does, whichever command carried it: `GlobalAdministratorAssignment`, `RoleAssignment`,
+  `AppRoleAssignment`, `AppCredentialAddition`, `TokenRequest`, `GraphDirectoryEnumeration`,
+  `MailboxAccess`, `TeamsMessageAccess`, `SharePointEnumeration`, `KeyVaultSecretRead`,
+  `KeyVaultKeyUnwrap`, `KeyVaultKeyEnumeration` and `AzureResourceEnumeration`. An address built
+  from a variable or by concatenation and a command continued over lines are recognised (#6).
+- `trace list`: the ACTIVITIES column, and a step's tactics include those of its activities.
+- `finding list`: one row per activity and the selector `-activity`.
+- `report list`: `activities` and one row per activity with the number of lines that show it.
+- Tactics `InitialAccess` and `PrivilegeEscalation` in `tactics.json`.
+- A watchlist entry that is an address range, such as `144.172.64.0/24`, matches every address
+  inside it, in a JSON watchlist and in a STIX bundle.
+- `--recursive` for `finding list` and `report list`.
+- Evidence fixture `entra`: an agent's run against Entra ID, Microsoft Graph and Key Vault.
+
+### Fixed
+
+- The bash parser reads a command continued with a backslash as one command; a later line of it
+  is no longer reported as a tool.
+- The bash parser no longer reports a word of a `for` list as a tool.
+
+### Changed
+
+- A raw Graph, Key Vault or Azure call still carries the tactic of its command (`curl` and
+  `Invoke-RestMethod` are Exfiltration), and now also the tactics of what it does.
+
 ## [0.1.0] - 2026-11-16
 
 ### Added
