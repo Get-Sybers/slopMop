@@ -174,6 +174,20 @@ func TestDetectKeepsTableOrder(t *testing.T) {
 	if got, want := names(table.Detect(text)), []string{"AppCredentialAddition", "AzureResourceEnumeration"}; !slices.Equal(got, want) {
 		t.Errorf("Detect = %q, want %q", got, want)
 	}
+	hits := table.Detect(text)
+	if !slices.Equal(hits[0].Attack, []string{"T1098.001"}) || !slices.Equal(hits[1].Atlas, []string{"AML.T0075"}) {
+		t.Errorf("techniques = %q and %q, want those of the data file", hits[0].Attack, hits[1].Atlas)
+	}
+	visited := 0
+	table.Each(func(name string, tactics, attack, _ []string) {
+		visited++
+		if name == "" || len(tactics) == 0 || len(attack) == 0 {
+			t.Errorf("Each gave %q with tactics %q and techniques %q", name, tactics, attack)
+		}
+	})
+	if visited != len(table.Names()) {
+		t.Errorf("Each visited %d activities of %d", visited, len(table.Names()))
+	}
 	if got := table.Detect(""); got != nil {
 		t.Errorf("Detect of nothing = %+v, want none", got)
 	}
@@ -270,7 +284,7 @@ func TestDetectInContext(t *testing.T) {
 
 func TestDecodeRejects(t *testing.T) {
 	one := func(fields string) string {
-		return `{"contexts":{"c":"x"},"activities":[{"name":"A","tactics":["T"],` + fields + `}]}`
+		return `{"contexts":{"c":"x"},"activities":[{"name":"A","tactics":["T"],"attack":["X"],` + fields + `}]}`
 	}
 	if _, err := decode([]byte(one(`"patterns":["a"]`))); err != nil {
 		t.Fatalf("the smallest valid table: %v", err)
@@ -283,14 +297,15 @@ func TestDecodeRejects(t *testing.T) {
 		"no activities":      `{"contexts":{},"activities":[]}`,
 		"trailing data":      one(`"patterns":["a"]`) + ` x`,
 		"unknown field":      one(`"patterns":["a"],"extra":1`),
-		"empty name":         `{"activities":[{"name":"","tactics":["T"],"patterns":["a"]}]}`,
-		"named twice":        `{"activities":[{"name":"A","tactics":["T"],"patterns":["a"]},{"name":"A","tactics":["T"],"patterns":["b"]}]}`,
+		"empty name":         `{"activities":[{"name":"","tactics":["T"],"attack":["X"],"patterns":["a"]}]}`,
+		"named twice":        `{"activities":[{"name":"A","tactics":["T"],"attack":["X"],"patterns":["a"]},{"name":"A","tactics":["T"],"attack":["X"],"patterns":["b"]}]}`,
 		"no tactics":         `{"activities":[{"name":"A","tactics":[],"patterns":["a"]}]}`,
+		"no technique":       `{"activities":[{"name":"A","tactics":["T"],"patterns":["a"]}]}`,
 		"no patterns":        one(`"patterns":[]`),
 		"bad pattern":        one(`"patterns":["("]`),
 		"bad path":           one(`"context":"c","paths":["("]`),
 		"bad unless":         one(`"patterns":["a"],"unless":"("`),
-		"bad context":        `{"contexts":{"c":"("},"activities":[{"name":"A","tactics":["T"],"patterns":["a"]}]}`,
+		"bad context":        `{"contexts":{"c":"("},"activities":[{"name":"A","tactics":["T"],"attack":["X"],"patterns":["a"]}]}`,
 		"paths, no context":  one(`"paths":["a"]`),
 		"context, no paths":  one(`"patterns":["a"],"context":"c"`),
 		"an unknown context": one(`"context":"d","paths":["a"]`),
@@ -437,8 +452,8 @@ func TestRequired(t *testing.T) {
 
 func TestDetectWithoutLiterals(t *testing.T) {
 	table, err := decode([]byte(`{"contexts":{"numbered":"^[0-9]+ "},"activities":[
-		{"name":"Versioned","tactics":["T"],"patterns":["\\d+\\.\\d+\\.\\d+"],"unless":"skip"},
-		{"name":"Dated","tactics":["T"],"context":"numbered","paths":["\\d{4}-\\d{2}"]}]}`))
+		{"name":"Versioned","tactics":["T"],"attack":["X"],"patterns":["\\d+\\.\\d+\\.\\d+"],"unless":"skip"},
+		{"name":"Dated","tactics":["T"],"attack":["X"],"context":"numbered","paths":["\\d{4}-\\d{2}"]}]}`))
 	if err != nil {
 		t.Fatal(err)
 	}

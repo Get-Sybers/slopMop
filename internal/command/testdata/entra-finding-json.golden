@@ -5,7 +5,9 @@
     "tactic": "Persistence",
     "indicator": null,
     "files": "20261015_091000_step03_escalate.ps1",
-    "attribution": null
+    "attribution": null,
+    "attack": "T1098.001",
+    "atlas": null
   },
   {
     "finding": "AppRoleAssignment",
@@ -13,7 +15,9 @@
     "tactic": "Persistence, PrivilegeEscalation",
     "indicator": null,
     "files": "20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl",
-    "attribution": null
+    "attribution": null,
+    "attack": "T1098.003",
+    "atlas": null
   },
   {
     "finding": "GlobalAdministratorAssignment",
@@ -21,7 +25,9 @@
     "tactic": "Persistence, PrivilegeEscalation",
     "indicator": null,
     "files": "20261015_091000_step03_escalate.ps1",
-    "attribution": null
+    "attribution": null,
+    "attack": "T1098.003",
+    "atlas": null
   },
   {
     "finding": "KeyVaultKeyUnwrap",
@@ -29,7 +35,9 @@
     "tactic": "CredentialAccess",
     "indicator": null,
     "files": "20261015_093000_step05_vault.sh",
-    "attribution": null
+    "attribution": null,
+    "attack": "T1555.006",
+    "atlas": null
   },
   {
     "finding": "KeyVaultSecretRead",
@@ -37,15 +45,9 @@
     "tactic": "CredentialAccess",
     "indicator": null,
     "files": "20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl",
-    "attribution": null
-  },
-  {
-    "finding": "SharePointEnumeration",
-    "severity": "high",
-    "tactic": "Collection, Exfiltration",
-    "indicator": null,
-    "files": "20261015_092000_step04_collect.py",
-    "attribution": null
+    "attribution": null,
+    "attack": "T1555.006",
+    "atlas": null
   },
   {
     "finding": "TokenRequest",
@@ -53,23 +55,9 @@
     "tactic": "InitialAccess",
     "indicator": null,
     "files": "20261015_090000_step01_token.sh",
-    "attribution": null
-  },
-  {
-    "finding": "Domain",
-    "severity": "high",
-    "tactic": "Collection, Discovery, Exfiltration",
-    "indicator": "corp.example",
-    "files": "20261015_092000_step04_collect.py, directory_20261015_090530.txt",
-    "attribution": null
-  },
-  {
-    "finding": "Domain",
-    "severity": "high",
-    "tactic": "Collection, Exfiltration",
-    "indicator": "corp.sharepoint.com",
-    "files": "collect_20261015_092040.txt",
-    "attribution": null
+    "attribution": null,
+    "attack": "T1078.004",
+    "atlas": "AML.T0012"
   },
   {
     "finding": "Domain",
@@ -77,7 +65,9 @@
     "tactic": "CredentialAccess, Discovery",
     "indicator": "corpvault.vault.azure.net",
     "files": "20261015_093000_step05_vault.sh",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "Domain",
@@ -85,15 +75,19 @@
     "tactic": "CredentialAccess, Discovery, Persistence, PrivilegeEscalation",
     "indicator": "finvault.vault.azure.net",
     "files": "agent_20261015_093500.jsonl",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "Domain",
     "severity": "high",
-    "tactic": "Collection, CredentialAccess, Discovery, Exfiltration, InitialAccess, Persistence, PrivilegeEscalation",
+    "tactic": "Collection, CredentialAccess, Discovery, InitialAccess, Persistence, PrivilegeEscalation",
     "indicator": "graph.microsoft.com",
     "files": "20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_091000_step03_escalate.ps1, 20261015_092000_step04_collect.py, agent_20261015_093500.jsonl",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "Domain",
@@ -101,23 +95,9 @@
     "tactic": "Discovery, InitialAccess",
     "indicator": "login.microsoftonline.com",
     "files": "20261015_090000_step01_token.sh",
-    "attribution": null
-  },
-  {
-    "finding": "Email",
-    "severity": "high",
-    "tactic": "Collection, Discovery, Exfiltration",
-    "indicator": "alice@corp.example",
-    "files": "20261015_092000_step04_collect.py, directory_20261015_090530.txt",
-    "attribution": null
-  },
-  {
-    "finding": "Email",
-    "severity": "high",
-    "tactic": "Collection, Discovery, Exfiltration",
-    "indicator": "bob@corp.example",
-    "files": "20261015_092000_step04_collect.py, directory_20261015_090530.txt",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "EntraLoginEndpoint",
@@ -125,7 +105,9 @@
     "tactic": "Discovery, InitialAccess",
     "indicator": "https://login.microsoftonline.com/$TENANT/oauth2/v2.0/token",
     "files": "20261015_090000_step01_token.sh",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "GUID",
@@ -133,7 +115,9 @@
     "tactic": "Discovery, InitialAccess",
     "indicator": "11111111-2222-4333-8444-555555555555",
     "files": "20261015_090000_step01_token.sh",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "GUID",
@@ -141,7 +125,9 @@
     "tactic": "Persistence, PrivilegeEscalation",
     "indicator": "62e90394-69f5-4237-9190-012177145e10",
     "files": "20261015_091000_step03_escalate.ps1",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "GUID",
@@ -149,7 +135,9 @@
     "tactic": "Discovery, InitialAccess, Persistence, PrivilegeEscalation",
     "indicator": "66666666-7777-4888-9999-000000000000",
     "files": "20261015_090000_step01_token.sh, 20261015_091000_step03_escalate.ps1",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "GUID",
@@ -157,15 +145,9 @@
     "tactic": "CredentialAccess, Discovery, Persistence, PrivilegeEscalation",
     "indicator": "9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d",
     "files": "20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl",
-    "attribution": null
-  },
-  {
-    "finding": "GraphEndpoint",
-    "severity": "high",
-    "tactic": "Collection, Exfiltration",
-    "indicator": "https://graph.microsoft.com/v1.0",
-    "files": "20261015_092000_step04_collect.py",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "GraphEndpoint",
@@ -173,7 +155,9 @@
     "tactic": "Persistence, PrivilegeEscalation",
     "indicator": "https://graph.microsoft.com/v1.0/applications/66666666-7777-4888-9999-000000000000/addPassword",
     "files": "20261015_091000_step03_escalate.ps1",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "GraphEndpoint",
@@ -181,7 +165,9 @@
     "tactic": "Persistence, PrivilegeEscalation",
     "indicator": "https://graph.microsoft.com/v1.0/directoryRoles/roleTemplateId=62e90394-69f5-4237-9190-012177145e10/members/",
     "files": "20261015_091000_step03_escalate.ps1",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "GraphEndpoint",
@@ -189,7 +175,9 @@
     "tactic": "Persistence, PrivilegeEscalation",
     "indicator": "https://graph.microsoft.com/v1.0/servicePrincipals/$sp/appRoleAssignments",
     "files": "20261015_091000_step03_escalate.ps1",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "GraphEndpoint",
@@ -197,31 +185,9 @@
     "tactic": "CredentialAccess, Discovery, Persistence, PrivilegeEscalation",
     "indicator": "https://graph.microsoft.com/v1.0/servicePrincipals/9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d/appRoleAssignments",
     "files": "agent_20261015_093500.jsonl",
-    "attribution": null
-  },
-  {
-    "finding": "GraphEndpoint",
-    "severity": "high",
-    "tactic": "Collection, Exfiltration",
-    "indicator": "https://graph.microsoft.com/v1.0/sites/root/drives",
-    "files": "20261015_092000_step04_collect.py",
-    "attribution": null
-  },
-  {
-    "finding": "GraphEndpoint",
-    "severity": "high",
-    "tactic": "Collection, Exfiltration",
-    "indicator": "https://graph.microsoft.com/v1.0/sites?search=*",
-    "files": "20261015_092000_step04_collect.py",
-    "attribution": null
-  },
-  {
-    "finding": "GraphEndpoint",
-    "severity": "high",
-    "tactic": "Collection, Exfiltration",
-    "indicator": "https://graph.microsoft.com/v1.0/users/",
-    "files": "20261015_092000_step04_collect.py",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "IPv4",
@@ -229,7 +195,9 @@
     "tactic": "CredentialAccess, Discovery, InitialAccess, Persistence, PrivilegeEscalation",
     "indicator": "144.172.64.128",
     "files": "20261015_090000_step01_token.sh, agent_20261015_093500.jsonl",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "IPv4",
@@ -237,7 +205,9 @@
     "tactic": "CredentialAccess, Discovery, Persistence, PrivilegeEscalation",
     "indicator": "144.172.64.60",
     "files": "agent_20261015_093500.jsonl",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "KeyVaultEndpoint",
@@ -245,7 +215,9 @@
     "tactic": "CredentialAccess, Discovery",
     "indicator": "https://corpvault.vault.azure.net/keys/kek/0a1b2c3d/unwrapkey?api-version=7.4",
     "files": "20261015_093000_step05_vault.sh",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "KeyVaultEndpoint",
@@ -253,7 +225,9 @@
     "tactic": "CredentialAccess, Discovery",
     "indicator": "https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4",
     "files": "20261015_093000_step05_vault.sh",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "KeyVaultEndpoint",
@@ -261,7 +235,9 @@
     "tactic": "CredentialAccess, Discovery, Persistence, PrivilegeEscalation",
     "indicator": "https://finvault.vault.azure.net/keys?api-version=7.4",
     "files": "agent_20261015_093500.jsonl",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "OAuthScope",
@@ -269,7 +245,9 @@
     "tactic": "Discovery, InitialAccess",
     "indicator": "https://graph.microsoft.com/.default",
     "files": "20261015_090000_step01_token.sh",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "URL",
@@ -277,15 +255,9 @@
     "tactic": "Discovery, InitialAccess",
     "indicator": "http://144.172.64.128:8080",
     "files": "20261015_090000_step01_token.sh",
-    "attribution": null
-  },
-  {
-    "finding": "URL",
-    "severity": "high",
-    "tactic": "Collection, Exfiltration",
-    "indicator": "https://corp.sharepoint.com/sites/hr",
-    "files": "collect_20261015_092040.txt",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "tactic",
@@ -293,15 +265,9 @@
     "tactic": "CredentialAccess",
     "indicator": null,
     "files": "20261015_093000_step05_vault.sh",
-    "attribution": null
-  },
-  {
-    "finding": "tactic",
-    "severity": "high",
-    "tactic": "Exfiltration",
-    "indicator": null,
-    "files": "20261015_092000_step04_collect.py",
-    "attribution": null
+    "attribution": null,
+    "attack": "TA0006",
+    "atlas": "AML.TA0013"
   },
   {
     "finding": "tactic",
@@ -309,7 +275,9 @@
     "tactic": "InitialAccess",
     "indicator": null,
     "files": "20261015_090000_step01_token.sh",
-    "attribution": null
+    "attribution": null,
+    "attack": "TA0001",
+    "atlas": "AML.TA0004"
   },
   {
     "finding": "tactic",
@@ -317,7 +285,9 @@
     "tactic": "Persistence",
     "indicator": null,
     "files": "20261015_091000_step03_escalate.ps1",
-    "attribution": null
+    "attribution": null,
+    "attack": "TA0003",
+    "atlas": "AML.TA0006"
   },
   {
     "finding": "tactic",
@@ -325,7 +295,9 @@
     "tactic": "PrivilegeEscalation",
     "indicator": null,
     "files": "20261015_091000_step03_escalate.ps1",
-    "attribution": null
+    "attribution": null,
+    "attack": "TA0004",
+    "atlas": "AML.TA0012"
   },
   {
     "finding": "MailboxAccess",
@@ -333,7 +305,19 @@
     "tactic": "Collection",
     "indicator": null,
     "files": "20261015_092000_step04_collect.py",
-    "attribution": null
+    "attribution": null,
+    "attack": "T1114.002",
+    "atlas": "AML.T0126"
+  },
+  {
+    "finding": "SharePointEnumeration",
+    "severity": "medium",
+    "tactic": "Collection",
+    "indicator": null,
+    "files": "20261015_092000_step04_collect.py",
+    "attribution": null,
+    "attack": "T1213.002",
+    "atlas": "AML.T0126, AML.T0036"
   },
   {
     "finding": "TeamsMessageAccess",
@@ -341,7 +325,99 @@
     "tactic": "Collection",
     "indicator": null,
     "files": "20261015_092000_step04_collect.py",
-    "attribution": null
+    "attribution": null,
+    "attack": "T1213.005",
+    "atlas": "AML.T0126, AML.T0036"
+  },
+  {
+    "finding": "Domain",
+    "severity": "medium",
+    "tactic": "Collection, Discovery",
+    "indicator": "corp.example",
+    "files": "20261015_092000_step04_collect.py, directory_20261015_090530.txt",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "Domain",
+    "severity": "medium",
+    "tactic": "Collection",
+    "indicator": "corp.sharepoint.com",
+    "files": "collect_20261015_092040.txt",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "Email",
+    "severity": "medium",
+    "tactic": "Collection, Discovery",
+    "indicator": "alice@corp.example",
+    "files": "20261015_092000_step04_collect.py, directory_20261015_090530.txt",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "Email",
+    "severity": "medium",
+    "tactic": "Collection, Discovery",
+    "indicator": "bob@corp.example",
+    "files": "20261015_092000_step04_collect.py, directory_20261015_090530.txt",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "GraphEndpoint",
+    "severity": "medium",
+    "tactic": "Collection",
+    "indicator": "https://graph.microsoft.com/v1.0",
+    "files": "20261015_092000_step04_collect.py",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "GraphEndpoint",
+    "severity": "medium",
+    "tactic": "Collection",
+    "indicator": "https://graph.microsoft.com/v1.0/sites/root/drives",
+    "files": "20261015_092000_step04_collect.py",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "GraphEndpoint",
+    "severity": "medium",
+    "tactic": "Collection",
+    "indicator": "https://graph.microsoft.com/v1.0/sites?search=*",
+    "files": "20261015_092000_step04_collect.py",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "GraphEndpoint",
+    "severity": "medium",
+    "tactic": "Collection",
+    "indicator": "https://graph.microsoft.com/v1.0/users/",
+    "files": "20261015_092000_step04_collect.py",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "URL",
+    "severity": "medium",
+    "tactic": "Collection",
+    "indicator": "https://corp.sharepoint.com/sites/hr",
+    "files": "collect_20261015_092040.txt",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "tactic",
@@ -349,7 +425,9 @@
     "tactic": "Collection",
     "indicator": null,
     "files": "20261015_092000_step04_collect.py",
-    "attribution": null
+    "attribution": null,
+    "attack": "TA0009",
+    "atlas": "AML.TA0009"
   },
   {
     "finding": "AzureResourceEnumeration",
@@ -357,7 +435,9 @@
     "tactic": "Discovery",
     "indicator": null,
     "files": "20261015_093000_step05_vault.sh",
-    "attribution": null
+    "attribution": null,
+    "attack": "T1580",
+    "atlas": "AML.T0075"
   },
   {
     "finding": "GraphDirectoryEnumeration",
@@ -365,7 +445,9 @@
     "tactic": "Discovery",
     "indicator": null,
     "files": "20261015_090500_step02_recon.ps1",
-    "attribution": null
+    "attribution": null,
+    "attack": "T1087.004, T1069.003",
+    "atlas": "AML.T0075"
   },
   {
     "finding": "KeyVaultKeyEnumeration",
@@ -373,7 +455,9 @@
     "tactic": "Discovery",
     "indicator": null,
     "files": "20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl",
-    "attribution": null
+    "attribution": null,
+    "attack": "T1580",
+    "atlas": "AML.T0075"
   },
   {
     "finding": "GraphEndpoint",
@@ -381,7 +465,9 @@
     "tactic": "Discovery",
     "indicator": "https://graph.microsoft.com/v1.0/directoryRoles",
     "files": "20261015_090500_step02_recon.ps1",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "GraphEndpoint",
@@ -389,7 +475,9 @@
     "tactic": "Discovery",
     "indicator": "https://graph.microsoft.com/v1.0/servicePrincipals?",
     "files": "20261015_090500_step02_recon.ps1",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "GraphEndpoint",
@@ -397,7 +485,9 @@
     "tactic": "Discovery",
     "indicator": "https://graph.microsoft.com/v1.0/users?",
     "files": "20261015_090500_step02_recon.ps1",
-    "attribution": null
+    "attribution": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "finding": "tactic",
@@ -405,6 +495,8 @@
     "tactic": "Discovery",
     "indicator": null,
     "files": "20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh",
-    "attribution": null
+    "attribution": null,
+    "attack": "TA0007",
+    "atlas": "AML.TA0008"
   }
 ]

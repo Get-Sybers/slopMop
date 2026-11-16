@@ -4,7 +4,7 @@ STEP  NAME                                 ROLE    TIME             TOOLS       
 2     20261015_090500_step02_recon.ps1     script  20261015_090500  invoke-restmethod, convertto-json, out-file, get-mgapplic...  Discovery                                                     -
 2     directory_20261015_090530.txt        output  20261015_090530  -                                                             -                                                             -
 3     20261015_091000_step03_escalate.ps1  script  20261015_091000  invoke-restmethod                                             PrivilegeEscalation, Persistence                              -
-4     20261015_092000_step04_collect.py    script  20261015_092000  requests.get                                                  Collection, Exfiltration                                      -
+4     20261015_092000_step04_collect.py    script  20261015_092000  requests.get                                                  Collection                                                    -
 4     collect_20261015_092040.txt          output  20261015_092040  -                                                             -                                                             -
 5     20261015_093000_step05_vault.sh      script  20261015_093000  az, curl                                                      Discovery, CredentialAccess                                   -
 5     vaults_20261015_093010.txt           output  20261015_093010  -                                                             -                                                             -

@@ -1,6 +1,6 @@
-ITEM                                 SECTION  VALUE  DETAIL                                                                   BASIS  FILES
-20261015_090000_step01_token.sh      script   high   TokenRequest                                                             -      token_20261015_090010.json
-20261015_091000_step03_escalate.ps1  script   high   GlobalAdministratorAssignment, AppRoleAssignment, AppCredentialAddition  -      -
-20261015_092000_step04_collect.py    script   high   MailboxAccess, TeamsMessageAccess, SharePointEnumeration                 -      collect_20261015_092040.txt
-20261015_093000_step05_vault.sh      script   high   KeyVaultSecretRead, KeyVaultKeyUnwrap                                    -      vaults_20261015_093010.txt, secrets_20261015_093030.txt
-agent_20261015_093500.jsonl          output   high   AppRoleAssignment, KeyVaultSecretRead                                    -      -
+ITEM                                 SECTION  VALUE   DETAIL                                                                   BASIS  FILES                                                    ATTACK                           ATLAS
+20261015_090000_step01_token.sh      script   high    TokenRequest                                                             -      token_20261015_090010.json                               T1078.004                        AML.T0012
+20261015_091000_step03_escalate.ps1  script   high    GlobalAdministratorAssignment, AppRoleAssignment, AppCredentialAddition  -      -                                                        T1098.003, T1098.001             -
+20261015_092000_step04_collect.py    script   medium  MailboxAccess, TeamsMessageAccess, SharePointEnumeration                 -      collect_20261015_092040.txt                              T1114.002, T1213.005, T1213.002  AML.T0126, AML.T0036
+20261015_093000_step05_vault.sh      script   high    KeyVaultSecretRead, KeyVaultKeyUnwrap                                    -      vaults_20261015_093010.txt, secrets_20261015_093030.txt  T1555.006, T1580                 AML.T0075
+agent_20261015_093500.jsonl          output   high    AppRoleAssignment, KeyVaultSecretRead                                    -      -                                                        T1098.003, T1555.006, T1580      AML.T0075

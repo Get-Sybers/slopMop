@@ -29,6 +29,10 @@ type finding struct {
 	indicator    string
 	files        []string
 	attributions []string
+	// attack and atlas are technique identifiers on an activity and tactic
+	// identifiers on a tactic.
+	attack []string
+	atlas  []string
 }
 
 func (e Env) findingList(v verbSpec) (*cli.Verb, error) {
@@ -63,7 +67,7 @@ func (e Env) findingList(v verbSpec) (*cli.Verb, error) {
 		}
 		shorten := a.Output.View == "" && !a.Output.Quiet
 		table := render.Table{Columns: v.Columns}
-		for _, f := range listFindings(result, pipe.tactics) {
+		for _, f := range pipe.listFindings(result) {
 			if !wanted[f.kind] {
 				continue
 			}
@@ -82,7 +86,8 @@ func (e Env) findingList(v verbSpec) (*cli.Verb, error) {
 
 // listFindings aggregates the timeline: one finding per activity, one per
 // distinct indicator and one per tactic, most severe first.
-func listFindings(a analysis, tactics tactic.Table) []finding {
+func (p pipeline) listFindings(a analysis) []finding {
+	tactics := p.tactics
 	// An output inherits the tactics of the scripts that write it.
 	inherited := map[string][]string{}
 	for _, s := range a.timeline.Steps {
@@ -99,7 +104,10 @@ func listFindings(a analysis, tactics tactic.Table) []finding {
 		for _, hit := range s.Activities {
 			f, ok := byActivity[hit.Name]
 			if !ok {
-				f = &finding{kind: kindActivity, label: hit.Name, tactics: slices.Clone(hit.Tactics)}
+				f = &finding{
+					kind: kindActivity, label: hit.Name, tactics: slices.Clone(hit.Tactics),
+					attack: hit.Attack, atlas: p.atlasOf(hit),
+				}
 				byActivity[hit.Name] = f
 				order = append(order, f)
 			}
@@ -109,7 +117,10 @@ func listFindings(a analysis, tactics tactic.Table) []finding {
 			for _, name := range s.Tactics {
 				f, ok := byTactic[name]
 				if !ok {
-					f = &finding{kind: kindTactic, label: kindTactic, tactics: []string{name}}
+					f = &finding{
+						kind: kindTactic, label: kindTactic, tactics: []string{name},
+						attack: []string{tactics.Attack(name)}, atlas: []string{tactics.Atlas(name)},
+					}
 					byTactic[name] = f
 					order = append(order, f)
 				}
@@ -210,6 +221,8 @@ func findingRow(f finding, columns []render.Column, shorten bool) ([]render.Valu
 		"indicator":   render.NotApplicable(),
 		"files":       list(f.files),
 		"attribution": list(f.attributions),
+		"attack":      list(f.attack),
+		"atlas":       list(f.atlas),
 	}
 	if f.indicator != "" {
 		value := f.indicator

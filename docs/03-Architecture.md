@@ -19,7 +19,8 @@ about evidence touch no file, and every static table is a data file validated at
 | `internal/tactic` | classifies commands by MITRE ATT&CK tactic and ranks each tactic's severity using `tactics.json` |
 | `internal/activity` | recognises what a line of evidence does (a role assignment, a mailbox read, a Key Vault secret read) and the tactics of it, using `activities.json` |
 | `internal/indicator` | extracts security indicators (IPs, URLs, hashes, CVEs, GUIDs, Microsoft cloud endpoints, OAuth scopes) using `indicators.json` |
-| `internal/assess` | turns what a run found into its impacts and the remediation and mitigation they call for, using `impacts.json` and `actions.json` |
+| `internal/assess` | turns what a run found into its impacts and the remediation they call for, using `impacts.json` and `actions.json` |
+| `internal/mitre` | holds the identifiers, names and mitigation links of MITRE ATT&CK and MITRE ATLAS in `catalogue.json` |
 | `internal/intel` | matches extracted indicators against an operator-supplied watchlist: a JSON array or a STIX 2.1 bundle; an entry that is an address range matches every address inside it |
 | `internal/trace` | reconstructs the timeline from scripts and outputs: ordering, tool extraction, tactic classification, activity detection, indicator counting, output linking |
 | `internal/evidencetest` | embeds the fixtures and copies one into a temporary folder for a test |
@@ -30,11 +31,12 @@ Imports run one way:
 ```text
 cmd/slopmop -> command -> cli, render, trace -> parse, structured, tactic, activity, intel -> indicator
                        |-> assess -> tactic
+                       |-> mitre
                                    |-> inventory -> evidence -> nametime
 ```
 
 `cli` and `render` import no other internal package. `parse`, `structured`, `tactic`, `activity` and
-`indicator` import no other internal package. `evidencetest` and `golden` are imported by tests only.
+`indicator` import no other internal package, and neither does `mitre`. `evidencetest` and `golden` are imported by tests only.
 
 ## 2. Data files
 
@@ -42,10 +44,11 @@ cmd/slopmop -> command -> cli, render, trace -> parse, structured, tactic, activ
 | --- | --- | --- |
 | `internal/inventory/roles.json` | each role's summary, extensions and shebang patterns | the roles are `script`, `output`, `other` in that order; extensions are lower-case, dotted and in one role; patterns compile; `other` takes neither |
 | `internal/command/nouns.json` | nouns, verbs, aliases, summaries, columns | names and summaries present; columns pass the table check; every declared verb has an implementation and every implementation a declaration |
-| `internal/tactic/tactics.json` | MITRE ATT&CK tactics, the severity of each and the commands each claims | every tactic has a name, a severity of `low`, `medium` or `high` and at least one command; no command appears in two tactics |
-| `internal/activity/activities.json` | each activity's name, tactics and patterns, and the contexts some patterns need | names are present and unique; every activity has a tactic and a pattern; paths and a known context go together; every pattern compiles; `command` rejects a tactic that `tactics.json` lacks |
+| `internal/tactic/tactics.json` | the tactics, the severity of each, its ATT&CK and ATLAS identifiers and the commands it claims | every tactic has a name, a severity of `low`, `medium` or `high`, both identifiers and at least one command; no command appears in two tactics; `command` rejects an identifier the catalogue lacks |
+| `internal/activity/activities.json` | each activity's name, tactics, ATT&CK and ATLAS techniques and patterns, and the contexts some patterns need | names are present and unique; every activity has a tactic, an ATT&CK technique and a pattern; `command` rejects a technique the catalogue lacks; paths and a known context go together; every pattern compiles; `command` rejects a tactic that `tactics.json` lacks |
 | `internal/assess/impacts.json` | each impact's name, severity and statement, what triggers it and the indicator types to list as affected | names are present and unique; a statement and a severity of `low`, `medium` or `high`; something triggers each; `command` rejects an activity, a tactic or an indicator type the other tables lack |
-| `internal/assess/actions.json` | each action's name, kind, priority and text, and what triggers it | as for an impact; the kind is `remediation` or `mitigation` |
+| `internal/assess/actions.json` | each remediation's name, priority and text, and what triggers it | as for an impact |
+| `internal/mitre/catalogue.json` | for ATT&CK and for ATLAS: the version, the tactics, the mitigations with a one-sentence summary, and each technique's name, tactics and mitigations | a version, tactics, techniques and mitigations are present; a technique names only tactics and mitigations that are listed |
 | `internal/indicator/indicators.json` | indicator types and their regex patterns | every entry has a type and a pattern; every pattern compiles |
 | `internal/structured/formats.json` | the extensions of each structured format, the field names that hold a command, and the HTML elements that hold a command, are kept verbatim or are dropped | the formats are `json`, `xml`, `html` in that order; extensions are lower-case, dotted and in one format; names are lower-case letters and digits, listed once, and an element is in one list |
 
@@ -219,8 +222,9 @@ PowerShell `-EncodedCommand`, in any of its abbreviations, and a Base64 literal 
 
 ## 10. Assessment
 
-`report list` ends with what the findings mean and what to do about them. Both come from data
-files, and `assess` holds no knowledge of its own.
+`report list` ends with what the findings mean and what to do about them. Impacts and remediation
+come from data files, and `assess` holds no knowledge of its own. Mitigation comes from the
+catalogue of section 11.
 
 - An impact or an action applies when one of its triggers is in the evidence: an activity, the
   tactic of a tool that ran, or a watchlist match. The tactics an activity adds do not trigger
@@ -228,7 +232,27 @@ files, and `assess` holds no knowledge of its own.
 - The basis and the files of each row say why it is there, so a reader can check the claim.
 - An impact lists up to five affected values of the indicator types it names, taken from the
   files that show it; an address is cut to its host.
-- A test fails when an activity has no impact or no action, so a finding cannot be reported and
-  then left out of the assessment.
+- A test fails when an activity has no impact or no remediation, so a finding cannot be reported
+  and then left out of the assessment.
+- One impact is not found but assumed: the scripts were written by an AI agent, which is the
+  premise of the tool. It applies whenever anything is found and stands for an ATLAS technique.
 - A notable file is one whose activities, tool tactics or watchlist matches reach the severity
   asked for. A watchlist match is `high`.
+
+## 11. MITRE ATT&CK and MITRE ATLAS
+
+`internal/mitre/catalogue.json` is written by `scripts/mitre.py` from the ATT&CK enterprise bundle
+of `mitre-attack/attack-stix-data` and a v6 file of `mitre-atlas/atlas-data`. It holds ATT&CK 20.1
+and ATLAS 2026.10. The licences of both stand beside it, and it carries identifiers, names and a
+one-sentence summary of each mitigation, not the full text of either framework.
+
+- A tactic of `tactics.json` names its ATT&CK tactic and its ATLAS tactic. ATT&CK 20 has no
+  Defense Evasion: it has Stealth and Defense Impairment, and so does this table. ATLAS keeps
+  Defense Evasion, and both map to it.
+- An activity of `activities.json` names its ATT&CK techniques. A test fails when an activity
+  claims a tactic that ATT&CK does not file one of its techniques under.
+- An activity's ATLAS techniques are those it names and those whose ATT&CK reference in ATLAS is
+  one of its ATT&CK techniques or the technique that one is a part of.
+- The mitigation rows of `report list` are not written here. For the techniques found, the
+  catalogue gives the mitigations each framework links to them; a row is one mitigation, the
+  techniques found that it addresses, and the activities and files that showed them.

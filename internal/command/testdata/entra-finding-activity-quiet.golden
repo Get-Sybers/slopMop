@@ -3,9 +3,9 @@ AppRoleAssignment
 GlobalAdministratorAssignment
 KeyVaultKeyUnwrap
 KeyVaultSecretRead
-SharePointEnumeration
 TokenRequest
 MailboxAccess
+SharePointEnumeration
 TeamsMessageAccess
 AzureResourceEnumeration
 GraphDirectoryEnumeration

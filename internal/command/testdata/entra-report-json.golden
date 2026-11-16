@@ -5,7 +5,9 @@
     "value": 11,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "scripts",
@@ -13,7 +15,9 @@
     "value": 5,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "outputs",
@@ -21,7 +25,9 @@
     "value": 6,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators",
@@ -29,7 +35,9 @@
     "value": 32,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators Domain",
@@ -37,7 +45,9 @@
     "value": 6,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators Email",
@@ -45,7 +55,9 @@
     "value": 2,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators EntraLoginEndpoint",
@@ -53,7 +65,9 @@
     "value": 1,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators GUID",
@@ -61,7 +75,9 @@
     "value": 4,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators GraphEndpoint",
@@ -69,7 +85,9 @@
     "value": 11,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators IPv4",
@@ -77,7 +95,9 @@
     "value": 2,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators KeyVaultEndpoint",
@@ -85,7 +105,9 @@
     "value": 3,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators OAuthScope",
@@ -93,7 +115,9 @@
     "value": 1,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators URL",
@@ -101,7 +125,9 @@
     "value": 2,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities",
@@ -109,7 +135,9 @@
     "value": 12,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities AppCredentialAddition",
@@ -117,7 +145,9 @@
     "value": 1,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities AppRoleAssignment",
@@ -125,7 +155,9 @@
     "value": 2,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities AzureResourceEnumeration",
@@ -133,7 +165,9 @@
     "value": 1,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities GlobalAdministratorAssignment",
@@ -141,7 +175,9 @@
     "value": 1,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities GraphDirectoryEnumeration",
@@ -149,7 +185,9 @@
     "value": 4,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities KeyVaultKeyEnumeration",
@@ -157,7 +195,9 @@
     "value": 2,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities KeyVaultKeyUnwrap",
@@ -165,7 +205,9 @@
     "value": 1,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities KeyVaultSecretRead",
@@ -173,7 +215,9 @@
     "value": 3,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities MailboxAccess",
@@ -181,7 +225,9 @@
     "value": 1,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities SharePointEnumeration",
@@ -189,7 +235,9 @@
     "value": 2,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities TeamsMessageAccess",
@@ -197,7 +245,9 @@
     "value": 1,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities TokenRequest",
@@ -205,15 +255,19 @@
     "value": 2,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "tactics",
     "section": "summary",
-    "value": 7,
+    "value": 6,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "20261015_090000_step01_token.sh",
@@ -221,7 +275,9 @@
     "value": "high",
     "detail": "TokenRequest",
     "basis": null,
-    "files": "token_20261015_090010.json"
+    "files": "token_20261015_090010.json",
+    "attack": "T1078.004",
+    "atlas": "AML.T0012"
   },
   {
     "item": "20261015_091000_step03_escalate.ps1",
@@ -229,15 +285,9 @@
     "value": "high",
     "detail": "GlobalAdministratorAssignment, AppRoleAssignment, AppCredentialAddition",
     "basis": null,
-    "files": null
-  },
-  {
-    "item": "20261015_092000_step04_collect.py",
-    "section": "script",
-    "value": "high",
-    "detail": "SharePointEnumeration",
-    "basis": null,
-    "files": "collect_20261015_092040.txt"
+    "files": null,
+    "attack": "T1098.003, T1098.001",
+    "atlas": null
   },
   {
     "item": "20261015_093000_step05_vault.sh",
@@ -245,7 +295,9 @@
     "value": "high",
     "detail": "KeyVaultSecretRead, KeyVaultKeyUnwrap",
     "basis": null,
-    "files": "vaults_20261015_093010.txt, secrets_20261015_093030.txt"
+    "files": "vaults_20261015_093010.txt, secrets_20261015_093030.txt",
+    "attack": "T1555.006, T1580",
+    "atlas": "AML.T0075"
   },
   {
     "item": "agent_20261015_093500.jsonl",
@@ -253,7 +305,9 @@
     "value": "high",
     "detail": "AppRoleAssignment, KeyVaultSecretRead",
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": "T1098.003, T1555.006, T1580",
+    "atlas": "AML.T0075"
   },
   {
     "item": "Privileged access obtained",
@@ -261,7 +315,9 @@
     "value": "high",
     "detail": "A principal was given a privileged role or permission. Treat what it governs as under attacker control until reviewed.",
     "basis": "GlobalAdministratorAssignment, AppRoleAssignment",
-    "files": "20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl"
+    "files": "20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl",
+    "attack": "T1098.003",
+    "atlas": null
   },
   {
     "item": "Credentials exposed",
@@ -269,7 +325,9 @@
     "value": "high",
     "detail": "Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker. Affected: corpvault.vault.azure.net, finvault.vault.azure.net.",
     "basis": "KeyVaultSecretRead, KeyVaultKeyUnwrap",
-    "files": "20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl"
+    "files": "20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl",
+    "attack": "T1555.006",
+    "atlas": null
   },
   {
     "item": "Persistence established",
@@ -277,7 +335,9 @@
     "value": "high",
     "detail": "A way back in was created: a credential, a run key, a task or a service. Access survives a password reset.",
     "basis": "AppCredentialAddition",
-    "files": "20261015_091000_step03_escalate.ps1"
+    "files": "20261015_091000_step03_escalate.ps1",
+    "attack": "T1098.001",
+    "atlas": null
   },
   {
     "item": "Valid identity used",
@@ -285,7 +345,9 @@
     "value": "high",
     "detail": "The attacker signed in as an identity that exists. Sign-in controls did not stop it.",
     "basis": "TokenRequest",
-    "files": "20261015_090000_step01_token.sh"
+    "files": "20261015_090000_step01_token.sh",
+    "attack": "T1078.004",
+    "atlas": "AML.T0012"
   },
   {
     "item": "Data collected",
@@ -293,7 +355,19 @@
     "value": "high",
     "detail": "Mail, chat or documents were read in bulk. Treat their content as disclosed. Affected: alice@corp.example, bob@corp.example.",
     "basis": "MailboxAccess, TeamsMessageAccess, SharePointEnumeration",
-    "files": "20261015_092000_step04_collect.py"
+    "files": "20261015_092000_step04_collect.py",
+    "attack": "T1114.002, T1213.005, T1213.002",
+    "atlas": "AML.T0126, AML.T0036"
+  },
+  {
+    "item": "Commands generated by an AI agent",
+    "section": "impact",
+    "value": "medium",
+    "detail": "The scripts were written by an AI agent, which is the premise of this tool. Generated commands differ from run to run, so a detection that matches exact text misses them.",
+    "basis": "the premise of the tool",
+    "files": "20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_091000_step03_escalate.ps1, 20261015_092000_step04_collect.py, 20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl",
+    "attack": null,
+    "atlas": "AML.T0102"
   },
   {
     "item": "Environment mapped",
@@ -301,7 +375,9 @@
     "value": "low",
     "detail": "Identities, resources or configuration were listed. Later steps were probably aimed with the result.",
     "basis": "GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, Discovery tools",
-    "files": "20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl"
+    "files": "20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl",
+    "attack": "T1087.004, T1069.003, T1580",
+    "atlas": "AML.T0075"
   },
   {
     "item": "Revoke sessions and reset identities",
@@ -309,7 +385,9 @@
     "value": "high",
     "detail": "Revoke the sessions and tokens of every identity in the evidence and reset its credentials.",
     "basis": "TokenRequest",
-    "files": "20261015_090000_step01_token.sh"
+    "files": "20261015_090000_step01_token.sh",
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "Remove added credentials",
@@ -317,7 +395,9 @@
     "value": "high",
     "detail": "Remove every password and key added to an application or service principal, then review all credentials added since the first step.",
     "basis": "AppCredentialAddition",
-    "files": "20261015_091000_step03_escalate.ps1"
+    "files": "20261015_091000_step03_escalate.ps1",
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "Remove role and permission grants",
@@ -325,7 +405,9 @@
     "value": "high",
     "detail": "Remove the role assignments and application permissions that were granted, then review every privileged member and consent.",
     "basis": "GlobalAdministratorAssignment, AppRoleAssignment",
-    "files": "20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl"
+    "files": "20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl",
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "Rotate what was read",
@@ -333,7 +415,9 @@
     "value": "high",
     "detail": "Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.",
     "basis": "KeyVaultSecretRead, KeyVaultKeyUnwrap",
-    "files": "20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl"
+    "files": "20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl",
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "Scope the data taken",
@@ -341,7 +425,9 @@
     "value": "high",
     "detail": "Establish from audit logs which mailboxes, chats, sites and files were read or sent out, and assess that data as breached.",
     "basis": "MailboxAccess, TeamsMessageAccess, SharePointEnumeration",
-    "files": "20261015_092000_step04_collect.py"
+    "files": "20261015_092000_step04_collect.py",
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "Follow what was enumerated",
@@ -349,38 +435,188 @@
     "value": "low",
     "detail": "Use what was listed to predict targets: check those identities, vaults and hosts for later activity.",
     "basis": "GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, Discovery tools",
-    "files": "20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl"
+    "files": "20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl",
+    "attack": null,
+    "atlas": null
   },
   {
-    "item": "Restrict application credentials and consent",
+    "item": "M1015 Active Directory Configuration",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Implement robust Active Directory (AD) configurations using group policies to secure user accounts, control access, and minimize the attack surface.",
+    "basis": "TokenRequest",
+    "files": "20261015_090000_step01_token.sh",
+    "attack": "T1078.004",
+    "atlas": null
+  },
+  {
+    "item": "M1017 User Training",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "User Training involves educating employees and contractors on recognizing, reporting, and preventing cyber threats that rely on human interaction, such as phishing, social engineering, and other manipulative techniques.",
+    "basis": "TokenRequest, SharePointEnumeration, TeamsMessageAccess",
+    "files": "20261015_090000_step01_token.sh, 20261015_092000_step04_collect.py",
+    "attack": "T1078.004, T1213.002, T1213.005",
+    "atlas": null
+  },
+  {
+    "item": "M1018 User Account Management",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.",
+    "basis": "TokenRequest, GraphDirectoryEnumeration, AppCredentialAddition, GlobalAdministratorAssignment, AppRoleAssignment, SharePointEnumeration, KeyVaultKeyEnumeration, AzureResourceEnumeration",
+    "files": "20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_091000_step03_escalate.ps1, 20261015_092000_step04_collect.py, 20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl",
+    "attack": "T1078.004, T1087.004, T1098.001, T1098.003, T1213.002, T1580",
+    "atlas": null
+  },
+  {
+    "item": "M1026 Privileged Account Management",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Privileged Account Management focuses on implementing policies, controls, and tools to securely manage privileged accounts (e.g., SYSTEM, root, or administrative accounts).",
+    "basis": "TokenRequest, AppCredentialAddition, GlobalAdministratorAssignment, AppRoleAssignment, KeyVaultSecretRead, KeyVaultKeyUnwrap",
+    "files": "20261015_090000_step01_token.sh, 20261015_091000_step03_escalate.ps1, 20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl",
+    "attack": "T1078.004, T1098.001, T1098.003, T1555.006",
+    "atlas": null
+  },
+  {
+    "item": "M1027 Password Policies",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Set and enforce secure password policies for accounts to reduce the likelihood of unauthorized access.",
+    "basis": "TokenRequest",
+    "files": "20261015_090000_step01_token.sh",
+    "attack": "T1078.004",
+    "atlas": null
+  },
+  {
+    "item": "M1030 Network Segmentation",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Network segmentation involves dividing a network into smaller, isolated segments to control and limit the flow of traffic between devices, systems, and applications.",
+    "basis": "AppCredentialAddition",
+    "files": "20261015_091000_step03_escalate.ps1",
+    "attack": "T1098.001",
+    "atlas": null
+  },
+  {
+    "item": "M1032 Multi-factor Authentication",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Multi-Factor Authentication (MFA) enhances security by requiring users to provide at least two forms of verification to prove their identity before granting access.",
+    "basis": "TokenRequest, AppCredentialAddition, GlobalAdministratorAssignment, AppRoleAssignment, MailboxAccess",
+    "files": "20261015_090000_step01_token.sh, 20261015_091000_step03_escalate.ps1, 20261015_092000_step04_collect.py, agent_20261015_093500.jsonl",
+    "attack": "T1078.004, T1098.001, T1098.003, T1114.002",
+    "atlas": null
+  },
+  {
+    "item": "M1036 Account Use Policies",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Account Use Policies help mitigate unauthorized access by configuring and enforcing rules that govern how and when accounts can be used.",
+    "basis": "TokenRequest",
+    "files": "20261015_090000_step01_token.sh",
+    "attack": "T1078.004",
+    "atlas": null
+  },
+  {
+    "item": "M1042 Disable or Remove Feature or Program",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Disable or remove unnecessary and potentially vulnerable software, features, or services to reduce the attack surface and prevent abuse by adversaries.",
+    "basis": "AppCredentialAddition",
+    "files": "20261015_091000_step03_escalate.ps1",
+    "attack": "T1098.001",
+    "atlas": null
+  },
+  {
+    "item": "M1041 Encrypt Sensitive Information",
     "section": "mitigation",
     "value": "medium",
-    "detail": "Limit who may add a credential or grant a permission to an application, and alert when either happens.",
-    "basis": "AppCredentialAddition, AppRoleAssignment, TokenRequest",
-    "files": "20261015_090000_step01_token.sh, 20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl"
+    "detail": "Protect sensitive information at rest, in transit, and during processing by using strong encryption algorithms.",
+    "basis": "MailboxAccess",
+    "files": "20261015_092000_step04_collect.py",
+    "attack": "T1114.002",
+    "atlas": null
   },
   {
-    "item": "Guard privileged roles",
+    "item": "M1047 Audit",
     "section": "mitigation",
     "value": "medium",
-    "detail": "Require approval and raise an alert for every privileged role assignment, and keep standing membership small.",
-    "basis": "GlobalAdministratorAssignment",
-    "files": "20261015_091000_step03_escalate.ps1"
+    "detail": "Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.",
+    "basis": "GraphDirectoryEnumeration, SharePointEnumeration, TeamsMessageAccess",
+    "files": "20261015_090500_step02_recon.ps1, 20261015_092000_step04_collect.py",
+    "attack": "T1087.004, T1213.002, T1213.005",
+    "atlas": null
   },
   {
-    "item": "Harden Key Vault access",
+    "item": "M1060 Out-of-Band Communications Channel",
     "section": "mitigation",
     "value": "medium",
-    "detail": "Give each identity the least vault access it needs, close vaults to public networks, and alert on bulk reads.",
-    "basis": "KeyVaultSecretRead, KeyVaultKeyUnwrap, KeyVaultKeyEnumeration, AzureResourceEnumeration",
-    "files": "20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl"
+    "detail": "Establish secure out-of-band communication channels to ensure the continuity of critical communications during security incidents, data integrity attacks, or in-network communication failures.",
+    "basis": "MailboxAccess, TeamsMessageAccess",
+    "files": "20261015_092000_step04_collect.py",
+    "attack": "T1114.002, T1213.005",
+    "atlas": null
   },
   {
-    "item": "Watch application access to mail and files",
+    "item": "AML.M0005 Control Access to AI Models and Data at Rest",
     "section": "mitigation",
-    "value": "low",
-    "detail": "Alert on an application that is granted mail or file permissions, and on one that reads them in volume.",
-    "basis": "MailboxAccess, TeamsMessageAccess, SharePointEnumeration, GraphDirectoryEnumeration",
-    "files": "20261015_090500_step02_recon.ps1, 20261015_092000_step04_collect.py"
+    "value": "high",
+    "detail": "Establish access controls on internal model registries and limit internal access to production models.",
+    "basis": "TokenRequest, MailboxAccess, TeamsMessageAccess, SharePointEnumeration",
+    "files": "20261015_090000_step01_token.sh, 20261015_092000_step04_collect.py",
+    "attack": null,
+    "atlas": "AML.T0012, AML.T0126"
+  },
+  {
+    "item": "AML.M0019 Control Access to AI Models and Data in Production",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Require users to verify their identities before accessing a production model.",
+    "basis": "TokenRequest",
+    "files": "20261015_090000_step01_token.sh",
+    "attack": null,
+    "atlas": "AML.T0012"
+  },
+  {
+    "item": "AML.M0043 AI Agent External Resource Lifecycle Management",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Organizations should control external resources created or acquired by AI agents during execution by treating those resources as attributable, lifecycle-managed assets.",
+    "basis": "TokenRequest",
+    "files": "20261015_090000_step01_token.sh",
+    "attack": null,
+    "atlas": "AML.T0012"
+  },
+  {
+    "item": "AML.M0020 Generative AI Guardrails",
+    "section": "mitigation",
+    "value": "medium",
+    "detail": "Guardrails are safety controls placed between users, tools, and generative AI models to evaluate prompts, retrieved context, model outputs, and agent actions before they are accepted, executed, or shown to a user.",
+    "basis": "Commands generated by an AI agent",
+    "files": "20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_091000_step03_escalate.ps1, 20261015_092000_step04_collect.py, 20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl",
+    "attack": null,
+    "atlas": "AML.T0102"
+  },
+  {
+    "item": "AML.M0022 Generative AI Model Alignment",
+    "section": "mitigation",
+    "value": "medium",
+    "detail": "Generative AI Model Alignment is the process of training or fine-tuning a generative model to guide its output toward a set of human values, goals, or ethical principles.",
+    "basis": "Commands generated by an AI agent",
+    "files": "20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_091000_step03_escalate.ps1, 20261015_092000_step04_collect.py, 20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl",
+    "attack": null,
+    "atlas": "AML.T0102"
+  },
+  {
+    "item": "AML.M0039 AI Honeypots",
+    "section": "mitigation",
+    "value": "medium",
+    "detail": "Deploy monitored decoy AI services, agents, credentials, or other resources that resemble legitimate, active assets in the external or internal environment, but serve no real business or operational functions.",
+    "basis": "MailboxAccess, TeamsMessageAccess, SharePointEnumeration",
+    "files": "20261015_092000_step04_collect.py",
+    "attack": null,
+    "atlas": "AML.T0126"
   }
 ]

@@ -30,8 +30,12 @@ type document struct {
 }
 
 type entry struct {
-	Name     string   `json:"name"`
-	Tactics  []string `json:"tactics"`
+	Name    string   `json:"name"`
+	Tactics []string `json:"tactics"`
+	// Attack and Atlas name the techniques of ATT&CK and of ATLAS. An ATLAS
+	// technique that refers to one of Attack need not be listed.
+	Attack   []string `json:"attack"`
+	Atlas    []string `json:"atlas,omitempty"`
 	Patterns []string `json:"patterns,omitempty"`
 	// Paths count only in a text that matches the entry's context: a script
 	// often holds a host in one variable and builds each address from it.
@@ -46,6 +50,8 @@ type entry struct {
 type Hit struct {
 	Name    string
 	Tactics []string
+	Attack  []string
+	Atlas   []string
 	// Lines is the number of distinct lines that show the activity.
 	Lines int
 }
@@ -59,6 +65,8 @@ type Table struct {
 type compiled struct {
 	name     string
 	tactics  []string
+	attack   []string
+	atlas    []string
 	patterns []pattern
 	context  string
 	paths    []pattern
@@ -109,6 +117,8 @@ func decode(data []byte) (Table, error) {
 			return Table{}, fmt.Errorf("activities.json[%d]: %s is named twice", i, e.Name)
 		case len(e.Tactics) == 0:
 			return Table{}, fmt.Errorf("activities.json[%d] %s: no tactics", i, e.Name)
+		case len(e.Attack) == 0:
+			return Table{}, fmt.Errorf("activities.json[%d] %s: no ATT&CK technique", i, e.Name)
 		case len(e.Patterns)+len(e.Paths) == 0:
 			return Table{}, fmt.Errorf("activities.json[%d] %s: no patterns", i, e.Name)
 		case (e.Context == "") != (len(e.Paths) == 0):
@@ -117,7 +127,7 @@ func decode(data []byte) (Table, error) {
 			return Table{}, fmt.Errorf("activities.json[%d] %s: unknown context %q", i, e.Name, e.Context)
 		}
 		seen[e.Name] = true
-		c := compiled{name: e.Name, tactics: e.Tactics, context: e.Context}
+		c := compiled{name: e.Name, tactics: e.Tactics, attack: e.Attack, atlas: e.Atlas, context: e.Context}
 		var err error
 		if c.patterns, err = compileAll(e.Patterns); err != nil {
 			return Table{}, fmt.Errorf("activities.json[%d] %s: %w", i, e.Name, err)
@@ -229,6 +239,14 @@ func (t Table) Names() []string {
 	return names
 }
 
+// Each calls visit with every activity, in the order of the data file, so a
+// caller that holds the other tables can check what an activity refers to.
+func (t Table) Each(visit func(name string, tactics, attack, atlas []string)) {
+	for _, a := range t.activities {
+		visit(a.name, a.tactics, a.attack, a.atlas)
+	}
+}
+
 // Tactics lists every tactic name the table assigns, so a caller that holds
 // the tactic table can check that each one exists.
 func (t Table) Tactics() []string {
@@ -275,7 +293,7 @@ func (t Table) Detect(text string) []Hit {
 			}
 		}
 		if len(lines) > 0 {
-			hits = append(hits, Hit{Name: a.name, Tactics: a.tactics, Lines: len(lines)})
+			hits = append(hits, Hit{Name: a.name, Tactics: a.tactics, Attack: a.attack, Atlas: a.atlas, Lines: len(lines)})
 		}
 	}
 	return hits

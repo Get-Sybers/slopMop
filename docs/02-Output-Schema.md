@@ -133,6 +133,8 @@ One row per activity, per distinct indicator and per tactic. The selectors `-act
 | `INDICATOR` | `indicator` | the indicator's value; `-` on an activity or tactic row |
 | `FILES` | `files` | the files that show it |
 | `ATTRIBUTION` | `attribution` | the watchlist attributions of an indicator; `-` otherwise |
+| `ATTACK` (wide) | `attack` | on an activity, its MITRE ATT&CK techniques; on a tactic, its ATT&CK tactic; `-` on an indicator |
+| `ATLAS` (wide) | `atlas` | on an activity, its MITRE ATLAS techniques; on a tactic, its ATLAS tactic; `-` on an indicator |
 
 Sort: severity from `high` to `low`, then activities, indicators and tactics, each by name.
 
@@ -146,19 +148,22 @@ One row per line of the report, in five sections. A selector picks a section; no
 | `script`, `output`, `other` | `-files` | a notable file, under its role: one that holds a finding at or above `--severity`, which is `high` unless given |
 | `impact` | `-impact` | a consequence the evidence shows |
 | `remediation` | `-remediation` | an action that undoes what was done |
-| `mitigation` | `-mitigation` | an action that prevents a repeat |
+| `mitigation` | `-mitigation` | a mitigation that MITRE ATT&CK or MITRE ATLAS gives for a technique that was found |
 
 | Column | JSON key | Value |
 | --- | --- | --- |
-| `ITEM` | `item` | the name of the count, the path of the file, the impact or the action |
+| `ITEM` | `item` | the name of the count, the path of the file, the impact or the action; on a mitigation, its identifier and name, such as `M1038 Execution Prevention` |
 | `SECTION` | `section` | the section; a notable file carries its role |
-| `VALUE` | `value` | a number on a summary row, where an `activities <name>` row counts the lines that show the activity; elsewhere `low`, `medium` or `high`: the severity of a file or an impact, the priority of an action |
-| `DETAIL` | `detail` | on a file, what was found: activities, tools with their tactic, watchlist attributions; on an impact, its statement and the hosts or addresses affected; on an action, what to do; `-` on a summary row |
+| `VALUE` | `value` | a number on a summary row, where an `activities <name>` row counts the lines that show the activity; elsewhere `low`, `medium` or `high`: the severity of a file or an impact, the priority of an action; a mitigation takes the highest severity among the activities it addresses |
+| `DETAIL` | `detail` | on a file, what was found: activities, tools with their tactic, watchlist attributions; on an impact, its statement and the hosts or addresses affected; on a remediation, what to do; on a mitigation, the first sentence of the framework's own description; `-` on a summary row |
 | `BASIS` (wide) | `basis` | on an impact or an action, the activities, tool tactics and watchlist attributions that call for it |
 | `FILES` (wide) | `files` | on a script, the files it writes; on another file, the scripts that write it; on an impact or an action, the files that show it |
+| `ATTACK` (wide) | `attack` | the ATT&CK techniques a file or an impact shows; on an ATT&CK mitigation, the techniques found that it addresses |
+| `ATLAS` (wide) | `atlas` | the ATLAS techniques a file or an impact shows; on an ATLAS mitigation, the techniques found that it addresses |
 
 Sort: the sections in the order above; files in time order; impacts from `high` to `low`;
-remediation before mitigation, each from `high` to `low`.
+remediation from `high` to `low`; then the ATT&CK mitigations and the ATLAS mitigations, each from
+`high` to `low` and by identifier.
 
 An impact says what the evidence shows was done. The tool does not run a script, so it cannot say
 whether a step succeeded.

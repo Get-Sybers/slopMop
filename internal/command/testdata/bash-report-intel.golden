@@ -1,34 +1,45 @@
-ITEM                                    SECTION      VALUE   DETAIL
-files                                   summary      17      -
-scripts                                 summary      7       -
-outputs                                 summary      9       -
-indicators                              summary      22      -
-indicators Domain                       summary      9       -
-indicators Email                        summary      3       -
-indicators IPv4                         summary      4       -
-indicators MD5                          summary      2       -
-indicators SHA1                         summary      1       -
-indicators URL                          summary      3       -
-activities                              summary      2       -
-activities CertificateExport            summary      1       -
-activities FileUpload                   summary      1       -
-tactics                                 summary      4       -
-intel hits                              summary      2       -
-20250301_101530_step01_recon.txt        output       high    watchlist STORM-0940
-20250301_101800_step02_enum.sh          script       high    nxc (CredentialAccess), watchlist STORM-0940
-20250301_101845_step02_enum.log         output       high    watchlist STORM-0940
-20250301_102300_step03_adsync.sh        script       high    nxc (CredentialAccess), adconnectdump.py (CredentialAccess)
-20250301_103200_step05_certs.sh         script       high    certipy (CredentialAccess), watchlist STORM-0940
-20250301_104000_step06_auth.sh          script       high    certipy (CredentialAccess), secretsdump.py (CredentialAccess), nxc (CredentialAccess), watchlist STORM-0940
-20250301_104500_step07_exfil.sh         script       high    FileUpload, CertificateExport, nxc (CredentialAccess), watchlist STORM-0940
-Credentials exposed                     impact       high    Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.
-Known threat infrastructure involved    impact       high    The evidence names infrastructure on the watchlist, which ties the activity to a known actor.
-Data may have left the environment      impact       high    A transfer out was run. Confirm what was sent and where.
-Environment mapped                      impact       low     Identities, resources or configuration were listed. Later steps were probably aimed with the result.
-Rotate what was read                    remediation  high    Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.
-Block and hunt the infrastructure       remediation  high    Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.
-Scope the data taken                    remediation  high    Establish from audit logs which mailboxes, chats, sites and files were read or sent out, and assess that data as breached.
-Follow what was enumerated              remediation  low     Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
-Constrain living-off-the-land binaries  mitigation   medium  Use application control to stop system binaries that have no need to from fetching files or running code.
-Protect credentials on hosts            mitigation   medium  Turn on protection for the local security authority and its credential store, and restrict who may debug processes.
-Filter outbound traffic                 mitigation   medium  Deny outbound connections from servers by default and allow them by destination.
+ITEM                                                    SECTION      VALUE   DETAIL
+files                                                   summary      17      -
+scripts                                                 summary      7       -
+outputs                                                 summary      9       -
+indicators                                              summary      22      -
+indicators Domain                                       summary      9       -
+indicators Email                                        summary      3       -
+indicators IPv4                                         summary      4       -
+indicators MD5                                          summary      2       -
+indicators SHA1                                         summary      1       -
+indicators URL                                          summary      3       -
+activities                                              summary      2       -
+activities CertificateExport                            summary      1       -
+activities FileUpload                                   summary      1       -
+tactics                                                 summary      4       -
+intel hits                                              summary      2       -
+20250301_101530_step01_recon.txt                        output       high    watchlist STORM-0940
+20250301_101800_step02_enum.sh                          script       high    nxc (CredentialAccess), watchlist STORM-0940
+20250301_101845_step02_enum.log                         output       high    watchlist STORM-0940
+20250301_102300_step03_adsync.sh                        script       high    nxc (CredentialAccess), adconnectdump.py (CredentialAccess)
+20250301_103200_step05_certs.sh                         script       high    certipy (CredentialAccess), watchlist STORM-0940
+20250301_104000_step06_auth.sh                          script       high    certipy (CredentialAccess), secretsdump.py (CredentialAccess), nxc (CredentialAccess), watchlist STORM-0940
+20250301_104500_step07_exfil.sh                         script       high    FileUpload, CertificateExport, nxc (CredentialAccess), watchlist STORM-0940
+Credentials exposed                                     impact       high    Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.
+Known threat infrastructure involved                    impact       high    The evidence names infrastructure on the watchlist, which ties the activity to a known actor.
+Data may have left the environment                      impact       high    A transfer out was run. Confirm what was sent and where.
+Commands generated by an AI agent                       impact       medium  The scripts were written by an AI agent, which is the premise of this tool. Generated commands differ from run to run, so a detection that matches exact text misses them.
+Environment mapped                                      impact       low     Identities, resources or configuration were listed. Later steps were probably aimed with the result.
+Rotate what was read                                    remediation  high    Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.
+Block and hunt the infrastructure                       remediation  high    Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.
+Scope the data taken                                    remediation  high    Establish from audit logs which mailboxes, chats, sites and files were read or sent out, and assess that data as breached.
+Follow what was enumerated                              remediation  low     Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
+M1015 Active Directory Configuration                    mitigation   high    Implement robust Active Directory (AD) configurations using group policies to secure user accounts, control access, and minimize the attack surface.
+M1018 User Account Management                           mitigation   high    User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.
+M1022 Restrict File and Directory Permissions           mitigation   high    Restricting file and directory permissions involves setting access controls at the file system level to limit which users, groups, or processes can read, write, or execute files.
+M1030 Network Segmentation                              mitigation   high    Network segmentation involves dividing a network into smaller, isolated segments to control and limit the flow of traffic between devices, systems, and applications.
+M1031 Network Intrusion Prevention                      mitigation   high    Use intrusion detection signatures to block traffic at network boundaries.
+M1037 Filter Network Traffic                            mitigation   high    Employ network appliances and endpoint software to filter ingress, egress, and lateral network traffic.
+M1041 Encrypt Sensitive Information                     mitigation   high    Protect sensitive information at rest, in transit, and during processing by using strong encryption algorithms.
+M1042 Disable or Remove Feature or Program              mitigation   high    Disable or remove unnecessary and potentially vulnerable software, features, or services to reduce the attack surface and prevent abuse by adversaries.
+M1047 Audit                                             mitigation   high    Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.
+M1057 Data Loss Prevention                              mitigation   high    Data Loss Prevention (DLP) involves implementing strategies and technologies to identify, categorize, monitor, and control the movement of sensitive data within an organization.
+AML.M0005 Control Access to AI Models and Data at Rest  mitigation   high    Establish access controls on internal model registries and limit internal access to production models.
+AML.M0020 Generative AI Guardrails                      mitigation   medium  Guardrails are safety controls placed between users, tools, and generative AI models to evaluate prompts, retrieved context, model outputs, and agent actions before they are accepted, executed, or shown to a user.
+AML.M0022 Generative AI Model Alignment                 mitigation   medium  Generative AI Model Alignment is the process of training or fine-tuning a generative model to guide its output toward a set of human values, goals, or ethical principles.

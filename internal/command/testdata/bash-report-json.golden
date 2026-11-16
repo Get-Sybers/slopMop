@@ -5,7 +5,9 @@
     "value": 17,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "scripts",
@@ -13,7 +15,9 @@
     "value": 7,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "outputs",
@@ -21,7 +25,9 @@
     "value": 9,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators",
@@ -29,7 +35,9 @@
     "value": 22,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators Domain",
@@ -37,7 +45,9 @@
     "value": 9,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators Email",
@@ -45,7 +55,9 @@
     "value": 3,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators IPv4",
@@ -53,7 +65,9 @@
     "value": 4,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators MD5",
@@ -61,7 +75,9 @@
     "value": 2,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators SHA1",
@@ -69,7 +85,9 @@
     "value": 1,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators URL",
@@ -77,7 +95,9 @@
     "value": 3,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities",
@@ -85,7 +105,9 @@
     "value": 2,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities CertificateExport",
@@ -93,7 +115,9 @@
     "value": 1,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities FileUpload",
@@ -101,7 +125,9 @@
     "value": 1,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "tactics",
@@ -109,7 +135,9 @@
     "value": 4,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "20250301_101800_step02_enum.sh",
@@ -117,7 +145,9 @@
     "value": "high",
     "detail": "nxc (CredentialAccess)",
     "basis": null,
-    "files": "20250301_101845_step02_enum.log, 20250301_101910_step02_users.tsv"
+    "files": "20250301_101845_step02_enum.log, 20250301_101910_step02_users.tsv",
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "20250301_102300_step03_adsync.sh",
@@ -125,7 +155,9 @@
     "value": "high",
     "detail": "nxc (CredentialAccess), adconnectdump.py (CredentialAccess)",
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "20250301_103200_step05_certs.sh",
@@ -133,7 +165,9 @@
     "value": "high",
     "detail": "certipy (CredentialAccess)",
     "basis": null,
-    "files": "20250301_103240_certipy_find.txt, 20250301_103300_notes.txt"
+    "files": "20250301_103240_certipy_find.txt, 20250301_103300_notes.txt",
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "20250301_104000_step06_auth.sh",
@@ -141,7 +175,9 @@
     "value": "high",
     "detail": "certipy (CredentialAccess), secretsdump.py (CredentialAccess), nxc (CredentialAccess)",
     "basis": null,
-    "files": "20250301_104010_step06_auth.txt, 20250301_104030_ca_store.txt"
+    "files": "20250301_104010_step06_auth.txt, 20250301_104030_ca_store.txt",
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "20250301_104500_step07_exfil.sh",
@@ -149,7 +185,9 @@
     "value": "high",
     "detail": "FileUpload, CertificateExport, nxc (CredentialAccess)",
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": "T1048, T1649",
+    "atlas": "AML.T0025"
   },
   {
     "item": "Credentials exposed",
@@ -157,7 +195,9 @@
     "value": "high",
     "detail": "Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.",
     "basis": "CertificateExport, CredentialAccess tools",
-    "files": "20250301_101800_step02_enum.sh, 20250301_102300_step03_adsync.sh, 20250301_103200_step05_certs.sh, 20250301_104000_step06_auth.sh, 20250301_104500_step07_exfil.sh"
+    "files": "20250301_101800_step02_enum.sh, 20250301_102300_step03_adsync.sh, 20250301_103200_step05_certs.sh, 20250301_104000_step06_auth.sh, 20250301_104500_step07_exfil.sh",
+    "attack": "T1649",
+    "atlas": null
   },
   {
     "item": "Data may have left the environment",
@@ -165,7 +205,19 @@
     "value": "high",
     "detail": "A transfer out was run. Confirm what was sent and where.",
     "basis": "FileUpload",
-    "files": "20250301_104500_step07_exfil.sh"
+    "files": "20250301_104500_step07_exfil.sh",
+    "attack": "T1048",
+    "atlas": "AML.T0025"
+  },
+  {
+    "item": "Commands generated by an AI agent",
+    "section": "impact",
+    "value": "medium",
+    "detail": "The scripts were written by an AI agent, which is the premise of this tool. Generated commands differ from run to run, so a detection that matches exact text misses them.",
+    "basis": "the premise of the tool",
+    "files": "20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh, 20250301_102300_step03_adsync.sh, 20250301_102700_step03_adsync_v2.sh, 20250301_103200_step05_certs.sh, 20250301_104000_step06_auth.sh, 20250301_104500_step07_exfil.sh",
+    "attack": null,
+    "atlas": "AML.T0102"
   },
   {
     "item": "Environment mapped",
@@ -173,7 +225,9 @@
     "value": "low",
     "detail": "Identities, resources or configuration were listed. Later steps were probably aimed with the result.",
     "basis": "Discovery tools",
-    "files": "20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh"
+    "files": "20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh",
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "Rotate what was read",
@@ -181,7 +235,9 @@
     "value": "high",
     "detail": "Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.",
     "basis": "CertificateExport, CredentialAccess tools",
-    "files": "20250301_101800_step02_enum.sh, 20250301_102300_step03_adsync.sh, 20250301_103200_step05_certs.sh, 20250301_104000_step06_auth.sh, 20250301_104500_step07_exfil.sh"
+    "files": "20250301_101800_step02_enum.sh, 20250301_102300_step03_adsync.sh, 20250301_103200_step05_certs.sh, 20250301_104000_step06_auth.sh, 20250301_104500_step07_exfil.sh",
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "Block and hunt the infrastructure",
@@ -189,7 +245,9 @@
     "value": "high",
     "detail": "Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.",
     "basis": "FileUpload",
-    "files": "20250301_104500_step07_exfil.sh"
+    "files": "20250301_104500_step07_exfil.sh",
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "Scope the data taken",
@@ -197,7 +255,9 @@
     "value": "high",
     "detail": "Establish from audit logs which mailboxes, chats, sites and files were read or sent out, and assess that data as breached.",
     "basis": "FileUpload",
-    "files": "20250301_104500_step07_exfil.sh"
+    "files": "20250301_104500_step07_exfil.sh",
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "Follow what was enumerated",
@@ -205,30 +265,138 @@
     "value": "low",
     "detail": "Use what was listed to predict targets: check those identities, vaults and hosts for later activity.",
     "basis": "Discovery tools",
-    "files": "20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh"
+    "files": "20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh",
+    "attack": null,
+    "atlas": null
   },
   {
-    "item": "Constrain living-off-the-land binaries",
+    "item": "M1015 Active Directory Configuration",
     "section": "mitigation",
-    "value": "medium",
-    "detail": "Use application control to stop system binaries that have no need to from fetching files or running code.",
-    "basis": "FileUpload, CertificateExport",
-    "files": "20250301_104500_step07_exfil.sh"
+    "value": "high",
+    "detail": "Implement robust Active Directory (AD) configurations using group policies to secure user accounts, control access, and minimize the attack surface.",
+    "basis": "CertificateExport",
+    "files": "20250301_104500_step07_exfil.sh",
+    "attack": "T1649",
+    "atlas": null
   },
   {
-    "item": "Protect credentials on hosts",
+    "item": "M1018 User Account Management",
     "section": "mitigation",
-    "value": "medium",
-    "detail": "Turn on protection for the local security authority and its credential store, and restrict who may debug processes.",
-    "basis": "CertificateExport, CredentialAccess tools",
-    "files": "20250301_101800_step02_enum.sh, 20250301_102300_step03_adsync.sh, 20250301_103200_step05_certs.sh, 20250301_104000_step06_auth.sh, 20250301_104500_step07_exfil.sh"
-  },
-  {
-    "item": "Filter outbound traffic",
-    "section": "mitigation",
-    "value": "medium",
-    "detail": "Deny outbound connections from servers by default and allow them by destination.",
+    "value": "high",
+    "detail": "User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.",
     "basis": "FileUpload",
-    "files": "20250301_104500_step07_exfil.sh"
+    "files": "20250301_104500_step07_exfil.sh",
+    "attack": "T1048",
+    "atlas": null
+  },
+  {
+    "item": "M1022 Restrict File and Directory Permissions",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Restricting file and directory permissions involves setting access controls at the file system level to limit which users, groups, or processes can read, write, or execute files.",
+    "basis": "FileUpload",
+    "files": "20250301_104500_step07_exfil.sh",
+    "attack": "T1048",
+    "atlas": null
+  },
+  {
+    "item": "M1030 Network Segmentation",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Network segmentation involves dividing a network into smaller, isolated segments to control and limit the flow of traffic between devices, systems, and applications.",
+    "basis": "FileUpload",
+    "files": "20250301_104500_step07_exfil.sh",
+    "attack": "T1048",
+    "atlas": null
+  },
+  {
+    "item": "M1031 Network Intrusion Prevention",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Use intrusion detection signatures to block traffic at network boundaries.",
+    "basis": "FileUpload",
+    "files": "20250301_104500_step07_exfil.sh",
+    "attack": "T1048",
+    "atlas": null
+  },
+  {
+    "item": "M1037 Filter Network Traffic",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Employ network appliances and endpoint software to filter ingress, egress, and lateral network traffic.",
+    "basis": "FileUpload",
+    "files": "20250301_104500_step07_exfil.sh",
+    "attack": "T1048",
+    "atlas": null
+  },
+  {
+    "item": "M1041 Encrypt Sensitive Information",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Protect sensitive information at rest, in transit, and during processing by using strong encryption algorithms.",
+    "basis": "CertificateExport",
+    "files": "20250301_104500_step07_exfil.sh",
+    "attack": "T1649",
+    "atlas": null
+  },
+  {
+    "item": "M1042 Disable or Remove Feature or Program",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Disable or remove unnecessary and potentially vulnerable software, features, or services to reduce the attack surface and prevent abuse by adversaries.",
+    "basis": "CertificateExport",
+    "files": "20250301_104500_step07_exfil.sh",
+    "attack": "T1649",
+    "atlas": null
+  },
+  {
+    "item": "M1047 Audit",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.",
+    "basis": "CertificateExport",
+    "files": "20250301_104500_step07_exfil.sh",
+    "attack": "T1649",
+    "atlas": null
+  },
+  {
+    "item": "M1057 Data Loss Prevention",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Data Loss Prevention (DLP) involves implementing strategies and technologies to identify, categorize, monitor, and control the movement of sensitive data within an organization.",
+    "basis": "FileUpload",
+    "files": "20250301_104500_step07_exfil.sh",
+    "attack": "T1048",
+    "atlas": null
+  },
+  {
+    "item": "AML.M0005 Control Access to AI Models and Data at Rest",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Establish access controls on internal model registries and limit internal access to production models.",
+    "basis": "FileUpload",
+    "files": "20250301_104500_step07_exfil.sh",
+    "attack": null,
+    "atlas": "AML.T0025"
+  },
+  {
+    "item": "AML.M0020 Generative AI Guardrails",
+    "section": "mitigation",
+    "value": "medium",
+    "detail": "Guardrails are safety controls placed between users, tools, and generative AI models to evaluate prompts, retrieved context, model outputs, and agent actions before they are accepted, executed, or shown to a user.",
+    "basis": "Commands generated by an AI agent",
+    "files": "20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh, 20250301_102300_step03_adsync.sh, 20250301_102700_step03_adsync_v2.sh, 20250301_103200_step05_certs.sh, 20250301_104000_step06_auth.sh, 20250301_104500_step07_exfil.sh",
+    "attack": null,
+    "atlas": "AML.T0102"
+  },
+  {
+    "item": "AML.M0022 Generative AI Model Alignment",
+    "section": "mitigation",
+    "value": "medium",
+    "detail": "Generative AI Model Alignment is the process of training or fine-tuning a generative model to guide its output toward a set of human values, goals, or ethical principles.",
+    "basis": "Commands generated by an AI agent",
+    "files": "20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh, 20250301_102300_step03_adsync.sh, 20250301_102700_step03_adsync_v2.sh, 20250301_103200_step05_certs.sh, 20250301_104000_step06_auth.sh, 20250301_104500_step07_exfil.sh",
+    "attack": null,
+    "atlas": "AML.T0102"
   }
 ]

@@ -81,3 +81,6 @@ repository: `docs/04-Go-Standards.md` and `docs/05-Linting-and-Conformance.md`.
 ## Licence
 
 Licence: MIT. The text is in [LICENSE](LICENSE).
+
+`internal/mitre/catalogue.json` is derived from MITRE ATT&CK and MITRE ATLAS. Their licences are
+beside it, in `LICENSE-ATTACK.txt` and `LICENSE-ATLAS.txt`.

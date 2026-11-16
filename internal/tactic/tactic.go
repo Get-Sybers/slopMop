@@ -15,6 +15,9 @@ var raw []byte
 type entry struct {
 	Tactic   string   `json:"tactic"`
 	Severity Severity `json:"severity"`
+	// ID and Atlas are the tactic's identifiers in ATT&CK and in ATLAS.
+	ID       string   `json:"id"`
+	Atlas    string   `json:"atlas"`
 	Commands []string `json:"commands"`
 }
 
@@ -22,6 +25,8 @@ type entry struct {
 type Table struct {
 	byCommand map[string]string
 	severity  map[string]Severity
+	ids       map[string][2]string
+	names     []string
 }
 
 // Severity ranks a tactic; a higher value is more severe.
@@ -68,8 +73,12 @@ func LoadTactics() (Table, error) {
 	}
 	m := make(map[string]string, 512)
 	severity := make(map[string]Severity, len(entries))
+	ids := make(map[string][2]string, len(entries))
+	names := make([]string, 0, len(entries))
 	for _, e := range entries {
 		severity[e.Tactic] = e.Severity
+		ids[e.Tactic] = [2]string{e.ID, e.Atlas}
+		names = append(names, e.Tactic)
 		for _, c := range e.Commands {
 			if prev, dup := m[c]; dup {
 				return Table{}, fmt.Errorf("command %q in both %s and %s", c, prev, e.Tactic)
@@ -77,7 +86,22 @@ func LoadTactics() (Table, error) {
 			m[c] = e.Tactic
 		}
 	}
-	return Table{byCommand: m, severity: severity}, nil
+	return Table{byCommand: m, severity: severity, ids: ids, names: names}, nil
+}
+
+// Names lists the tactics, in the order of the data file.
+func (t Table) Names() []string {
+	return t.names
+}
+
+// Attack is the tactic's identifier in ATT&CK, or "" for a name the table lacks.
+func (t Table) Attack(tactic string) string {
+	return t.ids[tactic][0]
+}
+
+// Atlas is the tactic's identifier in ATLAS, or "" for a name the table lacks.
+func (t Table) Atlas(tactic string) string {
+	return t.ids[tactic][1]
 }
 
 func decode(data []byte) ([]entry, error) {
@@ -96,6 +120,9 @@ func decode(data []byte) ([]entry, error) {
 		}
 		if e.Severity.Rank() == 0 {
 			return nil, fmt.Errorf("tactics.json[%d] (%s): severity %q is not low, medium or high", i, e.Tactic, e.Severity)
+		}
+		if e.ID == "" || e.Atlas == "" {
+			return nil, fmt.Errorf("tactics.json[%d] (%s): an ATT&CK and an ATLAS identifier are both needed", i, e.Tactic)
 		}
 		if len(e.Commands) == 0 {
 			return nil, fmt.Errorf("tactics.json[%d] (%s): no commands", i, e.Tactic)
