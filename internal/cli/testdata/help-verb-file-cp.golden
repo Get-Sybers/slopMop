@@ -1,0 +1,2 @@
+usage: slopmop file cp <node:/src> <node:/dst>
+copy node:/src to node:/dst

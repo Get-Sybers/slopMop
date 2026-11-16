@@ -1,0 +1,8 @@
+usage: slopmop logs VERB [selectors] [--params] [output flags] [positional]
+node logs
+
+verbs:
+  list, ls  list log entries (no selector = every type, no --node = every node)
+  clear     clear one or more log sources
+
+more help: slopmop logs VERB -h

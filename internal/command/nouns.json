@@ -1,0 +1,25 @@
+{
+  "nouns": [
+    {
+      "name": "file",
+      "aliases": ["files"],
+      "summary": "files in the input directory",
+      "verbs": [
+        {
+          "name": "list",
+          "summary": "list the files directly in the input directory",
+          "columns": [
+            {"header": "NAME", "key": "name"},
+            {"header": "ROLE", "key": "role"},
+            {"header": "SIZE", "key": "size"},
+            {"header": "LINES", "key": "lines"},
+            {"header": "MODIFIED", "key": "modified"},
+            {"header": "SHA256", "key": "sha256", "wide": true},
+            {"header": "NAME TIME", "key": "name_time", "wide": true},
+            {"header": "NOTE", "key": "note", "wide": true}
+          ]
+        }
+      ]
+    }
+  ]
+}

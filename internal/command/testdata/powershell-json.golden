@@ -1,0 +1,122 @@
+[
+  {
+    "name": "20250302_090000_step01_inventory.ps1",
+    "role": "script",
+    "size": 487,
+    "lines": 13,
+    "modified": "2025-03-02T09:00:03Z",
+    "sha256": "2232e80ab6e9391a221315e0b9aaf9dd70739833a376a0e3ee4e671251be09d6",
+    "name_time": "20250302_090000",
+    "note": null
+  },
+  {
+    "name": "20250302_090500_step02_sync.ps1",
+    "role": "script",
+    "size": 385,
+    "lines": 7,
+    "modified": "2025-03-02T09:05:03Z",
+    "sha256": "0b6610dfe1ddb50ae17a395528d915bcf73ecd032e1d849117b421c7c7af2d77",
+    "name_time": "20250302_090500",
+    "note": null
+  },
+  {
+    "name": "20250302_090900_step03_sync_retry.ps1",
+    "role": "script",
+    "size": 478,
+    "lines": 13,
+    "modified": "2025-03-02T09:09:03Z",
+    "sha256": "cd828aedb5dc40e3934f50bcb934626d788d5d275cda1a8158c845c9a3f4556c",
+    "name_time": "20250302_090900",
+    "note": null
+  },
+  {
+    "name": "20250302_091500_step04_certs.ps1",
+    "role": "script",
+    "size": 387,
+    "lines": 7,
+    "modified": "2025-03-02T09:15:03Z",
+    "sha256": "d526d0bd29f97060e95016eeaccd5ad23a9593fe9b3ce876918915116c220654",
+    "name_time": "20250302_091500",
+    "note": null
+  },
+  {
+    "name": "20250302_092200_step05_export.ps1",
+    "role": "script",
+    "size": 639,
+    "lines": 12,
+    "modified": "2025-03-02T09:22:03Z",
+    "sha256": "af7e7dc1300e5a07c693f0280e0b1eaca642ae8845b328800bd6e6369c68cdea",
+    "name_time": "20250302_092200",
+    "note": null
+  },
+  {
+    "name": "ca01_20250302_092210.cer",
+    "role": "other",
+    "size": 18,
+    "lines": null,
+    "modified": "2025-03-02T09:22:13Z",
+    "sha256": "611ae0e982ec96df79fcb8dcc302cee5e41392be134ea0b6a6cfb7126f6c5951",
+    "name_time": "20250302_092210",
+    "note": "binary"
+  },
+  {
+    "name": "ca_ping_20250302_091540.log",
+    "role": "output",
+    "size": 162,
+    "lines": 3,
+    "modified": "2025-03-02T09:15:43Z",
+    "sha256": "2a73e9d8e3c21bb935680fded3ebb04ba38bdc1c67c1999e83cd79ad3e68177b",
+    "name_time": "20250302_091540",
+    "note": null
+  },
+  {
+    "name": "cert_store_20250302_091530.txt",
+    "role": "output",
+    "size": 656,
+    "lines": 7,
+    "modified": "2025-03-02T09:15:33Z",
+    "sha256": "fef8f7f67104e97e1bb929384f913e1cbf1bfca9dad8ff1c7b3370182d4b939b",
+    "name_time": "20250302_091530",
+    "note": null
+  },
+  {
+    "name": "export_summary_20250302_092215.txt",
+    "role": "output",
+    "size": 116,
+    "lines": 2,
+    "modified": "2025-03-02T09:22:18Z",
+    "sha256": "65ff776828d9de292d46436eeeeec6c226ddfba46db5d000401f19d39e0fcbdc",
+    "name_time": "20250302_092215",
+    "note": null
+  },
+  {
+    "name": "hosts_20250302_090030.csv",
+    "role": "output",
+    "size": 200,
+    "lines": 4,
+    "modified": "2025-03-02T09:00:33Z",
+    "sha256": "536220524fc2f82fbc954badc4e6eada96675d56c390d841a645e8ffff11da2d",
+    "name_time": "20250302_090030",
+    "note": null
+  },
+  {
+    "name": "sync_10.20.1.17_20250302_090530.txt",
+    "role": "output",
+    "size": 548,
+    "lines": 3,
+    "modified": "2025-03-02T09:05:33Z",
+    "sha256": "8735a8dfef1007db7c17e1a75beab7364f8ed87cda0174abdcc9959d32b21ca7",
+    "name_time": "20250302_090530",
+    "note": null
+  },
+  {
+    "name": "sync_10.20.1.17_retry_20250302_090930.txt",
+    "role": "output",
+    "size": 397,
+    "lines": 10,
+    "modified": "2025-03-02T09:09:33Z",
+    "sha256": "af1a21ec6d41e42459979a2a48d89c2cd7b2d8f471957c93097c5a1421edaa59",
+    "name_time": "20250302_090930",
+    "note": null
+  }
+]

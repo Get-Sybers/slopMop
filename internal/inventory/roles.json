@@ -1,0 +1,19 @@
+{
+  "roles": [
+    {
+      "name": "script",
+      "summary": "a script the agent wrote",
+      "extensions": [".ps1", ".psm1", ".sh", ".bash"],
+      "shebangs": ["^#!\\s*\\S*(bash|/sh|zsh|dash|ksh)\\b", "^#![^\\n]*pwsh"]
+    },
+    {
+      "name": "output",
+      "summary": "an output a script produced",
+      "extensions": [".txt", ".tsv", ".csv", ".log", ".out", ".json", ".xml"]
+    },
+    {
+      "name": "other",
+      "summary": "any other file"
+    }
+  ]
+}

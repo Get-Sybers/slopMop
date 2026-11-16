@@ -1,0 +1,3 @@
+MSOL  10.20.1.17  445  AADC01  [*] Uploading module
+MSOL  10.20.1.17  445  AADC01  Error: Access is denied
+bash: line 7: adconnectdump.py: command not found

@@ -1,0 +1,10 @@
+.cache/
+bin/
+coverage.out
+*.test
+.DS_Store
+.idea/
+.vscode/
+
+# Fixtures carry extensions that look like build output.
+!**/testdata/**

@@ -1,0 +1,35 @@
+# The rev pins here are the single home of linter versions; `make lint`
+# builds the golangci-lint this file names.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: end-of-file-fixer
+        exclude: (^|/)testdata/
+      - id: trailing-whitespace
+        exclude: (^|/)testdata/
+      - id: detect-private-key
+        exclude: (^|/)testdata/
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.38.0
+    hooks:
+      - id: yamllint
+        args: [--strict]
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+  - repo: https://github.com/golangci/golangci-lint
+    rev: v2.15.0
+    hooks:
+      - id: golangci-lint
+  - repo: local
+    hooks:
+      - id: structlint
+        name: structlint
+        entry: scripts/structlint.sh
+        language: system
+        pass_filenames: false

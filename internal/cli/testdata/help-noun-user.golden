@@ -1,0 +1,9 @@
+usage: slopmop user VERB [selectors] [--params] [output flags] [positional]
+access users
+
+verbs:
+  list, ls    list every user
+  get, show   show one user
+  delete, rm  remove users
+
+more help: slopmop user VERB -h

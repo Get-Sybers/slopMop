@@ -1,0 +1,3 @@
+SMB  10.20.1.5   445  DC01   [+] corp.example\svc_backup:Winter2025! valid
+SMB  10.20.1.17  445  AADC01 [+] corp.example\svc_backup:Winter2025! (Pwn3d!)
+SMB  10.20.1.23  445  CA01   [-] corp.example\svc_backup:Winter2025! STATUS_LOGON_FAILURE

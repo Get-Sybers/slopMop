@@ -1,0 +1,19 @@
+usage: slopmop logs list [selectors] [--params] [output flags]
+list log entries (no selector = every type, no --node = every node)
+
+selectors (single dash, pick any; none = all):
+  -auth       authentication log
+  -firewall   firewall log
+  -kernel     kernel ring buffer
+  -sysmon     Sysmon events
+  -task       task / job log
+
+params (double dash, take a value):
+  --node      <node>|all
+  --since     <time>
+
+output flags:
+  -o wide|json    every column, or JSON
+  -q              column 1 only, one per line
+  --no-headers    no header row
+  --tz local|utc  zone of displayed times (default utc)

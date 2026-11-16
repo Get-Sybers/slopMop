@@ -1,0 +1,8 @@
+Starting Nmap 7.94 ( https://nmap.org )
+Nmap scan report for dc01.corp.example (10.20.1.5)
+Host is up (0.0010s latency).
+Nmap scan report for aadc01.corp.example (10.20.1.17)
+Host is up (0.0012s latency).
+Nmap scan report for ca01.corp.example (10.20.1.23)
+Host is up.
+done
