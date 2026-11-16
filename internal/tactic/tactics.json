@@ -1,6 +1,7 @@
 [
   {
     "tactic": "Discovery",
+    "severity": "low",
     "commands": [
       "nmap", "masscan", "rustscan", "ping", "fping", "arp", "arp-scan",
       "nbtscan", "dig", "nslookup", "host", "whois", "traceroute", "ip",
@@ -41,6 +42,7 @@
   },
   {
     "tactic": "CredentialAccess",
+    "severity": "high",
     "commands": [
       "hydra", "medusa", "ncrack", "john", "hashcat", "kerbrute",
       "secretsdump.py", "impacket-secretsdump", "mimikatz", "lazagne",
@@ -69,6 +71,7 @@
   },
   {
     "tactic": "LateralMovement",
+    "severity": "high",
     "commands": [
       "ssh", "sshpass", "psexec.py", "wmiexec.py", "smbexec.py",
       "evil-winrm", "xfreerdp", "rdesktop", "ansible", "ansible-playbook",
@@ -81,6 +84,7 @@
   },
   {
     "tactic": "Execution",
+    "severity": "medium",
     "commands": [
       "python", "python3", "perl", "ruby", "php", "node", "bash", "sh",
       "zsh", "eval", "msfconsole", "msfvenom", "sqlmap", "gcc", "make",
@@ -93,6 +97,7 @@
   },
   {
     "tactic": "Persistence",
+    "severity": "high",
     "commands": [
       "crontab", "useradd", "adduser", "usermod", "chpasswd", "passwd",
       "ssh-keygen", "at", "schtasks", "register-scheduledtask",
@@ -117,6 +122,7 @@
   },
   {
     "tactic": "DefenseEvasion",
+    "severity": "medium",
     "commands": [
       "shred", "chattr", "setenforce", "iptables", "ufw", "auditctl",
       "truncate", "history", "set-mppreference", "add-mppreference",
@@ -128,6 +134,7 @@
   },
   {
     "tactic": "Collection",
+    "severity": "medium",
     "commands": [
       "tar", "zip", "7z", "gzip", "mysqldump", "pg_dump", "mongodump",
       "mysql", "psql", "sqlite3", "redis-cli", "mongosh", "dd", "sqlcmd",
@@ -137,6 +144,7 @@
   },
   {
     "tactic": "Exfiltration",
+    "severity": "high",
     "commands": [
       "curl", "wget", "nc", "ncat", "netcat", "socat", "scp", "sftp", "ftp",
       "rsync", "rclone", "gsutil", "azcopy", "openssl", "ngrok", "chisel",

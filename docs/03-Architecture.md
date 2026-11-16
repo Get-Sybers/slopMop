@@ -15,7 +15,7 @@ about evidence touch no file, and every static table is a data file validated at
 | `internal/evidence` | the file record and its vocabularies (role, note); no I/O |
 | `internal/nametime` | detects the timestamp written into a file name; no I/O |
 | `internal/parse` | extracts commands, variables and file references from bash and PowerShell scripts |
-| `internal/tactic` | classifies commands by MITRE ATT&CK tactic using `tactics.json` |
+| `internal/tactic` | classifies commands by MITRE ATT&CK tactic and ranks each tactic's severity using `tactics.json` |
 | `internal/indicator` | extracts security indicators (IPs, URLs, hashes, CVEs) using `indicators.json` |
 | `internal/trace` | reconstructs the timeline from scripts and outputs: ordering, tool extraction, tactic classification, indicator counting, output linking |
 | `internal/evidencetest` | embeds the fixtures and copies one into a temporary folder for a test |
@@ -37,7 +37,7 @@ other internal package. `evidencetest` and `golden` are imported by tests only.
 | --- | --- | --- |
 | `internal/inventory/roles.json` | each role's summary, extensions and shebang patterns | the roles are `script`, `output`, `other` in that order; extensions are lower-case, dotted and in one role; patterns compile; `other` takes neither |
 | `internal/command/nouns.json` | nouns, verbs, aliases, summaries, columns | names and summaries present; columns pass the table check; every declared verb has an implementation and every implementation a declaration |
-| `internal/tactic/tactics.json` | MITRE ATT&CK tactics and the commands each claims | every tactic has a name and at least one command; no command appears in two tactics |
+| `internal/tactic/tactics.json` | MITRE ATT&CK tactics, the severity of each and the commands each claims | every tactic has a name, a severity of `low`, `medium` or `high` and at least one command; no command appears in two tactics |
 | `internal/indicator/indicators.json` | indicator types and their regex patterns | every entry has a type and a pattern; every pattern compiles |
 
 All are embedded with `go:embed` and decoded strictly: an unknown field or trailing data is an

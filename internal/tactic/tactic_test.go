@@ -98,3 +98,36 @@ func TestDecodeRejectsUnknownFields(t *testing.T) {
 		t.Fatal("expected error for unknown field")
 	}
 }
+
+func TestSeverity(t *testing.T) {
+	tab, err := LoadTactics()
+	if err != nil {
+		t.Fatal(err)
+	}
+	tests := []struct {
+		tactic string
+		want   Severity
+	}{
+		{"Discovery", Low},
+		{"Execution", Medium},
+		{"CredentialAccess", High},
+		{"Exfiltration", High},
+		{"NotATactic", Low},
+	}
+	for _, tt := range tests {
+		t.Run(tt.tactic, func(t *testing.T) {
+			if got := tab.Severity(tt.tactic); got != tt.want {
+				t.Errorf("Severity(%q) = %q, want %q", tt.tactic, got, tt.want)
+			}
+		})
+	}
+	if High.Rank() <= Medium.Rank() || Medium.Rank() <= Low.Rank() || Low.Rank() <= Severity("").Rank() {
+		t.Error("Rank does not order high, medium, low, unknown")
+	}
+}
+
+func TestDecodeRejectsSeverity(t *testing.T) {
+	if _, err := decode([]byte(`[{"tactic":"X","severity":"dire","commands":["a"]}]`)); err == nil {
+		t.Error("an unknown severity is accepted")
+	}
+}

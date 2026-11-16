@@ -1,0 +1,46 @@
+[
+  {
+    "metric": "files",
+    "value": 17
+  },
+  {
+    "metric": "scripts",
+    "value": 7
+  },
+  {
+    "metric": "outputs",
+    "value": 9
+  },
+  {
+    "metric": "indicators",
+    "value": 22
+  },
+  {
+    "metric": "indicators Domain",
+    "value": 9
+  },
+  {
+    "metric": "indicators Email",
+    "value": 3
+  },
+  {
+    "metric": "indicators IPv4",
+    "value": 4
+  },
+  {
+    "metric": "indicators MD5",
+    "value": 2
+  },
+  {
+    "metric": "indicators SHA1",
+    "value": 1
+  },
+  {
+    "metric": "indicators URL",
+    "value": 3
+  },
+  {
+    "metric": "tactics",
+    "value": 4
+  }
+]

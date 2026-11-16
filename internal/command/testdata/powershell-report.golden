@@ -1,0 +1,11 @@
+METRIC                     VALUE
+files                      16
+scripts                    6
+outputs                    9
+indicators                 12
+indicators Base64Blob      1
+indicators Domain          4
+indicators EncodedCommand  1
+indicators IPv4            3
+indicators SHA1            3
+tactics                    3
