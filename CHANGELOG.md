@@ -6,8 +6,13 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-16
+
 ### Added
 
+- Workflow `release.yml`: run by hand on `main` with a version, it tests on Windows, builds
+  `slopmop-<version>-windows-amd64.exe`, runs that file against a fixture and publishes it with its
+  SHA-256 as a GitHub release whose notes are the version's section of this file.
 - CI job `platform`: the tests and the integration test of the built binary run on Windows and
   macOS, and `all_green` requires it.
 - `make cross` also builds windows/arm64 and darwin/amd64.
