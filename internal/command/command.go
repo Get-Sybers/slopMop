@@ -2,7 +2,6 @@
 package command
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"sort"
@@ -11,16 +10,14 @@ import (
 
 	"github.com/get-sybers/slopmop/internal/cli"
 	"github.com/get-sybers/slopmop/internal/render"
-	"github.com/get-sybers/slopmop/internal/state"
 )
 
-var ErrNoEvidence = errors.New("no evidence folder: pass --evidence <folder> or run `slopmop evidence select <folder>`")
+// inputDir is the param every verb that reads evidence requires.
+const inputDir = "inputdir"
 
 type Env struct {
 	Stdout io.Writer
-	// StatePath is called only by a verb that needs the selection.
-	StatePath func() (string, error)
-	Local     *time.Location
+	Local  *time.Location
 }
 
 type builder func(verbSpec) (*cli.Verb, error)
@@ -33,8 +30,7 @@ func Register(app *cli.App, env Env) error {
 		return err
 	}
 	return register(app, nouns, map[string]builder{
-		"evidence select": env.evidenceSelect,
-		"file list":       env.fileList,
+		"file list": env.fileList,
 	})
 }
 
@@ -71,33 +67,6 @@ func register(app *cli.App, nouns []nounSpec, builders map[string]builder) error
 		return fmt.Errorf("nouns.json does not declare %s", strings.Join(missing, ", "))
 	}
 	return nil
-}
-
-// folder is the evidence folder a verb reads: the param when given, else the selection.
-func (e Env) folder(a *cli.Args) (string, error) {
-	if folder, given := a.Params["evidence"]; given {
-		return folder, nil
-	}
-	s, _, err := e.selection()
-	if err != nil {
-		return "", err
-	}
-	if s.Evidence == "" {
-		return "", ErrNoEvidence
-	}
-	return s.Evidence, nil
-}
-
-func (e Env) selection() (state.State, string, error) {
-	path, err := e.StatePath()
-	if err != nil {
-		return state.State{}, "", err
-	}
-	s, err := state.Load(path)
-	if err != nil {
-		return state.State{}, path, fmt.Errorf("%w; `slopmop evidence select <folder>` replaces it", err)
-	}
-	return s, path, nil
 }
 
 func (e Env) options(o cli.Output) render.Options {

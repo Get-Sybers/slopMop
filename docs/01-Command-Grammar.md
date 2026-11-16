@@ -9,8 +9,7 @@ states by its prefix what kind of flag it is.**
 
 | Noun | Alias | Verb | Alias | Meaning |
 | --- | --- | --- | --- | --- |
-| `evidence` | `ev` | `select [folder]` | | with a folder, selects it; without, prints the selected folder |
-| `file` | `files` | `list` | `ls` | lists the files directly in the evidence folder, one per row |
+| `file` | `files` | `list` | `ls` | lists the files directly in the input directory, one per row |
 
 The nouns, their verbs, aliases, summaries and columns are declared in
 `internal/command/nouns.json`. Help and registration are built from that file.
@@ -37,28 +36,23 @@ Selectors are data-driven. The selectors of `file list` are the roles declared i
 Output flags are the same on every verb that prints rows and are rejected on every other verb.
 `-q` cannot be combined with `-o`.
 
-## 3. The evidence folder
+## 3. The input directory
 
-A verb that reads evidence takes the folder from `--evidence <folder>` when it is given, otherwise
-from the folder `evidence select` stored. There is no implicit default: without either, the verb
-fails. A given `--evidence` never falls back to the selection, and the selection is not read.
-
-`evidence select <folder>` stores the absolute path in the state file, `slopmop/state.json` under the
-user's configuration directory. It refuses a state file that lies inside the selected folder.
+`--inputdir <folder>` names the directory of scripts and outputs to read. It is a required param of
+every verb that reads evidence: there is no default and nothing is remembered between runs, so a
+command line states its own input in full. A verb's spec lists its required params, and the parser
+rejects a command line that leaves one out.
 
 ## 4. Works
 
 | Command | What it does |
 | --- | --- |
-| `slopmop evidence select case42/ai_workdir` | selects the folder |
-| `slopmop ev select` | prints the selected folder |
-| `slopmop file list` | every file in the selected folder |
-| `slopmop files ls` | the same, through the aliases |
-| `slopmop file list -script` | only scripts |
-| `slopmop file list -script -other` | two roles at once |
-| `slopmop file list --evidence other/folder` | another folder for this call |
-| `slopmop file list -o wide` | every column |
-| `slopmop file list -q -script` | script names only, one per line |
+| `slopmop file list --inputdir case42/ai_workdir` | every file in the directory |
+| `slopmop files ls --inputdir=case42/ai_workdir` | the same, through the aliases and the `=` form |
+| `slopmop file list --inputdir case42/ai_workdir -script` | only scripts |
+| `slopmop file list --inputdir case42/ai_workdir -script -other` | two roles at once |
+| `slopmop file list --inputdir case42/ai_workdir -o wide` | every column |
+| `slopmop file list --inputdir case42/ai_workdir -q -script` | script names only, one per line |
 
 ## 5. Fails
 
@@ -66,18 +60,17 @@ user's configuration directory. It refuses a state file that lies inside the sel
 | --- | --- |
 | `slopmop bogus list` | `unknown noun "bogus"` |
 | `slopmop file bogus` | `file has no verb "bogus"` |
-| `slopmop file list -bogus` | `unknown selector -bogus (valid selectors: -other, -output, -script)` |
-| `slopmop file list --role x` | `unknown option --role (valid params: --evidence <folder>)` |
-| `slopmop file list --script` | `--script takes no value; "script" is a selector, use -script` |
-| `slopmop file list -evidence x` | `-evidence takes a value; use --evidence <folder>` |
-| `slopmop file list --evidence` | `--evidence needs a value <folder>` |
-| `slopmop file list --evidence a --evidence b` | `--evidence given more than once` |
-| `slopmop file list extra` | `file list expects no positional args, got 1` |
-| `slopmop evidence select a b` | `evidence select expects 0 to 1 positional args, got 2` |
-| `slopmop file list -o yaml` | `unknown view "yaml" (valid views: json, wide)` |
-| `slopmop file list -q -o json` | `-q cannot be combined with -o` |
-| `slopmop evidence select -q` | `-q applies only to verbs that print rows` |
-| `slopmop file list` with nothing selected | ``no evidence folder: pass --evidence <folder> or run `slopmop evidence select <folder>` `` |
+| `slopmop file list` | `file list needs --inputdir <folder>` |
+| `slopmop file list -inputdir case42` | `-inputdir takes a value; use --inputdir <folder>` |
+| `slopmop file list --inputdir` | `--inputdir needs a value <folder>` |
+| `slopmop file list --inputdir a --inputdir b` | `--inputdir given more than once` |
+| `slopmop file list --inputdir case42 -bogus` | `unknown selector -bogus (valid selectors: -other, -output, -script)` |
+| `slopmop file list --inputdir case42 --role x` | `unknown option --role (valid params: --inputdir <folder>)` |
+| `slopmop file list --inputdir case42 --script` | `--script takes no value; "script" is a selector, use -script` |
+| `slopmop file list --inputdir case42 extra` | `file list expects no positional args, got 1` |
+| `slopmop file list --inputdir case42 -o yaml` | `unknown view "yaml" (valid views: json, wide)` |
+| `slopmop file list --inputdir case42 -q -o json` | `-q cannot be combined with -o` |
+| `slopmop file list --inputdir case42/missing` | `not a folder: open case42/missing: no such file or directory` |
 
 ## 6. Exit codes
 
@@ -98,8 +91,8 @@ lists its verbs. `-h` or `--help` after a verb prints that verb's selectors, par
 
 ```text
 $ slopmop file list -h
-usage: slopmop file list [selectors] [--params] [output flags]
-list the files directly in the evidence folder
+usage: slopmop file list --inputdir <folder> [selectors] [output flags]
+list the files directly in the input directory
 
 selectors (single dash, pick any; none = all):
   -other      any other file
@@ -107,7 +100,7 @@ selectors (single dash, pick any; none = all):
   -script     a script the agent wrote
 
 params (double dash, take a value):
-  --evidence  <folder>
+  --inputdir  <folder> (required)
 
 output flags:
   -o wide|json    every column, or JSON

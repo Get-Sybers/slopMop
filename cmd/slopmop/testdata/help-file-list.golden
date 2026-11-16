@@ -1,5 +1,5 @@
-usage: slopmop file list [selectors] [--params] [output flags]
-list the files directly in the evidence folder
+usage: slopmop file list --inputdir <folder> [selectors] [output flags]
+list the files directly in the input directory
 
 selectors (single dash, pick any; none = all):
   -other      any other file
@@ -7,7 +7,7 @@ selectors (single dash, pick any; none = all):
   -script     a script the agent wrote
 
 params (double dash, take a value):
-  --evidence  <folder>
+  --inputdir  <folder> (required)
 
 output flags:
   -o wide|json    every column, or JSON

@@ -1,7 +1,6 @@
 usage: slopmop NOUN VERB [selectors] [--params] [output flags] [positional]
 
 nouns:
-  evidence, ev  the evidence folder the other nouns read
-  file, files   files in the evidence folder
+  file, files  files in the input directory
 
 more help: slopmop NOUN -h, slopmop NOUN VERB -h

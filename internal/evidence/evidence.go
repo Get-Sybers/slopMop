@@ -1,4 +1,4 @@
-// Package evidence holds the record of one file in an evidence folder.
+// Package evidence holds the record of one file of evidence.
 package evidence
 
 import (

@@ -1,4 +1,4 @@
-// Package inventory reads an evidence folder into file records.
+// Package inventory reads the input directory into file records.
 package inventory
 
 import (

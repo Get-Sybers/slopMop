@@ -21,6 +21,11 @@ func parse(name string, s Spec, tokens []token) (*Args, error) {
 			return nil, err
 		}
 	}
+	for _, required := range s.Required {
+		if _, given := p.args.Params[required]; !given {
+			return nil, usagef("%s needs %s", name, withHint("--"+required, s.Params[required]))
+		}
+	}
 	if p.args.Output.Quiet && p.viewGiven {
 		return nil, usagef("-q cannot be combined with -o")
 	}

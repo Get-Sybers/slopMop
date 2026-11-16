@@ -11,6 +11,7 @@ import (
 type Spec struct {
 	Selectors  map[string]string // -name -> summary
 	Params     map[string]string // --name -> value hint
+	Required   []string          // params the verb cannot run without
 	Positional string            // usage text for the positionals, e.g. "[folder]"
 	MinPos     int
 	MaxPos     int  // -1 unlimited

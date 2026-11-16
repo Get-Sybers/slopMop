@@ -19,14 +19,13 @@ The grammar is `slopmop NOUN VERB [selectors] [--params] [output flags] [positio
 
 | Command | What it does |
 | --- | --- |
-| `slopmop evidence select <folder>` | selects the evidence folder the other nouns read |
-| `slopmop evidence select` | prints the selected folder |
-| `slopmop file list` | lists the files directly in the evidence folder |
+| `slopmop file list --inputdir <folder>` | lists the files directly in the input directory |
+
+The input directory is always named on the command line with `--inputdir`; nothing is remembered
+between runs.
 
 ```text
-$ slopmop evidence select case42/ai_workdir
-selected evidence folder /home/analyst/case42/ai_workdir
-$ slopmop file list
+$ slopmop file list --inputdir case42/ai_workdir
 NAME                                       ROLE    SIZE   LINES  MODIFIED
 20250302_090000_step01_inventory.ps1       script  487 B  13     2025-03-02T09:00:03Z
 20250302_090500_step02_sync.ps1            script  385 B  7      2025-03-02T09:05:03Z
@@ -52,10 +51,9 @@ sync_10.20.1.17_retry_20250302_090930.txt  output  397 B  10     2025-03-02T09:0
 | `internal/cli/` | the command grammar: parser, registry, dispatch, help |
 | `internal/command/` | the nouns, declared in `nouns.json` and bound to the packages that do the work |
 | `internal/render/` | rows to the screen: default, wide, JSON, quiet |
-| `internal/inventory/` | reads an evidence folder into file records; roles declared in `roles.json` |
+| `internal/inventory/` | reads the input directory into file records; roles declared in `roles.json` |
 | `internal/evidence/` | the record of one file |
 | `internal/nametime/` | the timestamp written into a file name |
-| `internal/state/` | the selected evidence folder, kept between runs |
 | `internal/evidencetest/`, `internal/golden/` | fixtures and golden-file comparison for tests |
 | `scripts/` | the structural lint, the pinned-linter build and the upgrade |
 | `docs/` | command grammar, output schema, architecture, conformance |

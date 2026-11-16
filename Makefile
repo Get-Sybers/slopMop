@@ -4,7 +4,7 @@ export CGO_ENABLED := 0
 export GOWORK := off
 
 GOLANGCI := .cache/bin/golangci-lint
-GOLDEN_PACKAGES = $$(go list -tags integration -f '{{.ImportPath}} {{join .TestImports " "}} {{join .XTestImports " "}}' ./... | awk '/internal\/golden/ {print $$1}')
+GOLDEN_PACKAGES = $$(go list -tags integration -f '{{.ImportPath}} {{join .TestImports " "}} {{join .XTestImports " "}}' ./... | awk '{for (i = 2; i <= NF; i++) if ($$i ~ /internal\/golden$$/) {print $$1; next}}')
 
 .PHONY: conform build test integration vet fmt fmt-check tidy tidy-check generate generate-check
 .PHONY: cross lint structlint structlint-test vuln upgrade tools golden-update clean

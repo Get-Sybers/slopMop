@@ -5,7 +5,6 @@ package main
 import (
 	"bytes"
 	"errors"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -26,11 +25,8 @@ func TestBinary(t *testing.T) {
 		t.Fatalf("go build: %v\n%s", err, out)
 	}
 	folder := evidencetest.Copy(t, "bash")
-	config := t.TempDir()
 	run := func(args ...string) (string, string, int) {
 		cmd := exec.Command(bin, args...)
-		// A private configuration directory keeps the developer's selection out of the test.
-		cmd.Env = append(os.Environ(), "XDG_CONFIG_HOME="+config, "HOME="+config, "AppData="+config)
 		var stdout, stderr bytes.Buffer
 		cmd.Stdout, cmd.Stderr = &stdout, &stderr
 		err := cmd.Run()
@@ -46,21 +42,20 @@ func TestBinary(t *testing.T) {
 		args   []string
 		code   int
 		golden string
-		stdout string
 		stderr string
 	}{
 		{name: "no arguments print help", code: 0, golden: "help"},
 		{name: "verb help", args: []string{"file", "list", "-h"}, code: 0, golden: "help-file-list"},
 		{name: "unknown noun", args: []string{"bogus", "list"}, code: 2, stderr: `error: unknown noun "bogus"`},
-		{name: "wrong prefix", args: []string{"file", "list", "-evidence", folder}, code: 2,
-			stderr: "error: -evidence takes a value; use --evidence <folder>"},
-		{name: "no folder", args: []string{"file", "list"}, code: 1, stderr: "error: no evidence folder"},
-		{name: "not a folder", args: []string{"file", "list", "--evidence", filepath.Join(folder, "missing")}, code: 1,
+		{name: "no input directory", args: []string{"file", "list"}, code: 2,
+			stderr: "error: file list needs --inputdir <folder>"},
+		{name: "wrong prefix", args: []string{"file", "list", "-inputdir", folder}, code: 2,
+			stderr: "error: -inputdir takes a value; use --inputdir <folder>"},
+		{name: "not a folder", args: []string{"file", "list", "--inputdir", filepath.Join(folder, "missing")}, code: 1,
 			stderr: "not a folder"},
-		{name: "select", args: []string{"evidence", "select", folder}, code: 0, stdout: "selected evidence folder " + folder},
-		{name: "selection persists", args: []string{"evidence", "select"}, code: 0, stdout: "selected: " + folder},
-		{name: "list", args: []string{"file", "list"}, code: 0, golden: "file-list"},
-		{name: "list json", args: []string{"file", "ls", "-o", "json", "-script"}, code: 0, golden: "file-list-json"},
+		{name: "list", args: []string{"file", "list", "--inputdir", folder}, code: 0, golden: "file-list"},
+		{name: "list json", args: []string{"file", "ls", "--inputdir", folder, "-o", "json", "-script"}, code: 0,
+			golden: "file-list-json"},
 	}
 	for _, s := range steps {
 		t.Run(s.name, func(t *testing.T) {
@@ -71,14 +66,14 @@ func TestBinary(t *testing.T) {
 			if s.golden != "" {
 				golden.Check(t, s.golden, []byte(stdout))
 			}
-			if !strings.Contains(stdout, s.stdout) {
-				t.Errorf("stdout %q does not contain %q", stdout, s.stdout)
-			}
 			if !strings.Contains(stderr, s.stderr) {
 				t.Errorf("stderr %q does not contain %q", stderr, s.stderr)
 			}
 			if s.code == 0 && stderr != "" {
 				t.Errorf("stderr on success: %q", stderr)
+			}
+			if s.code != 0 && stdout != "" {
+				t.Errorf("stdout on failure: %q", stdout)
 			}
 		})
 	}

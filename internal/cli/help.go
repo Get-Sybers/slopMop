@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"unicode/utf8"
 )
@@ -62,10 +63,13 @@ func (a *App) verbHelp(n *Noun, v *Verb) string {
 	s := v.Spec
 	var b strings.Builder
 	fmt.Fprintf(&b, "usage: %s %s %s", a.bin, n.Name, v.Name)
+	for _, required := range s.Required {
+		b.WriteString(" " + withHint("--"+required, s.Params[required]))
+	}
 	if len(s.Selectors) > 0 {
 		b.WriteString(" [selectors]")
 	}
-	if len(s.Params) > 0 {
+	if len(s.Params) > len(s.Required) {
 		b.WriteString(" [--params]")
 	}
 	if s.Rows {
@@ -79,6 +83,11 @@ func (a *App) verbHelp(n *Noun, v *Verb) string {
 		b.WriteString(v.Summary + "\n")
 	}
 	selectors, params := flagEntries("-", s.Selectors), flagEntries("--", s.Params)
+	for i, p := range params {
+		if slices.Contains(s.Required, strings.TrimPrefix(p.label, "--")) {
+			params[i].text = strings.TrimSpace(p.text + " (required)")
+		}
+	}
 	width := max(flagColumn, widest(selectors)+1, widest(params)+1)
 	if len(selectors) > 0 {
 		b.WriteString("\nselectors (single dash, pick any; none = all):\n")

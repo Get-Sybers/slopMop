@@ -11,9 +11,8 @@ All notable changes to this project are recorded in this file. The format follow
 - Go module `github.com/get-sybers/slopmop` with the command `slopmop`.
 - Command grammar `slopmop NOUN VERB [selectors] [--params] [output flags] [positional]` with
   enforced flag prefixes, generated help and exit codes 0, 1 and 2.
-- `evidence select [folder]`: selects the evidence folder, or prints the selected one.
-- `file list`: the inventory of an evidence folder with role, size, line count, modified time,
-  SHA-256, file-name timestamp and note.
+- `file list --inputdir <folder>`: the inventory of the input directory with role, size, line
+  count, modified time, SHA-256, file-name timestamp and note. `--inputdir` is required.
 - Output views: default, `-o wide`, `-o json`, `-q`, `--no-headers`, `--tz local|utc`, with evidence
   text escaped before it reaches a terminal.
 - Data files `internal/command/nouns.json` and `internal/inventory/roles.json`, embedded and

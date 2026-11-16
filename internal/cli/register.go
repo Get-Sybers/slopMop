@@ -65,6 +65,11 @@ func checkVerb(v *Verb) error {
 			return fmt.Errorf("param name %q is reserved", name)
 		}
 	}
+	for _, name := range v.Spec.Required {
+		if _, declared := v.Spec.Params[name]; !declared {
+			return fmt.Errorf("required param %q is not declared", name)
+		}
+	}
 	return nil
 }
 

@@ -43,7 +43,7 @@ prints as a Go quoted string, so a control sequence cannot reach the terminal an
 one line:
 
 ```text
-$ slopmop file list -q
+$ slopmop file list --inputdir case42 -q
 "odd\x1b[31mname.txt"
 ```
 
@@ -57,7 +57,7 @@ value in the evidence.
 fidelity. Truncating and humanising apply to the default view only.
 
 ```text
-$ slopmop file list -other -o json
+$ slopmop file list --inputdir case42/ai_workdir -other -o json
 [
   {
     "name": "ca01_20250302_092210.cer",
@@ -77,7 +77,7 @@ $ slopmop file list -other -o json
 ### file
 
 ```text
-$ slopmop file list -script
+$ slopmop file list --inputdir case42/ai_workdir -script
 NAME                                   ROLE    SIZE   LINES  MODIFIED
 20250302_090000_step01_inventory.ps1   script  487 B  13     2025-03-02T09:00:03Z
 20250302_090500_step02_sync.ps1        script  385 B  7      2025-03-02T09:05:03Z
@@ -88,7 +88,7 @@ NAME                                   ROLE    SIZE   LINES  MODIFIED
 
 | Column | JSON key | Value |
 | --- | --- | --- |
-| `NAME` | `name` | the path below the evidence folder |
+| `NAME` | `name` | the path below the input directory |
 | `ROLE` | `role` | `script`, `output` or `other` |
 | `SIZE` | `size` | bytes read |
 | `LINES` | `lines` | lines of text; `-` when the file has a note |

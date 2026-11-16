@@ -22,11 +22,10 @@ type nounSpec struct {
 }
 
 type verbSpec struct {
-	Name       string          `json:"name"`
-	Aliases    []string        `json:"aliases"`
-	Summary    string          `json:"summary"`
-	Positional string          `json:"positional"`
-	Columns    []render.Column `json:"columns"`
+	Name    string          `json:"name"`
+	Aliases []string        `json:"aliases"`
+	Summary string          `json:"summary"`
+	Columns []render.Column `json:"columns"`
 }
 
 func loadNouns() ([]nounSpec, error) {

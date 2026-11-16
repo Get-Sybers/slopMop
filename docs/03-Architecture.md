@@ -11,17 +11,16 @@ about evidence touch no file, and every static table is a data file validated at
 | `internal/cli` | the grammar: flag kinds, parser, noun registry, dispatch, generated help; knows no noun |
 | `internal/command` | the nouns: declares them in `nouns.json` and binds each verb to its implementation |
 | `internal/render` | prints a table in the default, wide, JSON and quiet views; escapes evidence text |
-| `internal/inventory` | walks an evidence folder and builds one record per file; owns all evidence I/O |
+| `internal/inventory` | walks the input directory and builds one record per file; owns all evidence I/O |
 | `internal/evidence` | the file record and its vocabularies (role, note); no I/O |
 | `internal/nametime` | detects the timestamp written into a file name; no I/O |
-| `internal/state` | loads and saves the selected evidence folder |
 | `internal/evidencetest` | embeds the fixtures and copies one into a temporary folder for a test |
 | `internal/golden` | compares test output with a golden file; owns the `-update` flag |
 
 Imports run one way:
 
 ```text
-cmd/slopmop -> command -> cli, render, state, inventory -> evidence -> nametime
+cmd/slopmop -> command -> cli, render, inventory -> evidence -> nametime
 ```
 
 `cli` and `render` import no other internal package. `evidencetest` and `golden` are imported by
@@ -39,7 +38,10 @@ error. The selectors of `file list` are the role names, and its columns are the 
 
 ## 3. Reading evidence
 
-- The folder is opened as a root (`os.OpenRoot`) and every file is opened through it read-only, so
+The tool keeps no state: every run names its input directory with `--inputdir` and writes only to
+standard output and standard error.
+
+- The input directory is opened as a root (`os.OpenRoot`) and every file is opened through it read-only, so
   no path leads outside the folder.
 - Only regular files directly in the folder are listed. Symbolic links, sub-folders and special
   files are skipped without being opened. Hidden files are listed.

@@ -1,25 +1,13 @@
 {
   "nouns": [
     {
-      "name": "evidence",
-      "aliases": ["ev"],
-      "summary": "the evidence folder the other nouns read",
-      "verbs": [
-        {
-          "name": "select",
-          "summary": "select the evidence folder, or print the selected one",
-          "positional": "[folder]"
-        }
-      ]
-    },
-    {
       "name": "file",
       "aliases": ["files"],
-      "summary": "files in the evidence folder",
+      "summary": "files in the input directory",
       "verbs": [
         {
           "name": "list",
-          "summary": "list the files directly in the evidence folder",
+          "summary": "list the files directly in the input directory",
           "columns": [
             {"header": "NAME", "key": "name"},
             {"header": "ROLE", "key": "role"},

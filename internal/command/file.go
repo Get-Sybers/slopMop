@@ -25,15 +25,15 @@ func (e Env) fileList(v verbSpec) (*cli.Verb, error) {
 	if _, err := fileRow(evidence.File{}, v.Columns); err != nil {
 		return nil, err
 	}
-	spec := cli.Spec{Selectors: selectors, Params: map[string]string{"evidence": "<folder>"}}
+	spec := cli.Spec{
+		Selectors: selectors,
+		Params:    map[string]string{inputDir: "<folder>"},
+		Required:  []string{inputDir},
+	}
 	return cli.ListVerb(v.Summary, spec, func(a *cli.Args) error {
-		folder, err := e.folder(a)
+		files, err := inventory.Read(a.Params[inputDir])
 		if err != nil {
 			return err
-		}
-		files, err := inventory.Read(folder)
-		if err != nil {
-			return fmt.Errorf("%s: %w", folder, err)
 		}
 		wanted := map[string]bool{}
 		for _, role := range a.Selectors {
