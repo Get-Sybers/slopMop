@@ -32,7 +32,13 @@ func TestClassify(t *testing.T) {
 		{"crontab", "Persistence"},
 		{"shred", "DefenseEvasion"},
 		{"mysqldump", "Collection"},
-		{"curl", "Exfiltration"},
+		{"scp", "Exfiltration"},
+		{"chisel", "CommandAndControl"},
+
+		// a name that does not say what the command does has no tactic
+		{"curl", ""},
+		{"certutil", ""},
+		{"reg", ""},
 		{"rclone", "Exfiltration"},
 
 		// cloud

@@ -28,6 +28,9 @@ func TestAggregateViews(t *testing.T) {
 		{"report", []string{"report", "list"}},
 		{"report-intel", []string{"report", "list", "--intelfile", watchlist}},
 		{"report-json", []string{"report", "list", "-o", "json"}},
+		{"report-files", []string{"report", "list", "-files", "-o", "wide", "--severity", "medium"}},
+		{"report-impact", []string{"report", "list", "-impact", "-o", "wide"}},
+		{"report-actions", []string{"report", "list", "-remediation", "-mitigation", "-o", "wide"}},
 	}
 	for _, fixture := range evidencetest.List() {
 		folder := evidencetest.Copy(t, fixture)

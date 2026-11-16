@@ -191,21 +191,15 @@
     "severity": "high",
     "commands": [
       "ngrok", "chisel", "cloudflared", "plink", "frpc", "ligolo-ng",
-      "desktopimgdownldr"
+      "desktopimgdownldr", "socket.connect", "socket.create_connection"
     ]
   },
   {
     "tactic": "Exfiltration",
     "severity": "high",
     "commands": [
-      "curl", "wget", "nc", "ncat", "netcat", "socat", "scp", "sftp", "ftp",
-      "rsync", "rclone", "gsutil", "azcopy", "openssl", "base64", "invoke-webrequest", "iwr",
-      "invoke-restmethod", "irm",
-      "send-mailmessage", "new-psdrive", "requests.get", "requests.post",
-      "requests.put", "requests.patch", "requests.delete", "requests.head",
-      "requests.request", "urllib.request.urlopen",
-      "urllib.request.urlretrieve", "socket.connect",
-      "socket.create_connection"
+      "nc", "ncat", "netcat", "socat", "scp", "sftp", "ftp", "rsync",
+      "rclone", "gsutil", "azcopy", "send-mailmessage", "new-psdrive"
     ]
   }
 ]

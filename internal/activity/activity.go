@@ -220,6 +220,15 @@ func shortest(lits []string) int {
 	return n
 }
 
+// Names lists the activities, in the order of the data file.
+func (t Table) Names() []string {
+	names := make([]string, len(t.activities))
+	for i, a := range t.activities {
+		names[i] = a.name
+	}
+	return names
+}
+
 // Tactics lists every tactic name the table assigns, so a caller that holds
 // the tactic table can check that each one exists.
 func (t Table) Tactics() []string {

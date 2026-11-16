@@ -19,9 +19,6 @@ GraphEndpoint
 GraphEndpoint
 GraphEndpoint
 GraphEndpoint
-GraphEndpoint
-GraphEndpoint
-GraphEndpoint
 IPv4
 IPv4
 KeyVaultEndpoint
@@ -30,3 +27,6 @@ KeyVaultEndpoint
 OAuthScope
 URL
 URL
+GraphEndpoint
+GraphEndpoint
+GraphEndpoint

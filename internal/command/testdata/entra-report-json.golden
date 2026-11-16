@@ -1,110 +1,386 @@
 [
   {
-    "metric": "files",
-    "value": 11
+    "item": "files",
+    "section": "summary",
+    "value": 11,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "scripts",
-    "value": 5
+    "item": "scripts",
+    "section": "summary",
+    "value": 5,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "outputs",
-    "value": 6
+    "item": "outputs",
+    "section": "summary",
+    "value": 6,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "indicators",
-    "value": 32
+    "item": "indicators",
+    "section": "summary",
+    "value": 32,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "indicators Domain",
-    "value": 6
+    "item": "indicators Domain",
+    "section": "summary",
+    "value": 6,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "indicators Email",
-    "value": 2
+    "item": "indicators Email",
+    "section": "summary",
+    "value": 2,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "indicators EntraLoginEndpoint",
-    "value": 1
+    "item": "indicators EntraLoginEndpoint",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "indicators GUID",
-    "value": 4
+    "item": "indicators GUID",
+    "section": "summary",
+    "value": 4,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "indicators GraphEndpoint",
-    "value": 11
+    "item": "indicators GraphEndpoint",
+    "section": "summary",
+    "value": 11,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "indicators IPv4",
-    "value": 2
+    "item": "indicators IPv4",
+    "section": "summary",
+    "value": 2,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "indicators KeyVaultEndpoint",
-    "value": 3
+    "item": "indicators KeyVaultEndpoint",
+    "section": "summary",
+    "value": 3,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "indicators OAuthScope",
-    "value": 1
+    "item": "indicators OAuthScope",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "indicators URL",
-    "value": 2
+    "item": "indicators URL",
+    "section": "summary",
+    "value": 2,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities",
-    "value": 12
+    "item": "activities",
+    "section": "summary",
+    "value": 12,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities AppCredentialAddition",
-    "value": 1
+    "item": "activities AppCredentialAddition",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities AppRoleAssignment",
-    "value": 2
+    "item": "activities AppRoleAssignment",
+    "section": "summary",
+    "value": 2,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities AzureResourceEnumeration",
-    "value": 1
+    "item": "activities AzureResourceEnumeration",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities GlobalAdministratorAssignment",
-    "value": 1
+    "item": "activities GlobalAdministratorAssignment",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities GraphDirectoryEnumeration",
-    "value": 4
+    "item": "activities GraphDirectoryEnumeration",
+    "section": "summary",
+    "value": 4,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities KeyVaultKeyEnumeration",
-    "value": 2
+    "item": "activities KeyVaultKeyEnumeration",
+    "section": "summary",
+    "value": 2,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities KeyVaultKeyUnwrap",
-    "value": 1
+    "item": "activities KeyVaultKeyUnwrap",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities KeyVaultSecretRead",
-    "value": 3
+    "item": "activities KeyVaultSecretRead",
+    "section": "summary",
+    "value": 3,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities MailboxAccess",
-    "value": 1
+    "item": "activities MailboxAccess",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities SharePointEnumeration",
-    "value": 2
+    "item": "activities SharePointEnumeration",
+    "section": "summary",
+    "value": 2,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities TeamsMessageAccess",
-    "value": 1
+    "item": "activities TeamsMessageAccess",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities TokenRequest",
-    "value": 2
+    "item": "activities TokenRequest",
+    "section": "summary",
+    "value": 2,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "tactics",
-    "value": 7
+    "item": "tactics",
+    "section": "summary",
+    "value": 7,
+    "detail": null,
+    "basis": null,
+    "files": null
+  },
+  {
+    "item": "20261015_090000_step01_token.sh",
+    "section": "script",
+    "value": "high",
+    "detail": "TokenRequest",
+    "basis": null,
+    "files": "token_20261015_090010.json"
+  },
+  {
+    "item": "20261015_091000_step03_escalate.ps1",
+    "section": "script",
+    "value": "high",
+    "detail": "GlobalAdministratorAssignment, AppRoleAssignment, AppCredentialAddition",
+    "basis": null,
+    "files": null
+  },
+  {
+    "item": "20261015_092000_step04_collect.py",
+    "section": "script",
+    "value": "high",
+    "detail": "SharePointEnumeration",
+    "basis": null,
+    "files": "collect_20261015_092040.txt"
+  },
+  {
+    "item": "20261015_093000_step05_vault.sh",
+    "section": "script",
+    "value": "high",
+    "detail": "KeyVaultSecretRead, KeyVaultKeyUnwrap",
+    "basis": null,
+    "files": "vaults_20261015_093010.txt, secrets_20261015_093030.txt"
+  },
+  {
+    "item": "agent_20261015_093500.jsonl",
+    "section": "output",
+    "value": "high",
+    "detail": "AppRoleAssignment, KeyVaultSecretRead",
+    "basis": null,
+    "files": null
+  },
+  {
+    "item": "Privileged access obtained",
+    "section": "impact",
+    "value": "high",
+    "detail": "A principal was given a privileged role or permission. Treat what it governs as under attacker control until reviewed.",
+    "basis": "GlobalAdministratorAssignment, AppRoleAssignment",
+    "files": "20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl"
+  },
+  {
+    "item": "Credentials exposed",
+    "section": "impact",
+    "value": "high",
+    "detail": "Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker. Affected: corpvault.vault.azure.net, finvault.vault.azure.net.",
+    "basis": "KeyVaultSecretRead, KeyVaultKeyUnwrap",
+    "files": "20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl"
+  },
+  {
+    "item": "Persistence established",
+    "section": "impact",
+    "value": "high",
+    "detail": "A way back in was created: a credential, a run key, a task or a service. Access survives a password reset.",
+    "basis": "AppCredentialAddition",
+    "files": "20261015_091000_step03_escalate.ps1"
+  },
+  {
+    "item": "Valid identity used",
+    "section": "impact",
+    "value": "high",
+    "detail": "The attacker signed in as an identity that exists. Sign-in controls did not stop it.",
+    "basis": "TokenRequest",
+    "files": "20261015_090000_step01_token.sh"
+  },
+  {
+    "item": "Data collected",
+    "section": "impact",
+    "value": "high",
+    "detail": "Mail, chat or documents were read in bulk. Treat their content as disclosed. Affected: alice@corp.example, bob@corp.example.",
+    "basis": "MailboxAccess, TeamsMessageAccess, SharePointEnumeration",
+    "files": "20261015_092000_step04_collect.py"
+  },
+  {
+    "item": "Environment mapped",
+    "section": "impact",
+    "value": "low",
+    "detail": "Identities, resources or configuration were listed. Later steps were probably aimed with the result.",
+    "basis": "GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, Discovery tools",
+    "files": "20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl"
+  },
+  {
+    "item": "Revoke sessions and reset identities",
+    "section": "remediation",
+    "value": "high",
+    "detail": "Revoke the sessions and tokens of every identity in the evidence and reset its credentials.",
+    "basis": "TokenRequest",
+    "files": "20261015_090000_step01_token.sh"
+  },
+  {
+    "item": "Remove added credentials",
+    "section": "remediation",
+    "value": "high",
+    "detail": "Remove every password and key added to an application or service principal, then review all credentials added since the first step.",
+    "basis": "AppCredentialAddition",
+    "files": "20261015_091000_step03_escalate.ps1"
+  },
+  {
+    "item": "Remove role and permission grants",
+    "section": "remediation",
+    "value": "high",
+    "detail": "Remove the role assignments and application permissions that were granted, then review every privileged member and consent.",
+    "basis": "GlobalAdministratorAssignment, AppRoleAssignment",
+    "files": "20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl"
+  },
+  {
+    "item": "Rotate what was read",
+    "section": "remediation",
+    "value": "high",
+    "detail": "Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.",
+    "basis": "KeyVaultSecretRead, KeyVaultKeyUnwrap",
+    "files": "20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl"
+  },
+  {
+    "item": "Scope the data taken",
+    "section": "remediation",
+    "value": "high",
+    "detail": "Establish from audit logs which mailboxes, chats, sites and files were read or sent out, and assess that data as breached.",
+    "basis": "MailboxAccess, TeamsMessageAccess, SharePointEnumeration",
+    "files": "20261015_092000_step04_collect.py"
+  },
+  {
+    "item": "Follow what was enumerated",
+    "section": "remediation",
+    "value": "low",
+    "detail": "Use what was listed to predict targets: check those identities, vaults and hosts for later activity.",
+    "basis": "GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, Discovery tools",
+    "files": "20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl"
+  },
+  {
+    "item": "Restrict application credentials and consent",
+    "section": "mitigation",
+    "value": "medium",
+    "detail": "Limit who may add a credential or grant a permission to an application, and alert when either happens.",
+    "basis": "AppCredentialAddition, AppRoleAssignment, TokenRequest",
+    "files": "20261015_090000_step01_token.sh, 20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl"
+  },
+  {
+    "item": "Guard privileged roles",
+    "section": "mitigation",
+    "value": "medium",
+    "detail": "Require approval and raise an alert for every privileged role assignment, and keep standing membership small.",
+    "basis": "GlobalAdministratorAssignment",
+    "files": "20261015_091000_step03_escalate.ps1"
+  },
+  {
+    "item": "Harden Key Vault access",
+    "section": "mitigation",
+    "value": "medium",
+    "detail": "Give each identity the least vault access it needs, close vaults to public networks, and alert on bulk reads.",
+    "basis": "KeyVaultSecretRead, KeyVaultKeyUnwrap, KeyVaultKeyEnumeration, AzureResourceEnumeration",
+    "files": "20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl"
+  },
+  {
+    "item": "Watch application access to mail and files",
+    "section": "mitigation",
+    "value": "low",
+    "detail": "Alert on an application that is granted mail or file permissions, and on one that reads them in volume.",
+    "basis": "MailboxAccess, TeamsMessageAccess, SharePointEnumeration, GraphDirectoryEnumeration",
+    "files": "20261015_090500_step02_recon.ps1, 20261015_092000_step04_collect.py"
   }
 ]

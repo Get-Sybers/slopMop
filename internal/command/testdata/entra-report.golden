@@ -1,28 +1,49 @@
-METRIC                                    VALUE
-files                                     11
-scripts                                   5
-outputs                                   6
-indicators                                32
-indicators Domain                         6
-indicators Email                          2
-indicators EntraLoginEndpoint             1
-indicators GUID                           4
-indicators GraphEndpoint                  11
-indicators IPv4                           2
-indicators KeyVaultEndpoint               3
-indicators OAuthScope                     1
-indicators URL                            2
-activities                                12
-activities AppCredentialAddition          1
-activities AppRoleAssignment              2
-activities AzureResourceEnumeration       1
-activities GlobalAdministratorAssignment  1
-activities GraphDirectoryEnumeration      4
-activities KeyVaultKeyEnumeration         2
-activities KeyVaultKeyUnwrap              1
-activities KeyVaultSecretRead             3
-activities MailboxAccess                  1
-activities SharePointEnumeration          2
-activities TeamsMessageAccess             1
-activities TokenRequest                   2
-tactics                                   7
+ITEM                                          SECTION      VALUE   DETAIL
+files                                         summary      11      -
+scripts                                       summary      5       -
+outputs                                       summary      6       -
+indicators                                    summary      32      -
+indicators Domain                             summary      6       -
+indicators Email                              summary      2       -
+indicators EntraLoginEndpoint                 summary      1       -
+indicators GUID                               summary      4       -
+indicators GraphEndpoint                      summary      11      -
+indicators IPv4                               summary      2       -
+indicators KeyVaultEndpoint                   summary      3       -
+indicators OAuthScope                         summary      1       -
+indicators URL                                summary      2       -
+activities                                    summary      12      -
+activities AppCredentialAddition              summary      1       -
+activities AppRoleAssignment                  summary      2       -
+activities AzureResourceEnumeration           summary      1       -
+activities GlobalAdministratorAssignment      summary      1       -
+activities GraphDirectoryEnumeration          summary      4       -
+activities KeyVaultKeyEnumeration             summary      2       -
+activities KeyVaultKeyUnwrap                  summary      1       -
+activities KeyVaultSecretRead                 summary      3       -
+activities MailboxAccess                      summary      1       -
+activities SharePointEnumeration              summary      2       -
+activities TeamsMessageAccess                 summary      1       -
+activities TokenRequest                       summary      2       -
+tactics                                       summary      7       -
+20261015_090000_step01_token.sh               script       high    TokenRequest
+20261015_091000_step03_escalate.ps1           script       high    GlobalAdministratorAssignment, AppRoleAssignment, AppCredentialAddition
+20261015_092000_step04_collect.py             script       high    SharePointEnumeration
+20261015_093000_step05_vault.sh               script       high    KeyVaultSecretRead, KeyVaultKeyUnwrap
+agent_20261015_093500.jsonl                   output       high    AppRoleAssignment, KeyVaultSecretRead
+Privileged access obtained                    impact       high    A principal was given a privileged role or permission. Treat what it governs as under attacker control until reviewed.
+Credentials exposed                           impact       high    Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker. Affected: corpvault.vault.azure.net, finvault.vault.azure.net.
+Persistence established                       impact       high    A way back in was created: a credential, a run key, a task or a service. Access survives a password reset.
+Valid identity used                           impact       high    The attacker signed in as an identity that exists. Sign-in controls did not stop it.
+Data collected                                impact       high    Mail, chat or documents were read in bulk. Treat their content as disclosed. Affected: alice@corp.example, bob@corp.example.
+Environment mapped                            impact       low     Identities, resources or configuration were listed. Later steps were probably aimed with the result.
+Revoke sessions and reset identities          remediation  high    Revoke the sessions and tokens of every identity in the evidence and reset its credentials.
+Remove added credentials                      remediation  high    Remove every password and key added to an application or service principal, then review all credentials added since the first step.
+Remove role and permission grants             remediation  high    Remove the role assignments and application permissions that were granted, then review every privileged member and consent.
+Rotate what was read                          remediation  high    Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.
+Scope the data taken                          remediation  high    Establish from audit logs which mailboxes, chats, sites and files were read or sent out, and assess that data as breached.
+Follow what was enumerated                    remediation  low     Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
+Restrict application credentials and consent  mitigation   medium  Limit who may add a credential or grant a permission to an application, and alert when either happens.
+Guard privileged roles                        mitigation   medium  Require approval and raise an alert for every privileged role assignment, and keep standing membership small.
+Harden Key Vault access                       mitigation   medium  Give each identity the least vault access it needs, close vaults to public networks, and alert on bulk reads.
+Watch application access to mail and files    mitigation   low     Alert on an application that is granted mail or file permissions, and on one that reads them in volume.

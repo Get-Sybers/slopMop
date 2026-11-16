@@ -1,86 +1,354 @@
 [
   {
-    "metric": "files",
-    "value": 11
+    "item": "files",
+    "section": "summary",
+    "value": 11,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "scripts",
-    "value": 7
+    "item": "scripts",
+    "section": "summary",
+    "value": 7,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "outputs",
-    "value": 3
+    "item": "outputs",
+    "section": "summary",
+    "value": 3,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "indicators",
-    "value": 20
+    "item": "indicators",
+    "section": "summary",
+    "value": 20,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "indicators Domain",
-    "value": 5
+    "item": "indicators Domain",
+    "section": "summary",
+    "value": 5,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "indicators EncodedCommand",
-    "value": 1
+    "item": "indicators EncodedCommand",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "indicators IPv4",
-    "value": 3
+    "item": "indicators IPv4",
+    "section": "summary",
+    "value": 3,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "indicators URL",
-    "value": 11
+    "item": "indicators URL",
+    "section": "summary",
+    "value": 11,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities",
-    "value": 11
+    "item": "activities",
+    "section": "summary",
+    "value": 11,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities DownloadAndExecute",
-    "value": 1
+    "item": "activities DownloadAndExecute",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities EventLogClearing",
-    "value": 3
+    "item": "activities EventLogClearing",
+    "section": "summary",
+    "value": 3,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities FileDownload",
-    "value": 9
+    "item": "activities FileDownload",
+    "section": "summary",
+    "value": 9,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities NativeApiCall",
-    "value": 2
+    "item": "activities NativeApiCall",
+    "section": "summary",
+    "value": 2,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities NetworkSocket",
-    "value": 1
+    "item": "activities NetworkSocket",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities ProcessStart",
-    "value": 1
+    "item": "activities ProcessStart",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities ReflectiveCodeLoading",
-    "value": 3
+    "item": "activities ReflectiveCodeLoading",
+    "section": "summary",
+    "value": 3,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities RunKeyPersistence",
-    "value": 1
+    "item": "activities RunKeyPersistence",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities RuntimeCompilation",
-    "value": 1
+    "item": "activities RuntimeCompilation",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities ScheduledTaskCreation",
-    "value": 2
+    "item": "activities ScheduledTaskCreation",
+    "section": "summary",
+    "value": 2,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "activities SignedBinaryProxyExecution",
-    "value": 9
+    "item": "activities SignedBinaryProxyExecution",
+    "section": "summary",
+    "value": 9,
+    "detail": null,
+    "basis": null,
+    "files": null
   },
   {
-    "metric": "tactics",
-    "value": 5
+    "item": "tactics",
+    "section": "summary",
+    "value": 5,
+    "detail": null,
+    "basis": null,
+    "files": null
+  },
+  {
+    "item": "20261020_100500_step02_download.ps1",
+    "section": "script",
+    "value": "high",
+    "detail": "FileDownload",
+    "basis": null,
+    "files": null
+  },
+  {
+    "item": "build_20261020_101200.xml",
+    "section": "output",
+    "value": "high",
+    "detail": "FileDownload",
+    "basis": null,
+    "files": null
+  },
+  {
+    "item": "20261020_101500_step04_persist.ps1",
+    "section": "script",
+    "value": "high",
+    "detail": "RunKeyPersistence, ScheduledTaskCreation, schtasks.exe (Persistence)",
+    "basis": null,
+    "files": null
+  },
+  {
+    "item": "20261020_102000_step05_dotnet.ps1",
+    "section": "script",
+    "value": "high",
+    "detail": "FileDownload",
+    "basis": null,
+    "files": null
+  },
+  {
+    "item": "20261020_102500_step06_pinvoke.ps1",
+    "section": "script",
+    "value": "high",
+    "detail": "FileDownload, DownloadAndExecute, NetworkSocket",
+    "basis": null,
+    "files": null
+  },
+  {
+    "item": "loader_20261020_102600.cs",
+    "section": "other",
+    "value": "high",
+    "detail": "FileDownload",
+    "basis": null,
+    "files": null
+  },
+  {
+    "item": "20261020_103000_step07_cleanup.bat",
+    "section": "script",
+    "value": "high",
+    "detail": "FileDownload",
+    "basis": null,
+    "files": null
+  },
+  {
+    "item": "proc_20261020_103500.jsonl",
+    "section": "output",
+    "value": "high",
+    "detail": "FileDownload, ScheduledTaskCreation, schtasks (Persistence)",
+    "basis": null,
+    "files": null
+  },
+  {
+    "item": "Persistence established",
+    "section": "impact",
+    "value": "high",
+    "detail": "A way back in was created: a credential, a run key, a task or a service. Access survives a password reset.",
+    "basis": "RunKeyPersistence, ScheduledTaskCreation, Persistence tools",
+    "files": "20261020_101500_step04_persist.ps1, proc_20261020_103500.jsonl"
+  },
+  {
+    "item": "Outside hosts contacted",
+    "section": "impact",
+    "value": "high",
+    "detail": "Files or commands were fetched from, or a channel was opened to, hosts outside the environment. Affected: 203.0.113.10, 203.0.113.20, 203.0.113.30.",
+    "basis": "FileDownload, DownloadAndExecute, NetworkSocket",
+    "files": "20261020_100500_step02_download.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl"
+  },
+  {
+    "item": "Defences and logging impaired",
+    "section": "impact",
+    "value": "high",
+    "detail": "Logs were cleared or security tooling was interfered with. Records of this period are incomplete.",
+    "basis": "EventLogClearing, DefenseEvasion tools",
+    "files": "20261020_101500_step04_persist.ps1, 20261020_103000_step07_cleanup.bat, proc_20261020_103500.jsonl"
+  },
+  {
+    "item": "Code run outside normal controls",
+    "section": "impact",
+    "value": "medium",
+    "detail": "Code was run in ways that avoid application control and leave little on disk.",
+    "basis": "ReflectiveCodeLoading, NativeApiCall, SignedBinaryProxyExecution, RuntimeCompilation, DownloadAndExecute, ProcessStart",
+    "files": "20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, loader_20261020_102600.cs, proc_20261020_103500.jsonl"
+  },
+  {
+    "item": "Environment mapped",
+    "section": "impact",
+    "value": "low",
+    "detail": "Identities, resources or configuration were listed. Later steps were probably aimed with the result.",
+    "basis": "Discovery tools",
+    "files": "20261020_100000_step01_recon.ps1, 20261020_102500_step06_pinvoke.ps1"
+  },
+  {
+    "item": "Remove persistence",
+    "section": "remediation",
+    "value": "high",
+    "detail": "Delete the run keys, scheduled tasks, services and accounts that were created, and the files they start.",
+    "basis": "RunKeyPersistence, ScheduledTaskCreation, Persistence tools",
+    "files": "20261020_101500_step04_persist.ps1, proc_20261020_103500.jsonl"
+  },
+  {
+    "item": "Block and hunt the infrastructure",
+    "section": "remediation",
+    "value": "high",
+    "detail": "Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.",
+    "basis": "FileDownload, DownloadAndExecute, NetworkSocket",
+    "files": "20261020_100500_step02_download.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl"
+  },
+  {
+    "item": "Find the delivered files",
+    "section": "remediation",
+    "value": "medium",
+    "detail": "Collect the files that were downloaded, dropped or loaded, hash them, and search every host for the same hashes.",
+    "basis": "FileDownload, DownloadAndExecute, ReflectiveCodeLoading, SignedBinaryProxyExecution, RuntimeCompilation, NativeApiCall, ProcessStart",
+    "files": "20261020_100500_step02_download.ps1, 20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl"
+  },
+  {
+    "item": "Recover the missing logs",
+    "section": "remediation",
+    "value": "medium",
+    "detail": "Treat local logs as incomplete, and recover the period from a central collector or a backup.",
+    "basis": "EventLogClearing, DefenseEvasion tools",
+    "files": "20261020_101500_step04_persist.ps1, 20261020_103000_step07_cleanup.bat, proc_20261020_103500.jsonl"
+  },
+  {
+    "item": "Follow what was enumerated",
+    "section": "remediation",
+    "value": "low",
+    "detail": "Use what was listed to predict targets: check those identities, vaults and hosts for later activity.",
+    "basis": "Discovery tools",
+    "files": "20261020_100000_step01_recon.ps1, 20261020_102500_step06_pinvoke.ps1"
+  },
+  {
+    "item": "Constrain living-off-the-land binaries",
+    "section": "mitigation",
+    "value": "medium",
+    "detail": "Use application control to stop system binaries that have no need to from fetching files or running code.",
+    "basis": "SignedBinaryProxyExecution, FileDownload, ProcessStart",
+    "files": "20261020_100500_step02_download.ps1, 20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl"
+  },
+  {
+    "item": "Constrain PowerShell and .NET",
+    "section": "mitigation",
+    "value": "medium",
+    "detail": "Enforce constrained language mode with application control, and log script blocks and module loads.",
+    "basis": "DownloadAndExecute, ReflectiveCodeLoading, NativeApiCall, RuntimeCompilation",
+    "files": "20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, loader_20261020_102600.cs"
+  },
+  {
+    "item": "Send logs off the host",
+    "section": "mitigation",
+    "value": "medium",
+    "detail": "Forward security logs to a collector as they are written, and alert when a log is cleared.",
+    "basis": "EventLogClearing, DefenseEvasion tools",
+    "files": "20261020_101500_step04_persist.ps1, 20261020_103000_step07_cleanup.bat, proc_20261020_103500.jsonl"
+  },
+  {
+    "item": "Filter outbound traffic",
+    "section": "mitigation",
+    "value": "medium",
+    "detail": "Deny outbound connections from servers by default and allow them by destination.",
+    "basis": "NetworkSocket, FileDownload, DownloadAndExecute",
+    "files": "20261020_100500_step02_download.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl"
+  },
+  {
+    "item": "Alert on new autostart entries",
+    "section": "mitigation",
+    "value": "low",
+    "detail": "Alert when a run key, scheduled task or service is created outside change control.",
+    "basis": "RunKeyPersistence, ScheduledTaskCreation, Persistence tools",
+    "files": "20261020_101500_step04_persist.ps1, proc_20261020_103500.jsonl"
   }
 ]

@@ -1,23 +1,46 @@
-METRIC                                 VALUE
-files                                  11
-scripts                                7
-outputs                                3
-indicators                             20
-indicators Domain                      5
-indicators EncodedCommand              1
-indicators IPv4                        3
-indicators URL                         11
-activities                             11
-activities DownloadAndExecute          1
-activities EventLogClearing            3
-activities FileDownload                9
-activities NativeApiCall               2
-activities NetworkSocket               1
-activities ProcessStart                1
-activities ReflectiveCodeLoading       3
-activities RunKeyPersistence           1
-activities RuntimeCompilation          1
-activities ScheduledTaskCreation       2
-activities SignedBinaryProxyExecution  9
-tactics                                5
-intel hits                             0
+ITEM                                    SECTION      VALUE   DETAIL
+files                                   summary      11      -
+scripts                                 summary      7       -
+outputs                                 summary      3       -
+indicators                              summary      20      -
+indicators Domain                       summary      5       -
+indicators EncodedCommand               summary      1       -
+indicators IPv4                         summary      3       -
+indicators URL                          summary      11      -
+activities                              summary      11      -
+activities DownloadAndExecute           summary      1       -
+activities EventLogClearing             summary      3       -
+activities FileDownload                 summary      9       -
+activities NativeApiCall                summary      2       -
+activities NetworkSocket                summary      1       -
+activities ProcessStart                 summary      1       -
+activities ReflectiveCodeLoading        summary      3       -
+activities RunKeyPersistence            summary      1       -
+activities RuntimeCompilation           summary      1       -
+activities ScheduledTaskCreation        summary      2       -
+activities SignedBinaryProxyExecution   summary      9       -
+tactics                                 summary      5       -
+intel hits                              summary      0       -
+20261020_100500_step02_download.ps1     script       high    FileDownload
+build_20261020_101200.xml               output       high    FileDownload
+20261020_101500_step04_persist.ps1      script       high    RunKeyPersistence, ScheduledTaskCreation, schtasks.exe (Persistence)
+20261020_102000_step05_dotnet.ps1       script       high    FileDownload
+20261020_102500_step06_pinvoke.ps1      script       high    FileDownload, DownloadAndExecute, NetworkSocket
+loader_20261020_102600.cs               other        high    FileDownload
+20261020_103000_step07_cleanup.bat      script       high    FileDownload
+proc_20261020_103500.jsonl              output       high    FileDownload, ScheduledTaskCreation, schtasks (Persistence)
+Persistence established                 impact       high    A way back in was created: a credential, a run key, a task or a service. Access survives a password reset.
+Outside hosts contacted                 impact       high    Files or commands were fetched from, or a channel was opened to, hosts outside the environment. Affected: 203.0.113.10, 203.0.113.20, 203.0.113.30.
+Defences and logging impaired           impact       high    Logs were cleared or security tooling was interfered with. Records of this period are incomplete.
+Code run outside normal controls        impact       medium  Code was run in ways that avoid application control and leave little on disk.
+Environment mapped                      impact       low     Identities, resources or configuration were listed. Later steps were probably aimed with the result.
+Remove persistence                      remediation  high    Delete the run keys, scheduled tasks, services and accounts that were created, and the files they start.
+Block and hunt the infrastructure       remediation  high    Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.
+Find the delivered files                remediation  medium  Collect the files that were downloaded, dropped or loaded, hash them, and search every host for the same hashes.
+Recover the missing logs                remediation  medium  Treat local logs as incomplete, and recover the period from a central collector or a backup.
+Follow what was enumerated              remediation  low     Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
+Constrain living-off-the-land binaries  mitigation   medium  Use application control to stop system binaries that have no need to from fetching files or running code.
+Constrain PowerShell and .NET           mitigation   medium  Enforce constrained language mode with application control, and log script blocks and module loads.
+Send logs off the host                  mitigation   medium  Forward security logs to a collector as they are written, and alert when a log is cleared.
+Filter outbound traffic                 mitigation   medium  Deny outbound connections from servers by default and allow them by destination.
+Alert on new autostart entries          mitigation   low     Alert when a run key, scheduled task or service is created outside change control.

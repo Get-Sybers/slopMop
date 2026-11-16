@@ -68,14 +68,18 @@
     {
       "name": "report",
       "aliases": ["reports"],
-      "summary": "summary of an analysis of the input directory",
+      "summary": "report on an analysis of the input directory",
       "verbs": [
         {
           "name": "list",
-          "summary": "list the summary metrics of the input directory",
+          "summary": "list the counts, the notable files, the impact and the recommended actions",
           "columns": [
-            {"header": "METRIC", "key": "metric"},
-            {"header": "VALUE", "key": "value"}
+            {"header": "ITEM", "key": "item"},
+            {"header": "SECTION", "key": "section"},
+            {"header": "VALUE", "key": "value"},
+            {"header": "DETAIL", "key": "detail"},
+            {"header": "BASIS", "key": "basis", "wide": true},
+            {"header": "FILES", "key": "files", "wide": true}
           ]
         }
       ]

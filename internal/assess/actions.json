@@ -1,0 +1,157 @@
+[
+  {
+    "name": "Revoke sessions and reset identities",
+    "kind": "remediation",
+    "priority": "high",
+    "action": "Revoke the sessions and tokens of every identity in the evidence and reset its credentials.",
+    "activities": ["TokenRequest"],
+    "tactics": ["InitialAccess", "LateralMovement"]
+  },
+  {
+    "name": "Remove added credentials",
+    "kind": "remediation",
+    "priority": "high",
+    "action": "Remove every password and key added to an application or service principal, then review all credentials added since the first step.",
+    "activities": ["AppCredentialAddition"]
+  },
+  {
+    "name": "Remove role and permission grants",
+    "kind": "remediation",
+    "priority": "high",
+    "action": "Remove the role assignments and application permissions that were granted, then review every privileged member and consent.",
+    "activities": ["GlobalAdministratorAssignment", "RoleAssignment", "AppRoleAssignment"],
+    "tactics": ["PrivilegeEscalation"]
+  },
+  {
+    "name": "Rotate what was read",
+    "kind": "remediation",
+    "priority": "high",
+    "action": "Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.",
+    "activities": ["KeyVaultSecretRead", "KeyVaultKeyUnwrap", "LsassDump", "RegistryHiveDump", "CertificateExport"],
+    "tactics": ["CredentialAccess"]
+  },
+  {
+    "name": "Remove persistence",
+    "kind": "remediation",
+    "priority": "high",
+    "action": "Delete the run keys, scheduled tasks, services and accounts that were created, and the files they start.",
+    "activities": ["RunKeyPersistence", "ScheduledTaskCreation", "ServiceCreation"],
+    "tactics": ["Persistence"]
+  },
+  {
+    "name": "Block and hunt the infrastructure",
+    "kind": "remediation",
+    "priority": "high",
+    "action": "Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.",
+    "activities": ["FileDownload", "DownloadAndExecute", "NetworkSocket", "FileUpload"],
+    "tactics": ["CommandAndControl"],
+    "watchlist": true
+  },
+  {
+    "name": "Scope the data taken",
+    "kind": "remediation",
+    "priority": "high",
+    "action": "Establish from audit logs which mailboxes, chats, sites and files were read or sent out, and assess that data as breached.",
+    "activities": ["MailboxAccess", "TeamsMessageAccess", "SharePointEnumeration", "FileUpload"],
+    "tactics": ["Collection", "Exfiltration"]
+  },
+  {
+    "name": "Find the delivered files",
+    "kind": "remediation",
+    "priority": "medium",
+    "action": "Collect the files that were downloaded, dropped or loaded, hash them, and search every host for the same hashes.",
+    "activities": ["FileDownload", "DownloadAndExecute", "ReflectiveCodeLoading", "SignedBinaryProxyExecution", "RuntimeCompilation", "NativeApiCall", "ProcessStart"]
+  },
+  {
+    "name": "Recover the missing logs",
+    "kind": "remediation",
+    "priority": "medium",
+    "action": "Treat local logs as incomplete, and recover the period from a central collector or a backup.",
+    "activities": ["EventLogClearing", "AmsiBypass"],
+    "tactics": ["DefenseEvasion"]
+  },
+  {
+    "name": "Follow what was enumerated",
+    "kind": "remediation",
+    "priority": "low",
+    "action": "Use what was listed to predict targets: check those identities, vaults and hosts for later activity.",
+    "activities": ["GraphDirectoryEnumeration", "AzureResourceEnumeration", "KeyVaultKeyEnumeration", "DirectorySearch", "RegistryQuery"],
+    "tactics": ["Discovery"]
+  },
+  {
+    "name": "Restrict application credentials and consent",
+    "kind": "mitigation",
+    "priority": "medium",
+    "action": "Limit who may add a credential or grant a permission to an application, and alert when either happens.",
+    "activities": ["AppCredentialAddition", "AppRoleAssignment", "TokenRequest"]
+  },
+  {
+    "name": "Guard privileged roles",
+    "kind": "mitigation",
+    "priority": "medium",
+    "action": "Require approval and raise an alert for every privileged role assignment, and keep standing membership small.",
+    "activities": ["GlobalAdministratorAssignment", "RoleAssignment"],
+    "tactics": ["PrivilegeEscalation"]
+  },
+  {
+    "name": "Harden Key Vault access",
+    "kind": "mitigation",
+    "priority": "medium",
+    "action": "Give each identity the least vault access it needs, close vaults to public networks, and alert on bulk reads.",
+    "activities": ["KeyVaultSecretRead", "KeyVaultKeyUnwrap", "KeyVaultKeyEnumeration", "AzureResourceEnumeration"]
+  },
+  {
+    "name": "Constrain living-off-the-land binaries",
+    "kind": "mitigation",
+    "priority": "medium",
+    "action": "Use application control to stop system binaries that have no need to from fetching files or running code.",
+    "activities": ["SignedBinaryProxyExecution", "FileDownload", "FileUpload", "ProcessStart", "CertificateExport"]
+  },
+  {
+    "name": "Constrain PowerShell and .NET",
+    "kind": "mitigation",
+    "priority": "medium",
+    "action": "Enforce constrained language mode with application control, and log script blocks and module loads.",
+    "activities": ["DownloadAndExecute", "ReflectiveCodeLoading", "NativeApiCall", "RuntimeCompilation", "AmsiBypass"]
+  },
+  {
+    "name": "Protect credentials on hosts",
+    "kind": "mitigation",
+    "priority": "medium",
+    "action": "Turn on protection for the local security authority and its credential store, and restrict who may debug processes.",
+    "activities": ["LsassDump", "RegistryHiveDump", "CertificateExport"],
+    "tactics": ["CredentialAccess"]
+  },
+  {
+    "name": "Send logs off the host",
+    "kind": "mitigation",
+    "priority": "medium",
+    "action": "Forward security logs to a collector as they are written, and alert when a log is cleared.",
+    "activities": ["EventLogClearing"],
+    "tactics": ["DefenseEvasion"]
+  },
+  {
+    "name": "Filter outbound traffic",
+    "kind": "mitigation",
+    "priority": "medium",
+    "action": "Deny outbound connections from servers by default and allow them by destination.",
+    "activities": ["NetworkSocket", "FileDownload", "FileUpload", "DownloadAndExecute"],
+    "tactics": ["CommandAndControl", "Exfiltration"]
+  },
+  {
+    "name": "Alert on new autostart entries",
+    "kind": "mitigation",
+    "priority": "low",
+    "action": "Alert when a run key, scheduled task or service is created outside change control.",
+    "activities": ["RunKeyPersistence", "ScheduledTaskCreation", "ServiceCreation"],
+    "tactics": ["Persistence"]
+  },
+  {
+    "name": "Watch application access to mail and files",
+    "kind": "mitigation",
+    "priority": "low",
+    "action": "Alert on an application that is granted mail or file permissions, and on one that reads them in volume.",
+    "activities": ["MailboxAccess", "TeamsMessageAccess", "SharePointEnumeration", "GraphDirectoryEnumeration"],
+    "tactics": ["Collection"]
+  }
+]
