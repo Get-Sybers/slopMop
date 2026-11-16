@@ -1,8 +1,16 @@
 [
   {
+    "finding": "CertificateExport",
+    "severity": "high",
+    "tactic": "CredentialAccess",
+    "indicator": null,
+    "files": "20250302_092200_step05_export.ps1",
+    "attribution": null
+  },
+  {
     "finding": "Domain",
     "severity": "high",
-    "tactic": "CredentialAccess, Discovery, LateralMovement",
+    "tactic": "Discovery, LateralMovement",
     "indicator": "CA01.corp.example",
     "files": "20250302_091500_step04_certs.ps1, ca_ping_20250302_091540.log, cert_store_20250302_091530.txt",
     "attribution": null
@@ -34,7 +42,7 @@
   {
     "finding": "IPv4",
     "severity": "high",
-    "tactic": "CredentialAccess, Discovery, LateralMovement",
+    "tactic": "Discovery, LateralMovement",
     "indicator": "10.20.1.23",
     "files": "20250302_091500_step04_certs.ps1, hosts_20250302_090030.csv",
     "attribution": null
@@ -42,7 +50,7 @@
   {
     "finding": "IPv4",
     "severity": "high",
-    "tactic": "CredentialAccess, Discovery, LateralMovement",
+    "tactic": "Discovery, LateralMovement",
     "indicator": "10.20.1.5",
     "files": "20250302_091500_step04_certs.ps1, hosts_20250302_090030.csv",
     "attribution": null
@@ -66,7 +74,7 @@
   {
     "finding": "SHA1",
     "severity": "high",
-    "tactic": "CredentialAccess, Discovery, LateralMovement",
+    "tactic": "Discovery, LateralMovement",
     "indicator": "A1B2C3D4E5F60718293A4B5C6D7E8F9012345678",
     "files": "cert_store_20250302_091530.txt",
     "attribution": null
@@ -76,7 +84,7 @@
     "severity": "high",
     "tactic": "CredentialAccess",
     "indicator": null,
-    "files": "20250302_090900_step03_sync_retry.ps1, 20250302_091500_step04_certs.ps1, 20250302_092200_step05_export.ps1",
+    "files": "20250302_090900_step03_sync_retry.ps1, 20250302_092200_step05_export.ps1",
     "attribution": null
   },
   {
@@ -85,6 +93,14 @@
     "tactic": "LateralMovement",
     "indicator": null,
     "files": "20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1, 20250302_091500_step04_certs.ps1",
+    "attribution": null
+  },
+  {
+    "finding": "EncodedCommand",
+    "severity": "medium",
+    "tactic": "Execution",
+    "indicator": "-enc U3RhZ2VkIGV4cG9ydCBzdW1tYXJ5",
+    "files": "staged_20250302_093100.cmd",
     "attribution": null
   },
   {
@@ -109,14 +125,6 @@
     "tactic": "Discovery",
     "indicator": "corp.example",
     "files": "20250302_090000_step01_inventory.ps1, sync_10.20.1.17_retry_20250302_090930.txt",
-    "attribution": null
-  },
-  {
-    "finding": "EncodedCommand",
-    "severity": "low",
-    "tactic": null,
-    "indicator": "-enc U3RhZ2VkIGV4cG9ydCBzdW1tYXJ5",
-    "files": "staged_20250302_093100.cmd",
     "attribution": null
   },
   {

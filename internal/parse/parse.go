@@ -36,12 +36,19 @@ type Transform struct {
 }
 
 // ExtractCommand parses a command line found outside a script, where no
-// file extension names the shell. A cmdlet or a PowerShell host decides.
+// file extension names the shell. A cmdlet or a PowerShell host decides for
+// PowerShell, and a drive path, an .exe or a slash switch for cmd.exe.
 func ExtractCommand(text string) Script {
 	if rxPsShape.MatchString(text) {
 		return ExtractPowerShell(text)
 	}
+	if rxNativeShape.MatchString(text) {
+		return ExtractBatch(text)
+	}
 	return ExtractBash(text)
 }
 
-var rxPsShape = regexp.MustCompile(`\b[A-Z][a-z]+-[A-Z][A-Za-z]+\b|(?i)\b(?:powershell|pwsh)(?:\.exe)?\b`)
+var (
+	rxPsShape     = regexp.MustCompile(`\b[A-Z][a-z]+-[A-Z][A-Za-z]+\b|(?i)\b(?:powershell|pwsh)(?:\.exe)?\b`)
+	rxNativeShape = regexp.MustCompile(`(?i)[a-z]:\\|\\\\[\w.-]+\\|\.exe\b|%\w+%|\s/[a-z]{1,2}(?:[:\s]|$)|\bprocess\s+call\s+create\b`)
+)

@@ -10,7 +10,7 @@ import (
 )
 
 func TestList(t *testing.T) {
-	want := []string{"bash", "entra", "powershell"}
+	want := []string{"bash", "entra", "lolbin", "powershell"}
 	if got := List(); !slices.Equal(got, want) {
 		t.Errorf("List() = %v, want %v", got, want)
 	}
@@ -27,6 +27,7 @@ func TestCopy(t *testing.T) {
 		{"bash", 17, "20250301_104100_ca_backup.p12", "2025-03-01T10:41:03Z"},
 		{"bash", 17, "adsync_1740824625.txt", "2025-03-01T10:23:48Z"},
 		{"entra", 11, "agent_20261015_093500.jsonl", "2026-10-15T09:35:03Z"},
+		{"lolbin", 11, "20261020_103000_step07_cleanup.bat", "2026-10-20T10:30:03Z"},
 		{"powershell", 16, "hosts_20250302_090030.csv", "2025-03-02T09:00:33Z"},
 		{"powershell", 16, "ca01_20250302_092210.cer", "2025-03-02T09:22:13Z"},
 	}

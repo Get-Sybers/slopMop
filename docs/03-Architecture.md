@@ -14,7 +14,7 @@ about evidence touch no file, and every static table is a data file validated at
 | `internal/inventory` | walks the input directory and builds one record per file; owns all evidence I/O |
 | `internal/evidence` | the file record and its vocabularies (role, note); no I/O |
 | `internal/nametime` | detects the timestamp written into a file name; no I/O |
-| `internal/parse` | extracts commands, variables and file references from bash, PowerShell and Python scripts |
+| `internal/parse` | extracts commands, variables and file references from bash, PowerShell, Python and batch scripts, and decodes the payloads a file carries encoded |
 | `internal/structured` | decodes JSON, XML and HTML reports into their text values and recorded commands using `formats.json` |
 | `internal/tactic` | classifies commands by MITRE ATT&CK tactic and ranks each tactic's severity using `tactics.json` |
 | `internal/activity` | recognises what a line of evidence does (a role assignment, a mailbox read, a Key Vault secret read) and the tactics of it, using `activities.json` |
@@ -115,9 +115,11 @@ abandons its rule. A date and time without `Z` is marked local: the name does no
 AgentScriptTrace golden test in the VelociSacci repository (`tests/golden/fixtures/`), copied byte
 for byte. They hold CRLF, UTF-16, byte-order-mark and binary files on purpose.
 
-`entra` belongs to this repository. It is an agent's run against Entra ID, Microsoft Graph and
-Azure Key Vault in bash, PowerShell and Python, with a JSON Lines log, and it shows every activity
-of `activities.json` except the plain role assignment.
+`entra` and `lolbin` belong to this repository. `entra` is an agent's run against Entra ID,
+Microsoft Graph and Azure Key Vault in bash, PowerShell and Python, with a JSON Lines log; it shows
+the cloud activities of `activities.json` except the plain role assignment. `lolbin` is a run on a
+Windows host with living-off-the-land binaries and .NET: six PowerShell scripts, a batch file, C#
+source, an MSBuild project and a process-creation log, on documentation addresses.
 
 - `.gitattributes` marks every `testdata` path `-text`, so a checkout never converts them.
 - `.gitignore`, `.editorconfig`, `.yamllint`, `.gitleaks.toml` and the fixer hooks leave `testdata` alone.
@@ -143,6 +145,8 @@ the operations it shows.
 - A step's tactics are those of its tools plus those of its activities.
 - `report list` counts, for each activity, the lines that show it. A loop counts once: the tool
   does not run the script.
+- `certutil`, `bitsadmin` and `reg` do too many things for a name to say which, so they have no
+  tactic in `tactics.json`: the activity found on the line gives one.
 
 | Activity | Tactics |
 | --- | --- |
@@ -159,3 +163,51 @@ the operations it shows.
 | `KeyVaultKeyUnwrap` | CredentialAccess |
 | `KeyVaultKeyEnumeration` | Discovery |
 | `AzureResourceEnumeration` | Discovery |
+| `FileDownload` | CommandAndControl |
+| `FileUpload` | Exfiltration |
+| `DownloadAndExecute` | Execution, CommandAndControl |
+| `ReflectiveCodeLoading` | DefenseEvasion, Execution |
+| `NativeApiCall` | Execution, DefenseEvasion |
+| `RuntimeCompilation` | DefenseEvasion, Execution |
+| `ProcessStart` | Execution |
+| `NetworkSocket` | CommandAndControl |
+| `SignedBinaryProxyExecution` | DefenseEvasion, Execution |
+| `RunKeyPersistence` | Persistence |
+| `ScheduledTaskCreation` | Persistence, Execution |
+| `ServiceCreation` | Persistence, PrivilegeEscalation |
+| `EventLogClearing` | DefenseEvasion |
+| `LsassDump` | CredentialAccess |
+| `RegistryHiveDump` | CredentialAccess |
+| `RegistryQuery` | Discovery |
+| `CertificateExport` | CredentialAccess |
+| `AmsiBypass` | DefenseEvasion |
+| `DirectorySearch` | Discovery |
+
+## 8. Windows command lines
+
+`parse.ExtractBatch` reads a `.bat` or `.cmd` file, and the PowerShell parser hands it every
+native command it meets: a bare name at the start of a statement, after the call operator, on the
+right of an assignment or inside a script block, the target of `Start-Process` and the arguments
+of `Process.Start`. A cmdlet is recognised by its Verb-Noun shape instead.
+
+- A command that launches another is followed, four levels deep: `cmd /c`, an inline
+  `powershell -Command`, `schtasks /tr`, `forfiles /c`, `wmic process call create`, `start`,
+  `call`, and the body of `if` and `for`.
+- A here-string and a block comment in a PowerShell script hold data and prose, so no command is
+  read from them.
+- `certutil -decode`, `-encode`, `-decodehex` and `-encodehex` are transforms.
+- A word that ends in `.exe` is a tool unless it is part of an address, the file an output option
+  names, or a path built from a variable that the call operator does not run.
+- A `.bat` file is a script. A `.cmd` file keeps the output role of `roles.json` and is parsed as
+  a batch file all the same.
+
+## 9. Encoded payloads
+
+`parse.Decoded` reads what a file carries encoded, and nothing is run: the argument of a
+PowerShell `-EncodedCommand`, in any of its abbreviations, and a Base64 literal handed to
+`FromBase64String`. A payload is kept when nearly all of it is printable text.
+
+- The commands of an encoded command join the file's tools, and the text of every payload is
+  searched for activities and indicators with the rest of the file.
+- Two layers are read: a payload that carries an encoded command is decoded once more.
+- A payload over 1 MiB of Base64 is left alone, and a file yields at most 32 payloads.

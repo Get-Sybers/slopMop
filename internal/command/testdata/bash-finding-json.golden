@@ -1,5 +1,13 @@
 [
   {
+    "finding": "CertificateExport",
+    "severity": "high",
+    "tactic": "CredentialAccess",
+    "indicator": null,
+    "files": "20250301_104500_step07_exfil.sh",
+    "attribution": null
+  },
+  {
     "finding": "Domain",
     "severity": "high",
     "tactic": "CredentialAccess, Exfiltration",

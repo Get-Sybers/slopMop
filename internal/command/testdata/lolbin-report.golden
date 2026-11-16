@@ -1,0 +1,22 @@
+METRIC                                 VALUE
+files                                  11
+scripts                                7
+outputs                                3
+indicators                             20
+indicators Domain                      5
+indicators EncodedCommand              1
+indicators IPv4                        3
+indicators URL                         11
+activities                             11
+activities DownloadAndExecute          1
+activities EventLogClearing            3
+activities FileDownload                9
+activities NativeApiCall               2
+activities NetworkSocket               1
+activities ProcessStart                1
+activities ReflectiveCodeLoading       3
+activities RunKeyPersistence           1
+activities RuntimeCompilation          1
+activities ScheduledTaskCreation       2
+activities SignedBinaryProxyExecution  9
+tactics                                5

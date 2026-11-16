@@ -163,6 +163,185 @@
         "/subscriptions\\b.*api-version"
       ],
       "unless": "(?i)\\b(?:post|patch|put|delete)\\b|--data\\b|\\s-d\\s|-body\\b|--body\\b"
+    },
+    {
+      "name": "FileDownload",
+      "tactics": ["CommandAndControl"],
+      "patterns": [
+        "(?i)\\bcertutil(?:\\.exe)?\\b.*[-/](?:urlcache|verifyctl)\\b",
+        "(?i)\\bbitsadmin(?:\\.exe)?\\b.*/(?:transfer|addfile)\\b",
+        "(?i)\\bstart-bitstransfer\\b",
+        "(?i)\\.Download(?:String|Data|File)(?:Async|TaskAsync)?\\(",
+        "(?i)\\binvoke-webrequest\\b.*\\s-outfile\\b",
+        "(?i)\\biwr\\b.*\\s-outfile\\b",
+        "(?i)\\b(?:curl|wget)(?:\\.exe)?\\b.*\\s-(?:o|-output|outfile)\\b",
+        "(?i)\\bHttpClient\\b.*\\.Get(?:String|ByteArray|Stream)?Async\\(",
+        "(?i)\\b(?:HttpWebRequest|WebRequest)\\]::Create\\("
+      ],
+      "unless": "(?i)/upload\\b|-transfertype\\s+upload\\b"
+    },
+    {
+      "name": "FileUpload",
+      "tactics": ["Exfiltration"],
+      "patterns": [
+        "(?i)\\bbitsadmin(?:\\.exe)?\\b.*/upload\\b",
+        "(?i)\\bstart-bitstransfer\\b.*-transfertype\\s+upload\\b",
+        "(?i)\\.Upload(?:File|Data|String|Values)(?:Async|TaskAsync)?\\("
+      ]
+    },
+    {
+      "name": "DownloadAndExecute",
+      "tactics": ["Execution", "CommandAndControl"],
+      "patterns": [
+        "(?i)\\b(?:iex|invoke-expression)\\b.*\\.Download(?:String|Data)\\(",
+        "(?i)\\.Download(?:String|Data)\\(.*\\|\\s*(?:iex|invoke-expression)\\b",
+        "(?i)\\b(?:invoke-webrequest|invoke-restmethod)\\b.*\\|\\s*(?:iex|invoke-expression)\\b",
+        "(?i)\\biwr\\b.*\\|\\s*(?:iex|invoke-expression)\\b",
+        "(?i)\\birm\\b.*\\|\\s*(?:iex|invoke-expression)\\b"
+      ]
+    },
+    {
+      "name": "ReflectiveCodeLoading",
+      "tactics": ["DefenseEvasion", "Execution"],
+      "patterns": [
+        "(?i)\\bAssembly\\]?(?:::|\\.)(?:Load|LoadFile|LoadFrom|UnsafeLoadFrom|ReflectionOnlyLoad)\\(",
+        "(?i)\\bCurrentDomain\\.Load\\(",
+        "(?i)\\.EntryPoint\\.Invoke\\("
+      ]
+    },
+    {
+      "name": "NativeApiCall",
+      "tactics": ["Execution", "DefenseEvasion"],
+      "patterns": [
+        "(?i)\\bDllImport\\s*\\(",
+        "\\b(?:VirtualAlloc(?:Ex)?|VirtualProtect(?:Ex)?|CreateThread|CreateRemoteThread|WriteProcessMemory|NtCreateThreadEx|QueueUserAPC|RtlMoveMemory)\\b",
+        "(?i)\\bGetDelegateForFunctionPointer\\("
+      ]
+    },
+    {
+      "name": "RuntimeCompilation",
+      "tactics": ["DefenseEvasion", "Execution"],
+      "patterns": [
+        "(?i)\\badd-type\\b.*\\s-(?:typedefinition|memberdefinition|path|literalpath)\\b",
+        "(?i)\\b(?:CSharpCodeProvider|VBCodeProvider|CompileAssemblyFrom(?:Source|File))\\b",
+        "(?i)\\b(?:csc|vbc|jsc)(?:\\.exe)?\\b.*[-/](?:out|target|t):"
+      ]
+    },
+    {
+      "name": "ProcessStart",
+      "tactics": ["Execution"],
+      "patterns": [
+        "(?i)\\bProcess\\]::Start\\(",
+        "(?i)\\bProcessStartInfo\\b",
+        "(?i)\\bwmic(?:\\.exe)?\\b.*\\bprocess\\s+call\\s+create\\b",
+        "(?i)\\b(?:invoke-wmimethod|invoke-cimmethod)\\b.*\\bwin32_process\\b"
+      ]
+    },
+    {
+      "name": "NetworkSocket",
+      "tactics": ["CommandAndControl"],
+      "patterns": [
+        "(?i)\\bSockets\\.(?:TcpClient|UdpClient|Socket|TcpListener)\\b",
+        "(?i)\\bnew\\s+(?:TcpClient|UdpClient|TcpListener)\\("
+      ]
+    },
+    {
+      "name": "SignedBinaryProxyExecution",
+      "tactics": ["DefenseEvasion", "Execution"],
+      "patterns": [
+        "(?i)\\bregsvr32(?:\\.exe)?\\b.*(?:/i:|scrobj)",
+        "(?i)\\bmshta(?:\\.exe)?\\b.*(?:https?:|javascript:|vbscript:|\\.hta\\b)",
+        "(?i)\\brundll32(?:\\.exe)?\\b.*(?:javascript:|\\.dll\\s*,|\\.dll\\\"?\\s+\\w)",
+        "(?i)\\bmsbuild(?:\\.exe)?\\b.*\\.(?:xml|csproj|vbproj|proj|targets)\\b",
+        "(?i)\\binstallutil(?:\\.exe)?\\b.*(?:/u\\b|/logfile)",
+        "(?i)\\breg(?:asm|svcs)(?:\\.exe)?\\b.*\\.dll\\b",
+        "(?i)\\bcmstp(?:\\.exe)?\\b.*\\.inf\\b",
+        "(?i)\\bodbcconf(?:\\.exe)?\\b.*\\bregsvr\\b",
+        "(?i)\\bmsiexec(?:\\.exe)?\\b.*(?:https?:|/[yz]\\b)",
+        "(?i)\\bforfiles(?:\\.exe)?\\b.*/c\\b"
+      ]
+    },
+    {
+      "name": "RunKeyPersistence",
+      "tactics": ["Persistence"],
+      "patterns": [
+        "(?i)\\breg(?:\\.exe)?\\b\\s+add\\b.*\\\\CurrentVersion\\\\Run(?:Once)?\\b",
+        "(?i)\\b(?:set-itemproperty|new-itemproperty|sp)\\b.*\\\\CurrentVersion\\\\Run(?:Once)?\\b",
+        "(?i)\\\\CurrentVersion\\\\Run(?:Once)?\\b.*\\.(?:SetValue|CreateSubKey)\\("
+      ]
+    },
+    {
+      "name": "ScheduledTaskCreation",
+      "tactics": ["Persistence", "Execution"],
+      "patterns": [
+        "(?i)\\bschtasks(?:\\.exe)?\\b.*/create\\b",
+        "(?i)\\b(?:register-scheduledtask|new-scheduledtask|new-scheduledtaskaction)\\b",
+        "(?i)\\bSchedule\\.Service\\b"
+      ]
+    },
+    {
+      "name": "ServiceCreation",
+      "tactics": ["Persistence", "PrivilegeEscalation"],
+      "patterns": [
+        "(?i)\\bsc(?:\\.exe)?\\b\\s+(?:\\\\\\\\\\S+\\s+)?(?:create|config)\\b",
+        "(?i)\\bnew-service\\b"
+      ]
+    },
+    {
+      "name": "EventLogClearing",
+      "tactics": ["DefenseEvasion"],
+      "patterns": [
+        "(?i)\\bwevtutil(?:\\.exe)?\\b\\s+(?:cl|clear-log)\\b",
+        "(?i)\\b(?:clear-eventlog|remove-eventlog)\\b",
+        "(?i)\\bEventLog\\b.*\\.Clear\\("
+      ]
+    },
+    {
+      "name": "LsassDump",
+      "tactics": ["CredentialAccess"],
+      "patterns": [
+        "(?i)\\bcomsvcs(?:\\.dll)?\\b.*\\bMiniDump\\b",
+        "(?i)\\bprocdump(?:64)?(?:\\.exe)?\\b.*\\blsass\\b",
+        "(?i)\\bMiniDumpWriteDump\\b"
+      ]
+    },
+    {
+      "name": "RegistryHiveDump",
+      "tactics": ["CredentialAccess"],
+      "patterns": [
+        "(?i)\\breg(?:\\.exe)?\\b\\s+(?:save|export)\\s+\\\"?hk(?:lm|ey_local_machine)\\\\(?:sam|system|security)\\b"
+      ]
+    },
+    {
+      "name": "RegistryQuery",
+      "tactics": ["Discovery"],
+      "patterns": [
+        "(?i)\\breg(?:\\.exe)?\\b\\s+query\\b"
+      ]
+    },
+    {
+      "name": "CertificateExport",
+      "tactics": ["CredentialAccess"],
+      "patterns": [
+        "(?i)\\bcertutil(?:\\.exe)?\\b.*[-/](?:exportpfx|backupkey|backup|key)\\b",
+        "(?i)\\b(?:export-pfxcertificate|export-certificate)\\b"
+      ]
+    },
+    {
+      "name": "AmsiBypass",
+      "tactics": ["DefenseEvasion"],
+      "patterns": [
+        "(?i)\\bamsi(?:InitFailed|Utils|ScanBuffer|Context)\\b"
+      ]
+    },
+    {
+      "name": "DirectorySearch",
+      "tactics": ["Discovery"],
+      "patterns": [
+        "(?i)\\bDirectoryServices\\.(?:DirectorySearcher|DirectoryEntry)\\b",
+        "(?i)\\[adsi(?:searcher)?\\]",
+        "(?i)\\bManagementObjectSearcher\\b"
+      ]
     }
   ]
 }

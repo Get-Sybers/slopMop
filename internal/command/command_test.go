@@ -321,6 +321,36 @@ func TestActivityViews(t *testing.T) {
 	}
 }
 
+// The scenario of the lolbin fixture: living-off-the-land binaries and .NET
+// in PowerShell, a batch file, C# source and a process-creation log.
+func TestLolbinViews(t *testing.T) {
+	folder := evidencetest.Copy(t, "lolbin")
+	views := []struct {
+		golden string
+		args   []string
+	}{
+		{"lolbin-trace", []string{"trace", "list"}},
+		{"lolbin-trace-wide", []string{"trace", "list", "-o", "wide"}},
+		{"lolbin-finding-activity", []string{"finding", "list", "-activity", "-o", "wide"}},
+	}
+	for _, v := range views {
+		t.Run(v.golden, func(t *testing.T) {
+			out, err := run(t, append(v.args, "--inputdir", folder)...)
+			if err != nil {
+				t.Fatal(err)
+			}
+			golden.Check(t, v.golden, []byte(out))
+		})
+	}
+	roles, err := run(t, "file", "list", "-script", "-q", "--inputdir", folder)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(roles, "step07_cleanup.bat") {
+		t.Errorf("scripts = %q, want the batch file among them", roles)
+	}
+}
+
 func TestPipelineRejectsAnUnknownTactic(t *testing.T) {
 	pipe, err := loadPipeline()
 	if err != nil {

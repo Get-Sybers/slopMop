@@ -68,6 +68,17 @@ func Build(files []evidence.File, texts map[string]string, tables Tables) Timeli
 			parsed[f.Path] = p
 			text = decoded
 		}
+		// A .cmd file is an output by role, and is a batch file all the same.
+		if _, done := parsed[f.Path]; !done && isBatch(f) && text != "" {
+			parsed[f.Path] = parse.ExtractBatch(text)
+		}
+		if hidden, extra := decodePayloads(text); extra != "" {
+			p := parsed[f.Path]
+			p.Commands = append(p.Commands, hidden.Commands...)
+			p.Transforms = append(p.Transforms, hidden.Transforms...)
+			parsed[f.Path] = p
+			text += "\n" + extra
+		}
 		content[f.Path] = text
 	}
 	steps := make([]Step, len(ordered))
@@ -126,9 +137,41 @@ func effectiveTime(f evidence.File) time.Time {
 	return f.Modified
 }
 
+// payloadDepth is how many layers of encoding are read: a payload may
+// itself carry an encoded command.
+const payloadDepth = 2
+
+// decodePayloads reads what a text carries encoded. It returns the commands
+// of the PowerShell payloads and the text of every payload, so that the
+// activities and indicators inside them are found too. Nothing is run.
+func decodePayloads(text string) (parse.Script, string) {
+	var hidden parse.Script
+	var extra []string
+	layer := []string{text}
+	for depth := 0; depth < payloadDepth && len(layer) > 0; depth++ {
+		var next []string
+		for _, t := range layer {
+			for _, p := range parse.Decoded(t) {
+				extra = append(extra, p.Text)
+				next = append(next, p.Text)
+				if p.Script {
+					s := parse.ExtractPowerShell(p.Text)
+					hidden.Commands = append(hidden.Commands, s.Commands...)
+					hidden.Transforms = append(hidden.Transforms, s.Transforms...)
+				}
+			}
+		}
+		layer = next
+	}
+	return hidden, strings.Join(extra, "\n")
+}
+
 func parseScript(f evidence.File, text string) parse.Script {
 	if isPowerShell(f) {
 		return parse.ExtractPowerShell(text)
+	}
+	if isBatch(f) {
+		return parse.ExtractBatch(text)
 	}
 	if isPython(f, text) {
 		return parse.ExtractPython(text)
@@ -155,6 +198,11 @@ func parseReport(f evidence.File, text string, formats structured.Table) (parse.
 		s.Transforms = append(s.Transforms, p.Transforms...)
 	}
 	return s, strings.Join(report.Values, "\n"), true
+}
+
+func isBatch(f evidence.File) bool {
+	lower := strings.ToLower(f.Path)
+	return strings.HasSuffix(lower, ".bat") || strings.HasSuffix(lower, ".cmd")
 }
 
 func isPowerShell(f evidence.File) bool {

@@ -1,17 +1,18 @@
-FINDING         SEVERITY  TACTIC                                        INDICATOR                                                     FILES                                                         ATTRIBUTION
-Domain          high      CredentialAccess, Discovery, LateralMovement  CA01.corp.example                                             20250302_091500_step04_certs.ps1, ca_ping_20250302_091540...  -
-Domain          high      CredentialAccess                              app01.corp.example                                            20250302_092200_step05_export.ps1                             -
-GUID            high      CredentialAccess, Discovery, LateralMovement  6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c                          20250302_091500_step04_certs.ps1, 20250302_092200_step05_...  -
-IPv4            high      CredentialAccess, Discovery, LateralMovement  10.20.1.17                                                    20250302_090900_step03_sync_retry.ps1, hosts_20250302_090...  -
-IPv4            high      CredentialAccess, Discovery, LateralMovement  10.20.1.23                                                    20250302_091500_step04_certs.ps1, hosts_20250302_090030.csv   -
-IPv4            high      CredentialAccess, Discovery, LateralMovement  10.20.1.5                                                     20250302_091500_step04_certs.ps1, hosts_20250302_090030.csv   STORM-0940
-SHA1            high      CredentialAccess                              0C9B8A7F6E5D4C3B2A1908F7E6D5C4B3A2918070                      export_summary_20250302_092215.txt                            -
-SHA1            high      CredentialAccess, Discovery, LateralMovement  5F2A9C1E7B3D4A6C8E0F1A2B3C4D5E6F7A8B9C0D                      20250302_092200_step05_export.ps1, cert_store_20250302_09...  -
-SHA1            high      CredentialAccess, Discovery, LateralMovement  A1B2C3D4E5F60718293A4B5C6D7E8F9012345678                      cert_store_20250302_091530.txt                                -
-tactic          high      CredentialAccess                              -                                                             20250302_090900_step03_sync_retry.ps1, 20250302_091500_st...  -
-tactic          high      LateralMovement                               -                                                             20250302_090500_step02_sync.ps1, 20250302_090900_step03_s...  -
-Base64Blob      low       -                                             U3RhZ2VkIGV4cG9ydCBzdW1tYXJ5IGZvciBleGZpbHRyYXRpb24gdGVzd...  staged_20250302_093010.b64                                    -
-Domain          low       -                                             contoso.onmicrosoft.com                                       sync_10.20.1.17_retry_20250302_090930.txt                     -
-Domain          low       Discovery                                     corp.example                                                  20250302_090000_step01_inventory.ps1, sync_10.20.1.17_ret...  -
-EncodedCommand  low       -                                             -enc U3RhZ2VkIGV4cG9ydCBzdW1tYXJ5                             staged_20250302_093100.cmd                                    -
-tactic          low       Discovery                                     -                                                             20250302_090000_step01_inventory.ps1, 20250302_090500_ste...  -
+FINDING            SEVERITY  TACTIC                                        INDICATOR                                                     FILES                                                         ATTRIBUTION
+CertificateExport  high      CredentialAccess                              -                                                             20250302_092200_step05_export.ps1                             -
+Domain             high      Discovery, LateralMovement                    CA01.corp.example                                             20250302_091500_step04_certs.ps1, ca_ping_20250302_091540...  -
+Domain             high      CredentialAccess                              app01.corp.example                                            20250302_092200_step05_export.ps1                             -
+GUID               high      CredentialAccess, Discovery, LateralMovement  6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c                          20250302_091500_step04_certs.ps1, 20250302_092200_step05_...  -
+IPv4               high      CredentialAccess, Discovery, LateralMovement  10.20.1.17                                                    20250302_090900_step03_sync_retry.ps1, hosts_20250302_090...  -
+IPv4               high      Discovery, LateralMovement                    10.20.1.23                                                    20250302_091500_step04_certs.ps1, hosts_20250302_090030.csv   -
+IPv4               high      Discovery, LateralMovement                    10.20.1.5                                                     20250302_091500_step04_certs.ps1, hosts_20250302_090030.csv   STORM-0940
+SHA1               high      CredentialAccess                              0C9B8A7F6E5D4C3B2A1908F7E6D5C4B3A2918070                      export_summary_20250302_092215.txt                            -
+SHA1               high      CredentialAccess, Discovery, LateralMovement  5F2A9C1E7B3D4A6C8E0F1A2B3C4D5E6F7A8B9C0D                      20250302_092200_step05_export.ps1, cert_store_20250302_09...  -
+SHA1               high      Discovery, LateralMovement                    A1B2C3D4E5F60718293A4B5C6D7E8F9012345678                      cert_store_20250302_091530.txt                                -
+tactic             high      CredentialAccess                              -                                                             20250302_090900_step03_sync_retry.ps1, 20250302_092200_st...  -
+tactic             high      LateralMovement                               -                                                             20250302_090500_step02_sync.ps1, 20250302_090900_step03_s...  -
+EncodedCommand     medium    Execution                                     -enc U3RhZ2VkIGV4cG9ydCBzdW1tYXJ5                             staged_20250302_093100.cmd                                    -
+Base64Blob         low       -                                             U3RhZ2VkIGV4cG9ydCBzdW1tYXJ5IGZvciBleGZpbHRyYXRpb24gdGVzd...  staged_20250302_093010.b64                                    -
+Domain             low       -                                             contoso.onmicrosoft.com                                       sync_10.20.1.17_retry_20250302_090930.txt                     -
+Domain             low       Discovery                                     corp.example                                                  20250302_090000_step01_inventory.ps1, sync_10.20.1.17_ret...  -
+tactic             low       Discovery                                     -                                                             20250302_090000_step01_inventory.ps1, 20250302_090500_ste...  -
