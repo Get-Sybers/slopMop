@@ -41,10 +41,14 @@
   },
   {
     "metric": "activities",
-    "value": 0
+    "value": 1
+  },
+  {
+    "metric": "activities CertificateExport",
+    "value": 1
   },
   {
     "metric": "tactics",
-    "value": 3
+    "value": 4
   }
 ]

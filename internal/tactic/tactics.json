@@ -43,7 +43,7 @@
       "get-module", "get-certificationauthority", "get-certificatetemplate",
       "test-netconnection", "test-connection", "resolve-dnsname", "test-path",
       "systeminfo", "ipconfig", "net", "net1", "nltest", "dsquery", "dsget",
-      "netsh", "tasklist", "quser", "qwinsta", "query", "wmic", "sc", "reg",
+      "netsh", "tasklist", "quser", "qwinsta", "query", "wmic", "sc",
       "route", "nbtstat", "setspn", "klist", "dsregcmd", "cmdkey", "where",
       "get-mgauditlogdirectoryaudit", "get-mgauditlogsignin",
       "get-mgsecurityalert", "get-azactivitylog", "get-mgdomain",
@@ -59,7 +59,7 @@
       "secretsdump.py", "impacket-secretsdump", "mimikatz", "lazagne",
       "getnpusers.py", "getuserspns.py", "crackmapexec", "netexec", "nxc",
       "unshadow", "certipy", "certipy-ad", "certi.py", "certify.exe",
-      "certutil", "certutil.exe", "certreq", "gettgtpkinit.py",
+      "certreq", "gettgtpkinit.py",
       "getnthash.py", "passthecert.py", "pywhisker", "pywhisker.py",
       "adconnectdump.py", "ntlmrelayx.py", "impacket-ntlmrelayx",
       "mssqlclient.py", "impacket-mssqlclient", "rubeus.exe", "certify",
@@ -110,7 +110,8 @@
       "msbuild", "installutil", "exec", "os.system", "os.popen",
       "subprocess.run", "subprocess.call", "subprocess.popen",
       "subprocess.check_call", "subprocess.check_output",
-      "subprocess.getoutput", "subprocess.getstatusoutput"
+      "subprocess.getoutput", "subprocess.getstatusoutput",
+      "msiexec", "regasm", "regsvcs", "cmstp", "odbcconf", "mavinject", "hh", "forfiles", "pcalua", "ieexec", "xwizard", "msdt", "wsl"
     ]
   },
   {
@@ -166,7 +167,8 @@
       "vssadmin", "wbadmin",
       "format-hex",
       "set-adminauditlogconfig", "set-mailboxauditbypassassociation",
-      "remove-azdiagnosticsetting"
+      "remove-azdiagnosticsetting",
+      "csc", "vbc", "jsc", "ilasm"
     ]
   },
   {
@@ -180,7 +182,16 @@
       "export-mailbox", "new-mailboxexportrequest", "search-mailbox",
       "search-unifiedauditlog", "new-compliancesearch",
       "start-compliancesearch", "new-compliancesearchaction",
-      "get-mgusermessage"
+      "get-mgusermessage",
+      "esentutl", "makecab", "extrac32", "expand"
+    ]
+  },
+  {
+    "tactic": "CommandAndControl",
+    "severity": "high",
+    "commands": [
+      "ngrok", "chisel", "cloudflared", "plink", "frpc", "ligolo-ng",
+      "desktopimgdownldr"
     ]
   },
   {
@@ -188,9 +199,8 @@
     "severity": "high",
     "commands": [
       "curl", "wget", "nc", "ncat", "netcat", "socat", "scp", "sftp", "ftp",
-      "rsync", "rclone", "gsutil", "azcopy", "openssl", "ngrok", "chisel",
-      "cloudflared", "base64", "invoke-webrequest", "iwr",
-      "invoke-restmethod", "irm", "start-bitstransfer", "bitsadmin",
+      "rsync", "rclone", "gsutil", "azcopy", "openssl", "base64", "invoke-webrequest", "iwr",
+      "invoke-restmethod", "irm",
       "send-mailmessage", "new-psdrive", "requests.get", "requests.post",
       "requests.put", "requests.patch", "requests.delete", "requests.head",
       "requests.request", "urllib.request.urlopen",

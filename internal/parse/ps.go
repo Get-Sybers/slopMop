@@ -20,6 +20,17 @@ var (
 		"tee-object": true, "export-csv": true, "export-clixml": true,
 		"start-transcript": true,
 	}
+	// psKeywords open a statement without being a command.
+	psKeywords = map[string]bool{
+		"if": true, "else": true, "elseif": true, "switch": true, "default": true,
+		"for": true, "foreach": true, "while": true, "do": true, "until": true, "in": true,
+		"function": true, "filter": true, "param": true, "begin": true, "process": true,
+		"end": true, "dynamicparam": true, "return": true, "break": true, "continue": true,
+		"throw": true, "exit": true, "try": true, "catch": true, "finally": true, "trap": true,
+		"class": true, "enum": true, "using": true, "data": true, "hidden": true, "static": true,
+		"workflow": true, "parallel": true, "sequence": true, "inlinescript": true,
+		"true": true, "false": true, "null": true,
+	}
 	psReaders = map[string]bool{
 		"get-content": true, "gc": true, "cat": true, "type": true,
 		"import-csv": true, "ipcsv": true,
@@ -46,6 +57,12 @@ var (
 	rxBxor        = regexp.MustCompile(`(?i)-bxor\b`)
 	rxCharArray   = regexp.MustCompile(`(?i)\.ToCharArray\s*\(`)
 	rxArrReverse  = regexp.MustCompile(`(?i)\[array\]::Reverse\b`)
+	rxPsAssign    = regexp.MustCompile(`^(?:\[[^\]]+\]\s*)*\$[\w:.]+(?:\[[^\]]*\])?\s*[-+*/]?=\s*(.*)$`)
+	rxPsStart     = regexp.MustCompile(`(?i)\b(?:start-process|saps)\s+(?:-FilePath\s+)?['"]?([^\s'";|)]+)`)
+	rxPsProcStart = regexp.MustCompile(`(?i)Process\]::Start\(\s*["']([^"']+)["']\s*(?:,\s*["']([^"']*)["'])?`)
+	rxPsWord      = regexp.MustCompile(`^[A-Za-z0-9_.:\\/%~-]+`)
+	rxPsNumber    = regexp.MustCompile(`(?i)^(?:0x[0-9a-f]+|[0-9.]+(?:[kmgtp]b|[dl])?)$`)
+	rxPsCmdletish = regexp.MustCompile(`^[A-Za-z]+-[A-Za-z][A-Za-z0-9]*$`)
 	rxEncCmd      = regexp.MustCompile(`(?i)-(?:(?:EncodedCommand|enc)\s+|(?:ec|e)\s+['"]?[A-Za-z0-9+/=]{20,})`)
 	rxSecStr      = regexp.MustCompile(`(?i)(ConvertTo-SecureString|ConvertFrom-SecureString)`)
 )
@@ -55,11 +72,21 @@ func ExtractPowerShell(text string) Script {
 	var s Script
 	seen := map[string]bool{}
 	lines := strings.Split(text, "\n")
+	// A here-string holds data and a block comment holds prose; neither is code.
+	hereString, comment := false, false
 
 	for i, raw := range lines {
 		lineNo := i + 1
 		line := strings.TrimRight(raw, "\r")
 		trimmed := strings.TrimSpace(line)
+		if comment {
+			comment = !strings.Contains(trimmed, "#>")
+			continue
+		}
+		if strings.HasPrefix(trimmed, "<#") {
+			comment = !strings.Contains(trimmed, "#>")
+			continue
+		}
 		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
 			continue
 		}
@@ -68,8 +95,111 @@ func ExtractPowerShell(text string) Script {
 		extractPsCmds(trimmed, lineNo, &s, seen)
 		extractPsIO(trimmed, lineNo, &s, seen)
 		extractPsTransforms(trimmed, lineNo, &s)
+		switch {
+		case hereString:
+			hereString = !strings.HasPrefix(trimmed, `"@`) && !strings.HasPrefix(trimmed, "'@")
+		case strings.HasSuffix(trimmed, `@"`) || strings.HasSuffix(trimmed, "@'"):
+			hereString = true
+		default:
+			extractPsNative(trimmed, lineNo, &s, seen)
+		}
 	}
 	return s
+}
+
+// extractPsNative records the native commands a line runs: a bare name at
+// the start of a statement, after the call operator, or handed to a process
+// starter. A cmdlet is already recorded by its Verb-Noun shape.
+func extractPsNative(line string, lineNo int, s *Script, seen map[string]bool) {
+	n := native{s: s}
+	n.emit = func(tool string, lineNo int, text string) {
+		key := "cmd:" + tool
+		if psNoise[tool] || psKeywords[tool] || seen[key] {
+			return
+		}
+		seen[key] = true
+		s.Commands = append(s.Commands, Command{Line: lineNo, Tool: tool, Text: truncate(text)})
+	}
+	for _, seg := range psSegments(line) {
+		seg = strings.TrimSpace(seg)
+		if m := rxPsAssign.FindStringSubmatch(seg); m != nil {
+			seg = strings.TrimSpace(m[1])
+		}
+		called := strings.HasPrefix(seg, "&")
+		if called {
+			seg = strings.TrimSpace(seg[1:])
+		}
+		word := rxPsWord.FindString(seg)
+		if called && strings.HasPrefix(seg, `"`) || called && strings.HasPrefix(seg, "'") {
+			if end := strings.IndexByte(seg[1:], seg[0]); end > 0 {
+				// cmd.exe quoting is the double quote, whichever the script used.
+				word = seg[1 : 1+end]
+				seg = `"` + word + `"` + seg[end+2:]
+			}
+		}
+		if !isPsNative(word, seg) {
+			continue
+		}
+		n.line(strings.TrimRight(seg, ") \t"), lineNo, 0)
+	}
+	if m := rxPsStart.FindStringSubmatch(line); m != nil && !strings.ContainsAny(m[1][:1], "-$@(") {
+		n.emit(strings.ToLower(BaseName(m[1])), lineNo, line)
+	}
+	if m := rxPsProcStart.FindStringSubmatch(line); m != nil {
+		n.line(`"`+m[1]+`" `+m[2], lineNo, 0)
+	}
+}
+
+// isPsNative reports whether the first word of a statement names a native
+// command: not a keyword, a cmdlet, a member access or a hashtable key.
+func isPsNative(word, seg string) bool {
+	if word == "" || !rxHasLetter.MatchString(word) || strings.ContainsAny(word[:1], "-/:") {
+		return false
+	}
+	// ".Trim()" continues an expression; ".\\tool.exe" runs a file.
+	if word[0] == '.' && !strings.HasPrefix(word, `.\`) && !strings.HasPrefix(word, "./") && !strings.HasPrefix(word, "..") {
+		return false
+	}
+	if strings.HasSuffix(word, ":") || strings.Contains(word, "::") || rxPsCmdletish.MatchString(word) || rxPsNumber.MatchString(word) {
+		return false
+	}
+	rest := strings.TrimSpace(seg[strings.Index(seg, word)+len(word):])
+	if strings.HasPrefix(rest, "=") || strings.HasPrefix(rest, ",") || strings.HasPrefix(rest, ".") || strings.HasPrefix(rest, "[") {
+		return false
+	}
+	name := strings.ToLower(BaseName(word))
+	return !psKeywords[name] && !psNoise[name]
+}
+
+// psSegments cuts a line into statements at ; | { } ( && and || outside
+// quotes, and drops a trailing comment.
+func psSegments(line string) []string {
+	var segs []string
+	start := 0
+	var quote byte
+	for i := 0; i < len(line); i++ {
+		c := line[i]
+		switch {
+		case quote != 0:
+			if c == quote {
+				quote = 0
+			}
+		case c == '`':
+			i++
+		case c == '"' || c == '\'':
+			quote = c
+		case c == '#' && (i == 0 || line[i-1] == ' ' || line[i-1] == '\t'):
+			return append(segs, line[start:i])
+		case c == ';' || c == '|' || c == '{' || c == '}' || c == '(':
+			segs = append(segs, line[start:i])
+			start = i + 1
+		case c == '&' && i+1 < len(line) && line[i+1] == '&':
+			segs = append(segs, line[start:i])
+			i++
+			start = i + 1
+		}
+	}
+	return append(segs, line[start:])
 }
 
 func extractPsVars(line string, lineNo int, s *Script) {
@@ -107,8 +237,11 @@ func extractPsCmds(line string, lineNo int, s *Script, seen map[string]bool) {
 		})
 	}
 
-	for _, m := range rxExe.FindAllStringSubmatch(line, -1) {
-		name := strings.ToLower(BaseName(m[1]))
+	for _, loc := range rxExe.FindAllStringIndex(line, -1) {
+		if isArgument(line, loc[0]) {
+			continue
+		}
+		name := strings.ToLower(BaseName(line[loc[0]:loc[1]]))
 		key := "cmd:" + name
 		if seen[key] {
 			continue
@@ -133,6 +266,30 @@ func extractPsCmds(line string, lineNo int, s *Script, seen map[string]bool) {
 			})
 		}
 	}
+}
+
+// isArgument reports whether the .exe name at pos is plainly not a command:
+// part of an address, or the file an output option names.
+func isArgument(line string, pos int) bool {
+	start := strings.LastIndexAny(line[:pos], " \t\"'(") + 1
+	token := strings.ToLower(line[start:pos])
+	if strings.Contains(token, "://") || strings.HasPrefix(token, "/out:") || strings.HasPrefix(token, "-out:") {
+		return true
+	}
+	// A path built from a variable is a file a command names, unless the
+	// call operator runs it.
+	if strings.HasPrefix(token, "$") || strings.HasPrefix(token, "%") {
+		return !strings.HasSuffix(strings.TrimRight(line[:start], " \t\"'("), "&")
+	}
+	before := strings.Fields(strings.ToLower(line[:start]))
+	if len(before) == 0 {
+		return false
+	}
+	switch strings.Trim(before[len(before)-1], `"'`) {
+	case "-outfile", "-destination", "-o", "-out", "-output", "-outputfile", "/out":
+		return true
+	}
+	return false
 }
 
 func extractPsIO(line string, _ int, s *Script, seen map[string]bool) {

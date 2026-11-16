@@ -1,0 +1,86 @@
+[
+  {
+    "metric": "files",
+    "value": 11
+  },
+  {
+    "metric": "scripts",
+    "value": 7
+  },
+  {
+    "metric": "outputs",
+    "value": 3
+  },
+  {
+    "metric": "indicators",
+    "value": 20
+  },
+  {
+    "metric": "indicators Domain",
+    "value": 5
+  },
+  {
+    "metric": "indicators EncodedCommand",
+    "value": 1
+  },
+  {
+    "metric": "indicators IPv4",
+    "value": 3
+  },
+  {
+    "metric": "indicators URL",
+    "value": 11
+  },
+  {
+    "metric": "activities",
+    "value": 11
+  },
+  {
+    "metric": "activities DownloadAndExecute",
+    "value": 1
+  },
+  {
+    "metric": "activities EventLogClearing",
+    "value": 3
+  },
+  {
+    "metric": "activities FileDownload",
+    "value": 9
+  },
+  {
+    "metric": "activities NativeApiCall",
+    "value": 2
+  },
+  {
+    "metric": "activities NetworkSocket",
+    "value": 1
+  },
+  {
+    "metric": "activities ProcessStart",
+    "value": 1
+  },
+  {
+    "metric": "activities ReflectiveCodeLoading",
+    "value": 3
+  },
+  {
+    "metric": "activities RunKeyPersistence",
+    "value": 1
+  },
+  {
+    "metric": "activities RuntimeCompilation",
+    "value": 1
+  },
+  {
+    "metric": "activities ScheduledTaskCreation",
+    "value": 2
+  },
+  {
+    "metric": "activities SignedBinaryProxyExecution",
+    "value": 9
+  },
+  {
+    "metric": "tactics",
+    "value": 5
+  }
+]

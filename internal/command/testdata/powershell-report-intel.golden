@@ -1,14 +1,15 @@
-METRIC                     VALUE
-files                      16
-scripts                    6
-outputs                    9
-indicators                 13
-indicators Base64Blob      1
-indicators Domain          4
-indicators EncodedCommand  1
-indicators GUID            1
-indicators IPv4            3
-indicators SHA1            3
-activities                 0
-tactics                    3
-intel hits                 1
+METRIC                        VALUE
+files                         16
+scripts                       6
+outputs                       9
+indicators                    13
+indicators Base64Blob         1
+indicators Domain             4
+indicators EncodedCommand     1
+indicators GUID               1
+indicators IPv4               3
+indicators SHA1               3
+activities                    1
+activities CertificateExport  1
+tactics                       4
+intel hits                    1

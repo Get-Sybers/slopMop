@@ -1,0 +1,290 @@
+[
+  {
+    "finding": "DownloadAndExecute",
+    "severity": "high",
+    "tactic": "CommandAndControl, Execution",
+    "indicator": null,
+    "files": "20261020_102500_step06_pinvoke.ps1",
+    "attribution": null
+  },
+  {
+    "finding": "FileDownload",
+    "severity": "high",
+    "tactic": "CommandAndControl",
+    "indicator": null,
+    "files": "20261020_100500_step02_download.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl",
+    "attribution": null
+  },
+  {
+    "finding": "NetworkSocket",
+    "severity": "high",
+    "tactic": "CommandAndControl",
+    "indicator": null,
+    "files": "20261020_102500_step06_pinvoke.ps1",
+    "attribution": null
+  },
+  {
+    "finding": "RunKeyPersistence",
+    "severity": "high",
+    "tactic": "Persistence",
+    "indicator": null,
+    "files": "20261020_101500_step04_persist.ps1",
+    "attribution": null
+  },
+  {
+    "finding": "ScheduledTaskCreation",
+    "severity": "high",
+    "tactic": "Execution, Persistence",
+    "indicator": null,
+    "files": "20261020_101500_step04_persist.ps1, proc_20261020_103500.jsonl",
+    "attribution": null
+  },
+  {
+    "finding": "Domain",
+    "severity": "high",
+    "tactic": "CommandAndControl",
+    "indicator": "Microsoft.Net",
+    "files": "build_20261020_101200.xml",
+    "attribution": null
+  },
+  {
+    "finding": "Domain",
+    "severity": "high",
+    "tactic": "CommandAndControl, DefenseEvasion, Execution",
+    "indicator": "System.Net",
+    "files": "build_20261020_101200.xml, loader_20261020_102600.cs",
+    "attribution": null
+  },
+  {
+    "finding": "Domain",
+    "severity": "high",
+    "tactic": "CommandAndControl",
+    "indicator": "schemas.microsoft.com",
+    "files": "build_20261020_101200.xml",
+    "attribution": null
+  },
+  {
+    "finding": "EncodedCommand",
+    "severity": "high",
+    "tactic": "CommandAndControl, DefenseEvasion, Discovery, Execution",
+    "indicator": "-enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAKQA=",
+    "files": "20261020_102500_step06_pinvoke.ps1",
+    "attribution": null
+  },
+  {
+    "finding": "IPv4",
+    "severity": "high",
+    "tactic": "CommandAndControl, DefenseEvasion, Execution, Persistence",
+    "indicator": "203.0.113.10",
+    "files": "20261020_100500_step02_download.ps1, 20261020_101000_step03_exec.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, proc_20261020_103500.jsonl",
+    "attribution": null
+  },
+  {
+    "finding": "IPv4",
+    "severity": "high",
+    "tactic": "CommandAndControl, DefenseEvasion, Discovery, Execution",
+    "indicator": "203.0.113.20",
+    "files": "20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, loader_20261020_102600.cs",
+    "attribution": null
+  },
+  {
+    "finding": "IPv4",
+    "severity": "high",
+    "tactic": "CommandAndControl, DefenseEvasion, Discovery, Execution",
+    "indicator": "203.0.113.30",
+    "files": "20261020_102500_step06_pinvoke.ps1",
+    "attribution": null
+  },
+  {
+    "finding": "URL",
+    "severity": "high",
+    "tactic": "CommandAndControl, DefenseEvasion, Execution, Persistence",
+    "indicator": "http://203.0.113.10/a.b64",
+    "files": "20261020_100500_step02_download.ps1, proc_20261020_103500.jsonl",
+    "attribution": null
+  },
+  {
+    "finding": "URL",
+    "severity": "high",
+    "tactic": "CommandAndControl",
+    "indicator": "http://203.0.113.10/b.bin",
+    "files": "20261020_100500_step02_download.ps1",
+    "attribution": null
+  },
+  {
+    "finding": "URL",
+    "severity": "high",
+    "tactic": "CommandAndControl",
+    "indicator": "http://203.0.113.10/c.bin",
+    "files": "20261020_100500_step02_download.ps1",
+    "attribution": null
+  },
+  {
+    "finding": "URL",
+    "severity": "high",
+    "tactic": "CommandAndControl, DefenseEvasion",
+    "indicator": "http://203.0.113.10/c.exe",
+    "files": "20261020_103000_step07_cleanup.bat",
+    "attribution": null
+  },
+  {
+    "finding": "URL",
+    "severity": "high",
+    "tactic": "CommandAndControl",
+    "indicator": "http://203.0.113.10/d.bin",
+    "files": "build_20261020_101200.xml",
+    "attribution": null
+  },
+  {
+    "finding": "URL",
+    "severity": "high",
+    "tactic": "CommandAndControl, DefenseEvasion, Execution, Persistence",
+    "indicator": "http://203.0.113.10/x.sct",
+    "files": "20261020_101000_step03_exec.ps1, proc_20261020_103500.jsonl",
+    "attribution": null
+  },
+  {
+    "finding": "URL",
+    "severity": "high",
+    "tactic": "CommandAndControl, DefenseEvasion, Discovery, Execution",
+    "indicator": "http://203.0.113.20/next.ps1",
+    "files": "20261020_102500_step06_pinvoke.ps1",
+    "attribution": null
+  },
+  {
+    "finding": "URL",
+    "severity": "high",
+    "tactic": "CommandAndControl, DefenseEvasion, Execution",
+    "indicator": "http://203.0.113.20/p.bin",
+    "files": "loader_20261020_102600.cs",
+    "attribution": null
+  },
+  {
+    "finding": "URL",
+    "severity": "high",
+    "tactic": "CommandAndControl, DefenseEvasion, Execution",
+    "indicator": "http://203.0.113.20/stage.txt",
+    "files": "20261020_102000_step05_dotnet.ps1",
+    "attribution": null
+  },
+  {
+    "finding": "URL",
+    "severity": "high",
+    "tactic": "CommandAndControl",
+    "indicator": "http://schemas.microsoft.com/developer/msbuild/2003",
+    "files": "build_20261020_101200.xml",
+    "attribution": null
+  },
+  {
+    "finding": "tactic",
+    "severity": "high",
+    "tactic": "CommandAndControl",
+    "indicator": null,
+    "files": "20261020_100500_step02_download.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat",
+    "attribution": null
+  },
+  {
+    "finding": "tactic",
+    "severity": "high",
+    "tactic": "Persistence",
+    "indicator": null,
+    "files": "20261020_101500_step04_persist.ps1",
+    "attribution": null
+  },
+  {
+    "finding": "EventLogClearing",
+    "severity": "medium",
+    "tactic": "DefenseEvasion",
+    "indicator": null,
+    "files": "20261020_101500_step04_persist.ps1, 20261020_103000_step07_cleanup.bat, proc_20261020_103500.jsonl",
+    "attribution": null
+  },
+  {
+    "finding": "NativeApiCall",
+    "severity": "medium",
+    "tactic": "DefenseEvasion, Execution",
+    "indicator": null,
+    "files": "20261020_102500_step06_pinvoke.ps1",
+    "attribution": null
+  },
+  {
+    "finding": "ProcessStart",
+    "severity": "medium",
+    "tactic": "Execution",
+    "indicator": null,
+    "files": "20261020_102500_step06_pinvoke.ps1",
+    "attribution": null
+  },
+  {
+    "finding": "ReflectiveCodeLoading",
+    "severity": "medium",
+    "tactic": "DefenseEvasion, Execution",
+    "indicator": null,
+    "files": "20261020_102000_step05_dotnet.ps1, loader_20261020_102600.cs",
+    "attribution": null
+  },
+  {
+    "finding": "RuntimeCompilation",
+    "severity": "medium",
+    "tactic": "DefenseEvasion, Execution",
+    "indicator": null,
+    "files": "20261020_102500_step06_pinvoke.ps1",
+    "attribution": null
+  },
+  {
+    "finding": "SignedBinaryProxyExecution",
+    "severity": "medium",
+    "tactic": "DefenseEvasion, Execution",
+    "indicator": null,
+    "files": "20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, proc_20261020_103500.jsonl",
+    "attribution": null
+  },
+  {
+    "finding": "Domain",
+    "severity": "medium",
+    "tactic": "DefenseEvasion, Execution",
+    "indicator": "Microsoft.NET",
+    "files": "20261020_101000_step03_exec.ps1",
+    "attribution": null
+  },
+  {
+    "finding": "URL",
+    "severity": "medium",
+    "tactic": "DefenseEvasion, Execution",
+    "indicator": "http://203.0.113.10/a.hta",
+    "files": "20261020_101000_step03_exec.ps1",
+    "attribution": null
+  },
+  {
+    "finding": "tactic",
+    "severity": "medium",
+    "tactic": "DefenseEvasion",
+    "indicator": null,
+    "files": "20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat",
+    "attribution": null
+  },
+  {
+    "finding": "tactic",
+    "severity": "medium",
+    "tactic": "Execution",
+    "indicator": null,
+    "files": "20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1",
+    "attribution": null
+  },
+  {
+    "finding": "Domain",
+    "severity": "low",
+    "tactic": "Discovery",
+    "indicator": "corp.example",
+    "files": "20261020_100000_step01_recon.ps1",
+    "attribution": null
+  },
+  {
+    "finding": "tactic",
+    "severity": "low",
+    "tactic": "Discovery",
+    "indicator": null,
+    "files": "20261020_100000_step01_recon.ps1, 20261020_102500_step06_pinvoke.ps1",
+    "attribution": null
+  }
+]

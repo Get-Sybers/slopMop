@@ -1,0 +1,12 @@
+STEP  NAME                                 ROLE    TIME             TOOLS                                                         TACTICS                                                    TRANSFORMS
+1     20261020_100000_step01_recon.ps1     script  20261020_100000  out-file, whoami, nltest, net.exe, wmic.exe                   Discovery                                                  -
+1     recon_20261020_100030.txt            output  20261020_100030  -                                                             -                                                          -
+2     20261020_100500_step02_download.ps1  script  20261020_100500  certutil.exe, certutil, bitsadmin.exe, start-bitstransfer     CommandAndControl                                          Base64Decode
+3     20261020_101000_step03_exec.ps1      script  20261020_101000  rundll32.exe, regsvr32.exe, mshta, msbuild.exe, cmd.exe, ...  Execution, DefenseEvasion                                  -
+3     build_20261020_101200.xml            output  20261020_101200  -                                                             CommandAndControl                                          -
+4     20261020_101500_step04_persist.ps1   script  20261020_101500  schtasks.exe, rundll32.exe, reg.exe, wevtutil                 Persistence, Execution, DefenseEvasion                     -
+5     20261020_102000_step05_dotnet.ps1    script  20261020_102000  new-object, [system.io.file]::writeallbytes                   CommandAndControl, DefenseEvasion, Execution               Base64Decode, Crypto:Aes, TextEncoding, Stream, GZip
+6     20261020_102500_step06_pinvoke.ps1   script  20261020_102500  add-type, new-object, cmd.exe, whoami, iex, powershell.exe    Execution, Discovery, CommandAndControl, DefenseEvasion    EncodedCommand
+6     loader_20261020_102600.cs            other   20261020_102600  -                                                             CommandAndControl, DefenseEvasion, Execution               -
+7     20261020_103000_step07_cleanup.bat   script  20261020_103000  certutil, wevtutil, del                                       DefenseEvasion, CommandAndControl                          -
+7     proc_20261020_103500.jsonl           output  20261020_103500  certutil, powershell.exe, regsvr32, schtasks, rundll32.ex...  Execution, Persistence, DefenseEvasion, CommandAndControl  -

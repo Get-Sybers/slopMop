@@ -6,6 +6,49 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-16
+
+### Added
+
+- Batch files: `.bat` takes the `script` role, and `parse.ExtractBatch` reads a `.bat` or `.cmd`
+  file for commands, variables, redirections and `certutil` transforms.
+- Encoded payloads are read, never run: the argument of a PowerShell `-EncodedCommand` and a
+  Base64 literal handed to `FromBase64String`, two layers deep. Their commands join the file's
+  tools, and their text is searched for activities and indicators.
+- Activities for living-off-the-land binaries and .NET: `FileDownload`, `FileUpload`,
+  `DownloadAndExecute`, `ReflectiveCodeLoading`, `NativeApiCall`, `RuntimeCompilation`,
+  `ProcessStart`, `NetworkSocket`, `SignedBinaryProxyExecution`, `RunKeyPersistence`,
+  `ScheduledTaskCreation`, `ServiceCreation`, `EventLogClearing`, `LsassDump`,
+  `RegistryHiveDump`, `RegistryQuery`, `CertificateExport`, `AmsiBypass` and `DirectorySearch`.
+  They are found in any file, so C# source and an MSBuild project show them too.
+- Tactic `CommandAndControl`, and binaries the table lacked: `msiexec`, `regasm`, `regsvcs`,
+  `cmstp`, `odbcconf`, `mavinject`, `hh`, `forfiles`, `pcalua`, `ieexec`, `xwizard`, `msdt`,
+  `wsl`, `csc`, `vbc`, `jsc`, `ilasm`, `esentutl`, `makecab`, `extrac32`, `expand`, `plink`,
+  `frpc`, `ligolo-ng` and `desktopimgdownldr`.
+- Evidence fixture `lolbin`: living-off-the-land binaries and .NET on a Windows host.
+
+### Fixed
+
+- The PowerShell parser reports a native command written as a bare name: at the start of a
+  statement, after the call operator, on the right of an assignment, inside a script block, as the
+  target of `Start-Process` and in the arguments of `Process.Start`. It reported one only when
+  the name ended in `.exe`.
+- A command that launches another is followed: `cmd /c`, an inline `powershell -Command`,
+  `schtasks /tr`, `forfiles /c`, `wmic process call create`, `start` and `call`.
+- The PowerShell parser reads no command from a here-string or a block comment.
+- A word ending in `.exe` is no longer a tool when it is part of an address, the file an output
+  option names, or a path built from a variable.
+- A command line in a log that has a drive path, an `.exe` or a slash switch is read as a cmd.exe
+  command line, so the command a scheduled task runs is found.
+
+### Changed
+
+- `certutil`, `bitsadmin`, `start-bitstransfer` and `reg` have no tactic of their own: the
+  activity on the line gives one (`FileDownload`, `CertificateExport`, `RunKeyPersistence`,
+  `RegistryQuery` and others). `certutil` was always CredentialAccess, `bitsadmin` always
+  Exfiltration and `reg` always Discovery.
+- `ngrok`, `chisel` and `cloudflared` are CommandAndControl; they were Exfiltration.
+
 ## [0.2.0] - 2026-11-16
 
 ### Added

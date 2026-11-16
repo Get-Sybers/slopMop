@@ -1,14 +1,15 @@
-METRIC             VALUE
-files              17
-scripts            7
-outputs            9
-indicators         22
-indicators Domain  9
-indicators Email   3
-indicators IPv4    4
-indicators MD5     2
-indicators SHA1    1
-indicators URL     3
-activities         0
-tactics            4
-intel hits         2
+METRIC                        VALUE
+files                         17
+scripts                       7
+outputs                       9
+indicators                    22
+indicators Domain             9
+indicators Email              3
+indicators IPv4               4
+indicators MD5                2
+indicators SHA1               1
+indicators URL                3
+activities                    1
+activities CertificateExport  1
+tactics                       4
+intel hits                    2

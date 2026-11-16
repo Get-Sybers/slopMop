@@ -1,0 +1,8 @@
+NAME                                 ROLE    SIZE   LINES  MODIFIED
+20261020_100000_step01_recon.ps1     script  211 B  4      2026-10-20T10:00:03Z
+20261020_100500_step02_download.ps1  script  331 B  4      2026-10-20T10:05:03Z
+20261020_101000_step03_exec.ps1      script  349 B  5      2026-10-20T10:10:03Z
+20261020_101500_step04_persist.ps1   script  249 B  3      2026-10-20T10:15:03Z
+20261020_102000_step05_dotnet.ps1    script  760 B  13     2026-10-20T10:20:03Z
+20261020_102500_step06_pinvoke.ps1   script  634 B  13     2026-10-20T10:25:03Z
+20261020_103000_step07_cleanup.bat   script  119 B  4      2026-10-20T10:30:03Z
