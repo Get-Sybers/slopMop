@@ -96,12 +96,23 @@ func parseScript(f evidence.File, text string) parse.Script {
 	if isPowerShell(f) {
 		return parse.ExtractPowerShell(text)
 	}
+	if isPython(f, text) {
+		return parse.ExtractPython(text)
+	}
 	return parse.ExtractBash(text)
 }
 
 func isPowerShell(f evidence.File) bool {
 	lower := strings.ToLower(f.Path)
 	return strings.HasSuffix(lower, ".ps1") || strings.HasSuffix(lower, ".psm1")
+}
+
+func isPython(f evidence.File, text string) bool {
+	if strings.HasSuffix(strings.ToLower(f.Path), ".py") {
+		return true
+	}
+	first, _, _ := strings.Cut(text, "\n")
+	return strings.HasPrefix(first, "#!") && strings.Contains(first, "python")
 }
 
 func uniqueTools(cmds []parse.Command) []string {

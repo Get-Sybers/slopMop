@@ -88,7 +88,10 @@
       "invoke-expression", "iex", "start-process", "saps", "start-job",
       "invoke-item", "add-type", "import-module", "ipmo", "install-module",
       "cmd", "rundll32", "regsvr32", "mshta", "cscript", "wscript",
-      "msbuild", "installutil"
+      "msbuild", "installutil", "exec", "os.system", "os.popen",
+      "subprocess.run", "subprocess.call", "subprocess.popen",
+      "subprocess.check_call", "subprocess.check_output",
+      "subprocess.getoutput", "subprocess.getstatusoutput"
     ]
   },
   {
@@ -142,7 +145,11 @@
       "rsync", "rclone", "gsutil", "azcopy", "openssl", "ngrok", "chisel",
       "cloudflared", "base64", "invoke-webrequest", "iwr",
       "invoke-restmethod", "irm", "start-bitstransfer", "bitsadmin",
-      "send-mailmessage", "new-psdrive"
+      "send-mailmessage", "new-psdrive", "requests.get", "requests.post",
+      "requests.put", "requests.patch", "requests.delete", "requests.head",
+      "requests.request", "urllib.request.urlopen",
+      "urllib.request.urlretrieve", "socket.connect",
+      "socket.create_connection"
     ]
   }
 ]

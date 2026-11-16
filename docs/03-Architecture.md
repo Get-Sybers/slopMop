@@ -14,7 +14,7 @@ about evidence touch no file, and every static table is a data file validated at
 | `internal/inventory` | walks the input directory and builds one record per file; owns all evidence I/O |
 | `internal/evidence` | the file record and its vocabularies (role, note); no I/O |
 | `internal/nametime` | detects the timestamp written into a file name; no I/O |
-| `internal/parse` | extracts commands, variables and file references from bash and PowerShell scripts |
+| `internal/parse` | extracts commands, variables and file references from bash, PowerShell and Python scripts |
 | `internal/tactic` | classifies commands by MITRE ATT&CK tactic using `tactics.json` |
 | `internal/indicator` | extracts security indicators (IPs, URLs, hashes, CVEs) using `indicators.json` |
 | `internal/trace` | reconstructs the timeline from scripts and outputs: ordering, tool extraction, tactic classification, indicator counting, output linking |

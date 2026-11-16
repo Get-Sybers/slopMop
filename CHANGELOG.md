@@ -8,6 +8,10 @@ All notable changes to this project are recorded in this file. The format follow
 
 ### Added
 
+- Python script parsing: `.py` files and files with a Python shebang take the `script` role, and
+  `trace list` extracts their imports, variables, file reads and writes, transforms, network and
+  process calls, and the commands those process calls run. The Python calls are classified in
+  `tactics.json`.
 - `--intelfile <file>` parameter for `trace list`: loads a JSON watchlist of known indicators and
   matches them against extracted IoCs, showing attributions in the new INTEL column.
 - Package `internal/intel` for loading and matching threat intelligence watchlists.
