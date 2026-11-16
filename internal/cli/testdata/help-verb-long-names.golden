@@ -1,0 +1,12 @@
+usage: slopmop probe scan [selectors] [--params]
+scan the probes
+
+selectors (single dash, pick any; none = all):
+  -application-log     longer than the column
+  -kernel
+  -task                task log
+
+params (double dash, take a value):
+  --bare
+  --destination-folder <folder>
+  --since              <time>

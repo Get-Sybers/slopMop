@@ -1,0 +1,12 @@
+usage: slopmop NOUN VERB [selectors] [--params] [output flags] [positional]
+
+nouns:
+  node, nodes             cluster nodes
+  user, users             access users
+  group, groups           access groups
+  logs, log               node logs
+  service, services, svc  node services
+  network, networks, net  node network interfaces
+  file, files             files on the nodes
+
+more help: slopmop NOUN -h, slopmop NOUN VERB -h

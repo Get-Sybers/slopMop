@@ -1,0 +1,4 @@
+* text=auto eol=lf
+
+# Fixtures are evidence: CRLF, UTF-16, byte-order marks and binary stay as they are.
+**/testdata/** -text

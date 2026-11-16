@@ -1,0 +1,11 @@
+usage: slopmop service list [--params] [output flags]
+list services (no --node = every node)
+
+params (double dash, take a value):
+  --node      <node>|all
+
+output flags:
+  -o wide|json    every column, or JSON
+  -q              column 1 only, one per line
+  --no-headers    no header row
+  --tz local|utc  zone of displayed times (default utc)

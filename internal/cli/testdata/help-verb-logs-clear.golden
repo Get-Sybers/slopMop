@@ -1,0 +1,12 @@
+usage: slopmop logs clear [selectors] [--params]
+clear one or more log sources
+
+selectors (single dash, pick any; none = all):
+  -auth       authentication log
+  -firewall   firewall log
+  -kernel     kernel ring buffer
+  -sysmon     Sysmon events
+  -task       task / job log
+
+params (double dash, take a value):
+  --node      <node>|all

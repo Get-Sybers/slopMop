@@ -1,0 +1,3 @@
+Connecting to CA01.corp.example\corp-CA01-CA ...
+Server "corp-CA01-CA" ICertRequest2 interface is alive (32ms)
+CertUtil: -ping command completed successfully.

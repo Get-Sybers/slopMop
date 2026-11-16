@@ -1,0 +1,31 @@
+go.mod: module path is not github.com/get-sybers/<lower-case repo>
+go.mod: the go directive has no patch component
+go.mod:7: replace names a sibling module
+go.mod:7: replace carries no reason
+go.mod:5: assertion library
+pkg/main.go: package main outside cmd/<name>/
+cmd/tool/main.go:3: a command declares only main and run
+cmd/tool/main.go:5: a command declares only main and run
+internal/thing/thing.go:8: Get-style name; use Read, Load, Check, List, Run, Classify or Detect
+internal/thing/thing.go:11: Get-style name; use Read, Load, Check, List, Run, Classify or Detect
+internal/thing/same.go: identical to internal/other/same.go
+internal/thing/table.json: data file is not embedded by its package
+AGENTS.md: missing
+.gitignore: missing
+.golangci.yml: missing
+Makefile: no test target
+Makefile: no vet target
+Makefile: no fmt target
+Makefile: no fmt-check target
+Makefile: no tidy target
+Makefile: no generate target
+Makefile: no conform target
+Makefile: no upgrade target
+CHANGELOG.md: no ## [Unreleased] section
+internal/thing/thing.go:10: tracking marker; record changes in CHANGELOG.md
+README.md:3: plan or status wording; docs state fact
+README.md:5: plan or status wording; docs state fact
+README.md:13: plan or status wording; docs state fact
+docs/01-Notes.md:3: plan or status wording; docs state fact
+internal/thing/thing.go:7: comment block longer than three lines
+structlint: 30 failure(s)

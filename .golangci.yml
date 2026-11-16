@@ -1,0 +1,73 @@
+version: "2"
+
+run:
+  build-tags:
+    - integration
+
+linters:
+  default: standard
+  enable:
+    - depguard
+    - errorlint
+    - gochecknoglobals
+    - gocritic
+    - gosec
+    - misspell
+    - nolintlint
+    - revive
+  settings:
+    depguard:
+      rules:
+        assertions:
+          deny:
+            - pkg: github.com/stretchr/testify
+              desc: tests use the standard library testing package only
+            - pkg: github.com/onsi/gomega
+              desc: tests use the standard library testing package only
+            - pkg: github.com/onsi/ginkgo
+              desc: tests use the standard library testing package only
+            - pkg: github.com/matryer/is
+              desc: tests use the standard library testing package only
+            - pkg: github.com/frankban/quicktest
+              desc: tests use the standard library testing package only
+            - pkg: gotest.tools
+              desc: tests use the standard library testing package only
+    errcheck:
+      # Closing a handle that was only read, or removing a temporary file, has no error to act on.
+      exclude-functions:
+        - (*os.File).Close
+        - (*os.Root).Close
+        - os.Remove
+    gosec:
+      # Opening the path the analyst names is what the tool does.
+      excludes:
+        - G304
+        # errcheck owns unhandled errors.
+        - G104
+    govet:
+      enable-all: true
+      disable:
+        - fieldalignment
+    misspell:
+      locale: UK
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+  exclusions:
+    presets:
+      - comments
+    rules:
+      # A test writes and runs the paths it has just built, and seeds its random input.
+      - path: _test\.go
+        linters:
+          - gosec
+        text: G204|G306|G404
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/get-sybers

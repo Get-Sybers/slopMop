@@ -1,0 +1,86 @@
+# Conformance
+
+One sentence governs the rest: **a change is ready when `make conform` is green, and CI runs the
+same command.**
+
+## 1. The gate
+
+`make conform` runs these in order and stops at the first failure.
+
+| Target | Runs | Catches |
+| --- | --- | --- |
+| `fmt-check` | `gofmt -l` from the module's toolchain; `golangci-lint fmt --diff` | unformatted code, mis-grouped imports |
+| `vet` | `go vet -tags integration ./...` | suspicious constructs, including the integration test |
+| `build` | `go build -o bin/slopmop ./cmd/slopmop` | a broken build |
+| `test` | `go test -count=1 -shuffle=on -cover ./...` | failing or order-dependent tests |
+| `integration` | `go test -count=1 -tags integration ./cmd/...` | the built binary, driven through `os/exec` |
+| `tidy-check` | `go mod tidy -diff` | drift in `go.mod` or `go.sum` |
+| `generate-check` | `go generate ./...`, then compares the tree | stale generated files |
+| `cross` | `go build ./...` for windows/amd64, darwin/arm64, linux/arm64 | a platform-specific break |
+| `structlint` | `scripts/structlint.sh` | the structural rules of section 3 |
+| `structlint-test` | the structural lint over `scripts/testdata/structlint/tree` | a lint that stops reporting; the output must equal `expected.txt` |
+| `lint` | `golangci-lint config verify`, `golangci-lint run` | the linters of `.golangci.yml` |
+
+The build runs with `CGO_ENABLED=0` and `GOWORK=off`.
+
+## 2. Other targets
+
+| Target | Does |
+| --- | --- |
+| `fmt` | formats the code |
+| `tidy` | runs `go mod tidy` |
+| `generate` | runs `go generate ./...` |
+| `golden-update` | rewrites the golden files of every package whose tests use `internal/golden` |
+| `tools` | builds the pinned golangci-lint into `.cache/bin` |
+| `vuln` | runs govulncheck at its latest version; it needs the network and is a CI job of its own |
+| `upgrade` | raises the Go directive and every dependency, then runs the gate |
+| `clean` | removes `bin` and `.cache` |
+
+## 3. Structural lint
+
+`scripts/structlint.sh` checks what a compiler and golangci-lint do not.
+
+- The module path is `github.com/get-sybers/<lower-case repo>` and the `go` directive has a patch component.
+- A `replace` carries a reason and never names a sibling module. No assertion library is required.
+- `package main` lives only under `cmd/<name>/`; `cmd/<name>/main.go` declares only `main` and `run` in at most 60 lines.
+- No function is named `Get...` or `get...`.
+- No two files are byte-identical. Every JSON data file under `internal/` or `cmd/` is embedded by its package.
+- `README.md`, `CHANGELOG.md`, `AGENTS.md`, `Makefile`, `.gitignore` and `.golangci.yml` exist; the Makefile has the uniform targets; the changelog has `## [Unreleased]`.
+- No tracking marker stands in code, scripts, configuration or docs.
+- `README.md`, `AGENTS.md` and `docs/*.md` hold no plan or status wording and no tick boxes. Fenced blocks and code spans are exempt.
+- No run of more than three full-line comments stands in Go, shell, YAML or the Makefile.
+
+Paths under a `testdata` directory are exempt from every check.
+
+## 4. Version pins
+
+| Pin | Lives in |
+| --- | --- |
+| Go | the `go` directive of `go.mod` |
+| Dependencies | `go.mod` and `go.sum` |
+| golangci-lint and the hooks | the `rev` of each entry in `.pre-commit-config.yaml` |
+| GitHub Actions | the commit SHA and version comment on each `uses:` line |
+| Version ceilings | `upgrade.limits` |
+
+`scripts/tools.sh` reads the golangci-lint version from `.pre-commit-config.yaml` and builds it with
+the module's Go version, because the linter refuses a module newer than the Go that built it. It
+rebuilds when either version changes.
+
+## 5. CI
+
+`.github/workflows/ci.yml` runs on pull requests, on pushes to `main`, weekly and on demand, with
+read-only permissions.
+
+| Job | Runs |
+| --- | --- |
+| `conform` | `make conform` |
+| `vuln` | `make vuln` |
+| `all_green` | fails when either job failed or was cancelled; the one status check a branch rule requires |
+
+Dependabot raises the GitHub Actions and Go module pins weekly, seven days after a release.
+
+## 6. Upgrade
+
+`make upgrade` moves the `go` directive and every dependency to the newest version, re-applies each
+ceiling in `upgrade.limits`, runs `go mod tidy`, then runs the gate. When the gate fails, `go.mod`
+and `go.sum` are restored.

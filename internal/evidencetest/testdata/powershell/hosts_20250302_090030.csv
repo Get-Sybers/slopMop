@@ -1,0 +1,4 @@
+﻿"Name","IPv4Address","OperatingSystem"
+"DC01","10.20.1.5","Windows Server 2022 Standard"
+"AADC01","10.20.1.17","Windows Server 2019 Standard"
+"CA01","10.20.1.23","Windows Server 2019 Standard"

@@ -1,0 +1,2 @@
+usage: slopmop node select [node]
+set the current node; without a node, show it

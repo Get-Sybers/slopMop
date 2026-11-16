@@ -1,0 +1,172 @@
+[
+  {
+    "name": "20250301_101500_step01_recon.sh",
+    "role": "script",
+    "size": 145,
+    "lines": 6,
+    "modified": "2025-03-01T10:15:03Z",
+    "sha256": "864b3b85f716d3a0ad93669eea34a180cd82f94821e0af9641bbc677e92e1209",
+    "name_time": "20250301_101500",
+    "note": null
+  },
+  {
+    "name": "20250301_101530_step01_recon.txt",
+    "role": "output",
+    "size": 274,
+    "lines": 8,
+    "modified": "2025-03-01T10:15:33Z",
+    "sha256": "ee8a537f35fc5334f5e2b5ebb70b269a0144bc5e2fb13061a5a89cd767b4e220",
+    "name_time": "20250301_101530",
+    "note": null
+  },
+  {
+    "name": "20250301_101800_step02_enum.sh",
+    "role": "script",
+    "size": 432,
+    "lines": 10,
+    "modified": "2025-03-01T10:18:03Z",
+    "sha256": "79a89257f0d738f2648aa10c9ea8b296735c685da2c5f0369792270840cdb77f",
+    "name_time": "20250301_101800",
+    "note": null
+  },
+  {
+    "name": "20250301_101845_step02_enum.log",
+    "role": "output",
+    "size": 243,
+    "lines": 3,
+    "modified": "2025-03-01T10:18:48Z",
+    "sha256": "ce337746140ff733e3db7d9f932d1e63d6a5cff61bc082c0ee1c2f51d8790bca",
+    "name_time": "20250301_101845",
+    "note": null
+  },
+  {
+    "name": "20250301_101910_step02_users.tsv",
+    "role": "output",
+    "size": 143,
+    "lines": 3,
+    "modified": "2025-03-01T10:19:13Z",
+    "sha256": "b39dad889abf4b9474438f054d2029390545473e0b2fe478b38cd7bfa8990005",
+    "name_time": "20250301_101910",
+    "note": null
+  },
+  {
+    "name": "20250301_102300_step03_adsync.sh",
+    "role": "script",
+    "size": 388,
+    "lines": 9,
+    "modified": "2025-03-01T10:23:03Z",
+    "sha256": "209eaa3f1d2e564596f751b07e13aa82c2d345301e597eb26dd95148c8aab473",
+    "name_time": "20250301_102300",
+    "note": null
+  },
+  {
+    "name": "20250301_102700_step03_adsync_v2.sh",
+    "role": "script",
+    "size": 335,
+    "lines": 8,
+    "modified": "2025-03-01T10:27:03Z",
+    "sha256": "dbe1d9f6b5b56a6e380292d81958213142697260ce24d86ba5e46082cec502df",
+    "name_time": "20250301_102700",
+    "note": null
+  },
+  {
+    "name": "20250301_103200_step05_certs.sh",
+    "role": "script",
+    "size": 701,
+    "lines": 13,
+    "modified": "2025-03-01T10:32:03Z",
+    "sha256": "4d344b52bba8a7f4999b430ba9454435838916a7168db5fc16ffda94ce451ad2",
+    "name_time": "20250301_103200",
+    "note": null
+  },
+  {
+    "name": "20250301_103240_certipy_find.txt",
+    "role": "output",
+    "size": 498,
+    "lines": 13,
+    "modified": "2025-03-01T10:32:43Z",
+    "sha256": "800ecde05159ea1632f1bce13160d332a1cfbbaf32d86cf5ba0830697692fc0e",
+    "name_time": "20250301_103240",
+    "note": null
+  },
+  {
+    "name": "20250301_103300_notes.txt",
+    "role": "output",
+    "size": 33,
+    "lines": 1,
+    "modified": "2025-03-01T10:33:03Z",
+    "sha256": "a397152a76caad1397bcbdd65b637b74b4178dcd6373aaeabeecdc32e30bae3e",
+    "name_time": "20250301_103300",
+    "note": null
+  },
+  {
+    "name": "20250301_104000_step06_auth.sh",
+    "role": "script",
+    "size": 396,
+    "lines": 5,
+    "modified": "2025-03-01T10:40:03Z",
+    "sha256": "4959b8f69bb74f45edfcea1999d53dc1ce24ba45e5bc937af97997385ada658f",
+    "name_time": "20250301_104000",
+    "note": null
+  },
+  {
+    "name": "20250301_104010_step06_auth.txt",
+    "role": "output",
+    "size": 198,
+    "lines": 4,
+    "modified": "2025-03-01T10:40:13Z",
+    "sha256": "1cea00037378ff4b54034291112163060f3c5372e2037b37bb2981e7a887421e",
+    "name_time": "20250301_104010",
+    "note": null
+  },
+  {
+    "name": "20250301_104030_ca_store.txt",
+    "role": "output",
+    "size": 580,
+    "lines": 7,
+    "modified": "2025-03-01T10:40:33Z",
+    "sha256": "a978f98d29c305e4bfc2b890a9486f200c67e84b32c299c39880bb216e5536a4",
+    "name_time": "20250301_104030",
+    "note": null
+  },
+  {
+    "name": "20250301_104100_ca_backup.p12",
+    "role": "other",
+    "size": 32,
+    "lines": null,
+    "modified": "2025-03-01T10:41:03Z",
+    "sha256": "de045e56937aa6f02aa2ded39ab45f73ffa286af9ede5a298a09c4836fb2f3d9",
+    "name_time": "20250301_104100",
+    "note": "binary"
+  },
+  {
+    "name": "20250301_104500_step07_exfil.sh",
+    "role": "script",
+    "size": 277,
+    "lines": 4,
+    "modified": "2025-03-01T10:45:03Z",
+    "sha256": "53688eb8bc13d992b371bdcd422fb3c6418ba62f1a154da0fbbb432c75bcb66a",
+    "name_time": "20250301_104500",
+    "note": null
+  },
+  {
+    "name": "adsync_1740824625.txt",
+    "role": "output",
+    "size": 157,
+    "lines": 3,
+    "modified": "2025-03-01T10:23:48Z",
+    "sha256": "86f12364a51a47b409aa634dd04e4562521789b867530fbb8ce09de5db7cdb78",
+    "name_time": "1740824625",
+    "note": null
+  },
+  {
+    "name": "adsync_1740824865.txt",
+    "role": "output",
+    "size": 281,
+    "lines": 8,
+    "modified": "2025-03-01T10:27:48Z",
+    "sha256": "ebabdba2b0cc9060323060b315544d428a15ce7c131dec3097cf33553d3f1303",
+    "name_time": "1740824865",
+    "note": null
+  }
+]

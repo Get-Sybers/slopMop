@@ -1,0 +1,37 @@
+{
+  "nouns": [
+    {
+      "name": "evidence",
+      "aliases": ["ev"],
+      "summary": "the evidence folder the other nouns read",
+      "verbs": [
+        {
+          "name": "select",
+          "summary": "select the evidence folder, or print the selected one",
+          "positional": "[folder]"
+        }
+      ]
+    },
+    {
+      "name": "file",
+      "aliases": ["files"],
+      "summary": "files in the evidence folder",
+      "verbs": [
+        {
+          "name": "list",
+          "summary": "list the files directly in the evidence folder",
+          "columns": [
+            {"header": "NAME", "key": "name"},
+            {"header": "ROLE", "key": "role"},
+            {"header": "SIZE", "key": "size"},
+            {"header": "LINES", "key": "lines"},
+            {"header": "MODIFIED", "key": "modified"},
+            {"header": "SHA256", "key": "sha256", "wide": true},
+            {"header": "NAME TIME", "key": "name_time", "wide": true},
+            {"header": "NOTE", "key": "note", "wide": true}
+          ]
+        }
+      ]
+    }
+  ]
+}
