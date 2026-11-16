@@ -65,12 +65,46 @@ func checkVerb(v *Verb) error {
 			return fmt.Errorf("param name %q is reserved", name)
 		}
 	}
+	if err := checkSwitches(v.Spec); err != nil {
+		return err
+	}
 	for _, name := range v.Spec.Required {
 		if _, declared := v.Spec.Params[name]; !declared {
 			return fmt.Errorf("required param %q is not declared", name)
 		}
 	}
 	return nil
+}
+
+func checkSwitches(s Spec) error {
+	shorts := map[string]bool{}
+	for _, name := range sortedKeys(s.Switches) {
+		if reserved(name) {
+			return fmt.Errorf("switch name %q is reserved", name)
+		}
+		if s.declares(name) {
+			return fmt.Errorf("%q is both a switch and a selector or param", name)
+		}
+		short := s.Switches[name].Short
+		if short == "" {
+			continue
+		}
+		if len(short) != 1 || short[0] < 'a' || short[0] > 'z' {
+			return fmt.Errorf("short form %q of the switch %q is not one lower-case letter", short, name)
+		}
+		_, isSwitch := s.Switches[short]
+		if reserved(short) || s.declares(short) || isSwitch || shorts[short] {
+			return fmt.Errorf("short form %q of the switch %q is already taken", short, name)
+		}
+		shorts[short] = true
+	}
+	return nil
+}
+
+func (s Spec) declares(name string) bool {
+	_, selector := s.Selectors[name]
+	_, param := s.Params[name]
+	return selector || param
 }
 
 // globalVerb returns the pair a global verb is spelt as on every noun.

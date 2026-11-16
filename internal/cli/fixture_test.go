@@ -95,7 +95,13 @@ func (c *cluster) nouns() []*cli.Noun {
 			},
 		}},
 		{Name: "service", Summary: "node services", Aliases: []string{"services", "svc"}, Verbs: []*cli.Verb{
-			cli.ListVerb("list services (no --node = every node)", cli.Spec{Params: nodeParam()}, c.record("service list")),
+			cli.ListVerb("list services (no --node = every node)", cli.Spec{
+				Params: nodeParam(),
+				Switches: map[string]cli.Switch{
+					"all":     {Short: "a", Summary: "include stopped services"},
+					"verbose": {},
+				},
+			}, c.record("service list")),
 		}},
 		{Name: "network", Summary: "node network interfaces", Aliases: []string{"networks", "net"}, Verbs: []*cli.Verb{
 			cli.ListVerb("list interfaces (no --node = every node)", cli.Spec{Params: nodeParam()}, c.record("network list")),
@@ -155,6 +161,9 @@ func checkCall(t *testing.T, c *cluster, verb string, want cli.Args) {
 	}
 	if !maps.Equal(got.args.Params, want.Params) {
 		t.Errorf("Params = %q, want %q", got.args.Params, want.Params)
+	}
+	if !maps.Equal(got.args.Switches, want.Switches) {
+		t.Errorf("Switches = %v, want %v", got.args.Switches, want.Switches)
 	}
 	if !slices.Equal(got.args.Pos, want.Pos) {
 		t.Errorf("Pos = %q, want %q", got.args.Pos, want.Pos)

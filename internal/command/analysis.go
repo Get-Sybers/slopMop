@@ -36,7 +36,7 @@ func loadPipeline() (pipeline, error) {
 }
 
 func (p pipeline) run(a *cli.Args) (analysis, error) {
-	res, err := inventory.ReadAll(a.Params[inputDir])
+	res, err := inventory.ReadAll(a.Params[inputDir], depth(a))
 	if err != nil {
 		return analysis{}, err
 	}

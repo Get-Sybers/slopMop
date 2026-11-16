@@ -7,7 +7,7 @@
       "verbs": [
         {
           "name": "list",
-          "summary": "list the files directly in the input directory",
+          "summary": "list the files in the input directory",
           "columns": [
             {"header": "NAME", "key": "name"},
             {"header": "ROLE", "key": "role"},

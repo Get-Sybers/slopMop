@@ -12,6 +12,11 @@ All notable changes to this project are recorded in this file. The format follow
   `trace list` extracts their imports, variables, file reads and writes, transforms, network and
   process calls, and the commands those process calls run. The Python calls are classified in
   `tactics.json`.
+- `--recursive` switch, short form `-r`, for `file list` and `trace list`: reads the sub-folders of
+  the input directory, 16 levels down, and names each file by its path below that directory. A
+  sub-folder that is deeper or unreadable is named in an error after the rows. Closes #9.
+- Switch flag kind in the grammar: `cli.Spec.Switches` declares a double-dash flag without a value
+  and its one-letter short form.
 - `finding list --inputdir <folder>`: one finding per distinct indicator and per tactic, with
   severity, contributing files and, with `--intelfile`, attribution. Selectors `-indicator` and
   `-tactic`.

@@ -3,6 +3,8 @@ package command
 import (
 	"bytes"
 	"errors"
+	"os"
+	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
@@ -168,6 +170,77 @@ func TestDecodeNounsRejects(t *testing.T) {
 		t.Run(c.name, func(t *testing.T) {
 			if _, err := decodeNouns([]byte(c.doc)); err == nil || !strings.Contains(err.Error(), c.want) {
 				t.Errorf("decodeNouns error = %v, want one containing %q", err, c.want)
+			}
+		})
+	}
+}
+
+// nest moves every file of a fixture copy whose name contains part into the sub-folder sub.
+func nest(t *testing.T, folder, part, sub string) {
+	t.Helper()
+	entries, err := os.ReadDir(folder)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(folder, filepath.FromSlash(sub)), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	for _, e := range entries {
+		if e.Type().IsRegular() && strings.Contains(e.Name(), part) {
+			if err := os.Rename(filepath.Join(folder, e.Name()), filepath.Join(folder, filepath.FromSlash(sub), e.Name())); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+}
+
+func TestRecursive(t *testing.T) {
+	folder := evidencetest.Copy(t, "bash")
+	nest(t, folder, "step0", "phase1")
+	nest(t, folder, "adsync_", "phase1/dc01")
+	nest(t, folder, "ca_", "loot")
+	cases := []struct {
+		golden string
+		args   []string
+	}{
+		{"nested-file-flat", []string{"file", "list"}},
+		{"nested-file-recursive", []string{"file", "list", "--recursive"}},
+		{"nested-file-recursive-json", []string{"files", "ls", "-r", "-script", "-o", "json"}},
+		{"nested-trace-flat", []string{"trace", "list"}},
+		{"nested-trace-recursive", []string{"trace", "list", "-r", "-o", "wide"}},
+	}
+	for _, c := range cases {
+		t.Run(c.golden, func(t *testing.T) {
+			out, err := run(t, append(c.args, "--inputdir", folder)...)
+			if err != nil {
+				t.Fatal(err)
+			}
+			golden.Check(t, c.golden, []byte(out))
+		})
+	}
+}
+
+func TestRecursiveReportsFoldersBelowTheLimit(t *testing.T) {
+	folder := t.TempDir()
+	deep := folder + strings.Repeat("/d", inventory.MaxDepth)
+	if err := os.MkdirAll(deep+"/e", 0o700); err != nil {
+		t.Fatal(err)
+	}
+	for _, p := range []string{deep + "/kept.sh", deep + "/e/lost.sh"} {
+		if err := os.WriteFile(p, []byte("id\n"), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	kept := strings.Repeat("d/", inventory.MaxDepth)
+	for _, noun := range []string{"file", "trace"} {
+		t.Run(noun, func(t *testing.T) {
+			out, err := run(t, noun, "list", "--inputdir", folder, "--recursive")
+			want := "1 folder(s) not read (unreadable or more than 16 levels down): " + kept + "e"
+			if err == nil || err.Error() != want {
+				t.Errorf("error = %v, want %q", err, want)
+			}
+			if !strings.Contains(out, kept+"kept.sh") || strings.Contains(out, "lost.sh") {
+				t.Errorf("output = %q, want kept.sh and not lost.sh", out)
 			}
 		})
 	}

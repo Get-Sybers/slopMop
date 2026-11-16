@@ -43,10 +43,11 @@ func (e Env) traceList(v verbSpec) (*cli.Verb, error) {
 			"other":  "show only other files",
 		},
 		Params:   map[string]string{inputDir: "<folder>", intelFile: "<file>"},
+		Switches: recursiveSwitch(),
 		Required: []string{inputDir},
 	}
 	return cli.ListVerb(v.Summary, spec, func(a *cli.Args) error {
-		res, err := inventory.ReadAll(a.Params[inputDir])
+		res, err := inventory.ReadAll(a.Params[inputDir], depth(a))
 		if err != nil {
 			return err
 		}
@@ -76,7 +77,10 @@ func (e Env) traceList(v verbSpec) (*cli.Verb, error) {
 			}
 			table.Rows = append(table.Rows, row)
 		}
-		return render.Write(e.Stdout, table, e.options(a.Output))
+		if err := render.Write(e.Stdout, table, e.options(a.Output)); err != nil {
+			return err
+		}
+		return skippedError(res.Skipped)
 	}), nil
 }
 
