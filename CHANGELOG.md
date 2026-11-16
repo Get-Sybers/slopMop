@@ -6,6 +6,8 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-11-16
+
 ### Added
 
 - Linux activities, each with its ATT&CK techniques, an impact and a remediation:
