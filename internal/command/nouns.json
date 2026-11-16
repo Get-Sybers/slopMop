@@ -39,6 +39,7 @@
             {"header": "TRANSFORMS", "key": "transforms"},
             {"header": "OUTPUTS", "key": "outputs", "wide": true},
             {"header": "INDICATORS", "key": "indicators", "wide": true},
+            {"header": "INTEL", "key": "intel", "wide": true},
             {"header": "NOTE", "key": "note", "wide": true}
           ]
         }

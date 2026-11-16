@@ -3,11 +3,13 @@ package command
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 	"unicode/utf8"
 
 	"github.com/get-sybers/slopmop/internal/cli"
 	"github.com/get-sybers/slopmop/internal/indicator"
+	"github.com/get-sybers/slopmop/internal/intel"
 	"github.com/get-sybers/slopmop/internal/inventory"
 	"github.com/get-sybers/slopmop/internal/render"
 	"github.com/get-sybers/slopmop/internal/tactic"
@@ -40,7 +42,7 @@ func (e Env) traceList(v verbSpec) (*cli.Verb, error) {
 			"output": "show only outputs",
 			"other":  "show only other files",
 		},
-		Params:   map[string]string{inputDir: "<folder>"},
+		Params:   map[string]string{inputDir: "<folder>", intelFile: "<file>"},
 		Required: []string{inputDir},
 	}
 	return cli.ListVerb(v.Summary, spec, func(a *cli.Args) error {
@@ -48,7 +50,15 @@ func (e Env) traceList(v verbSpec) (*cli.Verb, error) {
 		if err != nil {
 			return err
 		}
-		timeline := trace.Build(res.Files, res.Texts, tactics, patterns)
+		var watchlist *intel.Watchlist
+		if path := a.Params[intelFile]; path != "" {
+			wl, loadErr := loadIntelFile(path)
+			if loadErr != nil {
+				return loadErr
+			}
+			watchlist = &wl
+		}
+		timeline := trace.Build(res.Files, res.Texts, tactics, patterns, watchlist)
 		wanted := map[string]bool{}
 		for _, sel := range a.Selectors {
 			wanted[sel] = true
@@ -68,6 +78,14 @@ func (e Env) traceList(v verbSpec) (*cli.Verb, error) {
 		}
 		return render.Write(e.Stdout, table, e.options(a.Output))
 	}), nil
+}
+
+func loadIntelFile(path string) (intel.Watchlist, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return intel.Watchlist{}, fmt.Errorf("--intelfile: %w", err)
+	}
+	return intel.LoadWatchlist(data)
 }
 
 // traceRow fills one row. render has no list value, so a list is one text
@@ -90,6 +108,7 @@ func traceRow(s trace.Step, columns []render.Column, shorten bool) ([]render.Val
 		"transforms": render.NotApplicable(),
 		"outputs":    render.NotApplicable(),
 		"indicators": render.NotApplicable(),
+		"intel":      render.NotApplicable(),
 		"note":       render.NotApplicable(),
 	}
 	if !s.File.Modified.IsZero() {
@@ -112,6 +131,13 @@ func traceRow(s trace.Step, columns []render.Column, shorten bool) ([]render.Val
 	}
 	if s.Indicators > 0 {
 		cells["indicators"] = render.Int(int64(s.Indicators))
+	}
+	if len(s.IntelHits) > 0 {
+		labels := make([]string, len(s.IntelHits))
+		for i, h := range s.IntelHits {
+			labels[i] = h.Attribution + ": " + h.Value
+		}
+		cells["intel"] = list(labels)
 	}
 	if s.File.Note != "" {
 		cells["note"] = render.Text(string(s.File.Note))

@@ -15,6 +15,9 @@ import (
 // inputDir is the param every verb that reads evidence requires.
 const inputDir = "inputdir"
 
+// intelFile is the optional param that names a threat intelligence watchlist.
+const intelFile = "intelfile"
+
 type Env struct {
 	Stdout io.Writer
 	Local  *time.Location

@@ -9,6 +9,7 @@ import (
 
 	"github.com/get-sybers/slopmop/internal/evidence"
 	"github.com/get-sybers/slopmop/internal/indicator"
+	"github.com/get-sybers/slopmop/internal/intel"
 	"github.com/get-sybers/slopmop/internal/parse"
 	"github.com/get-sybers/slopmop/internal/tactic"
 )
@@ -22,6 +23,7 @@ type Step struct {
 	Transforms []string
 	Outputs    []string
 	Indicators int
+	IntelHits  []intel.Hit
 }
 
 // Timeline holds the ordered steps and any reconstruction gaps.
@@ -29,8 +31,9 @@ type Timeline struct {
 	Steps []Step
 }
 
-// Build reads the inventory result and produces a trace timeline.
-func Build(files []evidence.File, texts map[string]string, tactics tactic.Table, patterns indicator.Table) Timeline {
+// Build reads the inventory result and produces a trace timeline. When
+// watchlist is non-nil, extracted indicators are matched against it.
+func Build(files []evidence.File, texts map[string]string, tactics tactic.Table, patterns indicator.Table, watchlist *intel.Watchlist) Timeline {
 	ordered := sortByTime(files)
 	// Each script is parsed once; the result serves both the step and the linking.
 	parsed := map[string]parse.Script{}
@@ -56,7 +59,11 @@ func Build(files []evidence.File, texts map[string]string, tactics tactic.Table,
 			s.Transforms = uniqueMethods(p.Transforms)
 		}
 		if text := texts[f.Path]; text != "" {
-			s.Indicators = len(patterns.Extract(text))
+			matches := patterns.Extract(text)
+			s.Indicators = len(matches)
+			if watchlist != nil {
+				s.IntelHits = watchlist.Match(matches)
+			}
 		}
 		s.Outputs = linked[f.Path]
 		steps[i] = s
