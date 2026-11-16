@@ -1,0 +1,4 @@
+ami-id
+hostname
+iam/
+local-ipv4

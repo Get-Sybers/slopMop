@@ -353,6 +353,46 @@ func TestLolbinViews(t *testing.T) {
 	}
 }
 
+// The scenario of the linux fixture: a Linux host surveyed, raised, held and
+// cleaned up by shell scripts, a Python script and an audit log.
+func TestLinuxViews(t *testing.T) {
+	folder := evidencetest.Copy(t, "linux")
+	views := []struct {
+		golden string
+		args   []string
+	}{
+		{"linux-trace", []string{"trace", "list"}},
+		{"linux-trace-wide", []string{"trace", "list", "-o", "wide"}},
+		{"linux-finding-activity", []string{"finding", "list", "-activity", "-o", "wide"}},
+		{"linux-report-wide", []string{"report", "list", "-files", "-impact", "-remediation", "-mitigation", "-o", "wide"}},
+	}
+	for _, v := range views {
+		t.Run(v.golden, func(t *testing.T) {
+			out, err := run(t, append(v.args, "--inputdir", folder)...)
+			if err != nil {
+				t.Fatal(err)
+			}
+			golden.Check(t, v.golden, []byte(out))
+		})
+	}
+	// Step 6 runs a fetched script, an encoded one and a remote command.
+	wide, err := run(t, "trace", "list", "-o", "wide", "--inputdir", folder)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var staged string
+	for _, line := range strings.Split(wide, "\n") {
+		if strings.Contains(line, "step06_stage.sh") {
+			staged = line
+		}
+	}
+	for _, want := range []string{"curl", "uname", "gzip", "ShellDownloadAndExecute"} {
+		if !strings.Contains(staged, want) {
+			t.Errorf("trace of step 6 = %q, want %s in it", staged, want)
+		}
+	}
+}
+
 // A report is its sections in a fixed order, and a selector picks one.
 func TestReportSections(t *testing.T) {
 	folder := evidencetest.Copy(t, "lolbin")

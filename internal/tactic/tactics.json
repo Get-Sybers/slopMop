@@ -18,7 +18,7 @@
       "nbtscan", "dig", "nslookup", "host", "whois", "traceroute", "ip",
       "ifconfig", "netstat", "ss", "ps", "whoami", "id", "hostname", "uname",
       "lsblk", "df", "mount", "env", "printenv", "getent", "last", "w", "who",
-      "find", "locate", "ls", "stat", "dpkg", "rpm", "systemctl", "service",
+      "find", "locate", "ls", "stat", "dpkg", "rpm", "service",
       "ldapsearch", "enum4linux", "enum4linux-ng", "smbmap", "smbclient",
       "rpcclient", "showmount", "snmpwalk", "nikto", "gobuster", "ffuf",
       "dirb", "feroxbuster", "wfuzz", "whatweb", "wpscan", "nuclei", "httpx",
@@ -113,7 +113,7 @@
     "commands": [
       "python", "python3", "perl", "ruby", "php", "node", "bash", "sh",
       "zsh", "eval", "msfconsole", "msfvenom", "sqlmap", "gcc", "make",
-      "chmod", "nohup", "screen", "tmux", "pwsh", "powershell",
+      "nohup", "screen", "tmux", "pwsh", "powershell",
       "invoke-expression", "iex", "start-process", "saps", "start-job",
       "invoke-item", "add-type", "import-module", "ipmo", "install-module",
       "cmd", "rundll32", "regsvr32", "mshta", "cscript", "wscript",
@@ -140,7 +140,7 @@
     "id": "TA0003",
     "atlas": "AML.TA0006",
     "commands": [
-      "crontab", "useradd", "adduser", "usermod", "chpasswd", "passwd",
+      "useradd", "adduser", "usermod", "chpasswd", "passwd",
       "ssh-keygen", "at", "schtasks", "register-scheduledtask",
       "new-scheduledtask", "new-scheduledtaskaction",
       "new-scheduledtasktrigger", "new-service", "set-service",
@@ -176,7 +176,7 @@
     "id": "TA0005",
     "atlas": "AML.TA0007",
     "commands": [
-      "shred", "truncate", "history", "clear-history", "fsutil", "format-hex",
+      "shred", "truncate", "clear-history", "fsutil", "format-hex",
       "csc", "vbc", "jsc", "ilasm"
     ]
   },
@@ -199,7 +199,7 @@
     "id": "TA0009",
     "atlas": "AML.TA0009",
     "commands": [
-      "tar", "zip", "7z", "gzip", "mysqldump", "pg_dump", "mongodump",
+      "zip", "7z", "gzip", "mysqldump", "pg_dump", "mongodump",
       "mysql", "psql", "sqlite3", "redis-cli", "mongosh", "dd", "sqlcmd",
       "compress-archive", "expand-archive", "invoke-sqlcmd", "robocopy",
       "xcopy",

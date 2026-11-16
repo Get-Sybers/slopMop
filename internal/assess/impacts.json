@@ -2,23 +2,23 @@
   {
     "name": "Privileged access obtained",
     "severity": "high",
-    "statement": "A principal was given a privileged role or permission. Treat what it governs as under attacker control until reviewed.",
-    "activities": ["GlobalAdministratorAssignment", "RoleAssignment", "AppRoleAssignment"],
+    "statement": "A principal was given a privileged role or permission, or a route to root on a host was opened. Treat what it governs as under attacker control until reviewed.",
+    "activities": ["GlobalAdministratorAssignment", "RoleAssignment", "AppRoleAssignment", "SudoersModification", "SetuidBit", "ContainerEscape"],
     "tactics": ["PrivilegeEscalation"]
   },
   {
     "name": "Credentials exposed",
     "severity": "high",
     "statement": "Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.",
-    "activities": ["KeyVaultSecretRead", "KeyVaultKeyUnwrap", "LsassDump", "RegistryHiveDump", "CertificateExport"],
+    "activities": ["KeyVaultSecretRead", "KeyVaultKeyUnwrap", "LsassDump", "RegistryHiveDump", "CertificateExport", "ShadowFileRead", "PrivateKeyRead", "CredentialFileRead", "ShellHistoryRead", "CloudMetadataAccess", "ProcessMemoryDump", "ClusterSecretRead"],
     "tactics": ["CredentialAccess"],
     "affected": ["KeyVaultEndpoint"]
   },
   {
     "name": "Persistence established",
     "severity": "high",
-    "statement": "A way back in was created: a credential, a run key, a task or a service. Access survives a password reset.",
-    "activities": ["AppCredentialAddition", "RunKeyPersistence", "ScheduledTaskCreation", "ServiceCreation"],
+    "statement": "A way back in was created: a credential, an account, a key, a scheduled job, a service or a start-up entry. Access survives a password reset.",
+    "activities": ["AppCredentialAddition", "RunKeyPersistence", "ScheduledTaskCreation", "ServiceCreation", "ScheduledJobCreation", "SystemdUnitCreation", "AccountCreation", "SshKeyPersistence", "ShellProfilePersistence", "KernelModuleLoad", "DynamicLinkerHijack"],
     "tactics": ["Persistence"]
   },
   {
@@ -37,8 +37,8 @@
   {
     "name": "Data collected",
     "severity": "high",
-    "statement": "Mail, chat or documents were read in bulk. Treat their content as disclosed.",
-    "activities": ["MailboxAccess", "TeamsMessageAccess", "SharePointEnumeration"],
+    "statement": "Mail, chat, documents or files were gathered in bulk. Treat their content as disclosed.",
+    "activities": ["MailboxAccess", "TeamsMessageAccess", "SharePointEnumeration", "ArchiveCreation"],
     "tactics": ["Collection"],
     "affected": ["Email"]
   },
@@ -53,7 +53,7 @@
     "name": "Outside hosts contacted",
     "severity": "high",
     "statement": "Files or commands were fetched from, or a channel was opened to, hosts outside the environment.",
-    "activities": ["FileDownload", "DownloadAndExecute", "NetworkSocket"],
+    "activities": ["FileDownload", "DownloadAndExecute", "ShellDownloadAndExecute", "NetworkSocket", "ReverseShell"],
     "tactics": ["CommandAndControl"],
     "affected": ["IPv4"]
   },
@@ -67,7 +67,7 @@
     "name": "Defences and logging impaired",
     "severity": "high",
     "statement": "Logs were cleared or security tooling was interfered with. Records of this period are incomplete.",
-    "activities": ["EventLogClearing", "AmsiBypass"],
+    "activities": ["EventLogClearing", "AmsiBypass", "LogDeletion", "HistoryDisabling", "SecurityToolDisabling", "FirewallDisabling"],
     "tactics": ["DefenseImpairment"]
   },
   {
@@ -80,12 +80,13 @@
     "name": "Code run outside normal controls",
     "severity": "medium",
     "statement": "Code was run in ways that avoid application control and leave little on disk.",
-    "activities": ["ReflectiveCodeLoading", "NativeApiCall", "SignedBinaryProxyExecution", "RuntimeCompilation", "DownloadAndExecute", "ProcessStart"]
+    "activities": ["ReflectiveCodeLoading", "NativeApiCall", "SignedBinaryProxyExecution", "RuntimeCompilation", "DownloadAndExecute", "ShellDownloadAndExecute", "ProcessStart"]
   },
   {
     "name": "Traces hidden",
     "severity": "medium",
     "statement": "Files or history were removed or disguised. What is left on the host is incomplete.",
+    "activities": ["HistoryClearing", "Timestomp"],
     "tactics": ["Stealth"]
   },
   {
@@ -99,7 +100,7 @@
     "name": "Environment mapped",
     "severity": "low",
     "statement": "Identities, resources or configuration were listed. Later steps were probably aimed with the result.",
-    "activities": ["GraphDirectoryEnumeration", "AzureResourceEnumeration", "KeyVaultKeyEnumeration", "DirectorySearch", "RegistryQuery"],
+    "activities": ["GraphDirectoryEnumeration", "AzureResourceEnumeration", "KeyVaultKeyEnumeration", "DirectorySearch", "RegistryQuery", "SetuidFileSearch", "ServiceDiscovery"],
     "tactics": ["Discovery"]
   }
 ]

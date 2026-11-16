@@ -345,7 +345,7 @@ func TestBashContinuedCommandIsOneCommand(t *testing.T) {
 
 func TestBashForListIsNotACommand(t *testing.T) {
 	cases := map[string][]string{
-		"for v in $(cat vaults.txt); do az keyvault secret list --vault-name \"$v\"; done": {"az"},
+		"for v in $(cat vaults.txt); do az keyvault secret list --vault-name \"$v\"; done": {"cat", "az"},
 		"for f in *.txt; do\n  gzip \"$f\"\ndone":                                          {"gzip"},
 	}
 	for script, want := range cases {

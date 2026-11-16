@@ -1,0 +1,27 @@
+FINDING                  SEVERITY  TACTIC                            INDICATOR  FILES                                                           ATTRIBUTION  ATTACK                           ATLAS
+AccountCreation          high      Persistence                       -          20261022_091500_step04_persist.sh, audit_20261022_093500.jsonl  -            T1136.001                        AML.T0125
+CloudMetadataAccess      high      CredentialAccess                  -          20261022_090000_step01_recon.sh                                 -            T1552.005                        AML.T0055
+ClusterSecretRead        high      CredentialAccess                  -          20261022_090500_step02_creds.sh                                 -            T1552.007                        AML.T0055
+ContainerEscape          high      PrivilegeEscalation               -          20261022_091000_step03_privesc.sh                               -            T1611                            AML.T0105
+CredentialFileRead       high      CredentialAccess                  -          20261022_090500_step02_creds.sh                                 -            T1552.001                        AML.T0055
+FileUpload               high      Exfiltration                      -          20261022_092500_step06_stage.sh                                 -            T1048                            AML.T0025
+FirewallDisabling        high      DefenseImpairment                 -          20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl    -            T1686                            -
+HistoryDisabling         high      DefenseImpairment                 -          20261022_092000_step05_evade.sh                                 -            T1690                            -
+LogDeletion              high      DefenseImpairment                 -          20261022_092000_step05_evade.sh                                 -            T1685.006                        -
+PrivateKeyRead           high      CredentialAccess                  -          20261022_090500_step02_creds.sh                                 -            T1552.004                        AML.T0055
+ReverseShell             high      CommandAndControl, Execution      -          20261022_093000_step07_channel.py                               -            T1059.004, T1095                 AML.T0050
+ScheduledJobCreation     high      Execution, Persistence            -          20261022_091500_step04_persist.sh, audit_20261022_093500.jsonl  -            T1053.003, T1053.002, T1053.006  -
+SecurityToolDisabling    high      DefenseImpairment                 -          20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl    -            T1685, T1685.004                 -
+SetuidBit                high      PrivilegeEscalation               -          20261022_091000_step03_privesc.sh                               -            T1548.001                        -
+ShadowFileRead           high      CredentialAccess                  -          20261022_090500_step02_creds.sh                                 -            T1003.008                        AML.T0090
+ShellDownloadAndExecute  high      CommandAndControl, Execution      -          20261022_092500_step06_stage.sh                                 -            T1059.004, T1105                 AML.T0072, AML.T0050
+ShellHistoryRead         high      CredentialAccess                  -          20261022_090500_step02_creds.sh                                 -            T1552.003                        AML.T0055
+ShellProfilePersistence  high      Persistence                       -          20261022_091500_step04_persist.sh                               -            T1546.004                        AML.T0142
+SshKeyPersistence        high      Persistence                       -          20261022_091500_step04_persist.sh                               -            T1098.004                        -
+SudoersModification      high      PrivilegeEscalation               -          20261022_091000_step03_privesc.sh                               -            T1548.003                        -
+SystemdUnitCreation      high      Persistence, PrivilegeEscalation  -          20261022_091500_step04_persist.sh                               -            T1543.002                        -
+ArchiveCreation          medium    Collection                        -          20261022_092500_step06_stage.sh                                 -            T1560.001                        -
+HistoryClearing          medium    Stealth                           -          20261022_092000_step05_evade.sh                                 -            T1070.003                        AML.T0138
+Timestomp                medium    Stealth                           -          20261022_092000_step05_evade.sh                                 -            T1070.006                        AML.T0138
+ServiceDiscovery         low       Discovery                         -          20261022_090000_step01_recon.sh                                 -            T1007                            -
+SetuidFileSearch         low       Discovery                         -          20261022_090000_step01_recon.sh                                 -            T1083                            -

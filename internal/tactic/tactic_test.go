@@ -29,7 +29,7 @@ func TestClassify(t *testing.T) {
 		{"ssh", "LateralMovement"},
 		{"psexec.py", "LateralMovement"},
 		{"python3", "Execution"},
-		{"crontab", "Persistence"},
+		{"useradd", "Persistence"},
 		{"shred", "Stealth"},
 		{"mysqldump", "Collection"},
 		{"scp", "Exfiltration"},

@@ -1,0 +1,942 @@
+[
+  {
+    "item": "files",
+    "section": "summary",
+    "value": 11,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "scripts",
+    "section": "summary",
+    "value": 7,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "outputs",
+    "section": "summary",
+    "value": 4,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "indicators",
+    "section": "summary",
+    "value": 8,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "indicators Domain",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "indicators IPv4",
+    "section": "summary",
+    "value": 4,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "indicators URL",
+    "section": "summary",
+    "value": 3,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities",
+    "section": "summary",
+    "value": 26,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities AccountCreation",
+    "section": "summary",
+    "value": 2,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities ArchiveCreation",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities CloudMetadataAccess",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities ClusterSecretRead",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities ContainerEscape",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities CredentialFileRead",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities FileUpload",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities FirewallDisabling",
+    "section": "summary",
+    "value": 2,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities HistoryClearing",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities HistoryDisabling",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities LogDeletion",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities PrivateKeyRead",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities ReverseShell",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities ScheduledJobCreation",
+    "section": "summary",
+    "value": 2,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities SecurityToolDisabling",
+    "section": "summary",
+    "value": 2,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities ServiceDiscovery",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities SetuidBit",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities SetuidFileSearch",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities ShadowFileRead",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities ShellDownloadAndExecute",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities ShellHistoryRead",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities ShellProfilePersistence",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities SshKeyPersistence",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities SudoersModification",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities SystemdUnitCreation",
+    "section": "summary",
+    "value": 2,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "activities Timestomp",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "tactics",
+    "section": "summary",
+    "value": 11,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "20261022_090000_step01_recon.sh",
+    "section": "script",
+    "value": "high",
+    "detail": "CloudMetadataAccess",
+    "basis": null,
+    "files": "suid_20261022_090030.txt, meta_20261022_090040.txt",
+    "attack": "T1083, T1552.005, T1007",
+    "atlas": "AML.T0055"
+  },
+  {
+    "item": "20261022_090500_step02_creds.sh",
+    "section": "script",
+    "value": "high",
+    "detail": "ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, ClusterSecretRead",
+    "basis": null,
+    "files": "shadow_20261022_090530.txt",
+    "attack": "T1003.008, T1552.004, T1552.001, T1552.003, T1552.007",
+    "atlas": "AML.T0090, AML.T0055"
+  },
+  {
+    "item": "20261022_091000_step03_privesc.sh",
+    "section": "script",
+    "value": "high",
+    "detail": "SudoersModification, SetuidBit, ContainerEscape",
+    "basis": null,
+    "files": null,
+    "attack": "T1548.003, T1548.001, T1611",
+    "atlas": "AML.T0105"
+  },
+  {
+    "item": "20261022_091500_step04_persist.sh",
+    "section": "script",
+    "value": "high",
+    "detail": "ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, useradd (Persistence)",
+    "basis": null,
+    "files": null,
+    "attack": "T1053.003, T1053.002, T1053.006, T1543.002, T1136.001, T1098.004, T1546.004",
+    "atlas": "AML.T0125, AML.T0142"
+  },
+  {
+    "item": "20261022_092000_step05_evade.sh",
+    "section": "script",
+    "value": "high",
+    "detail": "LogDeletion, HistoryDisabling, SecurityToolDisabling, FirewallDisabling, iptables (DefenseImpairment)",
+    "basis": null,
+    "files": null,
+    "attack": "T1685.006, T1070.003, T1690, T1685, T1685.004, T1686, T1070.006",
+    "atlas": "AML.T0138"
+  },
+  {
+    "item": "20261022_092500_step06_stage.sh",
+    "section": "script",
+    "value": "high",
+    "detail": "FileUpload, ShellDownloadAndExecute, ssh (LateralMovement)",
+    "basis": null,
+    "files": null,
+    "attack": "T1048, T1560.001, T1059.004, T1105",
+    "atlas": "AML.T0025, AML.T0072, AML.T0050"
+  },
+  {
+    "item": "20261022_093000_step07_channel.py",
+    "section": "script",
+    "value": "high",
+    "detail": "ReverseShell, nc (Exfiltration)",
+    "basis": null,
+    "files": null,
+    "attack": "T1059.004, T1095",
+    "atlas": "AML.T0050"
+  },
+  {
+    "item": "audit_20261022_093500.jsonl",
+    "section": "output",
+    "value": "high",
+    "detail": "ScheduledJobCreation, AccountCreation, SecurityToolDisabling, FirewallDisabling, useradd (Persistence), iptables (DefenseImpairment)",
+    "basis": null,
+    "files": null,
+    "attack": "T1053.003, T1053.002, T1053.006, T1136.001, T1685, T1685.004, T1686",
+    "atlas": "AML.T0125"
+  },
+  {
+    "item": "Privileged access obtained",
+    "section": "impact",
+    "value": "high",
+    "detail": "A principal was given a privileged role or permission, or a route to root on a host was opened. Treat what it governs as under attacker control until reviewed.",
+    "basis": "SudoersModification, SetuidBit, ContainerEscape",
+    "files": "20261022_091000_step03_privesc.sh",
+    "attack": "T1548.003, T1548.001, T1611",
+    "atlas": "AML.T0105"
+  },
+  {
+    "item": "Credentials exposed",
+    "section": "impact",
+    "value": "high",
+    "detail": "Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.",
+    "basis": "ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, CloudMetadataAccess, ClusterSecretRead",
+    "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh",
+    "attack": "T1552.005, T1003.008, T1552.004, T1552.001, T1552.003, T1552.007",
+    "atlas": "AML.T0055, AML.T0090"
+  },
+  {
+    "item": "Persistence established",
+    "section": "impact",
+    "value": "high",
+    "detail": "A way back in was created: a credential, an account, a key, a scheduled job, a service or a start-up entry. Access survives a password reset.",
+    "basis": "ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, Persistence tools",
+    "files": "20261022_091500_step04_persist.sh, audit_20261022_093500.jsonl",
+    "attack": "T1053.003, T1053.002, T1053.006, T1543.002, T1136.001, T1098.004, T1546.004",
+    "atlas": "AML.T0125, AML.T0142"
+  },
+  {
+    "item": "Data collected",
+    "section": "impact",
+    "value": "high",
+    "detail": "Mail, chat, documents or files were gathered in bulk. Treat their content as disclosed.",
+    "basis": "ArchiveCreation, Collection tools",
+    "files": "20261022_092500_step06_stage.sh",
+    "attack": "T1560.001",
+    "atlas": null
+  },
+  {
+    "item": "Data may have left the environment",
+    "section": "impact",
+    "value": "high",
+    "detail": "A transfer out was run. Confirm what was sent and where.",
+    "basis": "FileUpload, Exfiltration tools",
+    "files": "20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
+    "attack": "T1048",
+    "atlas": "AML.T0025"
+  },
+  {
+    "item": "Outside hosts contacted",
+    "section": "impact",
+    "value": "high",
+    "detail": "Files or commands were fetched from, or a channel was opened to, hosts outside the environment. Affected: 198.51.100.7, 203.0.113.40, 203.0.113.41.",
+    "basis": "ShellDownloadAndExecute, ReverseShell",
+    "files": "20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
+    "attack": "T1059.004, T1105, T1095",
+    "atlas": "AML.T0072, AML.T0050"
+  },
+  {
+    "item": "Movement to other systems",
+    "section": "impact",
+    "value": "high",
+    "detail": "Tools that reach other systems were run. Hosts beyond this one may be affected.",
+    "basis": "LateralMovement tools",
+    "files": "20261022_092500_step06_stage.sh",
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "Defences and logging impaired",
+    "section": "impact",
+    "value": "high",
+    "detail": "Logs were cleared or security tooling was interfered with. Records of this period are incomplete.",
+    "basis": "LogDeletion, HistoryDisabling, SecurityToolDisabling, FirewallDisabling, DefenseImpairment tools",
+    "files": "20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl",
+    "attack": "T1685.006, T1690, T1685, T1685.004, T1686",
+    "atlas": null
+  },
+  {
+    "item": "Code run outside normal controls",
+    "section": "impact",
+    "value": "medium",
+    "detail": "Code was run in ways that avoid application control and leave little on disk.",
+    "basis": "ShellDownloadAndExecute",
+    "files": "20261022_092500_step06_stage.sh",
+    "attack": "T1059.004, T1105",
+    "atlas": "AML.T0072, AML.T0050"
+  },
+  {
+    "item": "Traces hidden",
+    "section": "impact",
+    "value": "medium",
+    "detail": "Files or history were removed or disguised. What is left on the host is incomplete.",
+    "basis": "HistoryClearing, Timestomp",
+    "files": "20261022_092000_step05_evade.sh",
+    "attack": "T1070.003, T1070.006",
+    "atlas": "AML.T0138"
+  },
+  {
+    "item": "Commands generated by an AI agent",
+    "section": "impact",
+    "value": "medium",
+    "detail": "The scripts were written by an AI agent, which is the premise of this tool. Generated commands differ from run to run, so a detection that matches exact text misses them.",
+    "basis": "the premise of the tool",
+    "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh, 20261022_092000_step05_evade.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py, audit_20261022_093500.jsonl",
+    "attack": null,
+    "atlas": "AML.T0102"
+  },
+  {
+    "item": "Environment mapped",
+    "section": "impact",
+    "value": "low",
+    "detail": "Identities, resources or configuration were listed. Later steps were probably aimed with the result.",
+    "basis": "SetuidFileSearch, ServiceDiscovery, Discovery tools",
+    "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_092500_step06_stage.sh",
+    "attack": "T1083, T1007",
+    "atlas": null
+  },
+  {
+    "item": "Revoke sessions and reset identities",
+    "section": "remediation",
+    "value": "high",
+    "detail": "Revoke the sessions and tokens of every identity in the evidence and reset its credentials.",
+    "basis": "LateralMovement tools",
+    "files": "20261022_092500_step06_stage.sh",
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "Rotate what was read",
+    "section": "remediation",
+    "value": "high",
+    "detail": "Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.",
+    "basis": "ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, CloudMetadataAccess, ClusterSecretRead",
+    "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh",
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "Remove persistence",
+    "section": "remediation",
+    "value": "high",
+    "detail": "Delete the scheduled jobs, services, accounts, keys and start-up entries that were created, and the files they start.",
+    "basis": "ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, Persistence tools",
+    "files": "20261022_091500_step04_persist.sh, audit_20261022_093500.jsonl",
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "Undo privilege changes on hosts",
+    "section": "remediation",
+    "value": "high",
+    "detail": "Put sudo rules, file modes and container settings back to their approved state, and treat the host as held at root until rebuilt.",
+    "basis": "SudoersModification, SetuidBit, ContainerEscape",
+    "files": "20261022_091000_step03_privesc.sh",
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "Restore security tooling",
+    "section": "remediation",
+    "value": "high",
+    "detail": "Turn the stopped security services, audit rules and firewall back on, and confirm that each reports again.",
+    "basis": "SecurityToolDisabling, FirewallDisabling",
+    "files": "20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl",
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "Block and hunt the infrastructure",
+    "section": "remediation",
+    "value": "high",
+    "detail": "Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.",
+    "basis": "ShellDownloadAndExecute, FileUpload, ReverseShell",
+    "files": "20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "Scope the data taken",
+    "section": "remediation",
+    "value": "high",
+    "detail": "Establish from audit logs which mailboxes, chats, sites and files were read or sent out, and assess that data as breached.",
+    "basis": "FileUpload, ArchiveCreation, Collection tools, Exfiltration tools",
+    "files": "20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "Find the delivered files",
+    "section": "remediation",
+    "value": "medium",
+    "detail": "Collect the files that were downloaded, dropped or loaded, hash them, and search every host for the same hashes.",
+    "basis": "ShellDownloadAndExecute",
+    "files": "20261022_092500_step06_stage.sh",
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "Recover the missing logs",
+    "section": "remediation",
+    "value": "medium",
+    "detail": "Treat local logs as incomplete, and recover the period from a central collector or a backup.",
+    "basis": "LogDeletion, HistoryClearing, HistoryDisabling, Timestomp, DefenseImpairment tools",
+    "files": "20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl",
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "Follow what was enumerated",
+    "section": "remediation",
+    "value": "low",
+    "detail": "Use what was listed to predict targets: check those identities, vaults and hosts for later activity.",
+    "basis": "SetuidFileSearch, ServiceDiscovery, Discovery tools",
+    "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_092500_step06_stage.sh",
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "item": "M1017 User Training",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "User Training involves educating employees and contractors on recognizing, reporting, and preventing cyber threats that rely on human interaction, such as phishing, social engineering, and other manipulative techniques.",
+    "basis": "CredentialFileRead",
+    "files": "20261022_090500_step02_creds.sh",
+    "attack": "T1552.001",
+    "atlas": null
+  },
+  {
+    "item": "M1018 User Account Management",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.",
+    "basis": "FileUpload, ScheduledJobCreation, SshKeyPersistence, SystemdUnitCreation, ClusterSecretRead, SecurityToolDisabling, FirewallDisabling",
+    "files": "20261022_090500_step02_creds.sh, 20261022_091500_step04_persist.sh, 20261022_092000_step05_evade.sh, 20261022_092500_step06_stage.sh, audit_20261022_093500.jsonl",
+    "attack": "T1048, T1053.002, T1053.003, T1053.006, T1098.004, T1543.002, T1552.007, T1685, T1685.004, T1686",
+    "atlas": null
+  },
+  {
+    "item": "M1022 Restrict File and Directory Permissions",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Restricting file and directory permissions involves setting access controls at the file system level to limit which users, groups, or processes can read, write, or execute files.",
+    "basis": "FileUpload, ScheduledJobCreation, HistoryClearing, SshKeyPersistence, SystemdUnitCreation, ShellProfilePersistence, SudoersModification, CredentialFileRead, PrivateKeyRead, SecurityToolDisabling, LogDeletion, FirewallDisabling",
+    "files": "20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh, 20261022_092000_step05_evade.sh, 20261022_092500_step06_stage.sh, audit_20261022_093500.jsonl",
+    "attack": "T1048, T1053.006, T1070.003, T1098.004, T1543.002, T1546.004, T1548.003, T1552.001, T1552.004, T1685, T1685.006, T1686",
+    "atlas": null
+  },
+  {
+    "item": "M1024 Restrict Registry Permissions",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Restricting registry permissions involves configuring access control settings for sensitive registry keys and hives to ensure that only authorized users or processes can make modifications.",
+    "basis": "SecurityToolDisabling, FirewallDisabling",
+    "files": "20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl",
+    "attack": "T1685, T1686",
+    "atlas": null
+  },
+  {
+    "item": "M1026 Privileged Account Management",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Privileged Account Management focuses on implementing policies, controls, and tools to securely manage privileged accounts (e.g., SYSTEM, root, or administrative accounts).",
+    "basis": "ShadowFileRead, ScheduledJobCreation, AccountCreation, SystemdUnitCreation, SudoersModification, ClusterSecretRead, ContainerEscape",
+    "files": "20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh, audit_20261022_093500.jsonl",
+    "attack": "T1003.008, T1053.002, T1053.006, T1136.001, T1543.002, T1548.003, T1552.007, T1611",
+    "atlas": null
+  },
+  {
+    "item": "M1027 Password Policies",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Set and enforce secure password policies for accounts to reduce the likelihood of unauthorized access.",
+    "basis": "ShadowFileRead, CredentialFileRead, PrivateKeyRead",
+    "files": "20261022_090500_step02_creds.sh",
+    "attack": "T1003.008, T1552.001, T1552.004",
+    "atlas": null
+  },
+  {
+    "item": "M1028 Operating System Configuration",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Operating System Configuration involves adjusting system settings and hardening the default configurations of an operating system (OS) to mitigate adversary exploitation and prevent abuse of system functionality.",
+    "basis": "ScheduledJobCreation, SetuidBit, SudoersModification, ShellHistoryRead, HistoryDisabling",
+    "files": "20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh, 20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl",
+    "attack": "T1053.002, T1548.001, T1548.003, T1552.003, T1690",
+    "atlas": null
+  },
+  {
+    "item": "M1029 Remote Data Storage",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Remote Data Storage focuses on moving critical data, such as security logs and sensitive files, to secure, off-host locations to minimize unauthorized access, tampering, or destruction by adversaries.",
+    "basis": "HistoryClearing, LogDeletion",
+    "files": "20261022_092000_step05_evade.sh",
+    "attack": "T1070.003, T1685.006",
+    "atlas": null
+  },
+  {
+    "item": "M1030 Network Segmentation",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Network segmentation involves dividing a network into smaller, isolated segments to control and limit the flow of traffic between devices, systems, and applications.",
+    "basis": "FileUpload, ReverseShell, ClusterSecretRead",
+    "files": "20261022_090500_step02_creds.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
+    "attack": "T1048, T1095, T1552.007",
+    "atlas": null
+  },
+  {
+    "item": "M1031 Network Intrusion Prevention",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Use intrusion detection signatures to block traffic at network boundaries.",
+    "basis": "FileUpload, ReverseShell, ShellDownloadAndExecute",
+    "files": "20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
+    "attack": "T1048, T1095, T1105",
+    "atlas": null
+  },
+  {
+    "item": "M1032 Multi-factor Authentication",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Multi-Factor Authentication (MFA) enhances security by requiring users to provide at least two forms of verification to prove their identity before granting access.",
+    "basis": "AccountCreation",
+    "files": "20261022_091500_step04_persist.sh, audit_20261022_093500.jsonl",
+    "attack": "T1136.001",
+    "atlas": null
+  },
+  {
+    "item": "M1033 Limit Software Installation",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Prevent users or groups from installing unauthorized or unapproved software to reduce the risk of introducing malicious or vulnerable applications.",
+    "basis": "SystemdUnitCreation",
+    "files": "20261022_091500_step04_persist.sh",
+    "attack": "T1543.002",
+    "atlas": null
+  },
+  {
+    "item": "M1035 Limit Access to Resource Over Network",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Restrict access to network resources, such as file shares, remote systems, and services, to only those users, accounts, or systems with a legitimate business requirement.",
+    "basis": "CloudMetadataAccess, ClusterSecretRead",
+    "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh",
+    "attack": "T1552.005, T1552.007",
+    "atlas": null
+  },
+  {
+    "item": "M1037 Filter Network Traffic",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Employ network appliances and endpoint software to filter ingress, egress, and lateral network traffic.",
+    "basis": "FileUpload, ReverseShell, ShellDownloadAndExecute, CloudMetadataAccess",
+    "files": "20261022_090000_step01_recon.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
+    "attack": "T1048, T1095, T1105, T1552.005",
+    "atlas": null
+  },
+  {
+    "item": "M1038 Execution Prevention",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Prevent the execution of unauthorized or malicious code on systems by implementing application control, script blocking, and other execution prevention mechanisms.",
+    "basis": "ShellDownloadAndExecute, ReverseShell, ContainerEscape, SecurityToolDisabling",
+    "files": "20261022_091000_step03_privesc.sh, 20261022_092000_step05_evade.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py, audit_20261022_093500.jsonl",
+    "attack": "T1059.004, T1611, T1685",
+    "atlas": null
+  },
+  {
+    "item": "M1039 Environment Variable Permissions",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Restrict the modification of environment variables to authorized users and processes by enforcing strict permissions and policies.",
+    "basis": "HistoryClearing, HistoryDisabling",
+    "files": "20261022_092000_step05_evade.sh",
+    "attack": "T1070.003, T1690",
+    "atlas": null
+  },
+  {
+    "item": "M1041 Encrypt Sensitive Information",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Protect sensitive information at rest, in transit, and during processing by using strong encryption algorithms.",
+    "basis": "PrivateKeyRead, LogDeletion",
+    "files": "20261022_090500_step02_creds.sh, 20261022_092000_step05_evade.sh",
+    "attack": "T1552.004, T1685.006",
+    "atlas": null
+  },
+  {
+    "item": "M1042 Disable or Remove Feature or Program",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Disable or remove unnecessary and potentially vulnerable software, features, or services to reduce the attack surface and prevent abuse by adversaries.",
+    "basis": "SshKeyPersistence, CloudMetadataAccess, ContainerEscape, SecurityToolDisabling",
+    "files": "20261022_090000_step01_recon.sh, 20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh, 20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl",
+    "attack": "T1098.004, T1552.005, T1611, T1685",
+    "atlas": null
+  },
+  {
+    "item": "M1047 Audit",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.",
+    "basis": "ScheduledJobCreation, ReverseShell, CredentialFileRead, PrivateKeyRead, ArchiveCreation, SecurityToolDisabling, FirewallDisabling",
+    "files": "20261022_090500_step02_creds.sh, 20261022_091500_step04_persist.sh, 20261022_092000_step05_evade.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py, audit_20261022_093500.jsonl",
+    "attack": "T1053.002, T1053.003, T1095, T1552.001, T1552.004, T1560.001, T1685, T1685.004, T1686",
+    "atlas": null
+  },
+  {
+    "item": "M1048 Application Isolation and Sandboxing",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Application Isolation and Sandboxing refers to the technique of restricting the execution of code to a controlled and isolated environment (e.g., a virtual environment, container, or sandbox).",
+    "basis": "ContainerEscape",
+    "files": "20261022_091000_step03_privesc.sh",
+    "attack": "T1611",
+    "atlas": null
+  },
+  {
+    "item": "M1051 Update Software",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Software updates ensure systems are protected against known vulnerabilities by applying patches and upgrades provided by vendors.",
+    "basis": "ContainerEscape",
+    "files": "20261022_091000_step03_privesc.sh",
+    "attack": "T1611",
+    "atlas": null
+  },
+  {
+    "item": "M1054 Software Configuration",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Software configuration refers to making security-focused adjustments to the settings of applications, middleware, databases, or other software to mitigate potential threats.",
+    "basis": "SecurityToolDisabling",
+    "files": "20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl",
+    "attack": "T1685",
+    "atlas": null
+  },
+  {
+    "item": "M1057 Data Loss Prevention",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Data Loss Prevention (DLP) involves implementing strategies and technologies to identify, categorize, monitor, and control the movement of sensitive data within an organization.",
+    "basis": "FileUpload",
+    "files": "20261022_092500_step06_stage.sh",
+    "attack": "T1048",
+    "atlas": null
+  },
+  {
+    "item": "AML.M0005 Control Access to AI Models and Data at Rest",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Establish access controls on internal model registries and limit internal access to production models.",
+    "basis": "FileUpload",
+    "files": "20261022_092500_step06_stage.sh",
+    "attack": null,
+    "atlas": "AML.T0025"
+  },
+  {
+    "item": "AML.M0011 Restrict Library Loading",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Prevent abuse of library loading mechanisms in the operating system and software to load untrusted code by configuring appropriate library loading mechanisms and investigating potential vulnerable software.",
+    "basis": "ShellDownloadAndExecute, ReverseShell, ShadowFileRead, ShellProfilePersistence",
+    "files": "20261022_090500_step02_creds.sh, 20261022_091500_step04_persist.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
+    "attack": null,
+    "atlas": "AML.T0050, AML.T0090, AML.T0142"
+  },
+  {
+    "item": "AML.M0013 Code Signing",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Enforce binary and application integrity with digital signature verification to prevent untrusted code from executing.",
+    "basis": "ShellProfilePersistence",
+    "files": "20261022_091500_step04_persist.sh",
+    "attack": null,
+    "atlas": "AML.T0142"
+  },
+  {
+    "item": "AML.M0043 AI Agent External Resource Lifecycle Management",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Organizations should control external resources created or acquired by AI agents during execution by treating those resources as attributable, lifecycle-managed assets.",
+    "basis": "ShellDownloadAndExecute, AccountCreation",
+    "files": "20261022_091500_step04_persist.sh, 20261022_092500_step06_stage.sh, audit_20261022_093500.jsonl",
+    "attack": null,
+    "atlas": "AML.T0072, AML.T0125"
+  },
+  {
+    "item": "AML.M0020 Generative AI Guardrails",
+    "section": "mitigation",
+    "value": "medium",
+    "detail": "Guardrails are safety controls placed between users, tools, and generative AI models to evaluate prompts, retrieved context, model outputs, and agent actions before they are accepted, executed, or shown to a user.",
+    "basis": "Commands generated by an AI agent",
+    "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh, 20261022_092000_step05_evade.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py, audit_20261022_093500.jsonl",
+    "attack": null,
+    "atlas": "AML.T0102"
+  },
+  {
+    "item": "AML.M0022 Generative AI Model Alignment",
+    "section": "mitigation",
+    "value": "medium",
+    "detail": "Generative AI Model Alignment is the process of training or fine-tuning a generative model to guide its output toward a set of human values, goals, or ethical principles.",
+    "basis": "Commands generated by an AI agent",
+    "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh, 20261022_092000_step05_evade.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py, audit_20261022_093500.jsonl",
+    "attack": null,
+    "atlas": "AML.T0102"
+  }
+]

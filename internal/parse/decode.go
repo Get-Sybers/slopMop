@@ -17,39 +17,58 @@ const (
 
 var (
 	rxEncodedArg = regexp.MustCompile(`(?i)(?:^|[\s"'])-(e[a-z]*)\s+['"]?([A-Za-z0-9+/]{16,}={0,2})`)
-	rxB64Literal = regexp.MustCompile(`(?i)FromBase64String\(\s*['"]([A-Za-z0-9+/]{24,}={0,2})['"]`)
+	rxB64Literal = regexp.MustCompile(`(?i)(?:FromBase64String|b64decode)\(\s*b?['"]([A-Za-z0-9+/]{24,}={0,2})['"]`)
+	// rxB64Piped is Base64 text handed to "base64 -d", and the shell it is piped on to, if any.
+	rxB64Piped = regexp.MustCompile(`(?:echo|printf)\s+(?:-[neE]+\s+)?['"]?([A-Za-z0-9+/]{16,}={0,2})['"]?\s*\|\s*base64\s+(?:-d|-D|--decode)\b(\s*\|\s*(?:sudo\s+)?(?:ba|z|da|k)?sh\b)?`)
+	rxB64Here  = regexp.MustCompile(`base64\s+(?:-d|-D|--decode)\s*<<<\s*['"]?([A-Za-z0-9+/]{16,}={0,2})`)
+)
+
+// The shells a payload can be a script of.
+const (
+	PowerShell = "powershell"
+	POSIX      = "sh"
 )
 
 // Payload is text that a file carries encoded.
 type Payload struct {
 	Text string
-	// Script is set when the text is a PowerShell command: it was the
-	// argument of -EncodedCommand.
-	Script bool
+	// Shell is PowerShell when the text was the argument of -EncodedCommand,
+	// POSIX when it was decoded and piped into a shell, and empty otherwise.
+	Shell string
 }
 
-// Decoded returns the readable payloads a text carries: the argument of a
-// PowerShell -EncodedCommand, and a Base64 literal handed to
-// FromBase64String. Nothing is run; a payload that is not text is dropped.
+// Decoded returns the readable payloads a text carries: the argument of
+// -EncodedCommand, Base64 piped through "base64 -d", and a Base64 literal
+// handed to a decoding call. Nothing is run, and what is not text is dropped.
 func Decoded(text string) []Payload {
 	var payloads []Payload
-	add := func(b64 string, script bool) {
+	add := func(b64, shell string) {
 		if len(payloads) >= maxPayloads || len(b64) > maxPayload {
 			return
 		}
-		if decoded, ok := decodeText(b64, script); ok {
-			payloads = append(payloads, Payload{Text: decoded, Script: script})
+		if decoded, ok := decodeText(b64, shell == PowerShell); ok {
+			payloads = append(payloads, Payload{Text: decoded, Shell: shell})
 		}
 	}
 	for _, m := range rxEncodedArg.FindAllStringSubmatch(text, -1) {
 		// PowerShell takes any prefix of -EncodedCommand, and -ec.
 		const full = "encodedcommand"
 		if flag := strings.ToLower(m[1]); flag == "ec" || (len(flag) <= len(full) && full[:len(flag)] == flag) {
-			add(m[2], true)
+			add(m[2], PowerShell)
 		}
 	}
+	for _, m := range rxB64Piped.FindAllStringSubmatch(text, -1) {
+		shell := ""
+		if m[2] != "" {
+			shell = POSIX
+		}
+		add(m[1], shell)
+	}
+	for _, m := range rxB64Here.FindAllStringSubmatch(text, -1) {
+		add(m[1], "")
+	}
 	for _, m := range rxB64Literal.FindAllStringSubmatch(text, -1) {
-		add(m[1], false)
+		add(m[1], "")
 	}
 	return payloads
 }

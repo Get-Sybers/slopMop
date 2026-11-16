@@ -66,7 +66,7 @@ func TestExtractPython(t *testing.T) {
 		{"imports", recon.Imports, []string{"os", "base64", "subprocess", "pathlib", "urllib.request"}},
 		{"tools", toolNames(recon), []string{
 			"subprocess.run", "nmap", "tee", "subprocess.run", "masscan", "os.system", "curl", "cat",
-			"base64", "subprocess.check_output", "bash", "whoami", "id", "subprocess.popen", "ssh",
+			"base64", "subprocess.check_output", "bash", "whoami", "id", "subprocess.popen", "ssh", "uname",
 			"urllib.request.urlopen", "exec",
 		}},
 		{"writes", recon.Writes, []string{"recon.txt", "mass.gnmap", "/tmp/a.sh", "loot.b64", "log.txt", "note.txt"}},

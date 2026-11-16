@@ -10,7 +10,7 @@ import (
 )
 
 func TestList(t *testing.T) {
-	want := []string{"bash", "entra", "lolbin", "powershell"}
+	want := []string{"bash", "entra", "linux", "lolbin", "powershell"}
 	if got := List(); !slices.Equal(got, want) {
 		t.Errorf("List() = %v, want %v", got, want)
 	}

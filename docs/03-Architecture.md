@@ -98,11 +98,15 @@ and commands. A script is never decoded this way.
 - Indicators are extracted from the text values, one per line, so an escaped URL or path is matched
   in its decoded form.
 - A command is the text under a command field (a JSON key, an XML element or an XML attribute, with
-  case, `_` and `-` ignored) or inside an HTML command element. A JSON list whose strings hold no
-  space is one argument vector; otherwise each string is a command line.
+  case and every character but a letter or a digit ignored) or inside an HTML command element. A
+  JSON list whose strings hold no space is one argument vector; otherwise each string is a command
+  line.
+- The command fields are those of Sysmon and Defender process events, and of Falco and auditd
+  records on Linux: `proc.cmdline`, `proc.pcmdline` and `proctitle`.
 - A command is parsed as PowerShell when it holds a `Verb-Noun` cmdlet or names `powershell` or
-  `pwsh`, and as bash otherwise. Its tools, tactics and transforms fill the row of the report. A
-  report is not a turn and links no output.
+  `pwsh`, as a cmd.exe line when it holds a drive path, a UNC path, an `.exe`, a `%NAME%` or a
+  slash switch, and as bash otherwise. Its tools, tactics and transforms fill the row of the
+  report. A report is not a turn and links no output.
 - A JSON or XML file that is not well formed is read as plain text. HTML is decoded whatever its form.
 
 `--intelfile` takes a JSON array of entries or a STIX 2.1 bundle. From a bundle, every quoted
@@ -122,11 +126,15 @@ abandons its rule. A date and time without `Z` is marked local: the name does no
 AgentScriptTrace golden test in the VelociSacci repository (`tests/golden/fixtures/`), copied byte
 for byte. They hold CRLF, UTF-16, byte-order-mark and binary files on purpose.
 
-`entra` and `lolbin` belong to this repository. `entra` is an agent's run against Entra ID,
+`entra`, `lolbin` and `linux` belong to this repository. `entra` is an agent's run against Entra ID,
 Microsoft Graph and Azure Key Vault in bash, PowerShell and Python, with a JSON Lines log; it shows
 the cloud activities of `activities.json` except the plain role assignment. `lolbin` is a run on a
 Windows host with living-off-the-land binaries and .NET: six PowerShell scripts, a batch file, C#
-source, an MSBuild project and a process-creation log, on documentation addresses.
+source, an MSBuild project and a process-creation log, on documentation addresses. `linux` is a
+run on a Linux host: six shell scripts and a Python script that survey it, read credentials, raise
+privilege, keep access, reduce the record and stage data, with their outputs and an audit log in
+the field names of Falco, auditd and ECS. Its lines are fragments on variables and documentation
+addresses, and no script in it works as written.
 
 - `.gitattributes` marks every `testdata` path `-text`, so a checkout never converts them.
 - `.gitignore`, `.editorconfig`, `.yamllint`, `.gitleaks.toml` and the fixer hooks leave `testdata` alone.
@@ -153,43 +161,74 @@ the operations it shows.
 - `report list` counts, for each activity, the lines that show it. A loop counts once: the tool
   does not run the script.
 - A name has a tactic in `tactics.json` only when the name alone says what the command does.
-  `certutil`, `bitsadmin`, `reg`, `curl`, `wget`, `Invoke-WebRequest`, `Invoke-RestMethod` and the
-  Python `requests` calls have none: the activity found on the line gives one.
+  `certutil`, `bitsadmin`, `reg`, `systemctl`, `chmod`, `crontab`, `history`, `tar`, `curl`,
+  `wget`, `Invoke-WebRequest`, `Invoke-RestMethod` and the Python `requests` calls have none: the
+  activity found on the line gives one.
+- A write to a path is read from the command that makes it: a redirection, `tee`, `cp`, `mv`,
+  `install` or `sed -i`. Reading the same path is a different activity or none.
 
-| Activity | Tactics |
-| --- | --- |
-| `GlobalAdministratorAssignment` | PrivilegeEscalation, Persistence |
-| `RoleAssignment` | PrivilegeEscalation, Persistence |
-| `AppRoleAssignment` | Persistence, PrivilegeEscalation |
-| `AppCredentialAddition` | Persistence |
-| `TokenRequest` | InitialAccess |
-| `GraphDirectoryEnumeration` | Discovery |
-| `MailboxAccess` | Collection |
-| `TeamsMessageAccess` | Collection |
-| `SharePointEnumeration` | Collection, Exfiltration |
-| `KeyVaultSecretRead` | CredentialAccess |
-| `KeyVaultKeyUnwrap` | CredentialAccess |
-| `KeyVaultKeyEnumeration` | Discovery |
-| `AzureResourceEnumeration` | Discovery |
-| `FileDownload` | CommandAndControl |
-| `FileUpload` | Exfiltration |
-| `DownloadAndExecute` | Execution, CommandAndControl |
-| `ReflectiveCodeLoading` | DefenseEvasion, Execution |
-| `NativeApiCall` | Execution, DefenseEvasion |
-| `RuntimeCompilation` | DefenseEvasion, Execution |
-| `ProcessStart` | Execution |
-| `NetworkSocket` | CommandAndControl |
-| `SignedBinaryProxyExecution` | DefenseEvasion, Execution |
-| `RunKeyPersistence` | Persistence |
-| `ScheduledTaskCreation` | Persistence, Execution |
-| `ServiceCreation` | Persistence, PrivilegeEscalation |
-| `EventLogClearing` | DefenseEvasion |
-| `LsassDump` | CredentialAccess |
-| `RegistryHiveDump` | CredentialAccess |
-| `RegistryQuery` | Discovery |
-| `CertificateExport` | CredentialAccess |
-| `AmsiBypass` | DefenseEvasion |
-| `DirectorySearch` | Discovery |
+| Activity | Tactics | ATT&CK |
+| --- | --- | --- |
+| `GlobalAdministratorAssignment` | PrivilegeEscalation, Persistence | T1098.003 |
+| `RoleAssignment` | PrivilegeEscalation, Persistence | T1098.003 |
+| `AppRoleAssignment` | Persistence, PrivilegeEscalation | T1098.003 |
+| `AppCredentialAddition` | Persistence | T1098.001 |
+| `TokenRequest` | InitialAccess | T1078.004 |
+| `GraphDirectoryEnumeration` | Discovery | T1087.004, T1069.003 |
+| `MailboxAccess` | Collection | T1114.002 |
+| `TeamsMessageAccess` | Collection | T1213.005 |
+| `SharePointEnumeration` | Collection | T1213.002 |
+| `KeyVaultSecretRead` | CredentialAccess | T1555.006 |
+| `KeyVaultKeyUnwrap` | CredentialAccess | T1555.006 |
+| `KeyVaultKeyEnumeration` | Discovery | T1580 |
+| `AzureResourceEnumeration` | Discovery | T1580 |
+| `FileDownload` | CommandAndControl | T1105 |
+| `FileUpload` | Exfiltration | T1048 |
+| `DownloadAndExecute` | Execution, CommandAndControl | T1059.001, T1105 |
+| `ReflectiveCodeLoading` | Stealth | T1620 |
+| `NativeApiCall` | Execution, Stealth | T1106, T1055 |
+| `RuntimeCompilation` | Stealth | T1027.004 |
+| `ProcessStart` | Execution | T1059, T1047 |
+| `NetworkSocket` | CommandAndControl | T1095 |
+| `SignedBinaryProxyExecution` | Stealth, Execution | T1218, T1127 |
+| `RunKeyPersistence` | Persistence | T1547.001 |
+| `ScheduledTaskCreation` | Persistence, Execution | T1053.005 |
+| `ServiceCreation` | Persistence, PrivilegeEscalation | T1543.003 |
+| `EventLogClearing` | DefenseImpairment | T1685.005 |
+| `LsassDump` | CredentialAccess | T1003.001 |
+| `RegistryHiveDump` | CredentialAccess | T1003.002 |
+| `RegistryQuery` | Discovery | T1012 |
+| `CertificateExport` | CredentialAccess | T1649 |
+| `AmsiBypass` | DefenseImpairment | T1685 |
+| `DirectorySearch` | Discovery | T1087.002 |
+| `ScheduledJobCreation` | Persistence, Execution | T1053.003, T1053.002, T1053.006 |
+| `SystemdUnitCreation` | Persistence, PrivilegeEscalation | T1543.002 |
+| `AccountCreation` | Persistence | T1136.001 |
+| `SshKeyPersistence` | Persistence | T1098.004 |
+| `ShellProfilePersistence` | Persistence | T1546.004 |
+| `SudoersModification` | PrivilegeEscalation | T1548.003 |
+| `SetuidBit` | PrivilegeEscalation | T1548.001 |
+| `ContainerEscape` | PrivilegeEscalation | T1611 |
+| `KernelModuleLoad` | Persistence, PrivilegeEscalation | T1547.006 |
+| `DynamicLinkerHijack` | Stealth, Execution | T1574.006 |
+| `SetuidFileSearch` | Discovery | T1083 |
+| `ShadowFileRead` | CredentialAccess | T1003.008 |
+| `PrivateKeyRead` | CredentialAccess | T1552.004 |
+| `CredentialFileRead` | CredentialAccess | T1552.001 |
+| `ShellHistoryRead` | CredentialAccess | T1552.003 |
+| `CloudMetadataAccess` | CredentialAccess | T1552.005 |
+| `ProcessMemoryDump` | CredentialAccess | T1003.007 |
+| `ClusterSecretRead` | CredentialAccess | T1552.007 |
+| `LogDeletion` | DefenseImpairment | T1685.006 |
+| `HistoryClearing` | Stealth | T1070.003 |
+| `HistoryDisabling` | DefenseImpairment | T1690 |
+| `SecurityToolDisabling` | DefenseImpairment | T1685, T1685.004 |
+| `FirewallDisabling` | DefenseImpairment | T1686 |
+| `Timestomp` | Stealth | T1070.006 |
+| `ReverseShell` | Execution, CommandAndControl | T1059.004, T1095 |
+| `ArchiveCreation` | Collection | T1560.001 |
+| `ServiceDiscovery` | Discovery | T1007 |
+| `ShellDownloadAndExecute` | Execution, CommandAndControl | T1059.004, T1105 |
 
 ## 8. Windows command lines
 
@@ -209,22 +248,40 @@ of `Process.Start`. A cmdlet is recognised by its Verb-Noun shape instead.
 - A `.bat` file is a script. A `.cmd` file keeps the output role of `roles.json` and is parsed as
   a batch file all the same.
 
-## 9. Encoded payloads
+## 9. Shell command lines
+
+`parse.ExtractBash` reads a shell script one statement at a time. The tool of a statement is its
+first word that is not an assignment, an option or a wrapper such as `sudo`, `nohup`, `timeout`,
+`doas` or `xargs`.
+
+- A command that launches another is followed, four levels deep: the string after `-c` of `sh`,
+  `bash`, `zsh`, `dash`, `ksh`, `ash` and `su`, the arguments of `eval`, the remote command of
+  `ssh`, the command of `find -exec`, what follows `--` or the container name of `kubectl exec`,
+  `docker exec` and `podman exec`, and the statements of `python -c`.
+- A subshell `( ... )` and a group `{ ...; }` are read as the commands they hold, with or without
+  a redirection after the closing bracket.
+- The commands inside `$( ... )` and backticks are read. The substitution itself is no word of
+  the outer command, so an address in it is not taken for a tool. `$(( ... ))` is arithmetic, and
+  single quotes hold text.
+
+## 10. Encoded payloads
 
 `parse.Decoded` reads what a file carries encoded, and nothing is run: the argument of a
-PowerShell `-EncodedCommand`, in any of its abbreviations, and a Base64 literal handed to
-`FromBase64String`. A payload is kept when nearly all of it is printable text.
+PowerShell `-EncodedCommand`, in any of its abbreviations, a Base64 literal handed to
+`FromBase64String` or `b64decode`, and a Base64 literal that `echo`, `printf` or a here-string
+feeds to `base64 -d`. A payload is kept when nearly all of it is printable text.
 
 - The commands of an encoded command join the file's tools, and the text of every payload is
-  searched for activities and indicators with the rest of the file.
+  searched for activities and indicators with the rest of the file. A payload piped from
+  `base64 -d` into a shell is parsed as shell commands.
 - Two layers are read: a payload that carries an encoded command is decoded once more.
 - A payload over 1 MiB of Base64 is left alone, and a file yields at most 32 payloads.
 
-## 10. Assessment
+## 11. Assessment
 
 `report list` ends with what the findings mean and what to do about them. Impacts and remediation
 come from data files, and `assess` holds no knowledge of its own. Mitigation comes from the
-catalogue of section 11.
+catalogue of section 12.
 
 - An impact or an action applies when one of its triggers is in the evidence: an activity, the
   tactic of a tool that ran, or a watchlist match. The tactics an activity adds do not trigger
@@ -239,7 +296,7 @@ catalogue of section 11.
 - A notable file is one whose activities, tool tactics or watchlist matches reach the severity
   asked for. A watchlist match is `high`.
 
-## 11. MITRE ATT&CK and MITRE ATLAS
+## 12. MITRE ATT&CK and MITRE ATLAS
 
 `internal/mitre/catalogue.json` is written by `scripts/mitre.py` from the ATT&CK enterprise bundle
 of `mitre-attack/attack-stix-data` and a v6 file of `mitre-atlas/atlas-data`. It holds ATT&CK 20.1
