@@ -16,8 +16,9 @@ The nouns, their verbs, aliases, summaries and columns are declared in
 `internal/command/nouns.json`. Help and registration are built from that file.
 
 `list` is a global verb: it means the same on every noun, takes no positional, and treats an omitted
-selector as every member. Its name and alias are defined once, in `cli.ListVerb`. The names `list`,
-`get` and `delete` are accepted only with the aliases `ls`, `show` and `rm`.
+selector as every member. Its name and alias are defined once, in `cli.ListVerb`. A verb named
+`list`, `get` or `delete` always carries the alias `ls`, `show` or `rm`, and those aliases belong
+to no other verb.
 
 ## 2. The three flag kinds
 

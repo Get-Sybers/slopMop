@@ -47,8 +47,9 @@ $ slopmop file list -q
 "odd\x1b[31mname.txt"
 ```
 
-Error messages on standard error are escaped the same way. JSON output relies on JSON's own string
-escaping.
+Error messages on standard error are escaped the same way. JSON is encoded by `encoding/json`, and
+every rune that is not printable is then written as a `\u` escape, so the value read back is the
+value in the evidence.
 
 ## 7. Scripting
 

@@ -1,74 +1,94 @@
 package render
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"unicode/utf16"
 	"unicode/utf8"
 )
 
-// encodeJSON writes the objects by hand: encoding/json would sort the keys of a map.
-func encodeJSON(t Table) []byte {
-	if len(t.Rows) == 0 {
-		return []byte("[]\n")
+func encodeJSON(t Table) ([]byte, error) {
+	rows := make([]jsonRow, len(t.Rows))
+	for i, values := range t.Rows {
+		rows[i] = jsonRow{columns: t.Columns, values: values}
 	}
-	b := []byte{'['}
-	for i, row := range t.Rows {
-		if i > 0 {
-			b = append(b, ',')
-		}
-		b = append(b, "\n  {"...)
-		for j, v := range row {
-			if j > 0 {
-				b = append(b, ',')
-			}
-			b = append(b, "\n    "...)
-			b = appendString(b, t.Columns[j].Key)
-			b = append(b, ": "...)
-			b = v.appendJSON(b)
-		}
-		b = append(b, "\n  }"...)
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	enc.SetEscapeHTML(false)
+	enc.SetIndent("", "  ")
+	if err := enc.Encode(rows); err != nil {
+		return nil, fmt.Errorf("render: encode json: %w", err)
 	}
-	return append(b, "\n]\n"...)
+	return escapeUnprintable(buf.Bytes()), nil
 }
 
-func (v Value) appendJSON(b []byte) []byte {
+// jsonRow keeps the keys in column order; a map would sort them.
+type jsonRow struct {
+	columns []Column
+	values  []Value
+}
+
+func (r jsonRow) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	buf.WriteByte('{')
+	for i, v := range r.values {
+		if i > 0 {
+			buf.WriteByte(',')
+		}
+		if err := marshal(&buf, r.columns[i].Key); err != nil {
+			return nil, err
+		}
+		buf.WriteByte(':')
+		if err := marshal(&buf, v.raw()); err != nil {
+			return nil, err
+		}
+	}
+	buf.WriteByte('}')
+	return buf.Bytes(), nil
+}
+
+func marshal(buf *bytes.Buffer, v any) error {
+	enc := json.NewEncoder(buf)
+	enc.SetEscapeHTML(false)
+	if err := enc.Encode(v); err != nil {
+		return err
+	}
+	buf.Truncate(buf.Len() - 1)
+	return nil
+}
+
+func (v Value) raw() any {
 	switch v.kind {
 	case kindInt, kindSize:
-		return strconv.AppendInt(b, v.num, 10)
+		return v.num
 	case kindTime:
 		// time.Time refuses to marshal a year above 9999; the layout does not.
-		return appendString(b, v.when.UTC().Format(utcLayout))
+		return v.when.UTC().Format(utcLayout)
 	case kindNotApplicable, kindNever:
-		return append(b, "null"...)
+		return nil
 	default:
-		return appendString(b, v.text)
+		return v.text
 	}
 }
 
-// appendString escapes every rune that is not printable, so JSON is as safe on a terminal as a table.
-func appendString(b []byte, s string) []byte {
-	b = append(b, '"')
-	for _, r := range s {
+// escapeUnprintable escapes the runes encoding/json leaves as they are, so
+// JSON is as safe on a terminal as a table. Such runes occur only in strings.
+func escapeUnprintable(encoded []byte) []byte {
+	out := make([]byte, 0, len(encoded))
+	for len(encoded) > 0 {
+		r, size := utf8.DecodeRune(encoded)
 		switch {
-		case r == '"':
-			b = append(b, `\"`...)
-		case r == '\\':
-			b = append(b, `\\`...)
-		case strconv.IsPrint(r):
-			b = utf8.AppendRune(b, r)
-		case r == '\n':
-			b = append(b, `\n`...)
-		case r == '\r':
-			b = append(b, `\r`...)
-		case r == '\t':
-			b = append(b, `\t`...)
+		case r < 0x7f, r > 0x7f && strconv.IsPrint(r):
+			out = append(out, encoded[:size]...)
 		case r > 0xFFFF:
 			hi, lo := utf16.EncodeRune(r)
-			b = fmt.Appendf(b, `\u%04x\u%04x`, hi, lo)
+			out = fmt.Appendf(out, `\u%04x\u%04x`, hi, lo)
 		default:
-			b = fmt.Appendf(b, `\u%04x`, r)
+			out = fmt.Appendf(out, `\u%04x`, r)
 		}
+		encoded = encoded[size:]
 	}
-	return append(b, '"')
+	return out
 }

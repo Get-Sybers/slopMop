@@ -33,7 +33,7 @@ func encode(t Table, o Options) ([]byte, error) {
 	case o.Quiet:
 		return quiet(t, o), nil
 	case o.View == JSON:
-		return encodeJSON(t), nil
+		return encodeJSON(t)
 	default:
 		return grid(t, o)
 	}
