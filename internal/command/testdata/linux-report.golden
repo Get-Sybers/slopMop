@@ -1,0 +1,95 @@
+ITEM                                                       SECTION      VALUE   DETAIL
+files                                                      summary      11      -
+scripts                                                    summary      7       -
+outputs                                                    summary      4       -
+indicators                                                 summary      8       -
+indicators Domain                                          summary      1       -
+indicators IPv4                                            summary      4       -
+indicators URL                                             summary      3       -
+activities                                                 summary      26      -
+activities AccountCreation                                 summary      2       -
+activities ArchiveCreation                                 summary      1       -
+activities CloudMetadataAccess                             summary      1       -
+activities ClusterSecretRead                               summary      1       -
+activities ContainerEscape                                 summary      1       -
+activities CredentialFileRead                              summary      1       -
+activities FileUpload                                      summary      1       -
+activities FirewallDisabling                               summary      2       -
+activities HistoryClearing                                 summary      1       -
+activities HistoryDisabling                                summary      1       -
+activities LogDeletion                                     summary      1       -
+activities PrivateKeyRead                                  summary      1       -
+activities ReverseShell                                    summary      1       -
+activities ScheduledJobCreation                            summary      2       -
+activities SecurityToolDisabling                           summary      2       -
+activities ServiceDiscovery                                summary      1       -
+activities SetuidBit                                       summary      1       -
+activities SetuidFileSearch                                summary      1       -
+activities ShadowFileRead                                  summary      1       -
+activities ShellDownloadAndExecute                         summary      1       -
+activities ShellHistoryRead                                summary      1       -
+activities ShellProfilePersistence                         summary      1       -
+activities SshKeyPersistence                               summary      1       -
+activities SudoersModification                             summary      1       -
+activities SystemdUnitCreation                             summary      2       -
+activities Timestomp                                       summary      1       -
+tactics                                                    summary      11      -
+20261022_090000_step01_recon.sh                            script       high    CloudMetadataAccess
+20261022_090500_step02_creds.sh                            script       high    ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, ClusterSecretRead
+20261022_091000_step03_privesc.sh                          script       high    SudoersModification, SetuidBit, ContainerEscape
+20261022_091500_step04_persist.sh                          script       high    ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, useradd (Persistence)
+20261022_092000_step05_evade.sh                            script       high    LogDeletion, HistoryDisabling, SecurityToolDisabling, FirewallDisabling, iptables (DefenseImpairment)
+20261022_092500_step06_stage.sh                            script       high    FileUpload, ShellDownloadAndExecute, ssh (LateralMovement)
+20261022_093000_step07_channel.py                          script       high    ReverseShell, nc (Exfiltration)
+audit_20261022_093500.jsonl                                output       high    ScheduledJobCreation, AccountCreation, SecurityToolDisabling, FirewallDisabling, useradd (Persistence), iptables (DefenseImpairment)
+Privileged access obtained                                 impact       high    A principal was given a privileged role or permission, or a route to root on a host was opened. Treat what it governs as under attacker control until reviewed.
+Credentials exposed                                        impact       high    Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.
+Persistence established                                    impact       high    A way back in was created: a credential, an account, a key, a scheduled job, a service or a start-up entry. Access survives a password reset.
+Data collected                                             impact       high    Mail, chat, documents or files were gathered in bulk. Treat their content as disclosed.
+Data may have left the environment                         impact       high    A transfer out was run. Confirm what was sent and where.
+Outside hosts contacted                                    impact       high    Files or commands were fetched from, or a channel was opened to, hosts outside the environment. Affected: 198.51.100.7, 203.0.113.40, 203.0.113.41.
+Movement to other systems                                  impact       high    Tools that reach other systems were run. Hosts beyond this one may be affected.
+Defences and logging impaired                              impact       high    Logs were cleared or security tooling was interfered with. Records of this period are incomplete.
+Code run outside normal controls                           impact       medium  Code was run in ways that avoid application control and leave little on disk.
+Traces hidden                                              impact       medium  Files or history were removed or disguised. What is left on the host is incomplete.
+Commands generated by an AI agent                          impact       medium  The scripts were written by an AI agent, which is the premise of this tool. Generated commands differ from run to run, so a detection that matches exact text misses them.
+Environment mapped                                         impact       low     Identities, resources or configuration were listed. Later steps were probably aimed with the result.
+Revoke sessions and reset identities                       remediation  high    Revoke the sessions and tokens of every identity in the evidence and reset its credentials.
+Rotate what was read                                       remediation  high    Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.
+Remove persistence                                         remediation  high    Delete the scheduled jobs, services, accounts, keys and start-up entries that were created, and the files they start.
+Undo privilege changes on hosts                            remediation  high    Put sudo rules, file modes and container settings back to their approved state, and treat the host as held at root until rebuilt.
+Restore security tooling                                   remediation  high    Turn the stopped security services, audit rules and firewall back on, and confirm that each reports again.
+Block and hunt the infrastructure                          remediation  high    Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.
+Scope the data taken                                       remediation  high    Establish from audit logs which mailboxes, chats, sites and files were read or sent out, and assess that data as breached.
+Find the delivered files                                   remediation  medium  Collect the files that were downloaded, dropped or loaded, hash them, and search every host for the same hashes.
+Recover the missing logs                                   remediation  medium  Treat local logs as incomplete, and recover the period from a central collector or a backup.
+Follow what was enumerated                                 remediation  low     Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
+M1017 User Training                                        mitigation   high    User Training involves educating employees and contractors on recognizing, reporting, and preventing cyber threats that rely on human interaction, such as phishing, social engineering, and other manipulative techniques.
+M1018 User Account Management                              mitigation   high    User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.
+M1022 Restrict File and Directory Permissions              mitigation   high    Restricting file and directory permissions involves setting access controls at the file system level to limit which users, groups, or processes can read, write, or execute files.
+M1024 Restrict Registry Permissions                        mitigation   high    Restricting registry permissions involves configuring access control settings for sensitive registry keys and hives to ensure that only authorized users or processes can make modifications.
+M1026 Privileged Account Management                        mitigation   high    Privileged Account Management focuses on implementing policies, controls, and tools to securely manage privileged accounts (e.g., SYSTEM, root, or administrative accounts).
+M1027 Password Policies                                    mitigation   high    Set and enforce secure password policies for accounts to reduce the likelihood of unauthorized access.
+M1028 Operating System Configuration                       mitigation   high    Operating System Configuration involves adjusting system settings and hardening the default configurations of an operating system (OS) to mitigate adversary exploitation and prevent abuse of system functionality.
+M1029 Remote Data Storage                                  mitigation   high    Remote Data Storage focuses on moving critical data, such as security logs and sensitive files, to secure, off-host locations to minimize unauthorized access, tampering, or destruction by adversaries.
+M1030 Network Segmentation                                 mitigation   high    Network segmentation involves dividing a network into smaller, isolated segments to control and limit the flow of traffic between devices, systems, and applications.
+M1031 Network Intrusion Prevention                         mitigation   high    Use intrusion detection signatures to block traffic at network boundaries.
+M1032 Multi-factor Authentication                          mitigation   high    Multi-Factor Authentication (MFA) enhances security by requiring users to provide at least two forms of verification to prove their identity before granting access.
+M1033 Limit Software Installation                          mitigation   high    Prevent users or groups from installing unauthorized or unapproved software to reduce the risk of introducing malicious or vulnerable applications.
+M1035 Limit Access to Resource Over Network                mitigation   high    Restrict access to network resources, such as file shares, remote systems, and services, to only those users, accounts, or systems with a legitimate business requirement.
+M1037 Filter Network Traffic                               mitigation   high    Employ network appliances and endpoint software to filter ingress, egress, and lateral network traffic.
+M1038 Execution Prevention                                 mitigation   high    Prevent the execution of unauthorized or malicious code on systems by implementing application control, script blocking, and other execution prevention mechanisms.
+M1039 Environment Variable Permissions                     mitigation   high    Restrict the modification of environment variables to authorized users and processes by enforcing strict permissions and policies.
+M1041 Encrypt Sensitive Information                        mitigation   high    Protect sensitive information at rest, in transit, and during processing by using strong encryption algorithms.
+M1042 Disable or Remove Feature or Program                 mitigation   high    Disable or remove unnecessary and potentially vulnerable software, features, or services to reduce the attack surface and prevent abuse by adversaries.
+M1047 Audit                                                mitigation   high    Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.
+M1048 Application Isolation and Sandboxing                 mitigation   high    Application Isolation and Sandboxing refers to the technique of restricting the execution of code to a controlled and isolated environment (e.g., a virtual environment, container, or sandbox).
+M1051 Update Software                                      mitigation   high    Software updates ensure systems are protected against known vulnerabilities by applying patches and upgrades provided by vendors.
+M1054 Software Configuration                               mitigation   high    Software configuration refers to making security-focused adjustments to the settings of applications, middleware, databases, or other software to mitigate potential threats.
+M1057 Data Loss Prevention                                 mitigation   high    Data Loss Prevention (DLP) involves implementing strategies and technologies to identify, categorize, monitor, and control the movement of sensitive data within an organization.
+AML.M0005 Control Access to AI Models and Data at Rest     mitigation   high    Establish access controls on internal model registries and limit internal access to production models.
+AML.M0011 Restrict Library Loading                         mitigation   high    Prevent abuse of library loading mechanisms in the operating system and software to load untrusted code by configuring appropriate library loading mechanisms and investigating potential vulnerable software.
+AML.M0013 Code Signing                                     mitigation   high    Enforce binary and application integrity with digital signature verification to prevent untrusted code from executing.
+AML.M0043 AI Agent External Resource Lifecycle Management  mitigation   high    Organizations should control external resources created or acquired by AI agents during execution by treating those resources as attributable, lifecycle-managed assets.
+AML.M0020 Generative AI Guardrails                         mitigation   medium  Guardrails are safety controls placed between users, tools, and generative AI models to evaluate prompts, retrieved context, model outputs, and agent actions before they are accepted, executed, or shown to a user.
+AML.M0022 Generative AI Model Alignment                    mitigation   medium  Generative AI Model Alignment is the process of training or fine-tuning a generative model to guide its output toward a set of human values, goals, or ethical principles.

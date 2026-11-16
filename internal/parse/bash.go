@@ -19,6 +19,7 @@ var (
 		"xargs": true, "exec": true, "command": true,
 		"proxychains": true, "proxychains4": true, "torsocks": true,
 		"stdbuf": true, "nice": true, "sshpass": true,
+		"doas": true, "setsid": true, "watch": true, "ionice": true,
 	}
 	noise = map[string]bool{
 		"echo": true, "printf": true, "cd": true, "set": true,
@@ -308,30 +309,233 @@ func extractSubstitutions(line string) []string {
 }
 
 func extractBashCommands(line string, lineNo int, s *Script) {
+	bashCommands(line, lineNo, 0, s)
+}
+
+// bashCommands records the commands of a line and of the commands they
+// launch: a subshell, a command substitution, a string handed to a shell.
+func bashCommands(line string, lineNo, depth int, s *Script) {
+	if depth > maxNesting {
+		return
+	}
 	for _, seg := range splitSegments(line) {
 		seg = strings.TrimSpace(seg)
+		if inner, ok := unwrapGroup(seg); ok {
+			bashCommands(inner, lineNo, depth+1, s)
+			continue
+		}
 		if seg == "" {
 			continue
 		}
-		words := shellWords(seg)
-		tool := findTool(words)
-		if tool == "" {
-			continue
+		masked, inners := substitutions(seg)
+		words := shellWords(masked)
+		if tool, at := findToolAt(words); tool != "" {
+			s.Commands = append(s.Commands, Command{Line: lineNo, Tool: tool, Text: truncate(seg)})
+			bashLaunched(tool, words[at+1:], lineNo, depth, s)
 		}
-		s.Commands = append(s.Commands, Command{
-			Line: lineNo,
-			Tool: tool,
-			Text: truncate(seg),
-		})
+		for _, inner := range inners {
+			bashCommands(inner, lineNo, depth+1, s)
+		}
 	}
 }
 
-func findTool(words []string) string {
-	// The words of "for NAME in LIST" are data, not a command.
-	if len(words) > 0 && (words[0] == "for" || words[0] == "select") {
+// unwrapGroup returns what a subshell "( ... )" or a group "{ ...; }" holds;
+// a redirection may follow the closing bracket.
+func unwrapGroup(seg string) (string, bool) {
+	switch {
+	case len(seg) >= 2 && seg[0] == '(' && seg[1] != '(':
+		if end := strings.LastIndexByte(seg, ')'); end > 0 {
+			return seg[1:end], true
+		}
+	case strings.HasPrefix(seg, "{ "):
+		if end := strings.LastIndexByte(seg, '}'); end > 0 {
+			return strings.TrimRight(strings.TrimSpace(seg[1:end]), ";"), true
+		}
+	}
+	return "", false
+}
+
+// substitutions returns the commands a segment runs for their output: the
+// inside of each $( ... ) and of each pair of backticks, outside single quotes.
+// masked is the segment with each one cut down to "$_", so no word of it is read as a tool.
+func substitutions(seg string) (masked string, found []string) {
+	var b strings.Builder
+	inSingle, from := false, 0
+	cut := func(start, end int) {
+		b.WriteString(seg[from:start])
+		b.WriteString("$_")
+		from = end
+	}
+	for i := 0; i < len(seg); i++ {
+		switch c := seg[i]; {
+		case c == '\\':
+			i++
+		case c == '\'':
+			inSingle = !inSingle
+		case inSingle:
+		case c == '`':
+			if end := strings.IndexByte(seg[i+1:], '`'); end >= 0 {
+				found = append(found, seg[i+1:i+1+end])
+				cut(i, i+end+2)
+				i += end + 1
+			}
+		case c == '$' && i+2 < len(seg) && seg[i+1] == '(' && seg[i+2] != '(':
+			depth, j := 1, i+2
+			for ; j < len(seg) && depth > 0; j++ {
+				switch seg[j] {
+				case '(':
+					depth++
+				case ')':
+					depth--
+				}
+			}
+			if depth == 0 {
+				found = append(found, seg[i+2:j-1])
+				cut(i, j)
+				i = j - 1
+			}
+		}
+	}
+	if len(found) == 0 {
+		return seg, nil
+	}
+	b.WriteString(seg[from:])
+	return b.String(), found
+}
+
+//nolint:gochecknoglobals // constant lookup tables for the bash lexer
+var (
+	shells = map[string]bool{"sh": true, "bash": true, "zsh": true, "dash": true, "ksh": true, "ash": true, "su": true}
+	// sshValueFlags are the ssh options that take a value, which is not the host.
+	sshValueFlags = map[string]bool{
+		"-b": true, "-c": true, "-D": true, "-E": true, "-e": true, "-F": true, "-I": true, "-i": true,
+		"-J": true, "-L": true, "-l": true, "-m": true, "-O": true, "-o": true, "-p": true, "-Q": true,
+		"-R": true, "-S": true, "-W": true, "-w": true,
+	}
+	rxShellFlagC = regexp.MustCompile(`^-[A-Za-z]*c$`)
+)
+
+// bashLaunched follows a command that names another command to run.
+func bashLaunched(tool string, args []string, lineNo, depth int, s *Script) {
+	after := func(match func(string) bool) string {
+		for i, a := range args {
+			if match(a) && i+1 < len(args) {
+				return stripQuotes(args[i+1])
+			}
+		}
 		return ""
 	}
-	for _, w := range words {
+	switch {
+	case shells[tool]:
+		bashCommands(after(rxShellFlagC.MatchString), lineNo, depth+1, s)
+	case tool == "eval":
+		bashCommands(unquoted(args), lineNo, depth+1, s)
+	case tool == "ssh":
+		bashCommands(remoteCommand(args), lineNo, depth+1, s)
+	case tool == "find":
+		for i, a := range args {
+			if a == "-exec" || a == "-execdir" || a == "-ok" || a == "-okdir" {
+				bashCommands(untilTerminator(args[i+1:]), lineNo, depth+1, s)
+			}
+		}
+	case tool == "kubectl" || tool == "docker" || tool == "podman":
+		bashCommands(containerCommand(args), lineNo, depth+1, s)
+	case strings.HasPrefix(tool, "python"):
+		if code := after(func(a string) bool { return a == "-c" }); code != "" {
+			inline := ExtractPython(statements(code))
+			for _, c := range inline.Commands {
+				c.Line = lineNo
+				s.Commands = append(s.Commands, c)
+			}
+		}
+	}
+}
+
+// statements puts each statement of one line of Python on a line of its
+// own: the code after -c is often written with semicolons.
+func statements(code string) string {
+	out := []byte(code)
+	var quote byte
+	for i, c := range out {
+		switch {
+		case quote != 0:
+			if c == quote {
+				quote = 0
+			}
+		case c == '"' || c == '\'':
+			quote = c
+		case c == ';':
+			out[i] = '\n'
+		}
+	}
+	return string(out)
+}
+
+func unquoted(words []string) string {
+	plain := make([]string, len(words))
+	for i, w := range words {
+		plain[i] = stripQuotes(w)
+	}
+	return strings.Join(plain, " ")
+}
+
+// remoteCommand returns what ssh is asked to run: the words after the host.
+func remoteCommand(args []string) string {
+	for i := 0; i < len(args); i++ {
+		switch {
+		case sshValueFlags[args[i]]:
+			i++
+		case strings.HasPrefix(args[i], "-"):
+		default:
+			return unquoted(args[i+1:])
+		}
+	}
+	return ""
+}
+
+// untilTerminator returns the command find runs, up to its ";" or "+".
+func untilTerminator(args []string) string {
+	for i, a := range args {
+		if a == ";" || a == "+" {
+			return unquoted(args[:i])
+		}
+	}
+	return unquoted(args)
+}
+
+// containerCommand returns the command run inside a container: what
+// follows "--", or what follows the container of "exec".
+func containerCommand(args []string) string {
+	for i, a := range args {
+		if a == "--" {
+			return unquoted(args[i+1:])
+		}
+	}
+	for i, a := range args {
+		if a != "exec" {
+			continue
+		}
+		for j := i + 1; j < len(args); j++ {
+			if !strings.HasPrefix(args[j], "-") {
+				return unquoted(args[j+1:])
+			}
+		}
+	}
+	return ""
+}
+
+func findTool(words []string) string {
+	tool, _ := findToolAt(words)
+	return tool
+}
+
+// findToolAt returns the command a list of words runs and its position.
+func findToolAt(words []string) (string, int) {
+	// The words of "for NAME in LIST" are data, not a command.
+	if len(words) > 0 && (words[0] == "for" || words[0] == "select") {
+		return "", 0
+	}
+	for i, w := range words {
 		if rxAssign.MatchString(w) {
 			continue
 		}
@@ -354,14 +558,14 @@ func findTool(words []string) string {
 			continue
 		}
 		if noise[name] {
-			return ""
+			return "", 0
 		}
 		if wrappers[name] {
 			continue
 		}
-		return name
+		return name, i
 	}
-	return ""
+	return "", 0
 }
 
 func hasLetter(s string) bool {

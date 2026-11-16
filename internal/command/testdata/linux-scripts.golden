@@ -1,0 +1,8 @@
+NAME                               ROLE    SIZE   LINES  MODIFIED
+20261022_090000_step01_recon.sh    script  245 B  7      2026-10-22T09:00:03Z
+20261022_090500_step02_creds.sh    script  202 B  7      2026-10-22T09:05:03Z
+20261022_091000_step03_privesc.sh  script  138 B  6      2026-10-22T09:10:03Z
+20261022_091500_step04_persist.sh  script  249 B  8      2026-10-22T09:15:03Z
+20261022_092000_step05_evade.sh    script  146 B  8      2026-10-22T09:20:03Z
+20261022_092500_step06_stage.sh    script  278 B  8      2026-10-22T09:25:03Z
+20261022_093000_step07_channel.py  script  191 B  8      2026-10-22T09:30:03Z

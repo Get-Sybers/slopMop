@@ -154,11 +154,15 @@ func decodePayloads(text string) (parse.Script, string) {
 			for _, p := range parse.Decoded(t) {
 				extra = append(extra, p.Text)
 				next = append(next, p.Text)
-				if p.Script {
-					s := parse.ExtractPowerShell(p.Text)
-					hidden.Commands = append(hidden.Commands, s.Commands...)
-					hidden.Transforms = append(hidden.Transforms, s.Transforms...)
+				var s parse.Script
+				switch p.Shell {
+				case parse.PowerShell:
+					s = parse.ExtractPowerShell(p.Text)
+				case parse.POSIX:
+					s = parse.ExtractBash(p.Text)
 				}
+				hidden.Commands = append(hidden.Commands, s.Commands...)
+				hidden.Transforms = append(hidden.Transforms, s.Transforms...)
 			}
 		}
 		layer = next

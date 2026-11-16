@@ -6,7 +6,8 @@
   ],
   "command_fields": ["command", "commands", "cmd", "cmds", "cmdline", "commandline", "argv", "exec",
                      "shellcommand", "bashcommand", "powershellcommand", "processcommandline",
-                     "parentcommandline", "initiatingprocesscommandline"],
+                     "parentcommandline", "initiatingprocesscommandline",
+                     "proccmdline", "procpcmdline", "proctitle"],
   "command_elements": ["code", "kbd"],
   "verbatim_elements": ["script"],
   "dropped_elements": ["style"]

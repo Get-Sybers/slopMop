@@ -230,8 +230,7 @@
         "(?i)\\.Download(?:String|Data)\\(.*\\|\\s*(?:iex|invoke-expression)\\b",
         "(?i)\\b(?:invoke-webrequest|invoke-restmethod)\\b.*\\|\\s*(?:iex|invoke-expression)\\b",
         "(?i)\\biwr\\b.*\\|\\s*(?:iex|invoke-expression)\\b",
-        "(?i)\\birm\\b.*\\|\\s*(?:iex|invoke-expression)\\b",
-        "(?i)\\b(?:curl|wget)(?:\\.exe)?\\b.*\\|\\s*(?:sudo\\s+)?(?:ba|z|da)?sh\\b"
+        "(?i)\\birm\\b.*\\|\\s*(?:iex|invoke-expression)\\b"
       ]
     },
     {
@@ -396,6 +395,294 @@
         "(?i)\\bDirectoryServices\\.(?:DirectorySearcher|DirectoryEntry)\\b",
         "(?i)\\[adsi(?:searcher)?\\]",
         "(?i)\\bManagementObjectSearcher\\b"
+      ]
+    },
+    {
+      "name": "ScheduledJobCreation",
+      "tactics": ["Persistence", "Execution"],
+      "attack": ["T1053.003", "T1053.002", "T1053.006"],
+      "patterns": [
+        "\\bcrontab\\s+(?:-u\\s+\\S+\\s+)?(?:-(?:\\s|$)|[^\\s-])",
+        "\\bcrontab\\s+(?:-u\\s+\\S+\\s+)?-e\\b",
+        "(?:>>?\\s*|\\btee\\b.*\\s|\\bcp\\b.*\\s|\\bmv\\b.*\\s|\\binstall\\b.*\\s|\\bsed\\s+-i\\b.*\\s)\\S*(?:/etc/cron(?:tab\\b|\\.d/|\\.(?:hourly|daily|weekly|monthly)/)|/var/spool/cron/)",
+        "\\bat\\s+now\\b",
+        "\\bsystemd-run\\b.*--on-(?:calendar|boot|active|unit-active)\\b",
+        "\\bsystemctl\\b.*\\benable\\b.*\\.timer\\b"
+      ]
+    },
+    {
+      "name": "SystemdUnitCreation",
+      "tactics": ["Persistence", "PrivilegeEscalation"],
+      "attack": ["T1543.002"],
+      "patterns": [
+        "(?:>>?\\s*|\\btee\\b.*\\s|\\bcp\\b.*\\s|\\bmv\\b.*\\s|\\binstall\\b.*\\s|\\bsed\\s+-i\\b.*\\s)\\S*(?:/etc/systemd/system/|/usr/lib/systemd/system/|/lib/systemd/system/|\\.config/systemd/user/)\\S+\\.service\\b",
+        "\\bsystemctl\\b.*\\b(?:enable|link)\\b"
+      ],
+      "unless": "\\.timer\\b"
+    },
+    {
+      "name": "AccountCreation",
+      "tactics": ["Persistence"],
+      "attack": ["T1136.001"],
+      "patterns": [
+        "\\b(?:useradd|adduser)\\s+\\S",
+        "(?i)\\bnet(?:\\.exe)?\\s+user\\s+\\S+.*\\s/add\\b",
+        "(?i)\\bnew-localuser\\b"
+      ]
+    },
+    {
+      "name": "SshKeyPersistence",
+      "tactics": ["Persistence"],
+      "attack": ["T1098.004"],
+      "patterns": [
+        "(?:>>?\\s*|\\btee\\b.*\\s|\\bcp\\b.*\\s|\\bmv\\b.*\\s|\\binstall\\b.*\\s|\\bsed\\s+-i\\b.*\\s)\\S*authorized_keys2?\\b",
+        "\\bssh-copy-id\\b"
+      ]
+    },
+    {
+      "name": "ShellProfilePersistence",
+      "tactics": ["Persistence"],
+      "attack": ["T1546.004"],
+      "patterns": [
+        "(?:>>?\\s*|\\btee\\b.*\\s|\\bcp\\b.*\\s|\\bmv\\b.*\\s|\\binstall\\b.*\\s|\\bsed\\s+-i\\b.*\\s)\\S*(?:\\.bashrc|\\.bash_profile|\\.bash_login|\\.zshrc|\\.zprofile|/etc/profile\\.d/\\S+|/etc/bash\\.bashrc)\\b",
+        "(?:>>?\\s*|\\btee\\b.*\\s|\\bcp\\b.*\\s|\\bmv\\b.*\\s|\\binstall\\b.*\\s|\\bsed\\s+-i\\b.*\\s)\\S*(?:~|\\$HOME|/home/\\S+|/root)/\\.profile\\b"
+      ]
+    },
+    {
+      "name": "SudoersModification",
+      "tactics": ["PrivilegeEscalation"],
+      "attack": ["T1548.003"],
+      "patterns": [
+        "(?:>>?\\s*|\\btee\\b.*\\s|\\bcp\\b.*\\s|\\bmv\\b.*\\s|\\binstall\\b.*\\s|\\bsed\\s+-i\\b.*\\s)\\S*/etc/sudoers(?:\\.d/\\S*)?",
+        "\\bNOPASSWD\\s*:"
+      ]
+    },
+    {
+      "name": "SetuidBit",
+      "tactics": ["PrivilegeEscalation"],
+      "attack": ["T1548.001"],
+      "patterns": [
+        "\\bchmod\\s+(?:-\\S+\\s+)*(?:[ugoa]*\\+[rwx]*s[rwx]*|[2467][0-7]{3})\\s"
+      ]
+    },
+    {
+      "name": "ContainerEscape",
+      "tactics": ["PrivilegeEscalation"],
+      "attack": ["T1611"],
+      "patterns": [
+        "\\b(?:docker|podman)\\b.*\\s--privileged\\b",
+        "\\b(?:docker|podman)\\b.*\\s(?:-v|--volume)[\\s=]+/:/",
+        "\\bnsenter\\b.*(?:-t\\s*1|--target[\\s=]+1)\\b",
+        "/var/run/docker\\.sock\\b"
+      ]
+    },
+    {
+      "name": "KernelModuleLoad",
+      "tactics": ["Persistence", "PrivilegeEscalation"],
+      "attack": ["T1547.006"],
+      "patterns": [
+        "\\binsmod\\s+\\S",
+        "\\bmodprobe\\s+[^-\\s]"
+      ]
+    },
+    {
+      "name": "DynamicLinkerHijack",
+      "tactics": ["Stealth", "Execution"],
+      "attack": ["T1574.006"],
+      "patterns": [
+        "\\bLD_PRELOAD=\\S",
+        "/etc/ld\\.so\\.preload\\b"
+      ]
+    },
+    {
+      "name": "SetuidFileSearch",
+      "tactics": ["Discovery"],
+      "attack": ["T1083"],
+      "patterns": [
+        "\\bfind\\b.*-perm\\s+[-/]?(?:[0-7]?[2467][0-7]{3}|[ug]=s)\\b"
+      ]
+    },
+    {
+      "name": "ShadowFileRead",
+      "tactics": ["CredentialAccess"],
+      "attack": ["T1003.008"],
+      "patterns": [
+        "/etc/shadow\\b",
+        "\\bunshadow\\b"
+      ]
+    },
+    {
+      "name": "PrivateKeyRead",
+      "tactics": ["CredentialAccess"],
+      "attack": ["T1552.004"],
+      "patterns": [
+        "\\.ssh/id_(?:rsa|dsa|ecdsa|ed25519)\\b",
+        "/etc/ssh/ssh_host_\\w+_key\\b"
+      ],
+      "unless": "\\.pub\\b|\\bssh-keygen\\b"
+    },
+    {
+      "name": "CredentialFileRead",
+      "tactics": ["CredentialAccess"],
+      "attack": ["T1552.001"],
+      "patterns": [
+        "\\.aws/credentials\\b",
+        "\\.config/gcloud/(?:credentials\\.db|access_tokens\\.db|application_default_credentials\\.json)\\b",
+        "\\.azure/(?:accessTokens\\.json|msal_token_cache\\S*)",
+        "\\.kube/config\\b",
+        "\\.docker/config\\.json\\b",
+        "\\.(?:git-credentials|netrc|pgpass)\\b"
+      ]
+    },
+    {
+      "name": "ShellHistoryRead",
+      "tactics": ["CredentialAccess"],
+      "attack": ["T1552.003"],
+      "patterns": [
+        "\\b(?:cat|grep|strings|less|tail|head|cp|awk)\\b.*\\.(?:bash|zsh|mysql|psql|python)_history\\b"
+      ],
+      "unless": ">\\s*\\S*_history\\b"
+    },
+    {
+      "name": "CloudMetadataAccess",
+      "tactics": ["CredentialAccess"],
+      "attack": ["T1552.005"],
+      "patterns": [
+        "\\b169\\.254\\.169\\.254\\b",
+        "\\bmetadata\\.google\\.internal\\b"
+      ]
+    },
+    {
+      "name": "ProcessMemoryDump",
+      "tactics": ["CredentialAccess"],
+      "attack": ["T1003.007"],
+      "patterns": [
+        "\\bgcore\\s",
+        "/proc/[^/\\s]+/(?:mem|maps)\\b"
+      ]
+    },
+    {
+      "name": "ClusterSecretRead",
+      "tactics": ["CredentialAccess"],
+      "attack": ["T1552.007"],
+      "patterns": [
+        "\\bkubectl\\b.*\\bget\\b.*\\bsecrets?\\b",
+        "/var/run/secrets/kubernetes\\.io/serviceaccount/token\\b",
+        "/api/v1/(?:namespaces/[^/\\s]+/)?secrets\\b"
+      ]
+    },
+    {
+      "name": "LogDeletion",
+      "tactics": ["DefenseImpairment"],
+      "attack": ["T1685.006"],
+      "patterns": [
+        "\\b(?:rm|shred|truncate|unlink)\\b.*/var/log/",
+        ">\\s*/var/log/\\S",
+        "\\bjournalctl\\b.*--(?:vacuum-(?:time|size|files)|rotate)\\b"
+      ]
+    },
+    {
+      "name": "HistoryClearing",
+      "tactics": ["Stealth"],
+      "attack": ["T1070.003"],
+      "patterns": [
+        "\\bhistory\\s+-[cw]\\b",
+        "\\b(?:rm|shred|truncate)\\b.*_history\\b",
+        ">\\s*\\S*_history\\b",
+        "\\bln\\s+-sf?\\s+/dev/null\\s+\\S*_history\\b"
+      ]
+    },
+    {
+      "name": "HistoryDisabling",
+      "tactics": ["DefenseImpairment"],
+      "attack": ["T1690"],
+      "patterns": [
+        "\\bunset\\s+HISTFILE\\b",
+        "\\bHISTFILE=/dev/null\\b",
+        "\\bHIST(?:FILE)?SIZE=0\\b",
+        "\\bset\\s+\\+o\\s+history\\b"
+      ]
+    },
+    {
+      "name": "SecurityToolDisabling",
+      "tactics": ["DefenseImpairment"],
+      "attack": ["T1685", "T1685.004"],
+      "patterns": [
+        "\\bsetenforce\\s+(?:0|[Pp]ermissive)\\b",
+        "\\bsystemctl\\b.*\\b(?:stop|disable|mask)\\b.*\\b(?:auditd|apparmor|falco\\S*|osqueryd|wazuh\\S*|falcon-sensor|clamav\\S*|rsyslog|syslog-ng)\\b",
+        "\\bservice\\s+(?:auditd|apparmor|falco\\S*|osqueryd|wazuh\\S*|falcon-sensor|clamav\\S*|rsyslog|syslog-ng)\\s+stop\\b",
+        "\\bauditctl\\s+-(?:e\\s*0|D)\\b",
+        "\\bp?kill(?:all)?\\b.*\\b(?:auditd|apparmor|falco\\S*|osqueryd|wazuh\\S*|falcon-sensor|clamav\\S*|rsyslog|syslog-ng)\\b"
+      ]
+    },
+    {
+      "name": "FirewallDisabling",
+      "tactics": ["DefenseImpairment"],
+      "attack": ["T1686"],
+      "patterns": [
+        "\\biptables\\b.*\\s-[FX]\\b",
+        "\\biptables\\b.*-P\\s+\\w+\\s+ACCEPT\\b",
+        "\\bufw\\s+disable\\b",
+        "\\bnft\\s+flush\\b",
+        "\\bsystemctl\\b.*\\b(?:stop|disable|mask)\\b.*\\b(?:firewalld|ufw|nftables)\\b",
+        "(?i)\\bset-netfirewallprofile\\b.*-enabled\\s+\\$?false\\b",
+        "(?i)\\bnetsh\\b.*firewall\\b.*\\bstate\\s+off\\b"
+      ]
+    },
+    {
+      "name": "Timestomp",
+      "tactics": ["Stealth"],
+      "attack": ["T1070.006"],
+      "patterns": [
+        "\\btouch\\b.*\\s-[rtd]\\s",
+        "\\btouch\\b.*--(?:reference|date)="
+      ]
+    },
+    {
+      "name": "ReverseShell",
+      "tactics": ["Execution", "CommandAndControl"],
+      "attack": ["T1059.004", "T1095"],
+      "patterns": [
+        "/dev/(?:tcp|udp)/\\S",
+        "\\b(?:ncat|netcat)\\b.*\\s-[ec]\\s",
+        "\\bnc\\b.*\\s-[ec]\\s+\\S*/bin/",
+        "\\bsocat\\b.*\\b(?:exec|system):",
+        "\\bpty\\.spawn\\("
+      ]
+    },
+    {
+      "name": "ArchiveCreation",
+      "tactics": ["Collection"],
+      "attack": ["T1560.001"],
+      "patterns": [
+        "\\btar\\s+-?[A-Za-z]*c[A-Za-z]*\\s",
+        "\\btar\\b.*\\s--create\\b",
+        "\\bzip\\s+(?:-\\S+\\s+)*\\S+\\.zip\\b",
+        "\\b7za?\\s+a\\s+(?:-\\S+\\s+)*\\S+\\.7z\\b",
+        "(?i)\\bcompress-archive\\b"
+      ]
+    },
+    {
+      "name": "ServiceDiscovery",
+      "tactics": ["Discovery"],
+      "attack": ["T1007"],
+      "patterns": [
+        "\\bsystemctl\\b.*\\b(?:status|list-units|list-unit-files|is-active|is-enabled)\\b",
+        "\\bservice\\s+--status-all\\b",
+        "(?i)\\bsc(?:\\.exe)?\\s+query\\b"
+      ]
+    },
+    {
+      "name": "ShellDownloadAndExecute",
+      "tactics": ["Execution", "CommandAndControl"],
+      "attack": ["T1059.004", "T1105"],
+      "atlas": ["AML.T0072"],
+      "patterns": [
+        "(?i)\\b(?:curl|wget)(?:\\.exe)?\\b.*\\|\\s*(?:sudo\\s+)?(?:ba|z|da)?sh\\b",
+        "(?i)\\b(?:curl|wget)\\b.*\\|\\s*(?:sudo\\s+)?(?:python[23]?|perl)\\b",
+        "(?i)sh\\s+-c\\s+[\\\"']?\\$\\(\\s*(?:curl|wget)\\b",
+        "(?i)sh\\s+<\\(\\s*(?:curl|wget)\\b",
+        "(?i)\\b(?:source|eval)\\s+[\\\"']?[<$]\\(\\s*(?:curl|wget)\\b"
       ]
     }
   ]

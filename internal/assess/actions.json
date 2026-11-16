@@ -23,21 +23,33 @@
     "name": "Rotate what was read",
     "priority": "high",
     "action": "Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.",
-    "activities": ["KeyVaultSecretRead", "KeyVaultKeyUnwrap", "LsassDump", "RegistryHiveDump", "CertificateExport"],
+    "activities": ["KeyVaultSecretRead", "KeyVaultKeyUnwrap", "LsassDump", "RegistryHiveDump", "CertificateExport", "ShadowFileRead", "PrivateKeyRead", "CredentialFileRead", "ShellHistoryRead", "CloudMetadataAccess", "ProcessMemoryDump", "ClusterSecretRead"],
     "tactics": ["CredentialAccess"]
   },
   {
     "name": "Remove persistence",
     "priority": "high",
-    "action": "Delete the run keys, scheduled tasks, services and accounts that were created, and the files they start.",
-    "activities": ["RunKeyPersistence", "ScheduledTaskCreation", "ServiceCreation"],
+    "action": "Delete the scheduled jobs, services, accounts, keys and start-up entries that were created, and the files they start.",
+    "activities": ["RunKeyPersistence", "ScheduledTaskCreation", "ServiceCreation", "ScheduledJobCreation", "SystemdUnitCreation", "AccountCreation", "SshKeyPersistence", "ShellProfilePersistence", "KernelModuleLoad", "DynamicLinkerHijack"],
     "tactics": ["Persistence"]
+  },
+  {
+    "name": "Undo privilege changes on hosts",
+    "priority": "high",
+    "action": "Put sudo rules, file modes and container settings back to their approved state, and treat the host as held at root until rebuilt.",
+    "activities": ["SudoersModification", "SetuidBit", "ContainerEscape"]
+  },
+  {
+    "name": "Restore security tooling",
+    "priority": "high",
+    "action": "Turn the stopped security services, audit rules and firewall back on, and confirm that each reports again.",
+    "activities": ["SecurityToolDisabling", "FirewallDisabling"]
   },
   {
     "name": "Block and hunt the infrastructure",
     "priority": "high",
     "action": "Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.",
-    "activities": ["FileDownload", "DownloadAndExecute", "NetworkSocket", "FileUpload"],
+    "activities": ["FileDownload", "DownloadAndExecute", "ShellDownloadAndExecute", "NetworkSocket", "FileUpload", "ReverseShell"],
     "tactics": ["CommandAndControl"],
     "watchlist": true
   },
@@ -45,7 +57,7 @@
     "name": "Scope the data taken",
     "priority": "high",
     "action": "Establish from audit logs which mailboxes, chats, sites and files were read or sent out, and assess that data as breached.",
-    "activities": ["MailboxAccess", "TeamsMessageAccess", "SharePointEnumeration", "FileUpload"],
+    "activities": ["MailboxAccess", "TeamsMessageAccess", "SharePointEnumeration", "FileUpload", "ArchiveCreation"],
     "tactics": ["Collection", "Exfiltration"]
   },
   {
@@ -58,20 +70,20 @@
     "name": "Find the delivered files",
     "priority": "medium",
     "action": "Collect the files that were downloaded, dropped or loaded, hash them, and search every host for the same hashes.",
-    "activities": ["FileDownload", "DownloadAndExecute", "ReflectiveCodeLoading", "SignedBinaryProxyExecution", "RuntimeCompilation", "NativeApiCall", "ProcessStart"]
+    "activities": ["FileDownload", "DownloadAndExecute", "ShellDownloadAndExecute", "ReflectiveCodeLoading", "SignedBinaryProxyExecution", "RuntimeCompilation", "NativeApiCall", "ProcessStart"]
   },
   {
     "name": "Recover the missing logs",
     "priority": "medium",
     "action": "Treat local logs as incomplete, and recover the period from a central collector or a backup.",
-    "activities": ["EventLogClearing", "AmsiBypass"],
+    "activities": ["EventLogClearing", "AmsiBypass", "LogDeletion", "HistoryClearing", "HistoryDisabling", "Timestomp"],
     "tactics": ["DefenseImpairment", "Stealth"]
   },
   {
     "name": "Follow what was enumerated",
     "priority": "low",
     "action": "Use what was listed to predict targets: check those identities, vaults and hosts for later activity.",
-    "activities": ["GraphDirectoryEnumeration", "AzureResourceEnumeration", "KeyVaultKeyEnumeration", "DirectorySearch", "RegistryQuery"],
+    "activities": ["GraphDirectoryEnumeration", "AzureResourceEnumeration", "KeyVaultKeyEnumeration", "DirectorySearch", "RegistryQuery", "SetuidFileSearch", "ServiceDiscovery"],
     "tactics": ["Discovery"]
   }
 ]

@@ -1,0 +1,4 @@
+/usr/bin/passwd
+/usr/bin/sudo
+/usr/bin/mount
+/usr/bin/su

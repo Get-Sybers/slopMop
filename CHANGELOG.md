@@ -6,6 +6,49 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Added
+
+- Linux activities, each with its ATT&CK techniques, an impact and a remediation:
+  `ScheduledJobCreation`, `SystemdUnitCreation`, `AccountCreation`, `SshKeyPersistence`,
+  `ShellProfilePersistence`, `KernelModuleLoad`, `DynamicLinkerHijack`, `SudoersModification`,
+  `SetuidBit`, `ContainerEscape`, `SetuidFileSearch`, `ServiceDiscovery`, `ShadowFileRead`,
+  `PrivateKeyRead`, `CredentialFileRead`, `ShellHistoryRead`, `CloudMetadataAccess`,
+  `ProcessMemoryDump`, `ClusterSecretRead`, `LogDeletion`, `HistoryClearing`, `HistoryDisabling`,
+  `SecurityToolDisabling`, `FirewallDisabling`, `Timestomp`, `ReverseShell`, `ArchiveCreation`
+  and `ShellDownloadAndExecute`. `AccountCreation`, `FirewallDisabling`, `ServiceDiscovery` and
+  `ArchiveCreation` also recognise the Windows commands.
+- The shell parser follows a command that launches another, four levels deep: the string after
+  `-c` of a shell or `su`, `eval`, the remote command of `ssh`, `find -exec`, `kubectl exec`,
+  `docker exec`, `podman exec` and `python -c`.
+- The shell parser reads the commands inside `$( ... )`, backticks, a subshell and a group.
+- Encoded payloads: a Base64 literal that `echo`, `printf` or a here-string feeds to `base64 -d`,
+  and one handed to the Python `b64decode`. A payload piped on into a shell is parsed as shell
+  commands.
+- Command fields of Falco and auditd records in a structured output: `proc.cmdline`,
+  `proc.pcmdline` and `proctitle`.
+- Wrappers `doas`, `setsid`, `watch` and `ionice`: the command behind one is the tool.
+- Remediations `Undo privilege changes on hosts` and `Restore security tooling`.
+- Fixture `linux`: a run on a Linux host in shell and Python with an audit log.
+
+### Changed
+
+- `systemctl`, `chmod`, `crontab`, `history` and `tar` have no tactic by name. The activity on the
+  line gives one, so `systemctl status`, `crontab -l` and `tar x` no longer claim Persistence,
+  Stealth or Collection.
+- `curl` or `wget` piped to a shell is `ShellDownloadAndExecute`, with ATT&CK T1059.004, and no
+  longer `DownloadAndExecute`, which names the PowerShell technique.
+- The impacts `Privileged access obtained`, `Persistence established` and `Data collected` and the
+  remediation `Remove persistence` are worded to cover a host as well as a tenant.
+- The activity table of `docs/03-Architecture.md` states the ATT&CK techniques of each activity
+  and the tactics of ATT&CK 20.
+
+### Fixed
+
+- The first command of a subshell was recorded with its bracket, as `(crontab`, and the last
+  command of a group with its semicolon.
+- A command whose argument is a substitution, such as `bash -c "$(curl ...)"`, took the tail of
+  the address inside it for a tool.
+
 ## [0.3.0] - 2026-11-16
 
 ### Added

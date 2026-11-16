@@ -60,7 +60,7 @@
     "name": "20261015_093000_step05_vault.sh",
     "role": "script",
     "time": "20261015_093000",
-    "tools": "az, curl",
+    "tools": "az, cat, curl",
     "tactics": "Discovery, CredentialAccess",
     "transforms": null,
     "activities": "KeyVaultSecretRead, KeyVaultKeyUnwrap, KeyVaultKeyEnumeration, AzureResourceEnumeration",

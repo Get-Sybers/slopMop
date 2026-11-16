@@ -1,0 +1,4 @@
+{"time":"2026-10-22T09:15:02Z","rule":"cron job changed","output_fields":{"proc.cmdline":"crontab -","proc.pcmdline":"bash step04_persist.sh","user.name":"svc"}}
+{"time":"2026-10-22T09:15:06Z","rule":"account added","output_fields":{"proc.cmdline":"useradd -m -s /bin/bash svc","proc.pcmdline":"bash step04_persist.sh","user.name":"root"}}
+{"time":"2026-10-22T09:20:03Z","type":"PROCTITLE","proctitle":"systemctl stop auditd"}
+{"time":"2026-10-22T09:20:05Z","process":{"command_line":"iptables -F","parent":{"command_line":"bash step05_evade.sh"}}}

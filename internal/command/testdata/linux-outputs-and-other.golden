@@ -1,0 +1,5 @@
+NAME                         ROLE    SIZE  LINES  MODIFIED              SHA256                                                            NAME TIME        NOTE
+audit_20261022_093500.jsonl  output  549   4      2026-10-22T09:35:03Z  05acceda504b95ce8d295ec58dbffc26a4ce8ee55665bc82b8b8658c5b6924c1  20261022_093500  -
+meta_20261022_090040.txt     output  32    4      2026-10-22T09:00:43Z  36dd08647035bab7513d677c5ff217a9ecb36d49404139880ca56836213391da  20261022_090040  -
+shadow_20261022_090530.txt   output  72    3      2026-10-22T09:05:33Z  cf05bf90999e8e4f1fd07c1df5bfd142017d96c43e9511b3b6d7419fd9d03ef5  20261022_090530  -
+suid_20261022_090030.txt     output  57    4      2026-10-22T09:00:33Z  8b0da539fd48e8b72cf7a9f342204b6c37baeb82048290b6c62827e9c8a6fb3f  20261022_090030  -
