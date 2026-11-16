@@ -3,8 +3,9 @@
     {
       "name": "script",
       "summary": "a script the agent wrote",
-      "extensions": [".ps1", ".psm1", ".sh", ".bash"],
-      "shebangs": ["^#!\\s*\\S*(bash|/sh|zsh|dash|ksh)\\b", "^#![^\\n]*pwsh"]
+      "extensions": [".ps1", ".psm1", ".sh", ".bash", ".py"],
+      "shebangs": ["^#!\\s*\\S*(bash|/sh|zsh|dash|ksh)\\b", "^#![^\\n]*pwsh",
+                   "^#!\\s*\\S*/(env\\s+)?python[0-9.]*\\b"]
     },
     {
       "name": "output",

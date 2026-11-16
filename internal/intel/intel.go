@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/get-sybers/slopmop/internal/indicator"
@@ -136,3 +137,23 @@ func (w Watchlist) Match(indicators []indicator.Match) []Hit {
 
 // Len returns the number of entries in the watchlist.
 func (w Watchlist) Len() int { return len(w.entries) }
+
+// Campaign is one attribution and the number of watchlist entries that name it.
+type Campaign struct {
+	Attribution string
+	Entries     int
+}
+
+// Campaigns lists the distinct attributions, sorted by name.
+func (w Watchlist) Campaigns() []Campaign {
+	counts := map[string]int{}
+	for _, e := range w.entries {
+		counts[e.Attribution]++
+	}
+	campaigns := make([]Campaign, 0, len(counts))
+	for name, n := range counts {
+		campaigns = append(campaigns, Campaign{Attribution: name, Entries: n})
+	}
+	sort.Slice(campaigns, func(i, j int) bool { return campaigns[i].Attribution < campaigns[j].Attribution })
+	return campaigns
+}

@@ -24,6 +24,7 @@ type Step struct {
 	Transforms []string
 	Outputs    []string
 	Indicators int
+	Matches    []indicator.Match
 	IntelHits  []intel.Hit
 }
 
@@ -80,6 +81,7 @@ func Build(files []evidence.File, texts map[string]string, tables Tables) Timeli
 		if text := content[f.Path]; text != "" {
 			matches := tables.Patterns.Extract(text)
 			s.Indicators = len(matches)
+			s.Matches = matches
 			if tables.Watchlist != nil {
 				s.IntelHits = tables.Watchlist.Match(matches)
 			}
@@ -115,6 +117,9 @@ func parseScript(f evidence.File, text string) parse.Script {
 	if isPowerShell(f) {
 		return parse.ExtractPowerShell(text)
 	}
+	if isPython(f, text) {
+		return parse.ExtractPython(text)
+	}
 	return parse.ExtractBash(text)
 }
 
@@ -142,6 +147,14 @@ func parseReport(f evidence.File, text string, formats structured.Table) (parse.
 func isPowerShell(f evidence.File) bool {
 	lower := strings.ToLower(f.Path)
 	return strings.HasSuffix(lower, ".ps1") || strings.HasSuffix(lower, ".psm1")
+}
+
+func isPython(f evidence.File, text string) bool {
+	if strings.HasSuffix(strings.ToLower(f.Path), ".py") {
+		return true
+	}
+	first, _, _ := strings.Cut(text, "\n")
+	return strings.HasPrefix(first, "#!") && strings.Contains(first, "python")
 }
 
 func uniqueTools(cmds []parse.Command) []string {

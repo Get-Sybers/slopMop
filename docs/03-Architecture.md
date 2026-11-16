@@ -14,10 +14,10 @@ about evidence touch no file, and every static table is a data file validated at
 | `internal/inventory` | walks the input directory and builds one record per file; owns all evidence I/O |
 | `internal/evidence` | the file record and its vocabularies (role, note); no I/O |
 | `internal/nametime` | detects the timestamp written into a file name; no I/O |
-| `internal/parse` | extracts commands, variables and file references from bash and PowerShell scripts |
+| `internal/parse` | extracts commands, variables and file references from bash, PowerShell and Python scripts |
 | `internal/structured` | decodes JSON, XML and HTML reports into their text values and recorded commands using `formats.json` |
-| `internal/tactic` | classifies commands by MITRE ATT&CK tactic using `tactics.json` |
-| `internal/indicator` | extracts security indicators (IPs, URLs, hashes, CVEs) using `indicators.json` |
+| `internal/tactic` | classifies commands by MITRE ATT&CK tactic and ranks each tactic's severity using `tactics.json` |
+| `internal/indicator` | extracts security indicators (IPs, URLs, hashes, CVEs, GUIDs, Microsoft cloud endpoints, OAuth scopes) using `indicators.json` |
 | `internal/intel` | matches extracted indicators against an operator-supplied watchlist: a JSON array or a STIX 2.1 bundle |
 | `internal/trace` | reconstructs the timeline from scripts and outputs: ordering, tool extraction, tactic classification, indicator counting, output linking |
 | `internal/evidencetest` | embeds the fixtures and copies one into a temporary folder for a test |
@@ -39,7 +39,7 @@ cmd/slopmop -> command -> cli, render, trace -> parse, structured, tactic, intel
 | --- | --- | --- |
 | `internal/inventory/roles.json` | each role's summary, extensions and shebang patterns | the roles are `script`, `output`, `other` in that order; extensions are lower-case, dotted and in one role; patterns compile; `other` takes neither |
 | `internal/command/nouns.json` | nouns, verbs, aliases, summaries, columns | names and summaries present; columns pass the table check; every declared verb has an implementation and every implementation a declaration |
-| `internal/tactic/tactics.json` | MITRE ATT&CK tactics and the commands each claims | every tactic has a name and at least one command; no command appears in two tactics |
+| `internal/tactic/tactics.json` | MITRE ATT&CK tactics, the severity of each and the commands each claims | every tactic has a name, a severity of `low`, `medium` or `high` and at least one command; no command appears in two tactics |
 | `internal/indicator/indicators.json` | indicator types and their regex patterns | every entry has a type and a pattern; every pattern compiles |
 | `internal/structured/formats.json` | the extensions of each structured format, the field names that hold a command, and the HTML elements that hold a command, are kept verbatim or are dropped | the formats are `json`, `xml`, `html` in that order; extensions are lower-case, dotted and in one format; names are lower-case letters and digits, listed once, and an element is in one list |
 
@@ -53,8 +53,16 @@ standard output and standard error.
 
 - The input directory is opened as a root (`os.OpenRoot`) and every file is opened through it read-only, so
   no path leads outside the folder.
-- Only regular files directly in the folder are listed. Symbolic links, sub-folders and special
-  files are skipped without being opened. Hidden files are listed.
+- Only regular files are listed. Symbolic links and special files are skipped without being
+  opened. Hidden files are listed.
+- A read takes a depth. At depth 0 only the files directly in the folder are listed and sub-folders
+  are skipped. `--recursive` reads at `inventory.MaxDepth`, 16 levels of sub-folder. Each
+  sub-folder is opened through the same root. A symbolic link to a folder is not walked, so a walk
+  cannot loop or leave the folder.
+- A file's path is below the input directory and slash separated. Its role and file-name timestamp
+  come from the last element only.
+- A sub-folder below the depth, or one that cannot be read, is recorded in `Result.Skipped` and the
+  verb reports it as an error after the rows.
 - Each file is read once. That one pass feeds SHA-256, counts the bytes and keeps the bytes the text
   needs. A file over 64 MiB is hashed and noted `oversize`; its text is not kept.
 - A file that cannot be opened or read is listed with the note `unreadable`.

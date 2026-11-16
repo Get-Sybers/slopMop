@@ -10,6 +10,8 @@ type Script struct {
 	Writes     []string
 	Reads      []string
 	Transforms []Transform
+	// Imports holds the modules a Python script imports.
+	Imports []string
 }
 
 // Command is one tool invocation found in a script.

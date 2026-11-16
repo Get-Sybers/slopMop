@@ -1,0 +1,5 @@
+[
+  {"value": "10.20.1.5", "attribution": "STORM-0940"},
+  {"value": "transfer.example.net", "type": "Domain", "attribution": "STORM-0940"},
+  {"value": "203.0.113.9", "attribution": "APT-EXAMPLE"}
+]

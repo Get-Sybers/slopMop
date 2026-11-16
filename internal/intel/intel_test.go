@@ -197,3 +197,24 @@ func TestLoadWatchlistRejectsOtherObjects(t *testing.T) {
 		}
 	}
 }
+
+func TestCampaigns(t *testing.T) {
+	wl, err := LoadWatchlist([]byte(`[
+		{"value": "10.20.1.5", "attribution": "STORM-0940"},
+		{"value": "a.example.com", "attribution": "APT-EXAMPLE"},
+		{"value": "b.example.com", "attribution": "STORM-0940"}
+	]`))
+	if err != nil {
+		t.Fatalf("LoadWatchlist: %v", err)
+	}
+	want := []Campaign{{"APT-EXAMPLE", 1}, {"STORM-0940", 2}}
+	got := wl.Campaigns()
+	if len(got) != len(want) {
+		t.Fatalf("Campaigns = %v, want %v", got, want)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("Campaigns[%d] = %v, want %v", i, got[i], want[i])
+		}
+	}
+}

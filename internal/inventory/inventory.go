@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"sort"
 
 	"github.com/get-sybers/slopmop/internal/evidence"
@@ -18,25 +19,30 @@ var ErrNotFolder = errors.New("not a folder")
 
 const maxTextBytes = 64 << 20
 
-// Read lists the regular files directly in folder, sorted by path. It opens
-// files read-only through a root, so nothing outside the folder is reachable.
-func Read(folder string) ([]evidence.File, error) {
-	res, err := readAll(folder, maxTextBytes, false)
-	return res.Files, err
-}
+// MaxDepth is how many levels of sub-folder a recursive read walks.
+const MaxDepth = 16
 
-// Result holds the output of ReadAll.
+// Result holds what a read found.
 type Result struct {
 	Files []evidence.File
 	Texts map[string]string // path → decoded text; absent for binary/oversize/unreadable
+	// Skipped holds the sub-folders a recursive read did not walk: below the depth or unreadable.
+	Skipped []string
+}
+
+// Read lists the regular files in folder, sorted by path, walking depth levels
+// of sub-folder. It opens everything read-only through a root, so nothing
+// outside the folder is reachable.
+func Read(folder string, depth int) (Result, error) {
+	return readAll(folder, maxTextBytes, depth, false)
 }
 
 // ReadAll is Read plus the decoded text of every readable file.
-func ReadAll(folder string) (Result, error) {
-	return readAll(folder, maxTextBytes, true)
+func ReadAll(folder string, depth int) (Result, error) {
+	return readAll(folder, maxTextBytes, depth, true)
 }
 
-func readAll(folder string, limit int64, keepText bool) (Result, error) {
+func readAll(folder string, limit int64, depth int, keepText bool) (Result, error) {
 	roles, err := LoadRoles()
 	if err != nil {
 		return Result{}, err
@@ -46,44 +52,65 @@ func readAll(folder string, limit int64, keepText bool) (Result, error) {
 		return Result{}, fmt.Errorf("%w: %w", ErrNotFolder, err)
 	}
 	defer root.Close()
-	dir, err := root.Open(".")
-	if err != nil {
-		return Result{}, fmt.Errorf("%w: %w", ErrNotFolder, err)
-	}
-	defer dir.Close()
-	entries, err := dir.ReadDir(-1)
-	if err != nil {
-		return Result{}, fmt.Errorf("%w: %w", ErrNotFolder, err)
-	}
-	r := reader{root: root, limit: limit, roles: newClassifier(roles)}
-	var texts map[string]string
+	r := reader{root: root, limit: limit, depth: depth, roles: newClassifier(roles)}
+	r.res.Files = []evidence.File{}
 	if keepText {
-		texts = make(map[string]string, len(entries))
+		r.res.Texts = map[string]string{}
 	}
-	files := make([]evidence.File, 0, len(entries))
-	for _, e := range entries {
-		if e.Type().IsRegular() {
-			f, text := r.fileWithText(e.Name())
-			files = append(files, f)
-			if keepText && text != "" {
-				texts[f.Path] = text
-			}
-		}
+	if err := r.walk(".", 0); err != nil {
+		return Result{}, fmt.Errorf("%w: %w", ErrNotFolder, err)
 	}
-	sort.Slice(files, func(i, j int) bool { return files[i].Path < files[j].Path })
-	return Result{Files: files, Texts: texts}, nil
+	sort.Slice(r.res.Files, func(i, j int) bool { return r.res.Files[i].Path < r.res.Files[j].Path })
+	sort.Strings(r.res.Skipped)
+	return r.res, nil
 }
 
 type reader struct {
 	root  *os.Root
 	limit int64
+	depth int
 	roles classifier
+	res   Result
 }
 
-func (r reader) fileWithText(name string) (evidence.File, string) {
-	f := evidence.File{Path: name, Name: name, Role: r.roles.byName(name), Note: evidence.Unreadable}
+// walk reads one folder, level folders below the root. A symbolic link is
+// never a folder here, so the walk cannot loop or follow one.
+func (r *reader) walk(dir string, level int) error {
+	entries, err := r.list(dir)
+	if err != nil {
+		return err
+	}
+	for _, e := range entries {
+		p := path.Join(dir, e.Name())
+		switch {
+		case e.Type().IsRegular():
+			f, text := r.fileWithText(p, e.Name())
+			r.res.Files = append(r.res.Files, f)
+			if r.res.Texts != nil && text != "" {
+				r.res.Texts[f.Path] = text
+			}
+		case e.IsDir() && r.depth > 0:
+			if level == r.depth || r.walk(p, level+1) != nil {
+				r.res.Skipped = append(r.res.Skipped, p)
+			}
+		}
+	}
+	return nil
+}
+
+func (r *reader) list(dir string) ([]os.DirEntry, error) {
+	h, err := r.root.Open(dir)
+	if err != nil {
+		return nil, err
+	}
+	defer h.Close()
+	return h.ReadDir(-1)
+}
+
+func (r *reader) fileWithText(p, name string) (evidence.File, string) {
+	f := evidence.File{Path: p, Name: name, Role: r.roles.byName(name), Note: evidence.Unreadable}
 	f.Stamp, f.Stamped = nametime.Detect(name)
-	h, err := r.root.Open(name)
+	h, err := r.root.Open(p)
 	if err != nil {
 		return f, ""
 	}
