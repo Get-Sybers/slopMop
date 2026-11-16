@@ -10,6 +10,7 @@ internal/thing/thing.go:8: Get-style name; use Read, Load, Check, List, Run, Cla
 internal/thing/thing.go:11: Get-style name; use Read, Load, Check, List, Run, Classify or Detect
 internal/thing/same.go: identical to internal/other/same.go
 internal/thing/table.json: data file is not embedded by its package
+LICENSE: missing
 AGENTS.md: missing
 .gitignore: missing
 .golangci.yml: missing
@@ -28,4 +29,4 @@ README.md:5: plan or status wording; docs state fact
 README.md:13: plan or status wording; docs state fact
 docs/01-Notes.md:3: plan or status wording; docs state fact
 internal/thing/thing.go:7: comment block longer than three lines
-structlint: 30 failure(s)
+structlint: 31 failure(s)

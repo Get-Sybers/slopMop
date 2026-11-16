@@ -22,3 +22,4 @@ All notable changes to this project are recorded in this file. The format follow
   build and `make upgrade`.
 - CI workflow with `conform`, `vuln` and `all_green`, and Dependabot for GitHub Actions and Go modules.
 - Documents: command grammar, output schema, architecture, conformance, and `AGENTS.md`.
+- MIT licence in `LICENSE`, declared in `README.md` and checked by the structural lint.

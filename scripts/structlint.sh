@@ -81,9 +81,13 @@ while read -r f; do
 done < <(select_files '^(internal|cmd)/.*\.json$')
 
 # Repository hygiene.
-for f in README.md CHANGELOG.md AGENTS.md Makefile .gitignore .golangci.yml; do
+for f in LICENSE README.md CHANGELOG.md AGENTS.md Makefile .gitignore .golangci.yml; do
   [[ -f "${f}" ]] || fail "${f}: missing"
 done
+if [[ -f LICENSE ]]; then
+  [[ "$(head -n 1 LICENSE)" == "MIT License" ]] || fail "LICENSE: not the MIT licence the README declares"
+  grep -qE '^Licence: MIT' README.md 2>/dev/null || fail "README.md: no 'Licence: MIT' line"
+fi
 if [[ -f Makefile ]]; then
   for target in build test vet fmt fmt-check tidy generate conform upgrade; do
     grep -qE "^${target}:" Makefile || fail "Makefile: no ${target} target"

@@ -45,7 +45,8 @@ The build runs with `CGO_ENABLED=0` and `GOWORK=off`.
 - `package main` lives only under `cmd/<name>/`; `cmd/<name>/main.go` declares only `main` and `run` in at most 60 lines.
 - No function is named `Get...` or `get...`.
 - No two files are byte-identical. Every JSON data file under `internal/` or `cmd/` is embedded by its package.
-- `README.md`, `CHANGELOG.md`, `AGENTS.md`, `Makefile`, `.gitignore` and `.golangci.yml` exist; the Makefile has the uniform targets; the changelog has `## [Unreleased]`.
+- `LICENSE` is the MIT licence and `README.md` declares the same identifier.
+- `LICENSE`, `README.md`, `CHANGELOG.md`, `AGENTS.md`, `Makefile`, `.gitignore` and `.golangci.yml` exist; the Makefile has the uniform targets; the changelog has `## [Unreleased]`.
 - No tracking marker stands in code, scripts, configuration or docs.
 - `README.md`, `AGENTS.md` and `docs/*.md` hold no plan or status wording and no tick boxes. Fenced blocks and code spans are exempt.
 - No run of more than three full-line comments stands in Go, shell, YAML or the Makefile.
