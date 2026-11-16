@@ -11,6 +11,12 @@ All notable changes to this project are recorded in this file. The format follow
 - `--intelfile <file>` parameter for `trace list`: loads a JSON watchlist of known indicators and
   matches them against extracted IoCs, showing attributions in the new INTEL column.
 - Package `internal/intel` for loading and matching threat intelligence watchlists.
+- Cloud commands in `tactics.json`: Entra ID, Microsoft Graph, Azure, Key Vault and Exchange Online
+  cmdlets for audit-log discovery, Key Vault backup, application and federation persistence,
+  audit evasion and mailbox collection.
+- Indicator types `GUID`, `GraphEndpoint`, `AzureManagementEndpoint`, `EntraLoginEndpoint`,
+  `KeyVaultEndpoint` and `OAuthScope` in `indicators.json`. A Microsoft endpoint is reported under
+  its own type, not as `URL`, and a lookalike host is not reported as an endpoint.
 - Go module `github.com/get-sybers/slopmop` with the command `slopmop`.
 - Command grammar `slopmop NOUN VERB [selectors] [--params] [output flags] [positional]` with
   enforced flag prefixes, generated help and exit codes 0, 1 and 2.
