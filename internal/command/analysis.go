@@ -6,7 +6,6 @@ import (
 
 	"github.com/get-sybers/slopmop/internal/activity"
 	"github.com/get-sybers/slopmop/internal/assess"
-	"github.com/get-sybers/slopmop/internal/cli"
 	"github.com/get-sybers/slopmop/internal/indicator"
 	"github.com/get-sybers/slopmop/internal/intel"
 	"github.com/get-sybers/slopmop/internal/inventory"
@@ -139,10 +138,6 @@ func loadAssessment(tactics tactic.Table, activities activity.Table, patterns in
 	return table, nil
 }
 
-func (p pipeline) run(a *cli.Args) (analysis, error) {
-	return p.read(a.Params[inputDir], depth(a), a.Params[intelFile])
-}
-
 // read analyses a folder, levels deep, against the watchlist at path, if any.
 func (p pipeline) read(folder string, levels int, path string) (analysis, error) {
 	res, err := inventory.ReadAll(folder, levels)
@@ -169,15 +164,15 @@ func (p pipeline) read(folder string, levels int, path string) (analysis, error)
 
 // orderCells orders a row's cells by the declared columns, so the declaration
 // and the code cannot drift apart unnoticed.
-func orderCells(verb string, cells map[string]render.Value, columns []render.Column) ([]render.Value, error) {
+func orderCells(class string, cells map[string]render.Value, columns []render.Column) ([]render.Value, error) {
 	if len(columns) != len(cells) {
-		return nil, fmt.Errorf("%s declares %d columns and fills %d", verb, len(columns), len(cells))
+		return nil, fmt.Errorf("the class %s declares %d columns and fills %d", class, len(columns), len(cells))
 	}
 	row := make([]render.Value, len(columns))
 	for i, c := range columns {
 		cell, ok := cells[c.Key]
 		if !ok {
-			return nil, fmt.Errorf("%s declares the column %q, which has no value", verb, c.Key)
+			return nil, fmt.Errorf("the class %s declares the column %q, which has no value", class, c.Key)
 		}
 		row[i] = cell
 	}

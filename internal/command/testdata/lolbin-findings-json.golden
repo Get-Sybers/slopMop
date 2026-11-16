@@ -1,0 +1,372 @@
+[
+  {
+    "finding": "DownloadAndExecute",
+    "severity": "high",
+    "tactic": "CommandAndControl, Execution",
+    "indicator": null,
+    "files": "20261020_102500_step06_pinvoke.ps1",
+    "attribution": null,
+    "attack": "T1059.001, T1105",
+    "atlas": "AML.T0072, AML.T0050"
+  },
+  {
+    "finding": "EventLogClearing",
+    "severity": "high",
+    "tactic": "DefenseImpairment",
+    "indicator": null,
+    "files": "20261020_101500_step04_persist.ps1, 20261020_103000_step07_cleanup.bat, proc_20261020_103500.jsonl",
+    "attribution": null,
+    "attack": "T1685.005",
+    "atlas": "AML.T0138"
+  },
+  {
+    "finding": "FileDownload",
+    "severity": "high",
+    "tactic": "CommandAndControl",
+    "indicator": null,
+    "files": "20261020_100500_step02_download.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl",
+    "attribution": null,
+    "attack": "T1105",
+    "atlas": "AML.T0072"
+  },
+  {
+    "finding": "NetworkSocket",
+    "severity": "high",
+    "tactic": "CommandAndControl",
+    "indicator": null,
+    "files": "20261020_102500_step06_pinvoke.ps1",
+    "attribution": null,
+    "attack": "T1095",
+    "atlas": "AML.T0072"
+  },
+  {
+    "finding": "RunKeyPersistence",
+    "severity": "high",
+    "tactic": "Persistence",
+    "indicator": null,
+    "files": "20261020_101500_step04_persist.ps1",
+    "attribution": null,
+    "attack": "T1547.001",
+    "atlas": "AML.T0142"
+  },
+  {
+    "finding": "ScheduledTaskCreation",
+    "severity": "high",
+    "tactic": "Execution, Persistence",
+    "indicator": null,
+    "files": "20261020_101500_step04_persist.ps1, proc_20261020_103500.jsonl",
+    "attribution": null,
+    "attack": "T1053.005",
+    "atlas": null
+  },
+  {
+    "finding": "Domain",
+    "severity": "high",
+    "tactic": "CommandAndControl",
+    "indicator": "Microsoft.Net",
+    "files": "build_20261020_101200.xml",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "Domain",
+    "severity": "high",
+    "tactic": "CommandAndControl, Stealth",
+    "indicator": "System.Net",
+    "files": "build_20261020_101200.xml, loader_20261020_102600.cs",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "Domain",
+    "severity": "high",
+    "tactic": "CommandAndControl",
+    "indicator": "schemas.microsoft.com",
+    "files": "build_20261020_101200.xml",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "EncodedCommand",
+    "severity": "high",
+    "tactic": "CommandAndControl, Discovery, Execution, Stealth",
+    "indicator": "-enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAKQA=",
+    "files": "20261020_102500_step06_pinvoke.ps1",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "IPv4",
+    "severity": "high",
+    "tactic": "CommandAndControl, DefenseImpairment, Execution, Persistence, Stealth",
+    "indicator": "203.0.113.10",
+    "files": "20261020_100500_step02_download.ps1, 20261020_101000_step03_exec.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, proc_20261020_103500.jsonl",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "IPv4",
+    "severity": "high",
+    "tactic": "CommandAndControl, Discovery, Execution, Stealth",
+    "indicator": "203.0.113.20",
+    "files": "20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, loader_20261020_102600.cs",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "IPv4",
+    "severity": "high",
+    "tactic": "CommandAndControl, Discovery, Execution, Stealth",
+    "indicator": "203.0.113.30",
+    "files": "20261020_102500_step06_pinvoke.ps1",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "URL",
+    "severity": "high",
+    "tactic": "CommandAndControl, DefenseImpairment, Execution, Persistence, Stealth",
+    "indicator": "http://203.0.113.10/a.b64",
+    "files": "20261020_100500_step02_download.ps1, proc_20261020_103500.jsonl",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "URL",
+    "severity": "high",
+    "tactic": "CommandAndControl",
+    "indicator": "http://203.0.113.10/b.bin",
+    "files": "20261020_100500_step02_download.ps1",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "URL",
+    "severity": "high",
+    "tactic": "CommandAndControl",
+    "indicator": "http://203.0.113.10/c.bin",
+    "files": "20261020_100500_step02_download.ps1",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "URL",
+    "severity": "high",
+    "tactic": "CommandAndControl, DefenseImpairment",
+    "indicator": "http://203.0.113.10/c.exe",
+    "files": "20261020_103000_step07_cleanup.bat",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "URL",
+    "severity": "high",
+    "tactic": "CommandAndControl",
+    "indicator": "http://203.0.113.10/d.bin",
+    "files": "build_20261020_101200.xml",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "URL",
+    "severity": "high",
+    "tactic": "CommandAndControl, DefenseImpairment, Execution, Persistence, Stealth",
+    "indicator": "http://203.0.113.10/x.sct",
+    "files": "20261020_101000_step03_exec.ps1, proc_20261020_103500.jsonl",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "URL",
+    "severity": "high",
+    "tactic": "CommandAndControl, Discovery, Execution, Stealth",
+    "indicator": "http://203.0.113.20/next.ps1",
+    "files": "20261020_102500_step06_pinvoke.ps1",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "URL",
+    "severity": "high",
+    "tactic": "CommandAndControl, Stealth",
+    "indicator": "http://203.0.113.20/p.bin",
+    "files": "loader_20261020_102600.cs",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "URL",
+    "severity": "high",
+    "tactic": "CommandAndControl, Stealth",
+    "indicator": "http://203.0.113.20/stage.txt",
+    "files": "20261020_102000_step05_dotnet.ps1",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "URL",
+    "severity": "high",
+    "tactic": "CommandAndControl",
+    "indicator": "http://schemas.microsoft.com/developer/msbuild/2003",
+    "files": "build_20261020_101200.xml",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "tactic",
+    "severity": "high",
+    "tactic": "CommandAndControl",
+    "indicator": null,
+    "files": "20261020_100500_step02_download.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat",
+    "attribution": null,
+    "attack": "TA0011",
+    "atlas": "AML.TA0014"
+  },
+  {
+    "finding": "tactic",
+    "severity": "high",
+    "tactic": "DefenseImpairment",
+    "indicator": null,
+    "files": "20261020_101500_step04_persist.ps1, 20261020_103000_step07_cleanup.bat",
+    "attribution": null,
+    "attack": "TA0112",
+    "atlas": "AML.TA0007"
+  },
+  {
+    "finding": "tactic",
+    "severity": "high",
+    "tactic": "Persistence",
+    "indicator": null,
+    "files": "20261020_101500_step04_persist.ps1",
+    "attribution": null,
+    "attack": "TA0003",
+    "atlas": "AML.TA0006"
+  },
+  {
+    "finding": "NativeApiCall",
+    "severity": "medium",
+    "tactic": "Execution, Stealth",
+    "indicator": null,
+    "files": "20261020_102500_step06_pinvoke.ps1",
+    "attribution": null,
+    "attack": "T1106, T1055",
+    "atlas": null
+  },
+  {
+    "finding": "ProcessStart",
+    "severity": "medium",
+    "tactic": "Execution",
+    "indicator": null,
+    "files": "20261020_102500_step06_pinvoke.ps1",
+    "attribution": null,
+    "attack": "T1059, T1047",
+    "atlas": "AML.T0050"
+  },
+  {
+    "finding": "ReflectiveCodeLoading",
+    "severity": "medium",
+    "tactic": "Stealth",
+    "indicator": null,
+    "files": "20261020_102000_step05_dotnet.ps1, loader_20261020_102600.cs",
+    "attribution": null,
+    "attack": "T1620",
+    "atlas": null
+  },
+  {
+    "finding": "RuntimeCompilation",
+    "severity": "medium",
+    "tactic": "Stealth",
+    "indicator": null,
+    "files": "20261020_102500_step06_pinvoke.ps1",
+    "attribution": null,
+    "attack": "T1027.004",
+    "atlas": "AML.T0123"
+  },
+  {
+    "finding": "SignedBinaryProxyExecution",
+    "severity": "medium",
+    "tactic": "Execution, Stealth",
+    "indicator": null,
+    "files": "20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, proc_20261020_103500.jsonl",
+    "attribution": null,
+    "attack": "T1218, T1127",
+    "atlas": null
+  },
+  {
+    "finding": "Domain",
+    "severity": "medium",
+    "tactic": "Execution, Stealth",
+    "indicator": "Microsoft.NET",
+    "files": "20261020_101000_step03_exec.ps1",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "URL",
+    "severity": "medium",
+    "tactic": "Execution, Stealth",
+    "indicator": "http://203.0.113.10/a.hta",
+    "files": "20261020_101000_step03_exec.ps1",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "tactic",
+    "severity": "medium",
+    "tactic": "Execution",
+    "indicator": null,
+    "files": "20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102500_step06_pinvoke.ps1",
+    "attribution": null,
+    "attack": "TA0002",
+    "atlas": "AML.TA0005"
+  },
+  {
+    "finding": "tactic",
+    "severity": "medium",
+    "tactic": "Stealth",
+    "indicator": null,
+    "files": "20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1",
+    "attribution": null,
+    "attack": "TA0005",
+    "atlas": "AML.TA0007"
+  },
+  {
+    "finding": "Domain",
+    "severity": "low",
+    "tactic": "Discovery",
+    "indicator": "corp.example",
+    "files": "20261020_100000_step01_recon.ps1",
+    "attribution": null,
+    "attack": null,
+    "atlas": null
+  },
+  {
+    "finding": "tactic",
+    "severity": "low",
+    "tactic": "Discovery",
+    "indicator": null,
+    "files": "20261020_100000_step01_recon.ps1, 20261020_102500_step06_pinvoke.ps1",
+    "attribution": null,
+    "attack": "TA0007",
+    "atlas": "AML.TA0008"
+  }
+]

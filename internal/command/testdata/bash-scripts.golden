@@ -1,8 +1,0 @@
-NAME                                 ROLE    SIZE   LINES  MODIFIED
-20250301_101500_step01_recon.sh      script  145 B  6      2025-03-01T10:15:03Z
-20250301_101800_step02_enum.sh       script  432 B  10     2025-03-01T10:18:03Z
-20250301_102300_step03_adsync.sh     script  388 B  9      2025-03-01T10:23:03Z
-20250301_102700_step03_adsync_v2.sh  script  335 B  8      2025-03-01T10:27:03Z
-20250301_103200_step05_certs.sh      script  701 B  13     2025-03-01T10:32:03Z
-20250301_104000_step06_auth.sh       script  396 B  5      2025-03-01T10:40:03Z
-20250301_104500_step07_exfil.sh      script  277 B  4      2025-03-01T10:45:03Z

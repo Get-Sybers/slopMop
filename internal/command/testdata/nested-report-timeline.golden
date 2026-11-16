@@ -1,0 +1,57 @@
+slopmop report   <folder>
+[x] HIGH - 4 impacts: 2 high, 1 medium, 1 low
+
+Timeline   (step, time, role, file)
+  1  20250301_101500  script  phase1/20250301_101500_step01_recon.sh
+      tools       nmap
+      tactics     Discovery
+      indicators  1
+  1  20250301_101530  output  phase1/20250301_101530_step01_recon.txt
+      indicators  8
+  2  20250301_101800  script  phase1/20250301_101800_step02_enum.sh
+      tools       nxc, tee, ldapsearch
+      tactics     CredentialAccess, Discovery
+      wrote       phase1/20250301_101845_step02_enum.log, phase1/20250301_101910_step02_users.tsv
+      indicators  5
+  2  20250301_101845  output  phase1/20250301_101845_step02_enum.log
+      indicators  4
+  2  20250301_101910  output  phase1/20250301_101910_step02_users.tsv
+  3  20250301_102300  script  phase1/20250301_102300_step03_adsync.sh
+      tools       awk, head, date, nxc, adconnectdump.py
+      tactics     CredentialAccess
+      indicators  2
+  3  1740824625       output  phase1/dc01/adsync_1740824625.txt
+      indicators  1
+  4  20250301_102700  script  phase1/20250301_102700_step03_adsync_v2.sh
+      tools       awk, head, date, python3
+      tactics     Execution
+      indicators  2
+  4  1740824865       output  phase1/dc01/adsync_1740824865.txt
+      indicators  3
+  5  20250301_103200  script  phase1/20250301_103200_step05_certs.sh
+      tools       certipy, tee, openssl, cat
+      tactics     CredentialAccess
+      wrote       20250301_103240_certipy_find.txt, 20250301_103300_notes.txt
+      indicators  6
+  5  20250301_103240  output  20250301_103240_certipy_find.txt
+      indicators  3
+  5  20250301_103300  output  20250301_103300_notes.txt
+  6  20250301_104000  script  phase1/20250301_104000_step06_auth.sh
+      tools       certipy, secretsdump.py, nxc
+      tactics     CredentialAccess
+      wrote       phase1/20250301_104010_step06_auth.txt, loot/20250301_104030_ca_store.txt
+      indicators  4
+  6  20250301_104010  output  phase1/20250301_104010_step06_auth.txt
+      indicators  4
+  6  20250301_104030  output  loot/20250301_104030_ca_store.txt
+      indicators  1
+  6  20250301_104100  other   loot/20250301_104100_ca_backup.p12
+      note        binary
+  7  20250301_104500  script  phase1/20250301_104500_step07_exfil.sh
+      tools       nxc, curl
+      tactics     CredentialAccess, Exfiltration
+      activities  FileUpload, CertificateExport
+      indicators  5
+
+-> saved to <out>: report.txt, files.json, trace.json, findings.json, report.json
+-> one section: slopmop -inputdir <folder> report impact

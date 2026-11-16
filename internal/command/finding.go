@@ -1,12 +1,10 @@
 package command
 
 import (
-	"errors"
 	"slices"
 	"sort"
 	"strings"
 
-	"github.com/get-sybers/slopmop/internal/cli"
 	"github.com/get-sybers/slopmop/internal/evidence"
 	"github.com/get-sybers/slopmop/internal/indicator"
 	"github.com/get-sybers/slopmop/internal/render"
@@ -33,55 +31,6 @@ type finding struct {
 	// identifiers on a tactic.
 	attack []string
 	atlas  []string
-}
-
-func (e Env) findingList(v verbSpec) (*cli.Verb, error) {
-	if v.Name != "list" || len(v.Aliases) > 0 {
-		return nil, errors.New("the global list verb takes its name and alias from cli.ListVerb")
-	}
-	pipe, err := loadPipeline()
-	if err != nil {
-		return nil, err
-	}
-	if _, err := findingRow(finding{}, v.Columns, false); err != nil {
-		return nil, err
-	}
-	spec := cli.Spec{
-		Selectors: map[string]string{
-			kindActivity:  "show only activity findings",
-			kindIndicator: "show only indicator findings",
-			kindTactic:    "show only tactic findings",
-		},
-		Params:   map[string]string{inputDir: "<folder>", intelFile: "<file>"},
-		Switches: recursiveSwitch(),
-		Required: []string{inputDir},
-	}
-	return cli.ListVerb(v.Summary, spec, func(a *cli.Args) error {
-		result, err := pipe.run(a)
-		if err != nil {
-			return err
-		}
-		wanted := map[string]bool{}
-		for _, sel := range a.Selectors {
-			wanted[sel] = true
-		}
-		shorten := a.Output.View == "" && !a.Output.Quiet
-		table := render.Table{Columns: v.Columns}
-		for _, f := range pipe.listFindings(result) {
-			if !wanted[f.kind] {
-				continue
-			}
-			row, err := findingRow(f, v.Columns, shorten)
-			if err != nil {
-				return err
-			}
-			table.Rows = append(table.Rows, row)
-		}
-		if err := render.Write(e.Stdout, table, e.options(a.Output)); err != nil {
-			return err
-		}
-		return skippedError(result.skipped)
-	}), nil
 }
 
 // listFindings aggregates the timeline: one finding per activity, one per
@@ -203,16 +152,12 @@ func appendUnique(list []string, items ...string) []string {
 	return list
 }
 
-func findingRow(f finding, columns []render.Column, shorten bool) ([]render.Value, error) {
+func findingRow(f finding, columns []render.Column) ([]render.Value, error) {
 	list := func(items []string) render.Value {
 		if len(items) == 0 {
 			return render.NotApplicable()
 		}
-		joined := strings.Join(items, ", ")
-		if shorten {
-			joined = truncate(joined, listWidth)
-		}
-		return render.Text(joined)
+		return render.Text(strings.Join(items, ", "))
 	}
 	cells := map[string]render.Value{
 		"finding":     render.Text(f.label),
@@ -225,11 +170,7 @@ func findingRow(f finding, columns []render.Column, shorten bool) ([]render.Valu
 		"atlas":       list(f.atlas),
 	}
 	if f.indicator != "" {
-		value := f.indicator
-		if shorten {
-			value = truncate(value, listWidth)
-		}
-		cells["indicator"] = render.Text(value)
+		cells["indicator"] = render.Text(f.indicator)
 	}
-	return orderCells("finding list", cells, columns)
+	return orderCells("finding", cells, columns)
 }

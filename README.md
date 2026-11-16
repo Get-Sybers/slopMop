@@ -18,15 +18,15 @@ SHA-256. The binary is not code-signed.
 
 ## Use
 
-Give it the folder. It reads every file in the folder and below it, analyses them once and prints
-the whole analysis: the counts, the timeline, the findings, the notable files, the impact, the
+`slopmop -inputdir <folder> report` reads every file in the folder and below it, analyses them once
+and prints the report: the counts, the timeline, the findings, the notable files, the impact, the
 remediation and the mitigation. It saves the same analysis to `slopmop-<folder name>` in the
-current directory: `readout.txt` to read, and `files.json`, `trace.json`, `findings.json` and
+current directory: `report.txt` to read, and `files.json`, `trace.json`, `findings.json` and
 `report.json` for a program. Nothing is written into the folder that is read.
 
 ```text
-$ slopmop case42/ai_workdir
-slopmop   case42/ai_workdir
+$ slopmop -inputdir case42/ai_workdir report
+slopmop report   case42/ai_workdir
 [x] HIGH - 4 impacts: 2 high, 1 medium, 1 low
 [x] high   [!] medium   [i] low
 
@@ -45,28 +45,14 @@ Timeline   (step, time, role, file)
 
 | Command | What it does |
 | --- | --- |
-| `slopmop <folder>` | prints every section |
-| `slopmop <folder> impact remediation` | prints only the sections named |
-| `slopmop <folder> --intelfile <file>` | attributes the indicators a watchlist matches |
-| `slopmop <folder> --outdir <folder>` | saves the output to the folder named |
+| `slopmop -inputdir <folder> report` | prints and saves every section |
+| `slopmop -inputdir <folder> report impact remediation` | prints only the sections named |
+| `slopmop -inputdir <folder> report -intelfile <file>` | attributes the indicators a watchlist matches |
+| `slopmop -inputdir <folder> report -outdir <folder>` | saves the output to the folder named |
+| `slopmop -inputdir <folder> --help` | prints the verbs and the options |
 
 The sections are `summary`, `timeline`, `findings`, `files`, `impact`, `remediation` and
-`mitigation`. Nothing is remembered between runs.
-
-One view of the same analysis prints as a table or as JSON through the grammar
-`slopmop NOUN VERB [selectors] [--params] [output flags] [positional]`:
-
-| Command | What it does |
-| --- | --- |
-| `slopmop file list --inputdir <folder>` | lists the files directly in the input directory |
-| `slopmop file list --inputdir <folder> --recursive` | lists the files in its sub-folders too |
-| `slopmop trace list --inputdir <folder>` | traces the scripts and outputs in the input directory |
-| `slopmop finding list --inputdir <folder>` | lists the activities, indicators and tactics found |
-| `slopmop report list --inputdir <folder>` | reports the counts, the notable files, the impact, and the remediation and mitigation |
-| `slopmop campaign list --intelfile <file>` | lists the attributions in a watchlist |
-
-`slopmop` alone prints the usage, the sections and the nouns; `slopmop NOUN` and
-`slopmop NOUN VERB -h` print help generated from the command table.
+`mitigation`. `report` is the one verb, and nothing is remembered between runs.
 
 ## Layout
 
@@ -74,8 +60,8 @@ One view of the same analysis prints as a table or as JSON through the grammar
 | --- | --- |
 | `cmd/slopmop/` | the command: wiring and exit codes |
 | `internal/cli/` | the command grammar: parser, registry, dispatch, help |
-| `internal/command/` | the nouns, declared in `nouns.json` and bound to the packages that do the work |
-| `internal/render/` | rows to the screen: default, wide, JSON, quiet |
+| `internal/command/` | the verbs, declared in `commands.json` and bound to the packages that do the work |
+| `internal/render/` | the report as plain lines and a table as JSON; escapes evidence text |
 | `internal/inventory/` | reads the input directory into file records; roles declared in `roles.json` |
 | `internal/evidence/` | the record of one file |
 | `internal/nametime/` | the timestamp written into a file name |

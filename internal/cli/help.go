@@ -2,168 +2,85 @@ package cli
 
 import (
 	"fmt"
-	"slices"
 	"strings"
 	"unicode/utf8"
 )
 
-const (
-	grammar = "[selectors] [--params] [output flags] [positional]"
-
-	// flagColumn is the narrowest label column of a selector or param: "-" and ten characters, then a space.
-	flagColumn = 12
-
-	outputHelp = `
-output flags:
-  -o wide|json    every column, or JSON
-  -q              column 1 only, one per line
-  --no-headers    no header row
-  --tz local|utc  zone of displayed times (default utc)
-`
-)
-
 type entry struct{ label, text string }
 
+// rootHelp lists the verbs and every option any of them takes.
 func (a *App) rootHelp() string {
 	var b strings.Builder
-	nounsTitle := "nouns"
-	if a.whole == nil {
-		fmt.Fprintf(&b, "usage: %s NOUN VERB %s\n", a.bin, grammar)
-	} else {
-		a.wholeHelp(&b)
-		nounsTitle = "nouns"
-	}
-	if len(a.nouns) == 0 {
+	fmt.Fprintf(&b, "usage: %s %s\n", a.bin, a.usage)
+	if len(a.verbs) == 0 {
 		return b.String()
 	}
-	entries := make([]entry, 0, len(a.nouns))
-	for _, n := range a.nouns {
-		entries = append(entries, entry{strings.Join(n.names(), ", "), n.Summary})
+	verbs := make([]entry, len(a.verbs))
+	var options []entry
+	seen := map[string]bool{}
+	for i, v := range a.verbs {
+		verbs[i] = entry{v.Name, v.Summary}
+		for _, o := range v.Options {
+			if !seen[o.Name] {
+				seen[o.Name] = true
+				options = append(options, optionEntry(o))
+			}
+		}
 	}
-	b.WriteString("\n" + nounsTitle + ":\n")
-	writeEntries(&b, entries, widest(entries)+2)
-	fmt.Fprintf(&b, "\nmore help: %s NOUN -h, %s NOUN VERB -h\n", a.bin, a.bin)
+	width := max(widest(verbs), widest(options)) + 2
+	b.WriteString("\nverbs:\n")
+	writeEntries(&b, verbs, width)
+	if len(options) > 0 {
+		b.WriteString("\noptions (one dash or two; each takes a value):\n")
+		writeEntries(&b, options, width)
+	}
+	fmt.Fprintf(&b, "\nmore help: %s VERB --help\n", a.bin)
 	return b.String()
 }
 
-// wholeHelp leads the root help with the command that takes no noun.
-func (a *App) wholeHelp(b *strings.Builder) {
-	s := a.whole.Spec
-	fmt.Fprintf(b, "usage: %s %s", a.bin, s.Positional)
-	if len(a.words) > 0 {
-		b.WriteString(" [section ...]")
+func (a *App) verbHelp(v *Verb) string {
+	var b strings.Builder
+	fmt.Fprintf(&b, "usage: %s", a.bin)
+	for _, o := range v.Options {
+		if o.Required {
+			fmt.Fprintf(&b, " -%s %s", o.Name, o.Hint)
+		}
 	}
-	for _, name := range sortedKeys(s.Params) {
-		b.WriteString(" [" + withHint("--"+name, s.Params[name]) + "]")
+	b.WriteString(" " + v.Name)
+	if len(v.Words) > 0 {
+		fmt.Fprintf(&b, " [%s ...]", singular(v.Kind))
 	}
-	b.WriteString("\n\n" + a.whole.Summary + "\n")
-	words := make([]entry, len(a.words))
-	for i, w := range a.words {
+	for _, o := range v.Options {
+		if !o.Required {
+			fmt.Fprintf(&b, " [-%s %s]", o.Name, o.Hint)
+		}
+	}
+	b.WriteString("\n" + v.Summary + "\n")
+	words := make([]entry, len(v.Words))
+	for i, w := range v.Words {
 		words[i] = entry{w.Name, w.Summary}
 	}
-	params, switches := flagEntries("--", s.Params), switchEntries(s.Switches)
-	width := max(flagColumn, widest(words)+2, widest(params)+2, widest(switches)+2)
+	options := make([]entry, len(v.Options))
+	for i, o := range v.Options {
+		options[i] = optionEntry(o)
+		if o.Required {
+			options[i].text += " (required)"
+		}
+	}
+	width := max(widest(words), widest(options)) + 2
 	if len(words) > 0 {
-		b.WriteString("\nsections (name any to print only those; none = all):\n")
-		writeEntries(b, words, width)
+		fmt.Fprintf(&b, "\n%s (name any to print only those; none = all):\n", v.Kind)
+		writeEntries(&b, words, width)
 	}
-	if len(params) > 0 {
-		b.WriteString("\nparams (double dash, take a value):\n")
-		writeEntries(b, params, width)
-	}
-	if len(switches) > 0 {
-		b.WriteString("\nswitches (double dash, take no value; the short form takes one dash):\n")
-		writeEntries(b, switches, width)
-	}
-	fmt.Fprintf(b, "\none view as a table or as JSON: %s NOUN VERB %s\n", a.bin, grammar)
-}
-
-func (a *App) nounHelp(n *Noun) string {
-	var b strings.Builder
-	fmt.Fprintf(&b, "usage: %s %s VERB %s\n", a.bin, n.Name, grammar)
-	if n.Summary != "" {
-		b.WriteString(n.Summary + "\n")
-	}
-	if len(n.Verbs) == 0 {
-		return b.String()
-	}
-	entries := make([]entry, 0, len(n.Verbs))
-	for _, v := range n.Verbs {
-		entries = append(entries, entry{strings.Join(v.names(), ", "), v.Summary})
-	}
-	b.WriteString("\nverbs:\n")
-	writeEntries(&b, entries, widest(entries)+2)
-	fmt.Fprintf(&b, "\nmore help: %s %s VERB -h\n", a.bin, n.Name)
-	return b.String()
-}
-
-func (a *App) verbHelp(n *Noun, v *Verb) string {
-	s := v.Spec
-	var b strings.Builder
-	fmt.Fprintf(&b, "usage: %s %s %s", a.bin, n.Name, v.Name)
-	for _, required := range s.Required {
-		b.WriteString(" " + withHint("--"+required, s.Params[required]))
-	}
-	if len(s.Selectors) > 0 {
-		b.WriteString(" [selectors]")
-	}
-	if len(s.Params) > len(s.Required) || len(s.Switches) > 0 {
-		b.WriteString(" [--params]")
-	}
-	if s.Rows {
-		b.WriteString(" [output flags]")
-	}
-	if s.Positional != "" {
-		b.WriteString(" " + s.Positional)
-	}
-	b.WriteString("\n")
-	if v.Summary != "" {
-		b.WriteString(v.Summary + "\n")
-	}
-	selectors, params := flagEntries("-", s.Selectors), flagEntries("--", s.Params)
-	for i, p := range params {
-		if slices.Contains(s.Required, strings.TrimPrefix(p.label, "--")) {
-			params[i].text = strings.TrimSpace(p.text + " (required)")
-		}
-	}
-	switches := switchEntries(s.Switches)
-	width := max(flagColumn, widest(selectors)+1, widest(params)+1, widest(switches)+1)
-	if len(selectors) > 0 {
-		b.WriteString("\nselectors (single dash, pick any; none = all):\n")
-		writeEntries(&b, selectors, width)
-	}
-	if len(params) > 0 {
-		b.WriteString("\nparams (double dash, take a value):\n")
-		writeEntries(&b, params, width)
-	}
-	if len(switches) > 0 {
-		b.WriteString("\nswitches (double dash, take no value; the short form takes one dash):\n")
-		writeEntries(&b, switches, width)
-	}
-	if s.Rows {
-		b.WriteString(outputHelp)
+	if len(options) > 0 {
+		b.WriteString("\noptions (one dash or two; each takes a value):\n")
+		writeEntries(&b, options, width)
 	}
 	return b.String()
 }
 
-func switchEntries(switches map[string]Switch) []entry {
-	entries := make([]entry, 0, len(switches))
-	for _, name := range sortedKeys(switches) {
-		label := "--" + name
-		if short := switches[name].Short; short != "" {
-			label += ", -" + short
-		}
-		entries = append(entries, entry{label, switches[name].Summary})
-	}
-	return entries
-}
-
-func flagEntries(prefix string, flags map[string]string) []entry {
-	entries := make([]entry, 0, len(flags))
-	for _, name := range sortedKeys(flags) {
-		entries = append(entries, entry{prefix + name, flags[name]})
-	}
-	return entries
+func optionEntry(o Option) entry {
+	return entry{"-" + o.Name + " " + o.Hint, o.Summary}
 }
 
 func widest(entries []entry) int {

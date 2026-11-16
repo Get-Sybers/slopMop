@@ -14,11 +14,7 @@ func (e *usageError) Error() string { return e.msg }
 
 func (e *usageError) Is(target error) bool { return target == ErrUsage }
 
-// Usagef is the usage error of a verb that rejects the value of a param.
+// Usagef is the usage error of a verb that rejects the value of an option.
 func Usagef(format string, args ...any) error {
-	return usagef(format, args...)
-}
-
-func usagef(format string, args ...any) error {
 	return &usageError{msg: fmt.Sprintf(format, args...)}
 }

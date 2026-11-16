@@ -8,9 +8,9 @@ about evidence touch no file, and every static table is a data file validated at
 | Package | Concern |
 | --- | --- |
 | `cmd/slopmop` | builds the application, runs it, maps the result to an exit code |
-| `internal/cli` | the grammar: flag kinds, parser, noun registry, the command that takes a folder in place of a noun, dispatch, generated help; knows no noun |
-| `internal/command` | the nouns: declares them in `nouns.json` and binds each verb to its implementation |
-| `internal/render` | prints a table in the default, wide, JSON and quiet views, and the readout of `slopmop <folder>`; escapes evidence text |
+| `internal/cli` | the grammar: options, verbs, the words after a verb, dispatch, generated help; knows no verb |
+| `internal/command` | the verbs: declares them in `commands.json`, binds each to its implementation, and saves the output |
+| `internal/render` | prints the report as plain lines and a table in the default, wide, quiet and JSON views, of which the saved files use JSON; escapes evidence text |
 | `internal/inventory` | walks the input directory and builds one record per file; owns all evidence I/O |
 | `internal/evidence` | the file record and its vocabularies (role, note); no I/O |
 | `internal/nametime` | detects the timestamp written into a file name; no I/O |
@@ -43,7 +43,7 @@ cmd/slopmop -> command -> cli, render, trace -> parse, structured, tactic, activ
 | File | Declares | Checked at load |
 | --- | --- | --- |
 | `internal/inventory/roles.json` | each role's summary, extensions and shebang patterns | the roles are `script`, `output`, `other` in that order; extensions are lower-case, dotted and in one role; patterns compile; `other` takes neither |
-| `internal/command/nouns.json` | nouns, verbs, aliases, summaries, columns | names and summaries present; columns pass the table check; every declared verb has an implementation and every implementation a declaration |
+| `internal/command/commands.json` | the usage line, the options, the verbs with their sections, hints and saved files, and the columns of each class | names, hints and summaries present and unique; a verb names only declared options; columns pass the table check; a saved file is a file name of its own; every declared verb and section has an implementation and every implementation a declaration; a row fills exactly the declared columns |
 | `internal/tactic/tactics.json` | the tactics, the severity of each, its ATT&CK and ATLAS identifiers and the commands it claims | every tactic has a name, a severity of `low`, `medium` or `high`, both identifiers and at least one command; no command appears in two tactics; `command` rejects an identifier the catalogue lacks |
 | `internal/activity/activities.json` | each activity's name, tactics, ATT&CK and ATLAS techniques and patterns, and the contexts some patterns need | names are present and unique; every activity has a tactic, an ATT&CK technique and a pattern; `command` rejects a technique the catalogue lacks; paths and a known context go together; every pattern compiles; `command` rejects a tactic that `tactics.json` lacks |
 | `internal/assess/impacts.json` | each impact's name, severity and statement, what triggers it and the indicator types to list as affected | names are present and unique; a statement and a severity of `low`, `medium` or `high`; something triggers each; `command` rejects an activity, a tactic or an indicator type the other tables lack |
@@ -53,19 +53,19 @@ cmd/slopmop -> command -> cli, render, trace -> parse, structured, tactic, activ
 | `internal/structured/formats.json` | the extensions of each structured format, the field names that hold a command, and the HTML elements that hold a command, are kept verbatim or are dropped | the formats are `json`, `xml`, `html` in that order; extensions are lower-case, dotted and in one format; names are lower-case letters and digits, listed once, and an element is in one list |
 
 All are embedded with `go:embed` and decoded strictly: an unknown field or trailing data is an
-error. The selectors of `file list` are the role names, and its columns are the declared columns.
+error.
 
 ## 3. Reading evidence
 
-The tool keeps no state: every run names its input directory with `--inputdir` and writes only to
-standard output and standard error.
+The tool keeps no state: every run names its input directory with `-inputdir`. It writes to
+standard output, standard error and the output folder, which is never inside the input directory.
 
 - The input directory is opened as a root (`os.OpenRoot`) and every file is opened through it read-only, so
   no path leads outside the folder.
 - Only regular files are listed. Symbolic links and special files are skipped without being
   opened. Hidden files are listed.
 - A read takes a depth. At depth 0 only the files directly in the folder are listed and sub-folders
-  are skipped. `--recursive` reads at `inventory.MaxDepth`, 16 levels of sub-folder. Each
+  are skipped. `report` reads at `inventory.MaxDepth`, 16 levels of sub-folder. Each
   sub-folder is opened through the same root. A symbolic link to a folder is not walked, so a walk
   cannot loop or leave the folder.
 - A file's path is below the input directory and slash separated. Its role and file-name timestamp
@@ -86,7 +86,7 @@ standard output and standard error.
 
 ## 4. Structured reports
 
-`trace list` decodes an output whose extension `formats.json` claims before it looks for indicators
+The trace decodes an output whose extension `formats.json` claims before it looks for indicators
 and commands. A script is never decoded this way.
 
 - JSON: every document in the file is read, so JSON Lines is read whole. Each string value and each
@@ -109,7 +109,7 @@ and commands. A script is never decoded this way.
   report. A report is not a turn and links no output.
 - A JSON or XML file that is not well formed is read as plain text. HTML is decoded whatever its form.
 
-`--intelfile` takes a JSON array of entries or a STIX 2.1 bundle. From a bundle, every quoted
+`-intelfile` takes a JSON array of entries or a STIX 2.1 bundle. From a bundle, every quoted
 literal that an equality compares in the pattern of an `indicator` object is one entry, attributed
 to the name of the indicator, or to its id when it has no name.
 
@@ -158,7 +158,7 @@ the operations it shows.
 - A pattern is tried only on the lines that hold a literal every match of it must hold. The
   literals are derived from the pattern at load, and a test fails when a pattern has none.
 - A step's tactics are those of its tools plus those of its activities.
-- `report list` counts, for each activity, the lines that show it. A loop counts once: the tool
+- The report counts, for each activity, the lines that show it. A loop counts once: the tool
   does not run the script.
 - A name has a tactic in `tactics.json` only when the name alone says what the command does.
   `certutil`, `bitsadmin`, `reg`, `systemctl`, `chmod`, `crontab`, `history`, `tar`, `curl`,
@@ -279,7 +279,7 @@ feeds to `base64 -d`. A payload is kept when nearly all of it is printable text.
 
 ## 11. Assessment
 
-`report list` ends with what the findings mean and what to do about them. Impacts and remediation
+The report ends with what the findings mean and what to do about them. Impacts and remediation
 come from data files, and `assess` holds no knowledge of its own. Mitigation comes from the
 catalogue of section 12.
 
@@ -293,8 +293,8 @@ catalogue of section 12.
   and then left out of the assessment.
 - One impact is not found but assumed: the scripts were written by an AI agent, which is the
   premise of the tool. It applies whenever anything is found and stands for an ATLAS technique.
-- A notable file is one whose activities, tool tactics or watchlist matches reach the severity
-  asked for. A watchlist match is `high`.
+- A notable file is one whose activities, tool tactics or watchlist matches are of high severity.
+  A watchlist match is `high`.
 
 ## 12. MITRE ATT&CK and MITRE ATLAS
 
@@ -310,6 +310,6 @@ one-sentence summary of each mitigation, not the full text of either framework.
   claims a tactic that ATT&CK does not file one of its techniques under.
 - An activity's ATLAS techniques are those it names and those whose ATT&CK reference in ATLAS is
   one of its ATT&CK techniques or the technique that one is a part of.
-- The mitigation rows of `report list` are not written here. For the techniques found, the
+- The mitigation rows of the report are not written here. For the techniques found, the
   catalogue gives the mitigations each framework links to them; a row is one mitigation, the
   techniques found that it addresses, and the activities and files that showed them.

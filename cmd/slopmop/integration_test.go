@@ -57,25 +57,17 @@ func TestBinary(t *testing.T) {
 		stderr string
 	}{
 		{name: "no arguments print help", code: 0, golden: "help"},
-		{name: "verb help", args: []string{"file", "list", "-h"}, code: 0, golden: "help-file-list"},
-		{name: "two words that are no noun", args: []string{"bogus", "list"}, code: 2,
-			stderr: `error: slopmop reads one folder, got "bogus" and "list"`},
-		{name: "a section without a folder", args: []string{"impact"}, code: 2,
-			stderr: `error: the word "impact" names a section; give the folder too`},
-		{name: "a folder that is missing", args: []string{filepath.Join(folder, "missing")}, code: 1, stderr: "not a folder"},
-		{name: "no input directory", args: []string{"file", "list"}, code: 2,
-			stderr: "error: file list needs --inputdir <folder>"},
-		{name: "wrong prefix", args: []string{"file", "list", "-inputdir", folder}, code: 2,
-			stderr: "error: -inputdir takes a value; use --inputdir <folder>"},
-		{name: "not a folder", args: []string{"file", "list", "--inputdir", filepath.Join(folder, "missing")}, code: 1,
+		{name: "help with an input folder", args: []string{"-inputdir", folder, "--help"}, code: 0, golden: "help"},
+		{name: "verb help", args: []string{"-inputdir", folder, "report", "--help"}, code: 0, golden: "help-report"},
+		{name: "no verb", args: []string{"-inputdir", folder}, code: 2, stderr: "error: slopmop needs a verb (verbs: report)"},
+		{name: "unknown verb", args: []string{"-inputdir", folder, "list"}, code: 2, stderr: `error: unknown verb "list" (verbs: report)`},
+		{name: "no input folder", args: []string{"report"}, code: 2, stderr: "error: report needs -inputdir <folder>"},
+		{name: "unknown section", args: []string{"-inputdir", folder, "report", "bogus"}, code: 2,
+			stderr: `error: report has no section "bogus"`},
+		{name: "not a folder", args: []string{"-inputdir", filepath.Join(folder, "missing"), "report"}, code: 1,
 			stderr: "not a folder"},
-		{name: "list", args: []string{"file", "list", "--inputdir", folder}, code: 0, golden: "file-list"},
-		{name: "recursive", args: []string{"file", "list", "--inputdir", nested, "-r", "-q"}, code: 0,
-			golden: "file-list-recursive"},
-		{name: "recursive wrong prefix", args: []string{"trace", "list", "--inputdir", folder, "-recursive"}, code: 2,
-			stderr: "error: -recursive is a switch; use --recursive"},
-		{name: "list json", args: []string{"file", "ls", "--inputdir", folder, "-o", "json", "-script"}, code: 0,
-			golden: "file-list-json"},
+		{name: "output folder in the evidence", args: []string{"-inputdir", folder, "report", "-outdir", filepath.Join(folder, "out")}, code: 2,
+			stderr: "error: -outdir is inside the folder that is read"},
 	}
 	for _, s := range steps {
 		t.Run(s.name, func(t *testing.T) {
@@ -98,30 +90,40 @@ func TestBinary(t *testing.T) {
 		})
 	}
 
-	// The folder alone is the whole command line: every section, the
-	// sub-folder read, the output saved, and no colour off a terminal.
-	stdout, stderr, code := run(nested)
+	// The report verb with nothing else: every section, the sub-folder
+	// read, the output saved, and no colour off a terminal.
+	stdout, stderr, code := run("-inputdir", nested, "report")
 	if code != 0 || stderr != "" {
-		t.Fatalf("slopmop <folder>: exit code %d, stderr %q", code, stderr)
+		t.Fatalf("report: exit code %d, stderr %q", code, stderr)
 	}
 	saved := "slopmop-" + filepath.Base(nested)
-	for _, want := range []string{"\nTimeline", "\nImpact", "\nMitigation", "stage/" + moved, "-> saved to " + saved + ": readout.txt"} {
+	for _, want := range []string{"\nTimeline", "\nImpact", "\nMitigation", "stage/" + moved, "-> saved to " + saved + ": report.txt"} {
 		if !strings.Contains(stdout, want) {
-			t.Errorf("slopmop <folder>: output lacks %q", want)
+			t.Errorf("report: output lacks %q", want)
 		}
 	}
 	if strings.Contains(stdout, "\x1b[") {
-		t.Error("slopmop <folder>: colour codes in output that is not a terminal")
+		t.Error("report: colour codes in output that is not a terminal")
 	}
-	for _, name := range []string{"readout.txt", "files.json", "trace.json", "findings.json", "report.json"} {
+	for _, name := range []string{"report.txt", "files.json", "trace.json", "findings.json", "report.json"} {
 		if info, err := os.Stat(filepath.Join(work, saved, name)); err != nil || info.Size() == 0 {
-			t.Errorf("slopmop <folder>: %s was not saved: %v", name, err)
+			t.Errorf("report: %s was not saved: %v", name, err)
 		}
 	}
 	out := filepath.Join(t.TempDir(), "out")
-	stdout, _, code = run(nested, "--outdir", out)
+	stdout, _, code = run("-inputdir", nested, "report", "impact", "remediation", "-outdir", out)
 	if code != 0 {
-		t.Fatalf("slopmop <folder> --outdir: exit code %d", code)
+		t.Fatalf("report with sections: exit code %d", code)
 	}
-	golden.Check(t, "whole", []byte(strings.ReplaceAll(strings.ReplaceAll(stdout, out, "<out>"), nested, "<folder>")))
+	golden.Check(t, "report-impact", []byte(strings.ReplaceAll(strings.ReplaceAll(stdout, out, "<out>"), nested, "<folder>")))
+	golden.Check(t, "files-json", []byte(readFile(t, filepath.Join(out, "files.json"))))
+}
+
+func readFile(t *testing.T, path string) string {
+	t.Helper()
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(data)
 }

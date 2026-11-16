@@ -1,7 +1,6 @@
 package command
 
 import (
-	"errors"
 	"slices"
 	"sort"
 	"strconv"
@@ -9,7 +8,6 @@ import (
 
 	"github.com/get-sybers/slopmop/internal/activity"
 	"github.com/get-sybers/slopmop/internal/assess"
-	"github.com/get-sybers/slopmop/internal/cli"
 	"github.com/get-sybers/slopmop/internal/evidence"
 	"github.com/get-sybers/slopmop/internal/mitre"
 	"github.com/get-sybers/slopmop/internal/render"
@@ -25,9 +23,6 @@ const (
 	sectionRemediation = "remediation"
 	sectionMitigation  = "mitigation"
 )
-
-// severityParam sets how severe a finding makes a file notable.
-const severityParam = "severity"
 
 type metric struct {
 	name  string
@@ -49,60 +44,6 @@ type reportRow struct {
 	// those a mitigation addresses.
 	attack []string
 	atlas  []string
-}
-
-func (e Env) reportList(v verbSpec) (*cli.Verb, error) {
-	if v.Name != "list" || len(v.Aliases) > 0 {
-		return nil, errors.New("the global list verb takes its name and alias from cli.ListVerb")
-	}
-	pipe, err := loadPipeline()
-	if err != nil {
-		return nil, err
-	}
-	if _, err := reportCells(reportRow{}, v.Columns); err != nil {
-		return nil, err
-	}
-	spec := cli.Spec{
-		Selectors: map[string]string{
-			sectionSummary:     "show only the counts",
-			sectionFiles:       "show only the notable files",
-			sectionImpact:      "show only the impact",
-			sectionRemediation: "show only the remediation",
-			sectionMitigation:  "show only the mitigation",
-		},
-		Params:   map[string]string{inputDir: "<folder>", intelFile: "<file>", severityParam: "low|medium|high"},
-		Switches: recursiveSwitch(),
-		Required: []string{inputDir},
-	}
-	return cli.ListVerb(v.Summary, spec, func(a *cli.Args) error {
-		threshold := tactic.High
-		if given, ok := a.Params[severityParam]; ok {
-			threshold = tactic.Severity(given)
-			if threshold.Rank() == 0 {
-				return cli.Usagef("--%s takes low, medium or high, not %q", severityParam, given)
-			}
-		}
-		result, err := pipe.run(a)
-		if err != nil {
-			return err
-		}
-		wanted := map[string]bool{}
-		for _, sel := range a.Selectors {
-			wanted[sel] = true
-		}
-		table := render.Table{Columns: v.Columns}
-		for _, row := range pipe.report(result, threshold, wanted) {
-			cells, err := reportCells(row, v.Columns)
-			if err != nil {
-				return err
-			}
-			table.Rows = append(table.Rows, cells)
-		}
-		if err := render.Write(e.Stdout, table, e.options(a.Output)); err != nil {
-			return err
-		}
-		return skippedError(result.skipped)
-	}), nil
 }
 
 // report assembles the wanted sections in their fixed order.
@@ -431,5 +372,5 @@ func reportCells(r reportRow, columns []render.Column) ([]render.Value, error) {
 	if r.detail != "" {
 		cells["detail"] = render.Text(r.detail)
 	}
-	return orderCells("report list", cells, columns)
+	return orderCells("report", cells, columns)
 }

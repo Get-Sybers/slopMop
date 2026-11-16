@@ -10,14 +10,12 @@ import (
 	"strings"
 
 	"github.com/get-sybers/slopmop/internal/cli"
+	"github.com/get-sybers/slopmop/internal/evidence"
 	"github.com/get-sybers/slopmop/internal/render"
 	"github.com/get-sybers/slopmop/internal/trace"
 )
 
-// outDir is the optional param that names the folder the output is written to.
-const outDir = "outdir"
-
-// savedSpec declares what the command without a noun writes to disk.
+// savedSpec declares what a verb writes to disk.
 type savedSpec struct {
 	// Prefix and the name of the input folder make the default output folder.
 	Prefix  string      `json:"prefix"`
@@ -27,52 +25,57 @@ type savedSpec struct {
 
 // savedFile is one class written as JSON, every column.
 type savedFile struct {
-	Noun string `json:"noun"`
-	File string `json:"file"`
+	Class string `json:"class"`
+	File  string `json:"file"`
 }
 
-type tableBuilder func(w wholeRun, columns []render.Column) (render.Table, error)
+type tableBuilder func(w reportRun, columns []render.Column) (render.Table, error)
 
 func tableBuilders() map[string]tableBuilder {
 	return map[string]tableBuilder{
-		"file":    wholeRun.fileTable,
-		"trace":   wholeRun.traceTable,
-		"finding": wholeRun.findingTable,
-		"report":  wholeRun.reportTable,
+		"file":    reportRun.fileTable,
+		"trace":   reportRun.traceTable,
+		"finding": reportRun.findingTable,
+		"report":  reportRun.reportTable,
 	}
 }
 
-// checkSaved returns the columns of each table, by noun.
-func checkSaved(s savedSpec, nouns []nounSpec) (map[string][]render.Column, error) {
+// checkSaved returns the columns of each table, by class.
+func checkSaved(s savedSpec, doc commandsDoc) (map[string][]render.Column, error) {
 	if s.Prefix == "" || s.Readout == "" || len(s.Tables) == 0 {
-		return nil, errors.New("nouns.json: whole: saved needs a prefix, a readout and a table")
+		return nil, errors.New("commands.json: saved needs a prefix, a readout and a table")
 	}
 	builders := tableBuilders()
 	columns := map[string][]render.Column{}
 	names := map[string]bool{s.Readout: true}
 	for _, t := range s.Tables {
 		switch {
-		case builders[t.Noun] == nil:
-			return nil, fmt.Errorf("nouns.json: whole: saved names the noun %q, which has no table", t.Noun)
+		case builders[t.Class] == nil:
+			return nil, fmt.Errorf("commands.json: saved names the class %q, which has no table", t.Class)
 		case t.File == "" || t.File != filepath.Base(t.File) || names[t.File]:
-			return nil, fmt.Errorf("nouns.json: whole: saved: %q is not a file name of its own", t.File)
+			return nil, fmt.Errorf("commands.json: saved: %q is not a file name of its own", t.File)
+		case len(doc.columns(t.Class)) == 0:
+			return nil, fmt.Errorf("commands.json: saved names the class %q, which declares no columns", t.Class)
 		}
 		names[t.File] = true
-		for _, n := range nouns {
-			for _, v := range n.Verbs {
-				if n.Name == t.Noun && v.Name == "list" {
-					columns[t.Noun] = v.Columns
-				}
-			}
-		}
-		if len(columns[t.Noun]) == 0 {
-			return nil, fmt.Errorf("nouns.json: whole: saved names %s list, which declares no columns", t.Noun)
+		columns[t.Class] = doc.columns(t.Class)
+	}
+	// A row fills every declared column, or the table cannot be written.
+	checks := map[string]func([]render.Column) ([]render.Value, error){
+		"file":    func(c []render.Column) ([]render.Value, error) { return fileRow(evidence.File{}, c) },
+		"trace":   func(c []render.Column) ([]render.Value, error) { return traceRow(trace.Step{}, c) },
+		"finding": func(c []render.Column) ([]render.Value, error) { return findingRow(finding{}, c) },
+		"report":  func(c []render.Column) ([]render.Value, error) { return reportCells(reportRow{}, c) },
+	}
+	for class, cols := range columns {
+		if _, err := checks[class](cols); err != nil {
+			return nil, err
 		}
 	}
 	return columns, nil
 }
 
-func (w wholeRun) fileTable(columns []render.Column) (render.Table, error) {
+func (w reportRun) fileTable(columns []render.Column) (render.Table, error) {
 	steps := append([]trace.Step(nil), w.result.timeline.Steps...)
 	sort.SliceStable(steps, func(i, j int) bool { return steps[i].File.Path < steps[j].File.Path })
 	table := render.Table{Columns: columns}
@@ -86,10 +89,10 @@ func (w wholeRun) fileTable(columns []render.Column) (render.Table, error) {
 	return table, nil
 }
 
-func (w wholeRun) traceTable(columns []render.Column) (render.Table, error) {
+func (w reportRun) traceTable(columns []render.Column) (render.Table, error) {
 	table := render.Table{Columns: columns}
 	for _, s := range w.result.timeline.Steps {
-		row, err := traceRow(s, columns, false)
+		row, err := traceRow(s, columns)
 		if err != nil {
 			return table, err
 		}
@@ -98,10 +101,10 @@ func (w wholeRun) traceTable(columns []render.Column) (render.Table, error) {
 	return table, nil
 }
 
-func (w wholeRun) findingTable(columns []render.Column) (render.Table, error) {
+func (w reportRun) findingTable(columns []render.Column) (render.Table, error) {
 	table := render.Table{Columns: columns}
 	for _, f := range w.pipe.listFindings(w.result) {
-		row, err := findingRow(f, columns, false)
+		row, err := findingRow(f, columns)
 		if err != nil {
 			return table, err
 		}
@@ -110,7 +113,7 @@ func (w wholeRun) findingTable(columns []render.Column) (render.Table, error) {
 	return table, nil
 }
 
-func (w wholeRun) reportTable(columns []render.Column) (render.Table, error) {
+func (w reportRun) reportTable(columns []render.Column) (render.Table, error) {
 	table := render.Table{Columns: columns}
 	for _, r := range w.rows {
 		row, err := reportCells(r, columns)
@@ -128,7 +131,7 @@ func (w wholeRun) reportTable(columns []render.Column) (render.Table, error) {
 func outputDir(input, given, workDir, prefix string) (string, error) {
 	if given != "" {
 		if within(input, given) {
-			return "", cli.Usagef("--%s is inside the folder that is read; the evidence is never written to", outDir)
+			return "", cli.Usagef("-%s is inside the folder that is read; the evidence is never written to", outDir)
 		}
 		return given, nil
 	}
@@ -143,7 +146,7 @@ func outputDir(input, given, workDir, prefix string) (string, error) {
 	if dir := filepath.Join(filepath.Dir(whole), name); !within(input, dir) {
 		return dir, nil
 	}
-	return "", cli.Usagef("no folder outside %s to write to; name one with --%s <folder>", input, outDir)
+	return "", cli.Usagef("no folder outside %s to write to; name one with -%s <folder>", input, outDir)
 }
 
 // within reports whether dir is the folder or lies in it, with symbolic
@@ -182,7 +185,7 @@ func resolved(path string) (string, error) {
 }
 
 // save writes the readout and each table into dir and returns the names written.
-func (w wholeRun) save(dir string, s savedSpec, columns map[string][]render.Column, readout render.Readout) ([]string, error) {
+func (w reportRun) save(dir string, s savedSpec, columns map[string][]render.Column, readout render.Readout) ([]string, error) {
 	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return nil, fmt.Errorf("output folder: %w", err)
 	}
@@ -194,7 +197,7 @@ func (w wholeRun) save(dir string, s savedSpec, columns map[string][]render.Colu
 	contents := [][]byte{text.Bytes()}
 	builders := tableBuilders()
 	for _, t := range s.Tables {
-		table, err := builders[t.Noun](w, columns[t.Noun])
+		table, err := builders[t.Class](w, columns[t.Class])
 		if err != nil {
 			return nil, err
 		}

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"time"
 
 	"github.com/get-sybers/slopmop/internal/cli"
 	"github.com/get-sybers/slopmop/internal/command"
@@ -19,8 +18,7 @@ func main() {
 
 // run maps the result to an exit code: 0 success, 1 failure, 2 usage error.
 func run(args []string, stdout, stderr io.Writer) int {
-	app := cli.New("slopmop", stdout)
-	err := command.Register(app, command.Env{Stdout: stdout, Local: time.Local, Colour: render.TakesColour(stdout)})
+	app, err := command.NewApp("slopmop", command.Env{Stdout: stdout, Colour: render.TakesColour(stdout)})
 	if err == nil {
 		err = app.Run(args)
 	}

@@ -1,0 +1,96 @@
+{
+  "usage": "-inputdir <folder> VERB [section ...] [options]",
+  "options": [
+    {"name": "inputdir", "hint": "<folder>", "summary": "the folder of scripts and outputs to read"},
+    {"name": "intelfile", "hint": "<file>", "summary": "a watchlist, JSON or STIX 2.1, to attribute the indicators to"},
+    {"name": "outdir", "hint": "<folder>", "summary": "where the output is saved; slopmop-<name> in the current directory when not given"}
+  ],
+  "verbs": [
+    {
+      "name": "report",
+      "summary": "reads the folder and everything below it, runs nothing, prints the report and saves it",
+      "requires": ["inputdir"],
+      "takes": ["intelfile", "outdir"],
+      "sections": [
+        {"name": "summary", "title": "Summary", "summary": "the counts"},
+        {"name": "timeline", "title": "Timeline", "summary": "each file in order, with what it shows", "note": "step, time, role, file"},
+        {"name": "findings", "title": "Findings", "summary": "each activity, indicator and tactic, most severe first"},
+        {"name": "files", "title": "Notable files", "summary": "the files that hold a finding of high severity", "note": "a finding of high severity"},
+        {"name": "impact", "title": "Impact", "summary": "what the findings mean"},
+        {"name": "remediation", "title": "Remediation", "summary": "what to do about them, most urgent first", "note": "most urgent first"},
+        {"name": "mitigation", "title": "Mitigation", "summary": "what MITRE ATT&CK and ATLAS say prevents the techniques found", "note": "MITRE ATT&CK and ATLAS, for the techniques found"}
+      ],
+      "hints": [
+        "one section: slopmop -inputdir <folder> report impact"
+      ],
+      "saved": {
+        "prefix": "slopmop-",
+        "readout": "report.txt",
+        "tables": [
+          {"class": "file", "file": "files.json"},
+          {"class": "trace", "file": "trace.json"},
+          {"class": "finding", "file": "findings.json"},
+          {"class": "report", "file": "report.json"}
+        ]
+      }
+    }
+  ],
+  "classes": [
+    {
+      "name": "file",
+      "columns": [
+        {"header": "NAME", "key": "name"},
+        {"header": "ROLE", "key": "role"},
+        {"header": "SIZE", "key": "size"},
+        {"header": "LINES", "key": "lines"},
+        {"header": "MODIFIED", "key": "modified"},
+        {"header": "SHA256", "key": "sha256", "wide": true},
+        {"header": "NAME TIME", "key": "name_time", "wide": true},
+        {"header": "NOTE", "key": "note", "wide": true}
+      ]
+    },
+    {
+      "name": "trace",
+      "columns": [
+        {"header": "STEP", "key": "step"},
+        {"header": "NAME", "key": "name"},
+        {"header": "ROLE", "key": "role"},
+        {"header": "TIME", "key": "time"},
+        {"header": "TOOLS", "key": "tools"},
+        {"header": "TACTICS", "key": "tactics"},
+        {"header": "TRANSFORMS", "key": "transforms"},
+        {"header": "ACTIVITIES", "key": "activities", "wide": true},
+        {"header": "OUTPUTS", "key": "outputs", "wide": true},
+        {"header": "INDICATORS", "key": "indicators", "wide": true},
+        {"header": "INTEL", "key": "intel", "wide": true},
+        {"header": "NOTE", "key": "note", "wide": true}
+      ]
+    },
+    {
+      "name": "finding",
+      "columns": [
+        {"header": "FINDING", "key": "finding"},
+        {"header": "SEVERITY", "key": "severity"},
+        {"header": "TACTIC", "key": "tactic"},
+        {"header": "INDICATOR", "key": "indicator"},
+        {"header": "FILES", "key": "files"},
+        {"header": "ATTRIBUTION", "key": "attribution"},
+        {"header": "ATTACK", "key": "attack", "wide": true},
+        {"header": "ATLAS", "key": "atlas", "wide": true}
+      ]
+    },
+    {
+      "name": "report",
+      "columns": [
+        {"header": "ITEM", "key": "item"},
+        {"header": "SECTION", "key": "section"},
+        {"header": "VALUE", "key": "value"},
+        {"header": "DETAIL", "key": "detail"},
+        {"header": "BASIS", "key": "basis", "wide": true},
+        {"header": "FILES", "key": "files", "wide": true},
+        {"header": "ATTACK", "key": "attack", "wide": true},
+        {"header": "ATLAS", "key": "atlas", "wide": true}
+      ]
+    }
+  ]
+}

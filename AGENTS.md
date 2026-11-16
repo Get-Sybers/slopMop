@@ -26,8 +26,7 @@ The gate is described in [docs/04-Conformance.md](docs/04-Conformance.md). Nothi
 
 | To change | Edit |
 | --- | --- |
-| a noun, verb, alias, summary or column | `internal/command/nouns.json`, then the verb's implementation |
-| a section of the readout that `slopmop <folder>` prints | the `whole` block of `internal/command/nouns.json`, then its builder in `internal/command/whole.go` |
+| a verb, an option, a section, a saved file or a column | `internal/command/commands.json`, then the verb's implementation |
 | a role, its extensions or shebang patterns | `internal/inventory/roles.json` |
 | the grammar or an error message | `internal/cli` and [docs/01-Command-Grammar.md](docs/01-Command-Grammar.md) |
 | how a value prints | `internal/render` and [docs/02-Output-Schema.md](docs/02-Output-Schema.md) |

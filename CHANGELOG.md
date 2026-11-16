@@ -8,26 +8,36 @@ All notable changes to this project are recorded in this file. The format follow
 
 ### Added
 
-- `slopmop <folder>` is the whole command line: it reads the folder and its sub-folders once and
-  prints a readout of every section, `summary`, `timeline`, `findings`, `files`, `impact`,
-  `remediation` and `mitigation`. A section named after the folder prints only that section, and
-  `--intelfile <file>` adds the watchlist matches.
-- The readout: plain lines for reading, with a verdict line, `[x]`, `[!]` and `[i]` marks for
-  high, medium and low, entries aligned in columns and detail lines under them. Colour is used
-  only on a terminal, never with `NO_COLOR`, and on Windows only inside Windows Terminal.
-- `slopmop <folder>` saves every run to an output folder: `readout.txt` with every section, and
-  `files.json`, `trace.json`, `findings.json` and `report.json`, each the JSON its noun prints.
-  The folder is `slopmop-<name>` in the current directory, beside the input folder when the
-  current directory is inside it, or the one `--outdir <folder>` names. An output folder inside
-  the input folder is refused.
-- The `whole` block of `nouns.json` declares the sections of the readout and the files saved;
-  `cli.App.Whole` and `render.WriteReadout` implement them.
+- The readout of `report`: plain lines for reading, with a verdict line, `[x]`, `[!]` and `[i]`
+  marks for high, medium and low, entries aligned in columns and detail lines under them. Colour
+  is used only on a terminal, never with `NO_COLOR`, and on Windows only inside Windows Terminal.
+- `report` saves every run to an output folder: `report.txt` with every section, and
+  `files.json`, `trace.json`, `findings.json` and `report.json`, one per class. The folder is
+  `slopmop-<name>` in the current directory, beside the input folder when the current directory
+  is inside it, or the one `-outdir <folder>` names. An output folder inside the input folder is
+  refused.
+- `internal/command/commands.json` declares the usage line, the options, the verbs with their
+  sections and saved files, and the columns of each class.
 
 ### Changed
 
-- `slopmop` without arguments leads its help with the folder form and its sections.
-- A first argument that names no noun is read as the folder. `slopmop bogus list` fails with
-  `slopmop reads one folder, got "bogus" and "list"` where it failed with `unknown noun "bogus"`.
+- The grammar is `slopmop -inputdir <folder> VERB [section ...] [options]`, and `report` is the
+  one verb: `slopmop -inputdir <folder> report impact remediation`. It reads the folder and its
+  sub-folders once. A bare word after the verb names a section, and no word means every section.
+- An option is written with one dash or two and always takes a value: `-inputdir`, `-intelfile`
+  and `-outdir`.
+- `slopmop`, `slopmop --help` and `slopmop -inputdir <folder> --help` print the verbs and the
+  options; `slopmop report --help` prints the sections.
+- A notable file is one with a finding of high severity.
+
+### Removed
+
+- The grammar `slopmop NOUN VERB`, the nouns `file`, `trace`, `finding`, `report` and `campaign`,
+  the verb `list`, and their aliases. The saved JSON files carry what `file list`, `trace list`,
+  `finding list` and `report list` printed.
+- Selectors, the output flags `-o`, `-q`, `--no-headers` and `--tz`, the switch `--recursive` and
+  the param `--severity`.
+- `nouns.json`.
 
 ## [0.3.1] - 2026-11-16
 
