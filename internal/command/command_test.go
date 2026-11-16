@@ -12,6 +12,7 @@ import (
 
 	"github.com/get-sybers/slopmop/internal/cli"
 	"github.com/get-sybers/slopmop/internal/evidencetest"
+	"github.com/get-sybers/slopmop/internal/exposure"
 	"github.com/get-sybers/slopmop/internal/golden"
 	"github.com/get-sybers/slopmop/internal/inventory"
 )
@@ -88,7 +89,7 @@ func TestReportViews(t *testing.T) {
 		t.Run(fixture, func(t *testing.T) {
 			readout, saved := report(t, folder)
 			golden.Check(t, fixture+"-report", []byte(readout))
-			for _, name := range []string{"files", "trace", "findings", "report"} {
+			for _, name := range []string{"files", "trace", "findings", "exposure", "report"} {
 				golden.Check(t, fixture+"-"+name+"-json", []byte(readFile(t, filepath.Join(saved, name+".json"))))
 			}
 		})
@@ -108,7 +109,7 @@ func TestReportViews(t *testing.T) {
 func TestReportSaves(t *testing.T) {
 	folder := evidencetest.Copy(t, "linux")
 	shown, saved := report(t, folder, "impact")
-	if want := "-> saved to <out>: report.txt, files.json, trace.json, findings.json, report.json\n"; !strings.Contains(shown, want) {
+	if want := "-> saved to <out>: report.txt, files.json, trace.json, findings.json, exposure.json, report.json\n"; !strings.Contains(shown, want) {
 		t.Errorf("the readout does not say where it was saved:\n%s", shown)
 	}
 	if strings.Contains(shown, "\nTimeline") {
@@ -120,10 +121,10 @@ func TestReportSaves(t *testing.T) {
 	if text != strings.Join(lines, "\n") {
 		t.Errorf("report.txt is not the full readout:\n%s", text)
 	}
-	if entries, err := os.ReadDir(saved); err != nil || len(entries) != 5 {
-		t.Errorf("the output folder holds %d entries (%v), want 5", len(entries), err)
+	if entries, err := os.ReadDir(saved); err != nil || len(entries) != 6 {
+		t.Errorf("the output folder holds %d entries (%v), want 6", len(entries), err)
 	}
-	for name, least := range map[string]int{"files.json": 11, "trace.json": 11, "findings.json": 30, "report.json": 40} {
+	for name, least := range map[string]int{"files.json": 14, "trace.json": 14, "findings.json": 30, "exposure.json": 15, "report.json": 60} {
 		if got := len(rows(t, filepath.Join(saved, name))); got < least {
 			t.Errorf("%s holds %d rows, want at least %d", name, got, least)
 		}
@@ -140,7 +141,7 @@ func TestReportSections(t *testing.T) {
 			titles = append(titles, strings.TrimSpace(strings.SplitN(line, "   ", 2)[0]))
 		}
 	}
-	want := []string{"Summary", "Timeline", "Findings", "Notable files", "Impact", "Remediation", "Mitigation"}
+	want := []string{"Summary", "Timeline", "Findings", "Notable files", "Exposure", "Impact", "Remediation", "Mitigation"}
 	if !slices.Equal(titles, want) {
 		t.Errorf("sections = %q, want %q", titles, want)
 	}
@@ -229,6 +230,232 @@ func TestReportScenarios(t *testing.T) {
 	}
 }
 
+// find returns the first row whose cells hold every given key and value.
+func find(t *testing.T, table []map[string]any, want map[string]string) map[string]any {
+	t.Helper()
+	for _, row := range table {
+		match := true
+		for key, value := range want {
+			match = match && row[key] == value
+		}
+		if match {
+			return row
+		}
+	}
+	t.Fatalf("no row with %v", want)
+	return nil
+}
+
+// The exposure names what the files hold, by kind, with whose a secret is,
+// whether the scripts collected it or the attacker brought it, and where.
+func TestReportExposure(t *testing.T) {
+	readout, saved := report(t, evidencetest.Copy(t, "linux"), "summary", "exposure")
+	table := rows(t, filepath.Join(saved, "exposure.json"))
+	tests := []struct {
+		row  map[string]string
+		want map[string]any
+	}{
+		{map[string]string{"kind": "password", "account": "app_rw"},
+			map[string]any{"value": "Fi********1 (15 chars)", "form": "password", "seen": "collected", "severity": "high", "files": "env_20261022_090540.txt:3"}},
+		{map[string]string{"kind": "password", "account": "deploy"},
+			map[string]any{"form": "hash", "seen": "collected", "files": "shadow_20261022_090530.txt:4"}},
+		{map[string]string{"kind": "password", "form": "token"},
+			map[string]any{"account": nil, "value": "fi********9 (24 chars)", "files": "env_20261022_090540.txt:5"}},
+		{map[string]string{"kind": "username", "value": "deploy"},
+			map[string]any{"seen": "collected", "severity": "medium", "files": "passwd_20261022_090020.txt:3"}},
+		{map[string]string{"kind": "username", "value": "ops"},
+			map[string]any{"seen": "used", "files": "20261022_092500_step06_stage.sh:6"}},
+		{map[string]string{"kind": "email", "value": "alerts@corp.example"},
+			map[string]any{"seen": "collected", "files": "env_20261022_090540.txt:4"}},
+		{map[string]string{"kind": "device", "value": "db01.corp.internal"},
+			map[string]any{"seen": "collected", "severity": "low", "files": "hosts_20261022_090025.txt:2, env_20261022_090540.txt:1"}},
+		{map[string]string{"kind": "ip", "value": "10.20.30.5"},
+			map[string]any{"seen": "collected", "files": "hosts_20261022_090025.txt:2"}},
+		{map[string]string{"kind": "ip", "value": "203.0.113.40"},
+			map[string]any{"seen": "used"}},
+	}
+	for _, tt := range tests {
+		row := find(t, table, tt.row)
+		for key, want := range tt.want {
+			if row[key] != want {
+				t.Errorf("%v: %s = %v, want %v", tt.row, key, row[key], want)
+			}
+		}
+	}
+	for _, row := range table {
+		if row["value"] == "127.0.0.1" || row["value"] == "localhost" {
+			t.Errorf("the exposure lists %v, which names no host", row["value"])
+		}
+	}
+	for _, want := range []string{
+		"exposed     19  Passwords and secrets 3, Usernames 7, Email addresses 1, Devices 2, IP addresses 6",
+		"\n  Passwords and secrets (3)\n",
+		"[x] Fi********1 (15 chars)  password of app_rw  collected  env_20261022_090540.txt:3\n",
+		"[x] fi********9 (24 chars)  token               collected  env_20261022_090540.txt:5\n",
+		"\n  Usernames (7)\n",
+		"\n  IP addresses (6)\n",
+	} {
+		if !strings.Contains(readout, want) {
+			t.Errorf("the readout lacks %q:\n%s", want, readout)
+		}
+	}
+}
+
+// A secret is masked wherever it would stand: in the exposure, in a command
+// quoted as evidence and among the indicators. -secrets shown writes it out.
+func TestReportMasksSecrets(t *testing.T) {
+	folder := evidencetest.Copy(t, "bash")
+	secret := []string{"Winter2025!", "Qw7#fakeMsolSecretValue99", "Zx9!fakeCloudSyncPass", "8846f7eaee8fb117ad06bdd830b7586c"}
+	readout, saved := report(t, folder)
+	holds := func(text string) []string {
+		var found []string
+		for _, s := range secret {
+			if strings.Contains(text, s) {
+				found = append(found, s)
+			}
+		}
+		return found
+	}
+	if found := holds(readout); len(found) > 0 {
+		t.Errorf("the readout holds %q", found)
+	}
+	entries, err := os.ReadDir(saved)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, e := range entries {
+		if found := holds(readFile(t, filepath.Join(saved, e.Name()))); len(found) > 0 {
+			t.Errorf("%s holds %q", e.Name(), found)
+		}
+	}
+	if !strings.Contains(readout, "-p 'Wi********! (11 chars)'") {
+		t.Errorf("the readout does not quote the command with its password masked")
+	}
+	plain, saved := report(t, folder, "-secrets", "shown")
+	if found := holds(plain); len(found) != len(secret) {
+		t.Errorf("-secrets shown: the readout holds %q, want all of %q", found, secret)
+	}
+	row := find(t, rows(t, filepath.Join(saved, "exposure.json")), map[string]string{"kind": "password", "account": "svc_backup"})
+	if row["value"] != "Winter2025!" || row["seen"] != "used" {
+		t.Errorf("-secrets shown: %v, want the password as it stands, used by the scripts", row)
+	}
+	masked, _ := report(t, folder, "-secrets", "masked")
+	if masked != readout {
+		t.Error("-secrets masked differs from the default")
+	}
+}
+
+// An impact, an action and a mitigation name what they concern and quote the
+// lines that show it; a finding quotes its lines.
+func TestReportNamesWhat(t *testing.T) {
+	readout, saved := report(t, evidencetest.Copy(t, "linux"), "impact", "remediation", "mitigation")
+	table := rows(t, filepath.Join(saved, "report.json"))
+	tests := []struct {
+		section, item string
+		targets       []string
+		evidence      []string
+	}{
+		{"impact", "Persistence established",
+			[]string{"account svc", "unit sync.service", "file ~/.ssh/authorized_keys", "file ~/.bashrc"},
+			[]string{"AccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)", "AccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)"}},
+		{"impact", "Privileged access obtained",
+			[]string{"file /etc/sudoers.d/svc", "file /tmp/tool ($F)", "mount /:/host"},
+			[]string{"SetuidBit: chmod u+s \"$F\" (20261022_091000_step03_privesc.sh:4)"}},
+		{"impact", "Movement to other systems", nil,
+			[]string{"ssh: ssh ops@198.51.100.7 'cat /etc/hostname' (20261022_092500_step06_stage.sh:6)"}},
+		{"impact", "Credentials exposed",
+			[]string{"file /etc/shadow", "password of app_rw", "hash of deploy"},
+			[]string{"ShadowFileRead: sudo cat /etc/shadow > shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)"}},
+		{"remediation", "Remove persistence",
+			[]string{"account svc", "unit sync.service"},
+			[]string{"SystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)"}},
+		{"remediation", "Rotate what was read", []string{"password of app_rw", "hash of deploy", "file ~/.ssh/id_rsa"}, nil},
+		{"remediation", "Restore security tooling", []string{"service auditd"},
+			[]string{"SecurityToolDisabling: systemctl stop auditd (20261022_092000_step05_evade.sh:4)"}},
+		{"remediation", "Follow what was enumerated", []string{"username deploy", "device db01.corp.internal", "ip 10.20.30.5"}, nil},
+		{"mitigation", "M1032 Multi-factor Authentication", []string{"AccountCreation: account svc"}, nil},
+	}
+	for _, tt := range tests {
+		row := find(t, table, map[string]string{"section": tt.section, "item": tt.item})
+		targets, _ := row["targets"].(string)
+		for _, want := range tt.targets {
+			if !slices.Contains(strings.Split(targets, "; "), want) {
+				t.Errorf("%s %s: targets = %q, want %q among them", tt.section, tt.item, targets, want)
+			}
+		}
+		evidence, _ := row["evidence"].(string)
+		for _, want := range tt.evidence {
+			if !slices.Contains(strings.Split(evidence, "\n"), want) {
+				t.Errorf("%s %s: evidence = %q, want %q among it", tt.section, tt.item, evidence, want)
+			}
+		}
+	}
+	// A variable the script never sets names nothing, so it is no target.
+	if row := find(t, table, map[string]string{"section": "impact", "item": "Persistence established"}); strings.Contains(row["targets"].(string), "$JOB") {
+		t.Errorf("targets = %q, want no variable that is never set", row["targets"])
+	}
+	for _, want := range []string{
+		"      targets  unit sync.service; account svc;",
+		"      what     ScheduledJobCreation: (crontab -l; echo \"$JOB\") | crontab - (20261022_091500_step04_persist.sh:3)\n",
+		" more in the saved report\n",
+		"      for  AccountCreation: account svc\n",
+	} {
+		if !strings.Contains(readout, want) {
+			t.Errorf("the readout lacks %q", want)
+		}
+	}
+	finding := find(t, rows(t, filepath.Join(saved, "findings.json")), map[string]string{"finding": "AccountCreation"})
+	if want := "useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)\nuseradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)"; finding["evidence"] != want {
+		t.Errorf("the evidence of the finding = %q, want %q", finding["evidence"], want)
+	}
+}
+
+// A secret seen without an account is the same secret seen with one.
+func TestMergeOwned(t *testing.T) {
+	secret := exposure.Kind{Name: "password", Secret: true}
+	all := mergeOwned([]exposed{
+		{kind: secret, value: "s1", form: "password", seen: seenCollected, count: 2, cites: []cite{{"loot.txt", 4}}},
+		{kind: secret, value: "s1", form: "password", account: "alice", seen: seenUsed, count: 1, cites: []cite{{"a.sh", 2}}},
+		{kind: secret, value: "s2", form: "password", seen: seenUsed, count: 1, cites: []cite{{"a.sh", 3}}},
+		{kind: secret, value: "s1", form: "password", count: 1, seen: seenUsed, cites: []cite{{"a.sh", 2}, {"b.sh", 1}}},
+		{kind: exposure.Kind{Name: "username"}, value: "s1", seen: seenUsed, count: 1},
+	})
+	if len(all) != 3 || all[0].account != "alice" || all[0].count != 4 || all[0].seen != seenCollected {
+		t.Fatalf("merged = %+v, want the secret of alice with every count, collected because an output held it first", all)
+	}
+	if want := []cite{{"a.sh", 2}, {"loot.txt", 4}, {"b.sh", 1}}; !slices.Equal(all[0].cites, want) {
+		t.Errorf("cites = %v, want %v", all[0].cites, want)
+	}
+	if all[1].value != "s2" || all[1].account != "" || all[2].kind.Name != "username" {
+		t.Errorf("merged = %+v, want the secret with no owner and the username kept", all)
+	}
+	if got := (cite{"a.sh", 0}).String(); got != "a.sh" {
+		t.Errorf("a cite without a line = %q", got)
+	}
+}
+
+// A secret is masked inside a longer text, the longest first, and one too
+// short to be told from an ordinary word is left.
+func TestRedactor(t *testing.T) {
+	secret := exposure.Kind{Name: "password", Secret: true}
+	redact := redactor([]exposed{
+		{kind: secret, value: "Winter2025!"},
+		{kind: secret, value: "Winter2025!extra"},
+		{kind: secret, value: "abc"},
+		{kind: secret, value: "rsa private key", open: true},
+		{kind: secret, value: "ShownValue1", plain: true},
+		{kind: exposure.Kind{Name: "username"}, value: "svc_backup"},
+	})
+	got := redact("nxc -u svc_backup -p 'Winter2025!' ; x=Winter2025!extra abc rsa private key ShownValue1")
+	want := "nxc -u svc_backup -p 'Wi********! (11 chars)' ; x=Wi********a (16 chars) abc rsa private key ShownValue1"
+	if got != want {
+		t.Errorf("redact = %q, want %q", got, want)
+	}
+	if same := redactor(nil)("unchanged"); same != "unchanged" {
+		t.Errorf("no secrets: %q", same)
+	}
+}
+
 func TestReportFails(t *testing.T) {
 	folder := evidencetest.Copy(t, "linux")
 	bad := filepath.Join(t.TempDir(), "bad.json")
@@ -251,6 +478,7 @@ func TestReportFails(t *testing.T) {
 		{"a missing watchlist", []string{"-inputdir", folder, "report", "-intelfile", bad + ".missing"}, false, "-intelfile:"},
 		{"a broken watchlist", []string{"-inputdir", folder, "report", "-intelfile", bad}, false, "intel watchlist:"},
 		{"an output folder in the evidence", []string{"-inputdir", folder, "report", "-outdir", filepath.Join(folder, "out")}, true, "is inside the folder that is read"},
+		{"a word for the secrets", []string{"-inputdir", folder, "report", "-secrets", "plain"}, true, `-secrets takes masked or shown, not "plain"`},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -263,8 +491,8 @@ func TestReportFails(t *testing.T) {
 			}
 		})
 	}
-	if entries, err := os.ReadDir(folder); err != nil || len(entries) != 11 {
-		t.Errorf("the evidence folder holds %d entries after the failures (%v), want 11", len(entries), err)
+	if entries, err := os.ReadDir(folder); err != nil || len(entries) != 14 {
+		t.Errorf("the evidence folder holds %d entries after the failures (%v), want 14", len(entries), err)
 	}
 }
 
@@ -440,6 +668,7 @@ func TestReportVerbRejects(t *testing.T) {
 		{"an unknown section", func(v *verbSpec, _ *commandsDoc) { v.Sections[0].Name = "bogus" }, "which has no implementation"},
 		{"a section left out", func(v *verbSpec, _ *commandsDoc) { v.Sections = v.Sections[1:] }, "does not declare the section"},
 		{"an option it reads and does not name", func(v *verbSpec, _ *commandsDoc) { v.Takes = v.Takes[:1] }, `reads the option "outdir"`},
+		{"a row that fills a column the class lacks", func(_ *verbSpec, doc *commandsDoc) { doc.Classes[3].Columns = doc.Classes[3].Columns[1:] }, "the class exposure declares 7 columns and fills 8"},
 		{"no prefix", func(v *verbSpec, _ *commandsDoc) { v.Saved.Prefix = "" }, "needs a prefix"},
 		{"no tables", func(v *verbSpec, _ *commandsDoc) { v.Saved.Tables = nil }, "needs a prefix"},
 		{"an unknown class", func(v *verbSpec, _ *commandsDoc) { v.Saved.Tables[0].Class = "bogus" }, "which has no table"},

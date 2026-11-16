@@ -31,6 +31,8 @@ type finding struct {
 	// identifiers on a tactic.
 	attack []string
 	atlas  []string
+	// evidence holds the lines that show an activity, each with its file and line.
+	evidence []string
 }
 
 // listFindings aggregates the timeline: one finding per activity, one per
@@ -61,6 +63,11 @@ func (p pipeline) listFindings(a analysis) []finding {
 				order = append(order, f)
 			}
 			f.files = appendUnique(f.files, path)
+			for _, e := range hit.Evidence {
+				if len(f.evidence) < maxCited {
+					f.evidence = append(f.evidence, a.cited(path, e).String())
+				}
+			}
 		}
 		if s.File.Role == evidence.Script {
 			for _, name := range s.Tactics {
@@ -80,7 +87,8 @@ func (p pipeline) listFindings(a analysis) []finding {
 			key := m.Type + "\x00" + m.Value
 			f, ok := byIndicator[key]
 			if !ok {
-				f = &finding{kind: kindIndicator, label: m.Type, indicator: m.Value}
+				// A hash or a token is an indicator and a secret; it is masked as one.
+				f = &finding{kind: kindIndicator, label: m.Type, indicator: a.redact(m.Value)}
 				if a.watchlist != nil {
 					for _, hit := range a.watchlist.Match([]indicator.Match{m}) {
 						f.attributions = appendUnique(f.attributions, hit.Attribution)
@@ -168,6 +176,10 @@ func findingRow(f finding, columns []render.Column) ([]render.Value, error) {
 		"attribution": list(f.attributions),
 		"attack":      list(f.attack),
 		"atlas":       list(f.atlas),
+		"evidence":    render.NotApplicable(),
+	}
+	if len(f.evidence) > 0 {
+		cells["evidence"] = render.Text(strings.Join(f.evidence, "\n"))
 	}
 	if f.indicator != "" {
 		cells["indicator"] = render.Text(f.indicator)

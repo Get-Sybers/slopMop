@@ -1,3 +1,4 @@
 root:*:19000:0:99999:7:::
 daemon:*:19000:0:99999:7:::
 svc:!:19000::::::
+deploy:$6$fixturesalt$fixturehashvalue0123456789abcdef:19000:0:99999:7:::

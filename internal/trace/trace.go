@@ -25,6 +25,8 @@ type Step struct {
 	Tactics    []string
 	Transforms []string
 	Activities []activity.Hit
+	// Commands holds the first command of each tool, as evidence of what ran.
+	Commands   []parse.Command
 	Outputs    []string
 	Indicators int
 	Matches    []indicator.Match
@@ -62,11 +64,15 @@ func Build(files []evidence.File, texts map[string]string, tables Tables) Timeli
 	linked := linkOutputs(ordered, parsed)
 	// A report is not a turn and links no output, so it stays out of the linking.
 	content := map[string]string{}
+	// asRead is how many bytes of a content are the file as it stands, where a line has its number.
+	asRead := map[string]int{}
 	for _, f := range ordered {
 		text := texts[f.Path]
+		asRead[f.Path] = len(text)
 		if p, decoded, ok := parseReport(f, text, tables.Formats); ok {
 			parsed[f.Path] = p
 			text = decoded
+			asRead[f.Path] = 0
 		}
 		// A .cmd file is an output by role, and is a batch file all the same.
 		if _, done := parsed[f.Path]; !done && isBatch(f) && text != "" {
@@ -90,12 +96,14 @@ func Build(files []evidence.File, texts map[string]string, tables Tables) Timeli
 		s := Step{File: f, Turn: turn}
 		if p, ok := parsed[f.Path]; ok {
 			s.Tools = uniqueTools(p.Commands)
+			s.Commands = firstCommands(p.Commands, f.Role == evidence.Script)
 			s.Tactics = classifyTools(s.Tools, tables.Tactics)
 			s.Transforms = uniqueMethods(p.Transforms)
 		}
 		if text := content[f.Path]; text != "" {
 			// An activity adds its tactics to those of the commands that ran.
 			s.Activities = tables.Activities.Detect(text)
+			numberLines(text, asRead[f.Path], s.Activities, nil)
 			for _, a := range s.Activities {
 				for _, name := range a.Tactics {
 					if !slices.Contains(s.Tactics, name) {
@@ -104,6 +112,7 @@ func Build(files []evidence.File, texts map[string]string, tables Tables) Timeli
 				}
 			}
 			matches := tables.Patterns.Extract(text)
+			numberLines(text, asRead[f.Path], nil, matches)
 			s.Indicators = len(matches)
 			s.Matches = matches
 			if tables.Watchlist != nil {
@@ -114,6 +123,59 @@ func Build(files []evidence.File, texts map[string]string, tables Tables) Timeli
 		steps[i] = s
 	}
 	return Timeline{Steps: steps}
+}
+
+// numberLines keeps a line number only where it is a line of the file: the
+// first known bytes of text. A decoded report and a decoded payload have no
+// lines of the file, so what is found in them carries line 0.
+func numberLines(text string, known int, hits []activity.Hit, matches []indicator.Match) {
+	lines := strings.Count(text[:known], "\n") + 1
+	for _, h := range hits {
+		for i := range h.Evidence {
+			if known == 0 || h.Evidence[i].Line > lines {
+				h.Evidence[i].Line = 0
+			}
+		}
+	}
+	if len(matches) == 0 || known == 0 {
+		return
+	}
+	order := make([]int, len(matches))
+	for i := range order {
+		order[i] = i
+	}
+	sort.Slice(order, func(a, b int) bool { return matches[order[a]].Start < matches[order[b]].Start })
+	line, counted := 1, 0
+	for _, i := range order {
+		start := matches[i].Start
+		if start >= known {
+			break
+		}
+		line += strings.Count(text[counted:start], "\n")
+		counted = start
+		matches[i].Line = line
+	}
+}
+
+// maxCommands is how many commands a step keeps as evidence.
+const maxCommands = 40
+
+// firstCommands returns the first command of each tool, with its line when
+// the file is a script: a command read out of a report has no line of the file.
+func firstCommands(cmds []parse.Command, numbered bool) []parse.Command {
+	seen := map[string]bool{}
+	var first []parse.Command
+	for _, c := range cmds {
+		if seen[c.Tool] || len(first) == maxCommands {
+			continue
+		}
+		seen[c.Tool] = true
+		if !numbered {
+			c.Line = 0
+		}
+		first = append(first, c)
+	}
+	return first
 }
 
 func sortByTime(files []evidence.File) []evidence.File {

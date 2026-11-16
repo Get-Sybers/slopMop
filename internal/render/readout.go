@@ -225,6 +225,7 @@ func (p *pen) group(g Group, indent string) {
 			}
 		}
 		p.line(parts...)
+		last := ""
 		for _, d := range e.Detail {
 			if d.Text == "" {
 				continue
@@ -233,8 +234,14 @@ func (p *pen) group(g Group, indent string) {
 				p.line(under, Escape(d.Text))
 				continue
 			}
-			pad := strings.Repeat(" ", label-utf8.RuneCountInString(d.Label))
-			p.line(under, p.paint(sgrGrey, d.Label), pad, gap, Escape(d.Text))
+			// A label is written once; the lines under it that share it stand in its column.
+			name := d.Label
+			if name == last {
+				name = ""
+			}
+			last = d.Label
+			pad := strings.Repeat(" ", label-utf8.RuneCountInString(name))
+			p.line(under, p.paint(sgrGrey, name), pad, gap, Escape(d.Text))
 		}
 	}
 }

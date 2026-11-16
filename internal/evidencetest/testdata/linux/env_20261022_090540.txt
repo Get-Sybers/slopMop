@@ -1,0 +1,5 @@
+DB_HOST=db01.corp.internal
+DB_USER=app_rw
+DB_PASSWORD=Fixture-Pass-01
+SMTP_USER=alerts@corp.example
+API_TOKEN=fixture-token-0123456789

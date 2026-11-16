@@ -19,10 +19,13 @@ SHA-256. The binary is not code-signed.
 ## Use
 
 `slopmop -inputdir <folder> report` reads every file in the folder and below it, analyses them once
-and prints the report: the counts, the timeline, the findings, the notable files, the impact, the
-remediation and the mitigation. It saves the same analysis to `slopmop-<folder name>` in the
-current directory: `report.txt` to read, and `files.json`, `trace.json`, `findings.json` and
-`report.json` for a program. Nothing is written into the folder that is read.
+and prints the report: the counts, the timeline, the findings, the notable files, the exposure, the
+impact, the remediation and the mitigation. The exposure lists the usernames, email addresses,
+passwords and other secrets, devices and IP addresses the files hold. An impact, an action and a
+mitigation each name what they concern and quote the lines that show it. It saves the same
+analysis to `slopmop-<folder name>` in the current directory: `report.txt` to read, and
+`files.json`, `trace.json`, `findings.json`, `exposure.json` and `report.json` for a program.
+Nothing is written into the folder that is read, and a secret is written masked.
 
 ```text
 $ slopmop -inputdir case42/ai_workdir report
@@ -35,6 +38,7 @@ Summary
   indicators  13  1 Base64Blob, 4 Domain, 1 EncodedCommand, 1 GUID, 3 IPv4, 3 SHA1
   activities  1
   tactics     4
+  exposed     8   Usernames 2, Devices 3, IP addresses 3
 
 Timeline   (step, time, role, file)
   1  20250302_090000  script  20250302_090000_step01_inventory.ps1
@@ -49,10 +53,11 @@ Timeline   (step, time, role, file)
 | `slopmop -inputdir <folder> report impact remediation` | prints only the sections named |
 | `slopmop -inputdir <folder> report -intelfile <file>` | attributes the indicators a watchlist matches |
 | `slopmop -inputdir <folder> report -outdir <folder>` | saves the output to the folder named |
+| `slopmop -inputdir <folder> report -secrets shown` | writes each password, hash, token and key as it stands |
 | `slopmop -inputdir <folder> --help` | prints what the line holds so far and what can follow it; `--help` works at every point |
 
-The sections are `summary`, `timeline`, `findings`, `files`, `impact`, `remediation` and
-`mitigation`. `report` is the one verb, and nothing is remembered between runs.
+The sections are `summary`, `timeline`, `findings`, `files`, `exposure`, `impact`, `remediation`
+and `mitigation`. `report` is the one verb, and nothing is remembered between runs.
 
 ## Layout
 

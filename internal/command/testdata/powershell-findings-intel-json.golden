@@ -7,7 +7,8 @@
     "files": "20250302_092200_step05_export.ps1",
     "attribution": null,
     "attack": "T1649",
-    "atlas": null
+    "atlas": null,
+    "evidence": "Export-Certificate -Cert $Store -FilePath ca01_20250302_092210.cer | Out-Null (20250302_092200_step05_export.ps1:5)"
   },
   {
     "finding": "Domain",
@@ -17,7 +18,8 @@
     "files": "20250302_091500_step04_certs.ps1, ca_ping_20250302_091540.log, cert_store_20250302_091530.txt",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "Domain",
@@ -27,7 +29,8 @@
     "files": "20250302_092200_step05_export.ps1",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "GUID",
@@ -37,7 +40,8 @@
     "files": "20250302_091500_step04_certs.ps1, 20250302_092200_step05_export.ps1, sync_10.20.1.17_retry_20250302_090930.txt",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "IPv4",
@@ -47,7 +51,8 @@
     "files": "20250302_090900_step03_sync_retry.ps1, hosts_20250302_090030.csv, sync_10.20.1.17_20250302_090530.txt",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "IPv4",
@@ -57,7 +62,8 @@
     "files": "20250302_091500_step04_certs.ps1, hosts_20250302_090030.csv",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "IPv4",
@@ -67,7 +73,8 @@
     "files": "20250302_091500_step04_certs.ps1, hosts_20250302_090030.csv",
     "attribution": "STORM-0940",
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "SHA1",
@@ -77,7 +84,8 @@
     "files": "export_summary_20250302_092215.txt",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "SHA1",
@@ -87,7 +95,8 @@
     "files": "20250302_092200_step05_export.ps1, cert_store_20250302_091530.txt, export_summary_20250302_092215.txt",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "SHA1",
@@ -97,7 +106,8 @@
     "files": "cert_store_20250302_091530.txt",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "tactic",
@@ -107,7 +117,8 @@
     "files": "20250302_090900_step03_sync_retry.ps1, 20250302_092200_step05_export.ps1",
     "attribution": null,
     "attack": "TA0006",
-    "atlas": "AML.TA0013"
+    "atlas": "AML.TA0013",
+    "evidence": null
   },
   {
     "finding": "tactic",
@@ -117,7 +128,8 @@
     "files": "20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1, 20250302_091500_step04_certs.ps1",
     "attribution": null,
     "attack": "TA0008",
-    "atlas": "AML.TA0015"
+    "atlas": "AML.TA0015",
+    "evidence": null
   },
   {
     "finding": "EncodedCommand",
@@ -127,7 +139,8 @@
     "files": "staged_20250302_093100.cmd",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "Base64Blob",
@@ -137,7 +150,8 @@
     "files": "staged_20250302_093010.b64",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "Domain",
@@ -147,7 +161,8 @@
     "files": "sync_10.20.1.17_retry_20250302_090930.txt",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "Domain",
@@ -157,7 +172,8 @@
     "files": "20250302_090000_step01_inventory.ps1, sync_10.20.1.17_retry_20250302_090930.txt",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "tactic",
@@ -167,6 +183,7 @@
     "files": "20250302_090000_step01_inventory.ps1, 20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1, 20250302_091500_step04_certs.ps1",
     "attribution": null,
     "attack": "TA0007",
-    "atlas": "AML.TA0008"
+    "atlas": "AML.TA0008",
+    "evidence": null
   }
 ]

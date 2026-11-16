@@ -27,6 +27,8 @@ The gate is described in [docs/04-Conformance.md](docs/04-Conformance.md). Nothi
 | To change | Edit |
 | --- | --- |
 | a verb, an option, a section, a saved file or a column | `internal/command/commands.json`, then the verb's implementation |
+| what an activity acts on | the `subjects` of the activity in `internal/activity/activities.json` |
+| a kind of exposure or a rule that finds one | `internal/exposure/exposures.json` |
 | a role, its extensions or shebang patterns | `internal/inventory/roles.json` |
 | the grammar or an error message | `internal/cli` and [docs/01-Command-Grammar.md](docs/01-Command-Grammar.md) |
 | how a value prints | `internal/render` and [docs/02-Output-Schema.md](docs/02-Output-Schema.md) |

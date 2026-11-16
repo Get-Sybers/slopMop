@@ -23,8 +23,8 @@ func TestLoadTable(t *testing.T) {
 	if len(table.impacts) == 0 || len(table.actions) == 0 {
 		t.Fatalf("%d impacts and %d actions, want some of each", len(table.impacts), len(table.actions))
 	}
-	activities, tactics, indicators, atlas := table.Names()
-	for what, list := range map[string][]string{"activities": activities, "tactics": tactics, "indicators": indicators, "atlas": atlas} {
+	activities, tactics, indicators, atlas, exposed := table.Names()
+	for what, list := range map[string][]string{"activities": activities, "tactics": tactics, "indicators": indicators, "atlas": atlas, "exposed": exposed} {
 		sorted := slices.Clone(list)
 		slices.Sort(sorted)
 		if len(list) == 0 || len(slices.Compact(sorted)) != len(list) {
@@ -176,5 +176,39 @@ func TestDecodeRejects(t *testing.T) {
 				t.Errorf("decode gave no error")
 			}
 		})
+	}
+}
+
+// An exposed value brings an entry in by itself, and the entry lists what is exposed.
+func TestExposedTriggersAndIsListed(t *testing.T) {
+	table, err := decode(
+		[]byte(`[{"name":"Credentials exposed","severity":"high","statement":"s","exposed":["password","token"]}]`),
+		[]byte(`[{"name":"Rotate","priority":"high","action":"a","exposed":["password"]},{"name":"Other","priority":"low","action":"a","exposed":["device"]}]`),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var passwords []Exposed
+	for _, account := range []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "a"} {
+		passwords = append(passwords, Exposed{Label: "password of " + account, Files: []string{"loot.txt", account + ".txt"}})
+	}
+	e := Evidence{Exposed: map[string][]Exposed{"password": passwords}}
+	impacts := table.Impacts(e)
+	if len(impacts) != 1 || !slices.Equal(impacts[0].Basis, []string{"exposed password"}) {
+		t.Fatalf("impacts = %+v, want the one that the passwords bring in", impacts)
+	}
+	if got := impacts[0].Files; len(got) != 10 || got[0] != "a.txt" || got[9] != "loot.txt" {
+		t.Errorf("files = %q, want each file once, sorted", got)
+	}
+	listed := impacts[0].Exposed
+	if len(listed) != 1 || listed[0].Kind != "password" || len(listed[0].Labels) != maxExposed || listed[0].More != 1 {
+		t.Errorf("listed = %+v, want %d labels of the 9 distinct and 1 more", listed, maxExposed)
+	}
+	actions := table.Remediation(e)
+	if len(actions) != 1 || actions[0].Name != "Rotate" || len(actions[0].Exposed) != 1 {
+		t.Errorf("actions = %+v, want only the one whose kind is exposed", actions)
+	}
+	if got := table.Impacts(Evidence{}); len(got) != 0 {
+		t.Errorf("nothing exposed gives %+v", got)
 	}
 }

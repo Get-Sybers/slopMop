@@ -14,8 +14,18 @@ import (
 	"github.com/get-sybers/slopmop/internal/trace"
 )
 
-// fewFiles is how many file names an entry of the readout lists in full.
-const fewFiles = 3
+const (
+	// fewFiles is how many file names an entry of the readout lists in full.
+	fewFiles = 3
+	// fewLines is how many lines of evidence an entry of the readout shows.
+	fewLines = 6
+	// fewFindingLines is how many of them a finding shows.
+	fewFindingLines = 3
+	// fewTargets is how many targets an entry of the readout names.
+	fewTargets = 12
+	// fewExposed is how many values of one kind the readout lists.
+	fewExposed = 40
+)
 
 type sectionSpec struct {
 	Name    string `json:"name"`
@@ -66,6 +76,7 @@ func sectionBuilders() map[string]sectionBuilder {
 		"timeline":         reportRun.timeline,
 		"findings":         reportRun.findings,
 		sectionFiles:       reportRun.files,
+		sectionExposure:    reportRun.exposure,
 		sectionImpact:      func(w reportRun) []render.Group { return w.assessed(sectionImpact) },
 		sectionRemediation: func(w reportRun) []render.Group { return w.assessed(sectionRemediation) },
 		sectionMitigation:  reportRun.mitigation,
@@ -84,7 +95,7 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 		return nil, err
 	}
 	options := doc.options(v)
-	for _, name := range []string{inputDir, intelFile, outDir} {
+	for _, name := range []string{inputDir, intelFile, outDir, secrets} {
 		if !slices.ContainsFunc(options, func(o cli.Option) bool { return o.Name == name }) {
 			return nil, fmt.Errorf("commands.json: it reads the option %q, which it does not name", name)
 		}
@@ -104,12 +115,19 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 		if err != nil {
 			return err
 		}
-		result, err := pipe.read(folder, inventory.MaxDepth, a.Options[intelFile])
+		plain := false
+		switch given, ok := a.Options[secrets]; {
+		case ok && given == secretsShown:
+			plain = true
+		case ok && given != secretsMasked:
+			return cli.Usagef("-%s takes %s or %s, not %q", secrets, secretsMasked, secretsShown, given)
+		}
+		result, err := pipe.read(folder, inventory.MaxDepth, a.Options[intelFile], plain)
 		if err != nil {
 			return err
 		}
 		every := map[string]bool{
-			sectionSummary: true, sectionFiles: true, sectionImpact: true,
+			sectionSummary: true, sectionFiles: true, sectionExposure: true, sectionImpact: true,
 			sectionRemediation: true, sectionMitigation: true,
 		}
 		run := reportRun{pipe: pipe, result: result, rows: pipe.report(result, tactic.High, every)}
@@ -168,7 +186,7 @@ func (w reportRun) banner() render.Banner {
 // their breakdown, and each activity carries its own count in the findings.
 func (w reportRun) summary() []render.Group {
 	var g render.Group
-	var roles, types []string
+	var roles, types, kinds []string
 	for _, r := range w.rows {
 		if r.section != sectionSummary {
 			continue
@@ -179,6 +197,8 @@ func (w reportRun) summary() []render.Group {
 			roles = append(roles, strconv.Itoa(r.count)+" "+r.item)
 		case nested && parent == "indicators":
 			types = append(types, strconv.Itoa(r.count)+" "+part)
+		case nested && parent == "exposed":
+			kinds = append(kinds, w.kindTitle(part)+" "+strconv.Itoa(r.count))
 		case nested && parent == "activities":
 		default:
 			g.Entries = append(g.Entries, render.Entry{Cells: []string{r.item, strconv.Itoa(r.count)}})
@@ -191,6 +211,8 @@ func (w reportRun) summary() []render.Group {
 			*cells = append(*cells, strings.Join(roles, ", "))
 		case "indicators":
 			*cells = append(*cells, strings.Join(types, ", "))
+		case "exposed":
+			*cells = append(*cells, strings.Join(kinds, ", "))
 		}
 	}
 	return []render.Group{g}
@@ -243,6 +265,16 @@ func stepDetail(s trace.Step) []render.Detail {
 	return detail
 }
 
+// kindTitle gives the title of a kind of exposure, or its name when it has none.
+func (w reportRun) kindTitle(name string) string {
+	for _, k := range w.pipe.exposures.Kinds() {
+		if k.Name == name {
+			return k.Title
+		}
+	}
+	return name
+}
+
 // findings groups the findings by kind; each group is most severe first.
 func (w reportRun) findings() []render.Group {
 	lines := map[string]int{}
@@ -252,6 +284,7 @@ func (w reportRun) findings() []render.Group {
 		}
 	}
 	groups := []render.Group{{Title: "activities"}, {Title: "indicators"}, {Title: "tactics"}}
+	more := 0
 	for _, f := range w.pipe.listFindings(w.result) {
 		e := render.Entry{Level: string(f.severity)}
 		mitre := strings.Join(append(slices.Clone(f.attack), f.atlas...), ", ")
@@ -259,7 +292,7 @@ func (w reportRun) findings() []render.Group {
 		switch f.kind {
 		case kindActivity:
 			e.Cells = []string{f.label, plural(lines[f.label], "line"), strings.Join(f.tactics, ", "), mitre}
-			e.Detail = []render.Detail{{Label: "in", Text: few(f.files)}}
+			e.Detail = lined("what", f.evidence, fewFindingLines)
 		case kindIndicator:
 			at = 1
 			e.Cells = []string{f.label, f.indicator, few(f.files)}
@@ -268,7 +301,15 @@ func (w reportRun) findings() []render.Group {
 			at = 2
 			e.Cells = []string{strings.Join(f.tactics, ", "), mitre, few(f.files)}
 		}
+		if at == 1 && len(groups[at].Entries) == fewExposed {
+			more++
+			continue
+		}
 		groups[at].Entries = append(groups[at].Entries, e)
+	}
+	// A log can hold a hundred thousand indicators; the saved findings hold all of them.
+	if more > 0 {
+		groups[1].Entries = append(groups[1].Entries, render.Entry{Cells: []string{"and " + strconv.Itoa(more) + " more in the saved findings"}})
 	}
 	return groups
 }
@@ -288,39 +329,108 @@ func (w reportRun) files() []render.Group {
 	return []render.Group{g}
 }
 
-// assessed writes the impact or remediation rows of the report.
+// assessed writes the impact or remediation rows of the report: what each
+// says, what it concerns, and the lines of evidence that show it.
 func (w reportRun) assessed(section string) []render.Group {
 	var g render.Group
 	for _, r := range w.rows {
 		if r.section != section {
 			continue
 		}
+		detail := []render.Detail{{Text: r.detail}, {Label: "targets", Text: fewOf(r.targets, fewTargets, "; ")}}
+		detail = append(detail, lined("what", r.evidence, fewLines)...)
+		detail = append(detail, render.Detail{Label: "basis", Text: strings.Join(r.basis, ", ")})
+		if len(r.evidence) == 0 {
+			detail = append(detail, render.Detail{Label: "files", Text: few(r.files)})
+		}
+		g.Entries = append(g.Entries, render.Entry{Level: string(r.level), Cells: []string{r.item}, Detail: detail})
+	}
+	return []render.Group{g}
+}
+
+// mitigation gives each mitigation with the techniques found that it
+// addresses, the framework's own sentence, and what it is for in this evidence.
+func (w reportRun) mitigation() []render.Group {
+	var g render.Group
+	for _, r := range w.rows {
+		if r.section != sectionMitigation {
+			continue
+		}
+		detail := []render.Detail{{Text: r.detail}}
+		detail = append(detail, lined("for", r.targets, fewLines)...)
+		if len(r.targets) == 0 {
+			detail = append(detail, render.Detail{Label: "for", Text: strings.Join(r.basis, ", ")})
+		}
 		g.Entries = append(g.Entries, render.Entry{
-			Level: string(r.level),
-			Cells: []string{r.item},
-			Detail: []render.Detail{
-				{Text: r.detail},
-				{Label: "basis", Text: strings.Join(r.basis, ", ")},
-				{Label: "files", Text: few(r.files)},
-			},
+			Level:  string(r.level),
+			Cells:  []string{r.item, strings.Join(append(slices.Clone(r.attack), r.atlas...), ", ")},
+			Detail: detail,
 		})
 	}
 	return []render.Group{g}
 }
 
-// mitigation gives one line per mitigation: its name and the techniques
-// found that it addresses.
-func (w reportRun) mitigation() []render.Group {
-	var g render.Group
-	for _, r := range w.rows {
-		if r.section == sectionMitigation {
-			g.Entries = append(g.Entries, render.Entry{
-				Level: string(r.level),
-				Cells: []string{r.item, strings.Join(append(slices.Clone(r.attack), r.atlas...), ", ")},
-			})
+// exposure lists what the evidence holds, a group per kind. A long list is
+// cut here; the saved exposure file holds all of it.
+func (w reportRun) exposure() []render.Group {
+	var groups []render.Group
+	at := map[string]int{}
+	total := map[string]int{}
+	for _, e := range w.result.exposed {
+		total[e.kind.Name]++
+	}
+	for _, e := range w.result.exposed {
+		i, ok := at[e.kind.Name]
+		if !ok {
+			i = len(groups)
+			at[e.kind.Name] = i
+			groups = append(groups, render.Group{Title: e.kind.Title + " (" + strconv.Itoa(total[e.kind.Name]) + ")"})
+		}
+		if len(groups[i].Entries) == fewExposed {
+			continue
+		}
+		cites := make([]string, len(e.cites))
+		for n, c := range e.cites {
+			cites[n] = c.String()
+		}
+		entry := render.Entry{Level: e.kind.Severity, Cells: []string{e.shown(), e.seen, few(cites)}}
+		if e.kind.Secret {
+			whose := e.form
+			if e.account != "" {
+				whose += " of " + e.account
+			}
+			entry.Cells = []string{e.shown(), whose, e.seen, few(cites)}
+		}
+		groups[i].Entries = append(groups[i].Entries, entry)
+	}
+	for name, i := range at {
+		if more := total[name] - len(groups[i].Entries); more > 0 {
+			groups[i].Entries = append(groups[i].Entries, render.Entry{Cells: []string{"and " + strconv.Itoa(more) + " more in the saved exposure file"}})
 		}
 	}
-	return []render.Group{g}
+	return groups
+}
+
+// lined gives each of the first lines a detail of its own under one label,
+// and counts the rest.
+func lined(label string, lines []string, limit int) []render.Detail {
+	var out []render.Detail
+	for i, line := range lines {
+		if i == limit {
+			out = append(out, render.Detail{Label: label, Text: "and " + strconv.Itoa(len(lines)-limit) + " more in the saved report"})
+			break
+		}
+		out = append(out, render.Detail{Label: label, Text: line})
+	}
+	return out
+}
+
+// fewOf joins the first items and counts the rest.
+func fewOf(items []string, limit int, separator string) string {
+	if len(items) <= limit {
+		return strings.Join(items, separator)
+	}
+	return strings.Join(items[:limit], separator) + separator + "and " + strconv.Itoa(len(items)-limit) + " more"
 }
 
 // few lists the first files and counts the rest.

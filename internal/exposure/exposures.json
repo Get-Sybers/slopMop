@@ -1,0 +1,121 @@
+{
+  "kinds": [
+    {
+      "name": "password",
+      "title": "Passwords and secrets",
+      "severity": "high",
+      "secret": true,
+      "suffixes": [
+        {"suffix": "password", "form": "password"},
+        {"suffix": "passwd", "form": "password"},
+        {"suffix": "pwd", "form": "password"},
+        {"suffix": "pass", "form": "password"},
+        {"suffix": "secret", "form": "secret"},
+        {"suffix": "credential", "form": "secret"},
+        {"suffix": "token", "form": "token"},
+        {"suffix": "apikey", "form": "key"},
+        {"suffix": "secretkey", "form": "key"},
+        {"suffix": "accesskey", "form": "key"},
+        {"suffix": "privatekey", "form": "key"},
+        {"suffix": "nthash", "form": "hash"},
+        {"suffix": "ntlmhash", "form": "hash"}
+      ],
+      "indicators": [{"type": "JWT", "form": "token"}, {"type": "AWSKey", "form": "key"}, {"type": "PrivateKey", "form": "key"}],
+      "valid": "^\\S.{2,}$",
+      "reject": "(?i)^(?:[$%<{(\\[].*|\\*+|x+|!+|-+|null|none|nil|true|false|yes|no|redacted|bearer|basic|\\d{1,5}|\\.+)$",
+      "patterns": [
+        {"form": "hash", "needs": [":::"], "pattern": "(?m)^(?P<account>[^:\\s]+):\\d+:[0-9a-fA-F]{32}:(?P<value>[0-9a-fA-F]{32}):::"},
+        {"form": "hash", "needs": [":$"], "pattern": "(?m)^(?P<account>[a-z_][a-z0-9_-]*\\$?):(?P<value>\\$(?:1|2[abxy]?|5|6|y|argon2\\w*)\\$[^:\\s]+):"},
+        {"form": "hash", "needs": ["hash for"], "pattern": "(?i)hash for '?(?P<account>[^':\\s]+)'?:\\s*(?P<value>[0-9a-f]{32}:[0-9a-f]{32})"},
+        {"form": "hash", "needs": ["$krb5"], "pattern": "(?P<value>\\$krb5(?:tgs|asrep)\\$\\S{20,})"},
+        {"form": "hash", "needs": ["-hashes"], "pattern": "-hashes\\s+['\\\"]?(?P<value>[0-9a-fA-F]{0,32}:[0-9a-fA-F]{32})\\b"},
+        {"form": "hash", "needs": [" -h "], "pattern": "\\s-u\\s+['\\\"]?(?P<account>[^\\s'\\\"]+)['\\\"]?\\s+-H\\s+['\\\"]?(?P<value>[0-9a-fA-F]{32}(?::[0-9a-fA-F]{32})?)\\b"},
+        {"form": "password", "needs": ["[+]"], "pattern": "\\[\\+\\]\\s+(?:[\\w.-]+\\\\)?(?P<account>[^\\s:\\\\]+):(?P<value>\\S+)"},
+        {"form": "password", "needs": [" -p "], "pattern": "\\s-u\\s+(?P<account>\\\"[^\\\"]+\\\"|'[^']+'|\\S+)\\s+-p\\s+(?P<value>\\\"[^\\\"]+\\\"|'[^']+'|\\S+)"},
+        {"form": "password", "needs": ["--password"], "pattern": "--password[= ]\\s*(?P<value>\\\"[^\\\"]+\\\"|'[^']+'|\\S+)"},
+        {"form": "password", "needs": ["sshpass"], "pattern": "\\bsshpass\\s+-p\\s+(?P<value>\\\"[^\\\"]+\\\"|'[^']+'|\\S+)"},
+        {"form": "password", "needs": ["://"], "pattern": "://(?P<account>[^:/\\s@\\\"']+):(?P<value>[^@/\\s\\\"']+)@[\\w.-]"},
+        {"form": "password", "needs": ["/user:"], "pattern": "(?i)/user:(?:[\\w.-]+\\\\)?(?P<account>\\S+)\\s+(?P<value>[^/\\s]\\S*)"},
+        {"form": "password", "needs": ["asplaintext"], "pattern": "(?i)ConvertTo-SecureString\\s+(?:-String\\s+)?[\\\"'](?P<value>[^\\\"']+)[\\\"']\\s+-AsPlainText"},
+        {"form": "token", "needs": ["bearer"], "pattern": "(?i)\\bAuthorization:\\s*Bearer\\s+(?P<value>[A-Za-z0-9._~+/-]{16,}=*)"}
+      ]
+    },
+    {
+      "name": "username",
+      "title": "Usernames",
+      "severity": "medium",
+      "keys": [
+        "user", "username", "login", "account", "accountname", "samaccountname",
+        "userprincipalname", "upn", "uid", "owner", "principal", "logonname",
+        "identity", "connectoraccount", "serviceaccount", "runas"
+      ],
+      "suffixes": [
+        {"suffix": "user"},
+        {"suffix": "username"},
+        {"suffix": "account"},
+        {"suffix": "samaccountname"},
+        {"suffix": "userprincipalname"},
+        {"suffix": "login"},
+        {"suffix": "principal"}
+      ],
+      "valid": "^[A-Za-z0-9_][A-Za-z0-9._$@-]{1,80}$",
+      "reject": "(?i)^(?:true|false|null|none|nil|unknown|public|default|defaultuser0|all|everyone|n/?a|\\d+)$",
+      "patterns": [
+        {"needs": [":/"], "pattern": "(?m)^(?P<value>[a-z_][a-z0-9_-]*):[^:\\n]*:\\d+:\\d+:[^:\\n]*:/[^:\\n]*:[^:\\s]*$"},
+        {"needs": ["/home/"], "pattern": "/home/(?P<value>[A-Za-z0-9._-]{2,32})(?:/|$|\\s)"},
+        {"needs": [":\\users\\"], "pattern": "(?i)[a-z]:\\\\Users\\\\(?P<value>[A-Za-z0-9._-]{2,32})(?:\\\\|$|\\s|\\\")"},
+        {"needs": [" -u "], "pattern": "\\s-u\\s+(?P<value>\\\"[^\\\"]+\\\"|'[^']+'|[^\\s-]\\S*)"},
+        {"needs": ["-username"], "pattern": "(?i)--?username\\s+(?P<value>\\\"[^\\\"]+\\\"|'[^']+'|[^\\s-]\\S*)"},
+        {"needs": ["ssh", "scp", "sftp"], "pattern": "\\b(?:ssh|scp|sftp|ssh-copy-id)\\b.*?\\s(?P<value>[A-Za-z_][\\w.-]*)@[\\w.-]+"},
+        {"needs": ["/"], "pattern": "(?:^|\\s)[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)+/(?P<value>[A-Za-z0-9._$-]{2,64})(?::[^@\\s]*)?@[\\w.-]+"},
+        {"needs": ["\\"], "unless": "(?i)\\bHK(?:LM|CU|CR|U|CC)\\\\|\\bHKEY_|\\\\(?:Windows|System32|Program)|-config\\b|\\bconfig:", "pattern": "(?:^|[\\s\\\"'=(\\[])[A-Za-z][A-Za-z0-9-]{1,24}(?:\\.[A-Za-z0-9-]+)?\\\\(?P<value>[A-Za-z0-9._$-]{2,32})(?:$|[\\s\\\"',;:)\\]])"},
+        {"needs": ["[+]"], "pattern": "\\[\\+\\]\\s+(?:[\\w.-]+\\\\)?(?P<value>[^\\s:\\\\]+):\\S+"},
+        {"needs": ["hash for"], "pattern": "(?i)hash for '?(?P<value>[^':\\s]+)'?:"},
+        {"needs": [":::"], "pattern": "(?m)^(?P<value>[^:\\s]+):\\d+:[0-9a-fA-F]{32}:[0-9a-fA-F]{32}:::"}
+      ]
+    },
+    {
+      "name": "email",
+      "title": "Email addresses",
+      "severity": "medium",
+      "keys": [
+        "mail", "email", "emailaddress", "proxyaddresses", "othermails"
+      ],
+      "indicators": [{"type": "Email"}],
+      "valid": "(?i)^[a-z0-9][a-z0-9._%+-]{0,63}@(?:[a-z0-9-]+\\.)+[a-z]{2,24}$"
+    },
+    {
+      "name": "device",
+      "title": "Devices",
+      "severity": "low",
+      "keys": [
+        "hostname", "computername", "dnshostname", "host", "machine", "machinename",
+        "devicename", "netbiosname", "server", "servername", "workstation", "nodename",
+        "computer", "targethost", "dnsname", "fqdn"
+      ],
+      "suffixes": [
+        {"suffix": "hostname"},
+        {"suffix": "computername"},
+        {"suffix": "host"}
+      ],
+      "with": {"name": ["operatingsystem", "ipv4address", "dnshostname", "os", "osversion"]},
+      "valid": "^[A-Za-z0-9][A-Za-z0-9-]{1,62}(?:\\.[A-Za-z0-9-]{1,63})*$",
+      "reject": "(?i)^(?:localhost|true|false|null|none|unknown|\\d+(?:\\.\\d+)*|.*\\.(?:exe|dll|ps1|sh|py|txt|log|json|csv))$",
+      "patterns": [
+        {"needs": ["\\\\"], "pattern": "\\\\\\\\(?P<value>[A-Za-z0-9][A-Za-z0-9.-]{1,62})\\\\[A-Za-z$]"},
+        {"needs": ["nmap scan report for"], "pattern": "(?i)Nmap scan report for (?P<value>[A-Za-z0-9][\\w.-]+)"},
+        {"needs": ["smb", "ldap", "winrm", "mssql", "rdp", "ssh", "msol"], "pattern": "(?m)^(?:SMB|LDAP|WINRM|MSSQL|RDP|SSH|WMI|MSOL)\\s+\\S+\\s+\\d+\\s+(?P<value>[A-Za-z0-9][A-Za-z0-9-]{1,14})\\s"},
+        {"needs": ["(name:"], "pattern": "\\(name:(?P<value>[^)\\s]+)\\)"},
+        {"needs": ["ssh", "scp", "sftp"], "pattern": "\\b(?:ssh|scp|sftp|ssh-copy-id)\\b.*?\\s[\\w.-]+@(?P<value>[A-Za-z][\\w.-]+)"},
+        {"needs": [".local", ".lan", ".internal", ".corp", ".intranet"], "pattern": "\\b(?P<value>[A-Za-z0-9][A-Za-z0-9-]*(?:\\.[A-Za-z0-9-]+)*\\.(?:local|lan|internal|corp|intranet))(?:$|[^A-Za-z0-9.-]|\\.(?:$|\\s))"}
+      ]
+    },
+    {
+      "name": "ip",
+      "title": "IP addresses",
+      "severity": "low",
+      "indicators": [{"type": "IPv4"}],
+      "reject": "^(?:127\\.|0\\.0\\.0\\.0$|255\\.255\\.255\\.255$)"
+    }
+  ]
+}

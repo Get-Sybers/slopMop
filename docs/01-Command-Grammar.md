@@ -23,6 +23,7 @@ start.
 | `-inputdir` | `<folder>` | the folder of scripts and outputs to read; `report` requires it |
 | `-intelfile` | `<file>` | a watchlist, JSON or STIX 2.1, to attribute the indicators to |
 | `-outdir` | `<folder>` | where the output is saved |
+| `-secrets` | `masked` or `shown` | how a password, a hash, a token or a key is written; `masked` when not given |
 
 - An option is written with one dash or two, and its value follows as the next argument or after
   `=`: `-inputdir case42`, `--inputdir case42`, `-inputdir=case42`.
@@ -42,8 +43,9 @@ The bare words after `report` name sections of the report. No word means every s
 | `timeline` | each file in order, with what it shows |
 | `findings` | each activity, indicator and tactic, most severe first |
 | `files` | the files that hold a finding of high severity |
-| `impact` | what the findings mean |
-| `remediation` | what to do about them, most urgent first |
+| `exposure` | the usernames, emails, passwords, devices and addresses the files hold |
+| `impact` | what the findings mean, with what each concerns and the lines that show it |
+| `remediation` | what to do about them and to what, most urgent first |
 | `mitigation` | what MITRE ATT&CK and ATLAS say prevents the techniques found |
 
 The sections print in the order of the table, whatever order they are named in.
@@ -54,8 +56,11 @@ The sections print in the order of the table, whatever order they are named in.
   once. Nothing in the folder is run and nothing is written to it.
 - It prints the sections named, as the [output schema](02-Output-Schema.md) describes.
 - It saves the report with every section, whichever were named, and each class of the output
-  schema as JSON: `report.txt`, `files.json`, `trace.json`, `findings.json` and `report.json`. A
-  file of an earlier run is replaced. The last lines of the output name the folder.
+  schema as JSON: `report.txt`, `files.json`, `trace.json`, `findings.json`, `exposure.json` and
+  `report.json`. A file of an earlier run is replaced. The last lines of the output name the
+  folder.
+- A secret is masked in everything it prints and saves: in the exposure, in a command quoted as
+  evidence and among the indicators. `-secrets shown` writes each as it stands in the evidence.
 - The output folder is `slopmop-<name of the input folder>` in the current directory. When the
   current directory is the input folder or inside it, the output folder is made beside the input
   folder. `-outdir <folder>` names another, which is made when it is missing. An output folder
@@ -73,6 +78,7 @@ The sections print in the order of the table, whatever order they are named in.
 | `slopmop -inputdir case42/ai_workdir report impact remediation` | prints two sections; saves the whole report |
 | `slopmop -inputdir case42/ai_workdir report -intelfile watchlist.json` | the whole report, with the watchlist matches |
 | `slopmop -inputdir case42/ai_workdir report -outdir reports/case42` | the whole report, saved to `reports/case42` |
+| `slopmop -inputdir case42/ai_workdir report exposure -secrets shown` | the exposure, with each secret written out |
 | `slopmop --inputdir=case42/ai_workdir report` | the same as the first, in the other spelling |
 
 ## 6. Fails
@@ -84,8 +90,9 @@ The sections print in the order of the table, whatever order they are named in.
 | `slopmop report` | `report needs -inputdir <folder>` |
 | `slopmop report -inputdir` | `-inputdir needs a value <folder>` |
 | `slopmop -inputdir a -inputdir b report` | `-inputdir given more than once` |
-| `slopmop -inputdir case42 report bogus` | `report has no section "bogus" (sections: summary, timeline, findings, files, impact, remediation, mitigation)` |
-| `slopmop -inputdir case42 report -o json` | `unknown option -o (options: -inputdir <folder>, -intelfile <file>, -outdir <folder>)` |
+| `slopmop -inputdir case42 report bogus` | `report has no section "bogus" (sections: summary, timeline, findings, files, exposure, impact, remediation, mitigation)` |
+| `slopmop -inputdir case42 report -o json` | `unknown option -o (options: -inputdir <folder>, -intelfile <file>, -outdir <folder>, -secrets masked\|shown)` |
+| `slopmop -inputdir case42 report -secrets plain` | `-secrets takes masked or shown, not "plain"` |
 | `slopmop -inputdir case42/missing report` | `not a folder: open case42/missing: no such file or directory` |
 | `slopmop -inputdir case42 report -outdir case42/out` | `-outdir is inside the folder that is read; the evidence is never written to` |
 
@@ -133,41 +140,44 @@ usage: slopmop -inputdir <folder> VERB [section ...] [options]
 so far: slopmop -inputdir case42
 
 given:
-  -inputdir case42   the folder of scripts and outputs to read
+  -inputdir case42       the folder of scripts and outputs to read
 
 add a verb:
-  report             reads the folder and everything below it, runs nothing, prints the report and saves it
+  report                 reads the folder and everything below it, runs nothing, prints the report and saves it
 
 options you can add (one dash or two; each takes a value):
-  -intelfile <file>  a watchlist, JSON or STIX 2.1, to attribute the indicators to
-  -outdir <folder>   where the output is saved; slopmop-<name> in the current directory when not given
+  -intelfile <file>      a watchlist, JSON or STIX 2.1, to attribute the indicators to
+  -outdir <folder>       where the output is saved; slopmop-<name> in the current directory when not given
+  -secrets masked|shown  how a password, a hash, a token or a key is written; masked when not given
 
 next: slopmop -inputdir case42 report --help
 ```
 
 ```text
 $ slopmop -inputdir case42 report impact --help
-usage: slopmop -inputdir <folder> report [section ...] [-intelfile <file>] [-outdir <folder>]
+usage: slopmop -inputdir <folder> report [section ...] [-intelfile <file>] [-outdir <folder>] [-secrets masked|shown]
 reads the folder and everything below it, runs nothing, prints the report and saves it
 so far: slopmop -inputdir case42 report impact
 
 given:
-  -inputdir case42   the folder of scripts and outputs to read
+  -inputdir case42       the folder of scripts and outputs to read
 
 sections chosen:
-  impact             what the findings mean
+  impact                 what the findings mean, with what each concerns and the lines that show it
 
 sections you can add:
-  summary            the counts
-  timeline           each file in order, with what it shows
-  findings           each activity, indicator and tactic, most severe first
-  files              the files that hold a finding of high severity
-  remediation        what to do about them, most urgent first
-  mitigation         what MITRE ATT&CK and ATLAS say prevents the techniques found
+  summary                the counts
+  timeline               each file in order, with what it shows
+  findings               each activity, indicator and tactic, most severe first
+  files                  the files that hold a finding of high severity
+  exposure               the usernames, emails, passwords, devices and addresses the files hold
+  remediation            what to do about them and to what, most urgent first
+  mitigation             what MITRE ATT&CK and ATLAS say prevents the techniques found
 
 options you can add (one dash or two; each takes a value):
-  -intelfile <file>  a watchlist, JSON or STIX 2.1, to attribute the indicators to
-  -outdir <folder>   where the output is saved; slopmop-<name> in the current directory when not given
+  -intelfile <file>      a watchlist, JSON or STIX 2.1, to attribute the indicators to
+  -outdir <folder>       where the output is saved; slopmop-<name> in the current directory when not given
+  -secrets masked|shown  how a password, a hash, a token or a key is written; masked when not given
 
 next: slopmop -inputdir case42 report impact summary --help
 run:  slopmop -inputdir case42 report impact

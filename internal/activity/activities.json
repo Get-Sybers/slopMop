@@ -15,7 +15,12 @@
         "(?i)(?:role-?assignment|role-?member|role\\s+assignment).*(?:global|company) administrator",
         "(?i)(?:global|company) administrator.*(?:role-?assignment|role-?member|role\\s+assignment)"
       ],
-      "unless": "(?i)\\bget-(?:mg|az|msol)|\\bassignment\\s+list\\b|-(?:method|x)\\s+get\\b"
+      "unless": "(?i)\\bget-(?:mg|az|msol)|\\bassignment\\s+list\\b|-(?:method|x)\\s+get\\b",
+      "subjects": [
+        {"label": "principal", "pattern": "(?i)\"?principalId\"?\\s*[:=]\\s*\\\\?\"?([^\"\\\\,}\\s]+)"},
+        {"label": "role", "pattern": "(?i)\\b((?:global|company) administrator)\\b"},
+        {"label": "role", "pattern": "(?i)directoryRoles/([^/\\s\"']+)"}
+      ]
     },
     {
       "name": "RoleAssignment",
@@ -28,7 +33,14 @@
         "(?i)\\b(?:new-mgdirectoryrolememberbyref|add-mgdirectoryrolemember|new-mgrolemanagementdirectoryroleassignment|new-mgrolemanagementdirectoryroleeligibilityschedulerequest|add-azureaddirectoryrolemember|add-msolrolemember|new-azroleassignment)\\b",
         "(?i)\\baz\\s+role\\s+assignment\\s+create\\b"
       ],
-      "unless": "(?i)62e90394-69f5-4237-9190-012177145e10|(?:global|company) administrator"
+      "unless": "(?i)62e90394-69f5-4237-9190-012177145e10|(?:global|company) administrator",
+      "subjects": [
+        {"label": "principal", "pattern": "(?i)\"?principalId\"?\\s*[:=]\\s*\\\\?\"?([^\"\\\\,}\\s]+)"},
+        {"label": "principal", "pattern": "(?i)--assignee(?:-object-id)?\\s+(\\S+)"},
+        {"label": "role", "pattern": "(?i)\"?roleDefinitionId\"?\\s*[:=]\\s*\\\\?\"?([^\"\\\\,}\\s]+)"},
+        {"label": "role", "pattern": "(?i)directoryRoles/([^/\\s\"']+)/members"},
+        {"label": "role", "pattern": "(?i)--role\\s+(\"[^\"]+\"|'[^']+'|\\S+)"}
+      ]
     },
     {
       "name": "AppRoleAssignment",
@@ -39,6 +51,11 @@
         "(?i)\\b(?:appRoleAssignments|appRoleAssignedTo|oauth2PermissionGrants)\\b.*(?:\\bpost\\b|--data\\b|\\s-d\\s|-body\\b|--body\\b)",
         "(?i)\\b(?:new-mgserviceprincipalapproleassignment|new-mgserviceprincipalapproleassignedto|new-azureadserviceapproleassignment|new-mgoauth2permissiongrant|new-azureadoauth2permissiongrant)\\b",
         "(?i)\\baz\\s+ad\\s+app\\s+permission\\s+(?:add|grant|admin-consent)\\b"
+      ],
+      "subjects": [
+        {"label": "principal", "pattern": "(?i)\"?principalId\"?\\s*[:=]\\s*\\\\?\"?([^\"\\\\,}\\s]+)"},
+        {"label": "principal", "pattern": "(?i)servicePrincipals/([^/\\s\"']+)/appRole"},
+        {"label": "permission", "pattern": "(?i)\"?(?:scope|appRoleId)\"?\\s*[:=]\\s*\\\\?\"?([^\"\\\\,}]+)"}
       ]
     },
     {
@@ -49,6 +66,11 @@
         "(?i)(?:applications|servicePrincipals)/.{0,120}?/(?:addPassword|addKey)\\b",
         "(?i)\\b(?:add-mgapplicationpassword|add-mgapplicationkey|add-mgserviceprincipalpassword|add-mgserviceprincipalkey|new-azadappcredential|new-azadspcredential|new-azureadapplicationpasswordcredential|new-azureadapplicationkeycredential|new-azureadserviceprincipalpasswordcredential|new-azureadserviceprincipalkeycredential)\\b",
         "(?i)\\baz\\s+ad\\s+(?:app|sp)\\s+credential\\s+reset\\b"
+      ],
+      "subjects": [
+        {"label": "application", "pattern": "(?i)(?:applications|servicePrincipals)/([^/\\s\"']+)/add(?:Password|Key)"},
+        {"label": "application", "pattern": "(?i)--id\\s+(\\S+)"},
+        {"label": "application", "pattern": "(?i)-(?:ApplicationId|ObjectId|ServicePrincipalId)\\s+(\\S+)"}
       ]
     },
     {
@@ -60,6 +82,13 @@
         "(?i)\\baz\\s+login\\b.*--service-principal\\b",
         "(?i)\\bconnect-(?:mggraph|azaccount)\\b.*\\s-(?:clientsecretcredential|serviceprincipal|certificatethumbprint|accesstoken)\\b",
         "(?i)\\bacquire_token_(?:for_client|by_username_password)\\(|\\bClientSecretCredential\\("
+      ],
+      "subjects": [
+        {"label": "tenant", "pattern": "(?i)login\\.microsoftonline\\.(?:com|us)/([^/\\s\"']+)/oauth2"},
+        {"label": "tenant", "pattern": "(?i)--?tenant(?:id)?\\s+(\\S+)"},
+        {"label": "client", "pattern": "(?i)client_id=([^&\\s\"']+)"},
+        {"label": "client", "pattern": "(?i)\\s(?:-u|--username)\\s+(\\S+)"},
+        {"label": "client", "pattern": "(?i)-(?:clientid|applicationid)\\s+(\\S+)"}
       ]
     },
     {
@@ -75,7 +104,12 @@
       "paths": [
         "/(?:users|groups|applications|servicePrincipals|directoryRoles|directoryObjects|organization|domains|devices|roleManagement|oauth2PermissionGrants|auditLogs)\\b"
       ],
-      "unless": "(?i)\\b(?:post|patch|put|delete)\\b|--data\\b|\\s-d\\s|-body\\b|--body\\b|/messages\\b|/mailFolders\\b|/chats\\b|/drives?\\b|members/[`\\\\]?(?:\\$|%24)ref|/add(?:Password|Key)\\b"
+      "unless": "(?i)\\b(?:post|patch|put|delete)\\b|--data\\b|\\s-d\\s|-body\\b|--body\\b|/messages\\b|/mailFolders\\b|/chats\\b|/drives?\\b|members/[`\\\\]?(?:\\$|%24)ref|/add(?:Password|Key)\\b",
+      "subjects": [
+        {"label": "resource", "pattern": "(/(?:users|groups|applications|servicePrincipals|directoryRoles|directoryObjects|organization|domains|devices|roleManagement|oauth2PermissionGrants|auditLogs)\\b[^\\s\"'?]*)"},
+        {"label": "command", "pattern": "(?i)\\b(get-(?:mg|azuread)\\w+)"},
+        {"label": "command", "pattern": "(?i)\\b(az\\s+ad\\s+\\w+\\s+\\w+)"}
+      ]
     },
     {
       "name": "MailboxAccess",
@@ -91,7 +125,12 @@
       "paths": [
         "/(?:users/.{1,80}?|me)/(?:messages|mailFolders)\\b"
       ],
-      "unless": "(?i)TeamsMessagesData"
+      "unless": "(?i)TeamsMessagesData",
+      "subjects": [
+        {"label": "mailbox", "pattern": "/users/([^/\\s\"']+)/(?:messages|mailFolders)"},
+        {"label": "mailbox", "pattern": "/(me)/(?:messages|mailFolders)"},
+        {"label": "mailbox", "pattern": "(?i)-(?:UserId|Mailbox|Identity)\\s+(\"[^\"]+\"|'[^']+'|\\S+)"}
+      ]
     },
     {
       "name": "TeamsMessageAccess",
@@ -106,6 +145,9 @@
       "context": "graph",
       "paths": [
         "/(?:chats|channels)/.{1,80}?/messages\\b"
+      ],
+      "subjects": [
+        {"label": "chat", "pattern": "/(?:chats|channels)/([^/\\s\"']+)/messages"}
       ]
     },
     {
@@ -121,6 +163,10 @@
       "context": "graph",
       "paths": [
         "/(?:sites|drives?)\\b"
+      ],
+      "subjects": [
+        {"label": "site", "pattern": "(?i)(https?://[^\\s\"'/]+\\.sharepoint\\.(?:com|us)[^\\s\"']*)"},
+        {"label": "resource", "pattern": "(/(?:sites|drives?)\\b[^\\s\"'?]*)"}
       ]
     },
     {
@@ -136,6 +182,15 @@
       "context": "vault",
       "paths": [
         "/secrets\\b.*api-version"
+      ],
+      "subjects": [
+        {"label": "vault", "pattern": "(?i)([\\w-]+)\\.vault\\.(?:azure\\.net|usgovcloudapi\\.net)"},
+        {"label": "vault", "pattern": "(?i)--vault-name\\s+(\\S+)"},
+        {"label": "vault", "pattern": "(?i)-VaultName\\s+(\\S+)"},
+        {"label": "secret", "pattern": "(?i)/secrets/([^/\\s\"'?]+)"},
+        {"label": "secret", "pattern": "(?i)\\s--name\\s+(\\S+)"},
+        {"label": "secret", "pattern": "(?i)\\s-Name\\s+(\\S+)"},
+        {"label": "secret", "pattern": "(?i)get_secret\\(\\s*[\"']([^\"']+)"}
       ]
     },
     {
@@ -147,6 +202,13 @@
         "(?i)\\baz\\s+keyvault\\s+key\\s+decrypt\\b",
         "(?i)\\binvoke-azkeyvaultkeyoperation\\b.*\\b(?:unwrapkey|decrypt)\\b",
         "(?i)\\.unwrap_key\\("
+      ],
+      "subjects": [
+        {"label": "vault", "pattern": "(?i)([\\w-]+)\\.vault\\.(?:azure\\.net|usgovcloudapi\\.net)"},
+        {"label": "vault", "pattern": "(?i)--vault-name\\s+(\\S+)"},
+        {"label": "vault", "pattern": "(?i)-VaultName\\s+(\\S+)"},
+        {"label": "key", "pattern": "(?i)/keys/([^/\\s\"'?]+)"},
+        {"label": "key", "pattern": "(?i)\\s--name\\s+(\\S+)"}
       ]
     },
     {
@@ -164,7 +226,13 @@
       "paths": [
         "/keys\\b.*api-version"
       ],
-      "unless": "(?i)/(?:unwrapkey|decrypt|wrapkey|encrypt|sign|verify)\\b"
+      "unless": "(?i)/(?:unwrapkey|decrypt|wrapkey|encrypt|sign|verify)\\b",
+      "subjects": [
+        {"label": "vault", "pattern": "(?i)([\\w-]+)\\.vault\\.(?:azure\\.net|usgovcloudapi\\.net)"},
+        {"label": "vault", "pattern": "(?i)--vault-name\\s+(\\S+)"},
+        {"label": "vault", "pattern": "(?i)-VaultName\\s+(\\S+)"},
+        {"label": "key", "pattern": "(?i)/keys/([^/\\s\"'?]+)"}
+      ]
     },
     {
       "name": "AzureResourceEnumeration",
@@ -181,7 +249,12 @@
       "paths": [
         "/subscriptions\\b.*api-version"
       ],
-      "unless": "(?i)\\b(?:post|patch|put|delete)\\b|--data\\b|\\s-d\\s|-body\\b|--body\\b"
+      "unless": "(?i)\\b(?:post|patch|put|delete)\\b|--data\\b|\\s-d\\s|-body\\b|--body\\b",
+      "subjects": [
+        {"label": "subscription", "pattern": "(?i)/subscriptions/([^/\\s\"'?]+)"},
+        {"label": "command", "pattern": "(?i)\\b(az\\s+(?:resource|account|group|keyvault|vm|storage\\s+account|graph)\\s+\\w+)"},
+        {"label": "command", "pattern": "(?i)\\b(get-az\\w+)"}
+      ]
     },
     {
       "name": "FileDownload",
@@ -201,7 +274,11 @@
         "(?i)\\b(?:HttpWebRequest|WebRequest)\\]::Create\\(",
         "(?i)\\burlretrieve\\("
       ],
-      "unless": "(?i)/upload\\b|-transfertype\\s+upload\\b|--post-(?:file|data)\\b|--spider\\b"
+      "unless": "(?i)/upload\\b|-transfertype\\s+upload\\b|--post-(?:file|data)\\b|--spider\\b",
+      "subjects": [
+        {"label": "url", "pattern": "(?i)((?:https?|ftp)://[^\\s\"'<>)]+)"},
+        {"label": "saved as", "pattern": "(?i)\\s-(?:outfile|o|-output)\\s+(\"[^\"]+\"|'[^']+'|\\S+)"}
+      ]
     },
     {
       "name": "FileUpload",
@@ -218,6 +295,11 @@
         "(?i)\\biwr\\b.*\\s-infile\\b",
         "(?i)\\birm\\b.*\\s-infile\\b",
         "(?i)\\brequests\\.(?:post|put)\\(.*\\bfiles\\s*="
+      ],
+      "subjects": [
+        {"label": "url", "pattern": "(?i)((?:https?|ftp)://[^\\s\"'<>)]+)"},
+        {"label": "file", "pattern": "(?i)\\s(?:-T|--upload-file|-infile|--post-file)\\s+(\"[^\"]+\"|'[^']+'|\\S+)"},
+        {"label": "file", "pattern": "(?i)(?:--data-binary\\s+|-F\\s+\\S*=)@(\"[^\"]+\"|'[^']+'|\\S+)"}
       ]
     },
     {
@@ -231,6 +313,9 @@
         "(?i)\\b(?:invoke-webrequest|invoke-restmethod)\\b.*\\|\\s*(?:iex|invoke-expression)\\b",
         "(?i)\\biwr\\b.*\\|\\s*(?:iex|invoke-expression)\\b",
         "(?i)\\birm\\b.*\\|\\s*(?:iex|invoke-expression)\\b"
+      ],
+      "subjects": [
+        {"label": "url", "pattern": "(?i)((?:https?|ftp)://[^\\s\"'<>)]+)"}
       ]
     },
     {
@@ -241,6 +326,9 @@
         "(?i)\\bAssembly\\]?(?:::|\\.)(?:Load|LoadFile|LoadFrom|UnsafeLoadFrom|ReflectionOnlyLoad)\\(",
         "(?i)\\bCurrentDomain\\.Load\\(",
         "(?i)\\.EntryPoint\\.Invoke\\("
+      ],
+      "subjects": [
+        {"label": "call", "pattern": "(?i)\\b((?:Assembly\\]?(?:::|\\.)\\w+|CurrentDomain\\.Load|EntryPoint\\.Invoke))\\("}
       ]
     },
     {
@@ -251,6 +339,10 @@
         "(?i)\\bDllImport\\s*\\(",
         "\\b(?:VirtualAlloc(?:Ex)?|VirtualProtect(?:Ex)?|CreateThread|CreateRemoteThread|WriteProcessMemory|NtCreateThreadEx|QueueUserAPC|RtlMoveMemory)\\b",
         "(?i)\\bGetDelegateForFunctionPointer\\("
+      ],
+      "subjects": [
+        {"label": "function", "pattern": "\\b(VirtualAlloc(?:Ex)?|VirtualProtect(?:Ex)?|CreateThread|CreateRemoteThread|WriteProcessMemory|NtCreateThreadEx|QueueUserAPC|RtlMoveMemory)\\b"},
+        {"label": "library", "pattern": "(?i)DllImport\\s*\\(\\s*\"([^\"]+)\""}
       ]
     },
     {
@@ -261,6 +353,9 @@
         "(?i)\\badd-type\\b.*\\s-(?:typedefinition|memberdefinition|path|literalpath)\\b",
         "(?i)\\b(?:CSharpCodeProvider|VBCodeProvider|CompileAssemblyFrom(?:Source|File))\\b",
         "(?i)\\b(?:csc|vbc|jsc)(?:\\.exe)?\\b.*[-/](?:out|target|t):"
+      ],
+      "subjects": [
+        {"label": "output", "pattern": "(?i)[-/](?:out|target|t):(\\S+)"}
       ]
     },
     {
@@ -272,6 +367,10 @@
         "(?i)\\bProcessStartInfo\\b",
         "(?i)\\bwmic(?:\\.exe)?\\b.*\\bprocess\\s+call\\s+create\\b",
         "(?i)\\b(?:invoke-wmimethod|invoke-cimmethod)\\b.*\\bwin32_process\\b"
+      ],
+      "subjects": [
+        {"label": "program", "pattern": "(?i)Process\\]::Start\\(\\s*[\"']([^\"']+)"},
+        {"label": "program", "pattern": "(?i)process\\s+call\\s+create\\s+(\"[^\"]+\"|\\S+)"}
       ]
     },
     {
@@ -282,6 +381,9 @@
       "patterns": [
         "(?i)\\bSockets\\.(?:TcpClient|UdpClient|Socket|TcpListener)\\b",
         "(?i)\\bnew\\s+(?:TcpClient|UdpClient|TcpListener)\\("
+      ],
+      "subjects": [
+        {"label": "host", "pattern": "(?i)(?:TcpClient|UdpClient)\\(\\s*[\"']([^\"']+)[\"']"}
       ]
     },
     {
@@ -299,6 +401,10 @@
         "(?i)\\bodbcconf(?:\\.exe)?\\b.*\\bregsvr\\b",
         "(?i)\\bmsiexec(?:\\.exe)?\\b.*(?:https?:|/[yz]\\b)",
         "(?i)\\bforfiles(?:\\.exe)?\\b.*/c\\b"
+      ],
+      "subjects": [
+        {"label": "binary", "pattern": "(?i)\\b(regsvr32|mshta|rundll32|msbuild|installutil|regasm|regsvcs|cmstp|odbcconf|msiexec|forfiles)(?:\\.exe)?\\b"},
+        {"label": "url", "pattern": "(?i)((?:https?|ftp)://[^\\s\"'<>)]+)"}
       ]
     },
     {
@@ -310,6 +416,12 @@
         "(?i)\\breg(?:\\.exe)?\\b\\s+add\\b.*\\\\CurrentVersion\\\\Run(?:Once)?\\b",
         "(?i)\\b(?:set-itemproperty|new-itemproperty|sp)\\b.*\\\\CurrentVersion\\\\Run(?:Once)?\\b",
         "(?i)\\\\CurrentVersion\\\\Run(?:Once)?\\b.*\\.(?:SetValue|CreateSubKey)\\("
+      ],
+      "subjects": [
+        {"label": "value", "pattern": "(?i)\\s/v\\s+(\"[^\"]+\"|\\S+)"},
+        {"label": "value", "pattern": "(?i)\\s-Name\\s+(\"[^\"]+\"|'[^']+'|\\S+)"},
+        {"label": "runs", "pattern": "(?i)\\s/d\\s+(\"[^\"]+\"|\\S+)"},
+        {"label": "runs", "pattern": "(?i)\\s-Value\\s+(\"[^\"]+\"|'[^']+'|\\S+)"}
       ]
     },
     {
@@ -320,6 +432,12 @@
         "(?i)\\bschtasks(?:\\.exe)?\\b.*/create\\b",
         "(?i)\\b(?:register-scheduledtask|new-scheduledtask|new-scheduledtaskaction)\\b",
         "(?i)\\bSchedule\\.Service\\b"
+      ],
+      "subjects": [
+        {"label": "task", "pattern": "(?i)\\s/tn\\s+(\"[^\"]+\"|\\S+)"},
+        {"label": "task", "pattern": "(?i)-TaskName\\s+(\"[^\"]+\"|'[^']+'|\\S+)"},
+        {"label": "runs", "pattern": "(?i)\\s/tr\\s+(\"(?:[^\"\\\\]|\\\\.)*\"|\\S+)"},
+        {"label": "runs", "pattern": "(?i)-Execute\\s+(\"[^\"]+\"|'[^']+'|\\S+)"}
       ]
     },
     {
@@ -329,6 +447,13 @@
       "patterns": [
         "(?i)\\bsc(?:\\.exe)?\\b\\s+(?:\\\\\\\\\\S+\\s+)?(?:create|config)\\b",
         "(?i)\\bnew-service\\b"
+      ],
+      "subjects": [
+        {"label": "service", "pattern": "(?i)\\bsc(?:\\.exe)?\\s+(?:\\\\\\\\\\S+\\s+)?(?:create|config)\\s+(\"[^\"]+\"|\\S+)"},
+        {"label": "service", "pattern": "(?i)new-service\\b.*\\s-Name\\s+(\"[^\"]+\"|'[^']+'|\\S+)"},
+        {"label": "runs", "pattern": "(?i)binPath=\\s*(\"[^\"]+\"|\\S+)"},
+        {"label": "runs", "pattern": "(?i)-BinaryPathName\\s+(\"[^\"]+\"|'[^']+'|\\S+)"},
+        {"label": "host", "pattern": "(?i)\\bsc(?:\\.exe)?\\s+\\\\\\\\(\\S+)"}
       ]
     },
     {
@@ -340,6 +465,10 @@
         "(?i)\\bwevtutil(?:\\.exe)?\\b\\s+(?:cl|clear-log)\\b",
         "(?i)\\b(?:clear-eventlog|remove-eventlog)\\b",
         "(?i)\\bEventLog\\b.*\\.Clear\\("
+      ],
+      "subjects": [
+        {"label": "log", "pattern": "(?i)wevtutil(?:\\.exe)?\\s+(?:cl|clear-log)\\s+(\"[^\"]+\"|\\S+)"},
+        {"label": "log", "pattern": "(?i)-LogName\\s+(\"[^\"]+\"|'[^']+'|[^\\s;|]+)"}
       ]
     },
     {
@@ -350,6 +479,9 @@
         "(?i)\\bcomsvcs(?:\\.dll)?\\b.*\\bMiniDump\\b",
         "(?i)\\bprocdump(?:64)?(?:\\.exe)?\\b.*\\blsass\\b",
         "(?i)\\bMiniDumpWriteDump\\b"
+      ],
+      "subjects": [
+        {"label": "file", "pattern": "(?i)(\\S+\\.dmp)\\b"}
       ]
     },
     {
@@ -358,6 +490,10 @@
       "attack": ["T1003.002"],
       "patterns": [
         "(?i)\\breg(?:\\.exe)?\\b\\s+(?:save|export)\\s+\\\"?hk(?:lm|ey_local_machine)\\\\(?:sam|system|security)\\b"
+      ],
+      "subjects": [
+        {"label": "hive", "pattern": "(?i)\\b(hk(?:lm|ey_local_machine)\\\\(?:sam|system|security))\\b"},
+        {"label": "file", "pattern": "(?i)hk(?:lm|ey_local_machine)\\\\(?:sam|system|security)\"?\\s+(\"[^\"]+\"|\\S+)"}
       ]
     },
     {
@@ -367,6 +503,9 @@
       "atlas": ["AML.T0089"],
       "patterns": [
         "(?i)\\breg(?:\\.exe)?\\b\\s+query\\b"
+      ],
+      "subjects": [
+        {"label": "key", "pattern": "(?i)\\bquery\\s+(\"[^\"]+\"|\\S+)"}
       ]
     },
     {
@@ -376,6 +515,10 @@
       "patterns": [
         "(?i)\\bcertutil(?:\\.exe)?\\b.*[-/](?:exportpfx|backupkey|backup|key)\\b",
         "(?i)\\b(?:export-pfxcertificate|export-certificate)\\b"
+      ],
+      "subjects": [
+        {"label": "file", "pattern": "(?i)-FilePath\\s+(\"[^\"]+\"|'[^']+'|\\S+)"},
+        {"label": "file", "pattern": "(?i)(\\S+\\.(?:pfx|p12|cer))\\b"}
       ]
     },
     {
@@ -408,6 +551,14 @@
         "\\bat\\s+now\\b",
         "\\bsystemd-run\\b.*--on-(?:calendar|boot|active|unit-active)\\b",
         "\\bsystemctl\\b.*\\benable\\b.*\\.timer\\b"
+      ],
+      "subjects": [
+        {"label": "job file", "pattern": "(/etc/cron\\S*|/var/spool/cron/\\S*)"},
+        {"label": "timer", "pattern": "([\\w@.-]+\\.timer)\\b"},
+        {"label": "job file", "pattern": "\\bcrontab\\s+(?:-u\\s+\\S+\\s+)?([^\\s-]\\S*)"},
+        {"label": "account", "pattern": "\\bcrontab\\s+-u\\s+(\\S+)"},
+        {"label": "runs", "pattern": "\\becho\\s+(\"[^\"]*\"|'[^']*'|\\S+)\\s*(?:\\)\\s*)?(?:\\||>>?)"},
+        {"label": "runs", "pattern": "\\bsystemd-run\\b.*\\s(\"[^\"]+\"|\\S+)$"}
       ]
     },
     {
@@ -418,7 +569,10 @@
         "(?:>>?\\s*|\\btee\\b.*\\s|\\bcp\\b.*\\s|\\bmv\\b.*\\s|\\binstall\\b.*\\s|\\bsed\\s+-i\\b.*\\s)\\S*(?:/etc/systemd/system/|/usr/lib/systemd/system/|/lib/systemd/system/|\\.config/systemd/user/)\\S+\\.service\\b",
         "\\bsystemctl\\b.*\\b(?:enable|link)\\b"
       ],
-      "unless": "\\.timer\\b"
+      "unless": "\\.timer\\b",
+      "subjects": [
+        {"label": "unit", "pattern": "([\\w@.-]+\\.service)\\b"}
+      ]
     },
     {
       "name": "AccountCreation",
@@ -428,6 +582,11 @@
         "\\b(?:useradd|adduser)\\s+\\S",
         "(?i)\\bnet(?:\\.exe)?\\s+user\\s+\\S+.*\\s/add\\b",
         "(?i)\\bnew-localuser\\b"
+      ],
+      "subjects": [
+        {"label": "account", "pattern": "\\b(?:useradd|adduser)\\b.*\\s([A-Za-z_][\\w.$-]*)\\s*$"},
+        {"label": "account", "pattern": "(?i)\\bnet(?:\\.exe)?\\s+user\\s+(\\S+)"},
+        {"label": "account", "pattern": "(?i)\\bnew-localuser\\b.*-Name\\s+(\"[^\"]+\"|'[^']+'|\\S+)"}
       ]
     },
     {
@@ -437,6 +596,10 @@
       "patterns": [
         "(?:>>?\\s*|\\btee\\b.*\\s|\\bcp\\b.*\\s|\\bmv\\b.*\\s|\\binstall\\b.*\\s|\\bsed\\s+-i\\b.*\\s)\\S*authorized_keys2?\\b",
         "\\bssh-copy-id\\b"
+      ],
+      "subjects": [
+        {"label": "file", "pattern": "(\\S*authorized_keys\\d?)"},
+        {"label": "host", "pattern": "\\bssh-copy-id\\b.*\\s(\\S+@\\S+)"}
       ]
     },
     {
@@ -446,6 +609,10 @@
       "patterns": [
         "(?:>>?\\s*|\\btee\\b.*\\s|\\bcp\\b.*\\s|\\bmv\\b.*\\s|\\binstall\\b.*\\s|\\bsed\\s+-i\\b.*\\s)\\S*(?:\\.bashrc|\\.bash_profile|\\.bash_login|\\.zshrc|\\.zprofile|/etc/profile\\.d/\\S+|/etc/bash\\.bashrc)\\b",
         "(?:>>?\\s*|\\btee\\b.*\\s|\\bcp\\b.*\\s|\\bmv\\b.*\\s|\\binstall\\b.*\\s|\\bsed\\s+-i\\b.*\\s)\\S*(?:~|\\$HOME|/home/\\S+|/root)/\\.profile\\b"
+      ],
+      "subjects": [
+        {"label": "file", "pattern": "(?:>>?\\s*|\\btee\\s+(?:-a\\s+)?)(\\S+)"},
+        {"label": "adds", "pattern": "\\becho\\s+(\"[^\"]*\"|'[^']*'|\\S+)\\s*(?:\\||>>?)"}
       ]
     },
     {
@@ -455,6 +622,10 @@
       "patterns": [
         "(?:>>?\\s*|\\btee\\b.*\\s|\\bcp\\b.*\\s|\\bmv\\b.*\\s|\\binstall\\b.*\\s|\\bsed\\s+-i\\b.*\\s)\\S*/etc/sudoers(?:\\.d/\\S*)?",
         "\\bNOPASSWD\\s*:"
+      ],
+      "subjects": [
+        {"label": "file", "pattern": "(/etc/sudoers\\S*)"},
+        {"label": "rule", "pattern": "\\becho\\s+(\"[^\"]*\"|'[^']*')"}
       ]
     },
     {
@@ -463,6 +634,9 @@
       "attack": ["T1548.001"],
       "patterns": [
         "\\bchmod\\s+(?:-\\S+\\s+)*(?:[ugoa]*\\+[rwx]*s[rwx]*|[2467][0-7]{3})\\s"
+      ],
+      "subjects": [
+        {"label": "file", "pattern": "\\bchmod\\s+\\S+\\s+(\"[^\"]+\"|\\S+)"}
       ]
     },
     {
@@ -474,6 +648,10 @@
         "\\b(?:docker|podman)\\b.*\\s(?:-v|--volume)[\\s=]+/:/",
         "\\bnsenter\\b.*(?:-t\\s*1|--target[\\s=]+1)\\b",
         "/var/run/docker\\.sock\\b"
+      ],
+      "subjects": [
+        {"label": "mount", "pattern": "\\s-v\\s+(\\S+)"},
+        {"label": "socket", "pattern": "(\\S*docker\\.sock)\\b"}
       ]
     },
     {
@@ -483,6 +661,9 @@
       "patterns": [
         "\\binsmod\\s+\\S",
         "\\bmodprobe\\s+[^-\\s]"
+      ],
+      "subjects": [
+        {"label": "module", "pattern": "\\b(?:insmod|modprobe)\\s+(?:-\\S+\\s+)*(\\S+)"}
       ]
     },
     {
@@ -492,6 +673,10 @@
       "patterns": [
         "\\bLD_PRELOAD=\\S",
         "/etc/ld\\.so\\.preload\\b"
+      ],
+      "subjects": [
+        {"label": "library", "pattern": "\\bLD_PRELOAD=(\\S+)"},
+        {"label": "library", "pattern": "\\becho\\s+(\\S+)\\s*>>?\\s*/etc/ld\\.so\\.preload"}
       ]
     },
     {
@@ -500,6 +685,9 @@
       "attack": ["T1083"],
       "patterns": [
         "\\bfind\\b.*-perm\\s+[-/]?(?:[0-7]?[2467][0-7]{3}|[ug]=s)\\b"
+      ],
+      "subjects": [
+        {"label": "searched", "pattern": "\\bfind\\s+(\\S+)"}
       ]
     },
     {
@@ -509,6 +697,9 @@
       "patterns": [
         "/etc/shadow\\b",
         "\\bunshadow\\b"
+      ],
+      "subjects": [
+        {"label": "file", "pattern": "(/etc/g?shadow-?)"}
       ]
     },
     {
@@ -519,7 +710,10 @@
         "\\.ssh/id_(?:rsa|dsa|ecdsa|ed25519)\\b",
         "/etc/ssh/ssh_host_\\w+_key\\b"
       ],
-      "unless": "\\.pub\\b|\\bssh-keygen\\b"
+      "unless": "\\.pub\\b|\\bssh-keygen\\b",
+      "subjects": [
+        {"label": "file", "pattern": "(\\S*(?:id_(?:rsa|dsa|ecdsa|ed25519)|ssh_host_\\w+_key|\\.pem|\\.key))\\b"}
+      ]
     },
     {
       "name": "CredentialFileRead",
@@ -532,6 +726,9 @@
         "\\.kube/config\\b",
         "\\.docker/config\\.json\\b",
         "\\.(?:git-credentials|netrc|pgpass)\\b"
+      ],
+      "subjects": [
+        {"label": "file", "pattern": "(\\S*(?:\\.aws/credentials|\\.config/gcloud/\\S+|\\.azure/\\S+|\\.kube/config|\\.docker/config\\.json|\\.netrc|\\.git-credentials|\\.pgpass|\\.my\\.cnf))"}
       ]
     },
     {
@@ -541,7 +738,10 @@
       "patterns": [
         "\\b(?:cat|grep|strings|less|tail|head|cp|awk)\\b.*\\.(?:bash|zsh|mysql|psql|python)_history\\b"
       ],
-      "unless": ">\\s*\\S*_history\\b"
+      "unless": ">\\s*\\S*_history\\b",
+      "subjects": [
+        {"label": "file", "pattern": "(\\S*_history)\\b"}
+      ]
     },
     {
       "name": "CloudMetadataAccess",
@@ -550,6 +750,9 @@
       "patterns": [
         "\\b169\\.254\\.169\\.254\\b",
         "\\bmetadata\\.google\\.internal\\b"
+      ],
+      "subjects": [
+        {"label": "url", "pattern": "(?i)((?:https?|ftp)://[^\\s\"'<>)]+)"}
       ]
     },
     {
@@ -559,6 +762,10 @@
       "patterns": [
         "\\bgcore\\s",
         "/proc/[^/\\s]+/(?:mem|maps)\\b"
+      ],
+      "subjects": [
+        {"label": "process", "pattern": "/proc/([^/\\s]+)/(?:maps|mem)"},
+        {"label": "process", "pattern": "\\bgcore\\b.*\\s(\"[^\"]+\"|\\S+)$"}
       ]
     },
     {
@@ -569,6 +776,11 @@
         "\\bkubectl\\b.*\\bget\\b.*\\bsecrets?\\b",
         "/var/run/secrets/kubernetes\\.io/serviceaccount/token\\b",
         "/api/v1/(?:namespaces/[^/\\s]+/)?secrets\\b"
+      ],
+      "subjects": [
+        {"label": "namespace", "pattern": "(?:\\s-n|--namespace)\\s+(\\S+)"},
+        {"label": "namespace", "pattern": "/namespaces/([^/\\s\"]+)/secrets"},
+        {"label": "file", "pattern": "(/var/run/secrets/\\S+)"}
       ]
     },
     {
@@ -579,6 +791,9 @@
         "\\b(?:rm|shred|truncate|unlink)\\b.*/var/log/",
         ">\\s*/var/log/\\S",
         "\\bjournalctl\\b.*--(?:vacuum-(?:time|size|files)|rotate)\\b"
+      ],
+      "subjects": [
+        {"label": "log", "pattern": "(/var/log/\\S+)"}
       ]
     },
     {
@@ -590,6 +805,9 @@
         "\\b(?:rm|shred|truncate)\\b.*_history\\b",
         ">\\s*\\S*_history\\b",
         "\\bln\\s+-sf?\\s+/dev/null\\s+\\S*_history\\b"
+      ],
+      "subjects": [
+        {"label": "file", "pattern": "(\\S*_history)\\b"}
       ]
     },
     {
@@ -601,6 +819,9 @@
         "\\bHISTFILE=/dev/null\\b",
         "\\bHIST(?:FILE)?SIZE=0\\b",
         "\\bset\\s+\\+o\\s+history\\b"
+      ],
+      "subjects": [
+        {"label": "setting", "pattern": "\\b(HISTFILE|HISTSIZE|HISTFILESIZE|HISTCONTROL)\\b"}
       ]
     },
     {
@@ -613,6 +834,11 @@
         "\\bservice\\s+(?:auditd|apparmor|falco\\S*|osqueryd|wazuh\\S*|falcon-sensor|clamav\\S*|rsyslog|syslog-ng)\\s+stop\\b",
         "\\bauditctl\\s+-(?:e\\s*0|D)\\b",
         "\\bp?kill(?:all)?\\b.*\\b(?:auditd|apparmor|falco\\S*|osqueryd|wazuh\\S*|falcon-sensor|clamav\\S*|rsyslog|syslog-ng)\\b"
+      ],
+      "subjects": [
+        {"label": "service", "pattern": "\\bsystemctl\\s+(?:stop|disable|mask)(?:\\s+--now)?\\s+(\\S+)"},
+        {"label": "service", "pattern": "\\bservice\\s+(\\S+)\\s+stop\\b"},
+        {"label": "process", "pattern": "\\bpkill\\s+(?:-\\S+\\s+)*(\\S+)"}
       ]
     },
     {
@@ -627,6 +853,9 @@
         "\\bsystemctl\\b.*\\b(?:stop|disable|mask)\\b.*\\b(?:firewalld|ufw|nftables)\\b",
         "(?i)\\bset-netfirewallprofile\\b.*-enabled\\s+\\$?false\\b",
         "(?i)\\bnetsh\\b.*firewall\\b.*\\bstate\\s+off\\b"
+      ],
+      "subjects": [
+        {"label": "service", "pattern": "\\bsystemctl\\s+(?:stop|disable|mask)(?:\\s+--now)?\\s+(\\S+)"}
       ]
     },
     {
@@ -636,6 +865,9 @@
       "patterns": [
         "\\btouch\\b.*\\s-[rtd]\\s",
         "\\btouch\\b.*--(?:reference|date)="
+      ],
+      "subjects": [
+        {"label": "file", "pattern": "\\btouch\\b.*\\s(\"[^\"]+\"|\\S+)\\s*$"}
       ]
     },
     {
@@ -648,6 +880,12 @@
         "\\bnc\\b.*\\s-[ec]\\s+\\S*/bin/",
         "\\bsocat\\b.*\\b(?:exec|system):",
         "\\bpty\\.spawn\\("
+      ],
+      "subjects": [
+        {"label": "host", "pattern": "/dev/tcp/([^/\\s]+)/"},
+        {"label": "port", "pattern": "/dev/tcp/[^/\\s]+/(\\S+)"},
+        {"label": "host", "pattern": "\\b(?:nc|ncat|netcat)\\s+(\"[^\"]+\"|[^\\s-]\\S*)"},
+        {"label": "host", "pattern": "\\bsocat\\s+tcp:([^:\\s]+)"}
       ]
     },
     {
@@ -660,6 +898,11 @@
         "\\bzip\\s+(?:-\\S+\\s+)*\\S+\\.zip\\b",
         "\\b7za?\\s+a\\s+(?:-\\S+\\s+)*\\S+\\.7z\\b",
         "(?i)\\bcompress-archive\\b"
+      ],
+      "subjects": [
+        {"label": "archive", "pattern": "\\btar\\s+-?\\w+\\s+(\\S+)"},
+        {"label": "archive", "pattern": "(\\S+\\.(?:zip|7z))\\b"},
+        {"label": "archive", "pattern": "(?i)-DestinationPath\\s+(\\S+)"}
       ]
     },
     {
@@ -670,6 +913,9 @@
         "\\bsystemctl\\b.*\\b(?:status|list-units|list-unit-files|is-active|is-enabled)\\b",
         "\\bservice\\s+--status-all\\b",
         "(?i)\\bsc(?:\\.exe)?\\s+query\\b"
+      ],
+      "subjects": [
+        {"label": "service", "pattern": "\\bsystemctl\\s+(?:status|is-active|is-enabled)\\s+(\\S+)"}
       ]
     },
     {
@@ -683,6 +929,10 @@
         "(?i)sh\\s+-c\\s+[\\\"']?\\$\\(\\s*(?:curl|wget)\\b",
         "(?i)sh\\s+<\\(\\s*(?:curl|wget)\\b",
         "(?i)\\b(?:source|eval)\\s+[\\\"']?[<$]\\(\\s*(?:curl|wget)\\b"
+      ],
+      "subjects": [
+        {"label": "url", "pattern": "(?i)((?:https?|ftp)://[^\\s\"'<>)]+)"},
+        {"label": "url", "pattern": "(?i)\\b(?:curl|wget)\\b(?:\\s+-\\S+)*\\s+(\"?\\$\\{?\\w+\\}?\"?)"}
       ]
     }
   ]

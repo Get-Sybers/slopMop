@@ -97,6 +97,25 @@ func TestWriteReadoutCapsAColumn(t *testing.T) {
 	}
 }
 
+// Lines that share a label stand under it; the label is written once.
+func TestWriteReadoutSharesALabel(t *testing.T) {
+	r := Readout{Title: "t", Sections: []Section{{Title: "S", Groups: []Group{{Entries: []Entry{{
+		Cells: []string{"entry"},
+		Detail: []Detail{
+			{Text: "a sentence"}, {Label: "what", Text: "first"}, {Label: "what", Text: "second"},
+			{Label: "what"}, {Label: "basis", Text: "third"}, {Label: "what", Text: "fourth"},
+		},
+	}}}}}}}
+	var out bytes.Buffer
+	if err := WriteReadout(&out, r, false); err != nil {
+		t.Fatal(err)
+	}
+	want := "t\n\nS\n  entry\n      a sentence\n      what   first\n             second\n      basis  third\n      what   fourth\n"
+	if out.String() != want {
+		t.Errorf("readout = %q, want %q", out.String(), want)
+	}
+}
+
 func TestWriteReadoutPlainParts(t *testing.T) {
 	var out bytes.Buffer
 	if err := WriteReadout(&out, Readout{Title: "t", Sections: []Section{{Title: "Empty"}}}, false); err != nil {

