@@ -62,10 +62,40 @@ jobs:
       - name: Known vulnerabilities
         run: make vuln
 
+  # The gate is a Linux job; this one runs the tests and the built binary elsewhere.
+  platform:
+    name: test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2025, macos-15]
+    env:
+      CGO_ENABLED: "0"
+      GOWORK: "off"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+
+      - name: Test
+        run: go test -count=1 -shuffle=on ./...
+
+      - name: Drive the built binary
+        run: go test -count=1 -tags integration ./cmd/...
+
   all_green:
     name: all_green
     if: ${{ always() }}
-    needs: [conform, vuln]
+    needs: [conform, vuln, platform]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:

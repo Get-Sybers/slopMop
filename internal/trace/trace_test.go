@@ -208,21 +208,6 @@ func TestBuildWithWatchlist(t *testing.T) {
 	}
 }
 
-func TestBaseName(t *testing.T) {
-	cases := map[string]string{
-		"out.txt":             "out.txt",
-		"./out.txt":           "out.txt",
-		"/tmp/a/out.txt":      "out.txt",
-		`C:\loot\out.txt`:     "out.txt",
-		`.\sub/mixed\out.txt`: "out.txt",
-	}
-	for in, want := range cases {
-		if got := baseName(in); got != want {
-			t.Errorf("baseName(%q) = %q, want %q", in, got, want)
-		}
-	}
-}
-
 func TestBuildStructuredReports(t *testing.T) {
 	cases := []struct {
 		name       string

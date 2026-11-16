@@ -20,6 +20,17 @@ func stripQuotes(s string) string {
 	return s
 }
 
+// BaseName is the part of a path after its last slash or backslash. Evidence
+// may use either separator, and the answer must not depend on the operating
+// system that reads it, which filepath.Base would.
+func BaseName(path string) string {
+	path = strings.TrimRight(path, `/\`)
+	if i := strings.LastIndexAny(path, `/\`); i >= 0 {
+		return path[i+1:]
+	}
+	return path
+}
+
 func looksLikeFile(s string) bool {
 	if s == "" || strings.HasPrefix(s, "-") || strings.HasPrefix(s, "$") {
 		return false

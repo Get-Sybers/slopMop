@@ -1,7 +1,6 @@
 package parse
 
 import (
-	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -206,7 +205,7 @@ func extractBashRedirections(line string, _ int, s *Script, seen map[string]bool
 		seg = strings.TrimSpace(seg)
 		words := shellWords(seg)
 		if len(words) >= 2 {
-			cmd := strings.ToLower(filepath.Base(words[0]))
+			cmd := strings.ToLower(BaseName(words[0]))
 			if cmd == "tee" {
 				for k := 1; k < len(words); k++ {
 					w := words[k]
@@ -248,7 +247,7 @@ func extractBashReads(line string, _ int, s *Script, seen map[string]bool) {
 			if len(words) < 2 {
 				continue
 			}
-			cmd := strings.ToLower(filepath.Base(words[0]))
+			cmd := strings.ToLower(BaseName(words[0]))
 			if !readCmds[cmd] {
 				continue
 			}
@@ -333,7 +332,7 @@ func findTool(words []string) string {
 			continue
 		}
 
-		name := strings.ToLower(filepath.Base(w))
+		name := strings.ToLower(BaseName(w))
 		if keywords[name] {
 			continue
 		}
@@ -453,7 +452,7 @@ func extractBashTransforms(line string, lineNo int, s *Script) {
 		if len(words) == 0 {
 			continue
 		}
-		cmd := strings.ToLower(filepath.Base(words[0]))
+		cmd := strings.ToLower(BaseName(words[0]))
 		if method, ok := bashTransformCmds[cmd]; ok {
 			s.Transforms = append(s.Transforms, Transform{
 				Line: lineNo, Method: method, Text: truncate(seg),

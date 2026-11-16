@@ -291,3 +291,37 @@ func TestExtractCommandChoosesTheShell(t *testing.T) {
 		}
 	}
 }
+
+func TestBaseName(t *testing.T) {
+	cases := map[string]string{
+		"out.txt":                 "out.txt",
+		"./out.txt":               "out.txt",
+		"/tmp/a/out.txt":          "out.txt",
+		`C:\loot\out.txt`:         "out.txt",
+		`.\sub/mixed\out.txt`:     "out.txt",
+		`\\host\share\tools\a.sh`: "a.sh",
+		"dir/":                    "dir",
+		"":                        "",
+	}
+	for in, want := range cases {
+		if got := BaseName(in); got != want {
+			t.Errorf("BaseName(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
+
+// A tool keeps one name whatever separators its path uses and whatever
+// operating system reads the script.
+func TestBashToolNameIgnoresSeparators(t *testing.T) {
+	cases := map[string]string{
+		"/usr/bin/nmap -sn 10.20.1.0/24":          "nmap",
+		`C:\\Tools\\nmap.exe -sn 10.20.1.0/24`:    "nmap.exe",
+		"/mnt/c/Tools/nmap.exe -sn 10.20.1.0/24":  "nmap.exe",
+		`C:/Tools\\Sub/nmap.exe -sn 10.20.1.0/24`: "nmap.exe",
+	}
+	for line, want := range cases {
+		if got := toolNames(ExtractBash(line + "\n")); !slices.Equal(got, []string{want}) {
+			t.Errorf("ExtractBash(%q) tools = %q, want [%q]", line, got, want)
+		}
+	}
+}

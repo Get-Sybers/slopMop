@@ -199,7 +199,7 @@ func classifyTools(tools []string, t tactic.Table) []string {
 func linkOutputs(ordered []evidence.File, parsed map[string]parse.Script) map[string][]string {
 	known := map[string][]string{}
 	for _, o := range ordered {
-		name := baseName(o.Path)
+		name := parse.BaseName(o.Path)
 		known[name] = append(known[name], o.Path)
 	}
 	links := map[string][]string{}
@@ -210,7 +210,7 @@ func linkOutputs(ordered []evidence.File, parsed map[string]parse.Script) map[st
 		}
 		seen := map[string]bool{}
 		for _, w := range p.Writes {
-			for _, path := range known[baseName(w)] {
+			for _, path := range known[parse.BaseName(w)] {
 				if path == f.Path || seen[path] {
 					continue
 				}
@@ -220,14 +220,4 @@ func linkOutputs(ordered []evidence.File, parsed map[string]parse.Script) map[st
 		}
 	}
 	return links
-}
-
-// baseName is the part of a path after its last slash or backslash; scripts
-// from either shell may use either separator.
-func baseName(path string) string {
-	path = strings.TrimRight(path, `/\`)
-	if i := strings.LastIndexAny(path, `/\`); i >= 0 {
-		return path[i+1:]
-	}
-	return path
 }

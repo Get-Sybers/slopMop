@@ -8,6 +8,9 @@ All notable changes to this project are recorded in this file. The format follow
 
 ### Added
 
+- CI job `platform`: the tests and the integration test of the built binary run on Windows and
+  macOS, and `all_green` requires it.
+- `make cross` also builds windows/arm64 and darwin/amd64.
 - Structured report parsing in `trace list`: JSON (and JSON Lines), XML and HTML outputs are decoded
   before indicators are extracted, and the commands they record fill the TOOLS, TACTICS and
   TRANSFORMS columns (#8).
@@ -73,6 +76,9 @@ All notable changes to this project are recorded in this file. The format follow
 
 ### Fixed
 
+- A tool named by a path keeps one name on every operating system: the parsers split a path at
+  either separator themselves (`parse.BaseName`), where `filepath.Base` gave `nmap.exe` on Windows
+  and the whole of `C:\Tools\nmap.exe` elsewhere.
 - The bash parser no longer treats a here-string (`<<<`) or an arithmetic shift (`$((1 << 4))`) as
   a here-doc, which skipped the rest of the script.
 - PowerShell cmdlet matching is now case-insensitive.
