@@ -1,6 +1,7 @@
 usage: slopmop NOUN VERB [selectors] [--params] [output flags] [positional]
 
 nouns:
-  file, files  files in the input directory
+  file, files    files in the input directory
+  trace, traces  script trace of the input directory
 
 more help: slopmop NOUN -h, slopmop NOUN VERB -h

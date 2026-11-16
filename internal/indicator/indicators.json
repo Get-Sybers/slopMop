@@ -1,0 +1,13 @@
+[
+  {"type": "IPv4", "pattern": "(?:(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:/(?:3[0-2]|[12]?\\d))?"},
+  {"type": "URL", "pattern": "(?i)(?:https?|ftps?|sftp|ssh|smb|ldaps?)://[^\\s'\"<>`\\\\)\\]},;]+"},
+  {"type": "Email", "pattern": "(?i)[a-z0-9][a-z0-9._%+\\-]{0,63}@(?:[a-z0-9\\-]+\\.)+[a-z]{2,24}"},
+  {"type": "SHA256", "pattern": "(?i)\\b[a-f0-9]{64}\\b"},
+  {"type": "SHA1", "pattern": "(?i)\\b[a-f0-9]{40}\\b"},
+  {"type": "MD5", "pattern": "(?i)\\b[a-f0-9]{32}\\b"},
+  {"type": "JWT", "pattern": "eyJ[A-Za-z0-9_\\-]{8,}\\.eyJ[A-Za-z0-9_\\-]{8,}\\.[A-Za-z0-9_\\-]*"},
+  {"type": "AWSKey", "pattern": "(?:AKIA|ASIA)[A-Z0-9]{16}"},
+  {"type": "PrivateKey", "pattern": "-----BEGIN [A-Z ]*PRIVATE KEY-----"},
+  {"type": "CVE", "pattern": "(?i)\\bCVE-\\d{4}-\\d{4,7}\\b"},
+  {"type": "Domain", "pattern": "(?i)(?:[a-z0-9](?:[a-z0-9\\-]{0,61}[a-z0-9])?\\.)+(?:com|net|org|edu|gov|io|co|uk|au|nz|example|internal|local|corp)"}
+]

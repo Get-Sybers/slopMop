@@ -20,6 +20,28 @@
           ]
         }
       ]
+    },
+    {
+      "name": "trace",
+      "aliases": ["traces"],
+      "summary": "script trace of the input directory",
+      "verbs": [
+        {
+          "name": "list",
+          "summary": "trace the scripts and outputs in the input directory",
+          "columns": [
+            {"header": "STEP", "key": "step"},
+            {"header": "NAME", "key": "name"},
+            {"header": "ROLE", "key": "role"},
+            {"header": "TIME", "key": "time"},
+            {"header": "TOOLS", "key": "tools"},
+            {"header": "TACTICS", "key": "tactics"},
+            {"header": "OUTPUTS", "key": "outputs", "wide": true},
+            {"header": "INDICATORS", "key": "indicators", "wide": true},
+            {"header": "NOTE", "key": "note", "wide": true}
+          ]
+        }
+      ]
     }
   ]
 }

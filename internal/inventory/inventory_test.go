@@ -111,10 +111,11 @@ func TestReadOversize(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	files, err := read(folder, 8)
+	res, err := readAll(folder, 8, false)
 	if err != nil {
 		t.Fatal(err)
 	}
+	files := res.Files
 	at, over := files[0], files[1]
 	if at.Note != "" || at.Lines != 1 {
 		t.Errorf("at the limit: note %q lines %d, want text with 1 line", at.Note, at.Lines)
