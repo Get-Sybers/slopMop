@@ -7,7 +7,7 @@
       "verbs": [
         {
           "name": "list",
-          "summary": "list the files directly in the input directory",
+          "summary": "list the files in the input directory",
           "columns": [
             {"header": "NAME", "key": "name"},
             {"header": "ROLE", "key": "role"},
@@ -41,6 +41,55 @@
             {"header": "INDICATORS", "key": "indicators", "wide": true},
             {"header": "INTEL", "key": "intel", "wide": true},
             {"header": "NOTE", "key": "note", "wide": true}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "finding",
+      "aliases": ["findings"],
+      "summary": "detections aggregated from the trace",
+      "verbs": [
+        {
+          "name": "list",
+          "summary": "list the indicators and tactics found in the input directory",
+          "columns": [
+            {"header": "FINDING", "key": "finding"},
+            {"header": "SEVERITY", "key": "severity"},
+            {"header": "TACTIC", "key": "tactic"},
+            {"header": "INDICATOR", "key": "indicator"},
+            {"header": "FILES", "key": "files"},
+            {"header": "ATTRIBUTION", "key": "attribution"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "report",
+      "aliases": ["reports"],
+      "summary": "summary of an analysis of the input directory",
+      "verbs": [
+        {
+          "name": "list",
+          "summary": "list the summary metrics of the input directory",
+          "columns": [
+            {"header": "METRIC", "key": "metric"},
+            {"header": "VALUE", "key": "value"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "campaign",
+      "aliases": ["campaigns"],
+      "summary": "campaigns named in a threat intelligence watchlist",
+      "verbs": [
+        {
+          "name": "list",
+          "summary": "list the attributions in the watchlist",
+          "columns": [
+            {"header": "CAMPAIGN", "key": "campaign"},
+            {"header": "INDICATORS", "key": "indicators"}
           ]
         }
       ]

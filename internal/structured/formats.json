@@ -1,0 +1,13 @@
+{
+  "formats": [
+    {"name": "json", "extensions": [".json", ".jsonl", ".ndjson"]},
+    {"name": "xml", "extensions": [".xml"]},
+    {"name": "html", "extensions": [".html", ".htm"]}
+  ],
+  "command_fields": ["command", "commands", "cmd", "cmds", "cmdline", "commandline", "argv", "exec",
+                     "shellcommand", "bashcommand", "powershellcommand", "processcommandline",
+                     "parentcommandline", "initiatingprocesscommandline"],
+  "command_elements": ["code", "kbd"],
+  "verbatim_elements": ["script"],
+  "dropped_elements": ["style"]
+}

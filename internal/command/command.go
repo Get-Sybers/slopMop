@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/get-sybers/slopmop/internal/cli"
+	"github.com/get-sybers/slopmop/internal/inventory"
 	"github.com/get-sybers/slopmop/internal/render"
 )
 
@@ -17,6 +18,31 @@ const inputDir = "inputdir"
 
 // intelFile is the optional param that names a threat intelligence watchlist.
 const intelFile = "intelfile"
+
+// recursive is the switch that makes a verb read the sub-folders too.
+const recursive = "recursive"
+
+func recursiveSwitch() map[string]cli.Switch {
+	return map[string]cli.Switch{
+		recursive: {Short: "r", Summary: fmt.Sprintf("read sub-folders too, %d levels down", inventory.MaxDepth)},
+	}
+}
+
+func depth(a *cli.Args) int {
+	if a.Switches[recursive] {
+		return inventory.MaxDepth
+	}
+	return 0
+}
+
+// skippedError reports the sub-folders a recursive read left out, after the rows are printed.
+func skippedError(skipped []string) error {
+	if len(skipped) == 0 {
+		return nil
+	}
+	return fmt.Errorf("%d folder(s) not read (unreadable or more than %d levels down): %s",
+		len(skipped), inventory.MaxDepth, strings.Join(skipped, ", "))
+}
 
 type Env struct {
 	Stdout io.Writer
@@ -33,8 +59,11 @@ func Register(app *cli.App, env Env) error {
 		return err
 	}
 	return register(app, nouns, map[string]builder{
-		"file list":  env.fileList,
-		"trace list": env.traceList,
+		"file list":     env.fileList,
+		"trace list":    env.traceList,
+		"finding list":  env.findingList,
+		"report list":   env.reportList,
+		"campaign list": env.campaignList,
 	})
 }
 

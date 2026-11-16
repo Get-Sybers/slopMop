@@ -5,6 +5,7 @@ package main
 import (
 	"bytes"
 	"errors"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -25,6 +26,14 @@ func TestBinary(t *testing.T) {
 		t.Fatalf("go build: %v\n%s", err, out)
 	}
 	folder := evidencetest.Copy(t, "bash")
+	nested := evidencetest.Copy(t, "powershell")
+	if err := os.Mkdir(filepath.Join(nested, "stage"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	const moved = "staged_20250302_093010.b64"
+	if err := os.Rename(filepath.Join(nested, moved), filepath.Join(nested, "stage", moved)); err != nil {
+		t.Fatal(err)
+	}
 	run := func(args ...string) (string, string, int) {
 		cmd := exec.Command(bin, args...)
 		var stdout, stderr bytes.Buffer
@@ -54,6 +63,10 @@ func TestBinary(t *testing.T) {
 		{name: "not a folder", args: []string{"file", "list", "--inputdir", filepath.Join(folder, "missing")}, code: 1,
 			stderr: "not a folder"},
 		{name: "list", args: []string{"file", "list", "--inputdir", folder}, code: 0, golden: "file-list"},
+		{name: "recursive", args: []string{"file", "list", "--inputdir", nested, "-r", "-q"}, code: 0,
+			golden: "file-list-recursive"},
+		{name: "recursive wrong prefix", args: []string{"trace", "list", "--inputdir", folder, "-recursive"}, code: 2,
+			stderr: "error: -recursive is a switch; use --recursive"},
 		{name: "list json", args: []string{"file", "ls", "--inputdir", folder, "-o", "json", "-script"}, code: 0,
 			golden: "file-list-json"},
 	}

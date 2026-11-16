@@ -3,6 +3,7 @@ package cli
 import (
 	"maps"
 	"slices"
+	"strings"
 )
 
 type parser struct {
@@ -15,7 +16,7 @@ type parser struct {
 
 // parse checks the tokens of one verb against its spec; name is "NOUN VERB" in canonical form.
 func parse(name string, s Spec, tokens []token) (*Args, error) {
-	p := &parser{spec: s, args: &Args{Params: map[string]string{}}, chosen: map[string]bool{}}
+	p := &parser{spec: s, args: &Args{Params: map[string]string{}, Switches: map[string]bool{}}, chosen: map[string]bool{}}
 	for _, t := range tokens {
 		if err := p.take(t); err != nil {
 			return nil, err
@@ -43,11 +44,27 @@ func (p *parser) take(t token) error {
 		return nil
 	case isOutputFlag(t.name):
 		return p.output(t)
-	case t.dashes == 2:
-		return p.param(t)
-	default:
-		return p.selector(t)
 	}
+	if name, short, ok := p.spec.switchName(t.name); ok {
+		return p.toggle(t, name, short)
+	}
+	if t.dashes == 2 {
+		return p.param(t)
+	}
+	return p.selector(t)
+}
+
+func (p *parser) toggle(t token, name string, short bool) error {
+	switch {
+	case short && t.dashes == 2:
+		return usagef("--%s is a short form; use -%s or --%s", t.name, t.name, name)
+	case !short && t.dashes == 1:
+		return usagef("-%s is a switch; use --%s", t.name, name)
+	case t.hasValue:
+		return usagef("%s%s takes no value", strings.Repeat("-", t.dashes), t.name)
+	}
+	p.args.Switches[name] = true
+	return nil
 }
 
 func (p *parser) selector(t token) error {

@@ -12,6 +12,7 @@ import (
 	"github.com/get-sybers/slopmop/internal/intel"
 	"github.com/get-sybers/slopmop/internal/inventory"
 	"github.com/get-sybers/slopmop/internal/render"
+	"github.com/get-sybers/slopmop/internal/structured"
 	"github.com/get-sybers/slopmop/internal/tactic"
 	"github.com/get-sybers/slopmop/internal/trace"
 )
@@ -33,6 +34,10 @@ func (e Env) traceList(v verbSpec) (*cli.Verb, error) {
 	if err != nil {
 		return nil, err
 	}
+	formats, err := structured.LoadFormats()
+	if err != nil {
+		return nil, err
+	}
 	if _, err := traceRow(trace.Step{}, v.Columns, false); err != nil {
 		return nil, err
 	}
@@ -43,22 +48,23 @@ func (e Env) traceList(v verbSpec) (*cli.Verb, error) {
 			"other":  "show only other files",
 		},
 		Params:   map[string]string{inputDir: "<folder>", intelFile: "<file>"},
+		Switches: recursiveSwitch(),
 		Required: []string{inputDir},
 	}
 	return cli.ListVerb(v.Summary, spec, func(a *cli.Args) error {
-		res, err := inventory.ReadAll(a.Params[inputDir])
+		res, err := inventory.ReadAll(a.Params[inputDir], depth(a))
 		if err != nil {
 			return err
 		}
-		var watchlist *intel.Watchlist
+		tables := trace.Tables{Tactics: tactics, Patterns: patterns, Formats: formats}
 		if path := a.Params[intelFile]; path != "" {
 			wl, loadErr := loadIntelFile(path)
 			if loadErr != nil {
 				return loadErr
 			}
-			watchlist = &wl
+			tables.Watchlist = &wl
 		}
-		timeline := trace.Build(res.Files, res.Texts, tactics, patterns, watchlist)
+		timeline := trace.Build(res.Files, res.Texts, tables)
 		wanted := map[string]bool{}
 		for _, sel := range a.Selectors {
 			wanted[sel] = true
@@ -76,7 +82,10 @@ func (e Env) traceList(v verbSpec) (*cli.Verb, error) {
 			}
 			table.Rows = append(table.Rows, row)
 		}
-		return render.Write(e.Stdout, table, e.options(a.Output))
+		if err := render.Write(e.Stdout, table, e.options(a.Output)); err != nil {
+			return err
+		}
+		return skippedError(res.Skipped)
 	}), nil
 }
 

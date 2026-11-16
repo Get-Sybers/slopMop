@@ -1,0 +1,72 @@
+[
+  {
+    "name": "phase1/20250301_101500_step01_recon.sh",
+    "role": "script",
+    "size": 145,
+    "lines": 6,
+    "modified": "2025-03-01T10:15:03Z",
+    "sha256": "864b3b85f716d3a0ad93669eea34a180cd82f94821e0af9641bbc677e92e1209",
+    "name_time": "20250301_101500",
+    "note": null
+  },
+  {
+    "name": "phase1/20250301_101800_step02_enum.sh",
+    "role": "script",
+    "size": 432,
+    "lines": 10,
+    "modified": "2025-03-01T10:18:03Z",
+    "sha256": "79a89257f0d738f2648aa10c9ea8b296735c685da2c5f0369792270840cdb77f",
+    "name_time": "20250301_101800",
+    "note": null
+  },
+  {
+    "name": "phase1/20250301_102300_step03_adsync.sh",
+    "role": "script",
+    "size": 388,
+    "lines": 9,
+    "modified": "2025-03-01T10:23:03Z",
+    "sha256": "209eaa3f1d2e564596f751b07e13aa82c2d345301e597eb26dd95148c8aab473",
+    "name_time": "20250301_102300",
+    "note": null
+  },
+  {
+    "name": "phase1/20250301_102700_step03_adsync_v2.sh",
+    "role": "script",
+    "size": 335,
+    "lines": 8,
+    "modified": "2025-03-01T10:27:03Z",
+    "sha256": "dbe1d9f6b5b56a6e380292d81958213142697260ce24d86ba5e46082cec502df",
+    "name_time": "20250301_102700",
+    "note": null
+  },
+  {
+    "name": "phase1/20250301_103200_step05_certs.sh",
+    "role": "script",
+    "size": 701,
+    "lines": 13,
+    "modified": "2025-03-01T10:32:03Z",
+    "sha256": "4d344b52bba8a7f4999b430ba9454435838916a7168db5fc16ffda94ce451ad2",
+    "name_time": "20250301_103200",
+    "note": null
+  },
+  {
+    "name": "phase1/20250301_104000_step06_auth.sh",
+    "role": "script",
+    "size": 396,
+    "lines": 5,
+    "modified": "2025-03-01T10:40:03Z",
+    "sha256": "4959b8f69bb74f45edfcea1999d53dc1ce24ba45e5bc937af97997385ada658f",
+    "name_time": "20250301_104000",
+    "note": null
+  },
+  {
+    "name": "phase1/20250301_104500_step07_exfil.sh",
+    "role": "script",
+    "size": 277,
+    "lines": 4,
+    "modified": "2025-03-01T10:45:03Z",
+    "sha256": "53688eb8bc13d992b371bdcd422fb3c6418ba62f1a154da0fbbb432c75bcb66a",
+    "name_time": "20250301_104500",
+    "note": null
+  }
+]

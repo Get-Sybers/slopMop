@@ -4,6 +4,10 @@ list services (no --node = every node)
 params (double dash, take a value):
   --node      <node>|all
 
+switches (double dash, take no value; the short form takes one dash):
+  --all, -a   include stopped services
+  --verbose
+
 output flags:
   -o wide|json    every column, or JSON
   -q              column 1 only, one per line

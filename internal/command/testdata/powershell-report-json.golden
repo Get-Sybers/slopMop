@@ -1,0 +1,46 @@
+[
+  {
+    "metric": "files",
+    "value": 16
+  },
+  {
+    "metric": "scripts",
+    "value": 6
+  },
+  {
+    "metric": "outputs",
+    "value": 9
+  },
+  {
+    "metric": "indicators",
+    "value": 13
+  },
+  {
+    "metric": "indicators Base64Blob",
+    "value": 1
+  },
+  {
+    "metric": "indicators Domain",
+    "value": 4
+  },
+  {
+    "metric": "indicators EncodedCommand",
+    "value": 1
+  },
+  {
+    "metric": "indicators GUID",
+    "value": 1
+  },
+  {
+    "metric": "indicators IPv4",
+    "value": 3
+  },
+  {
+    "metric": "indicators SHA1",
+    "value": 3
+  },
+  {
+    "metric": "tactics",
+    "value": 3
+  }
+]

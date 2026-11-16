@@ -1,7 +1,10 @@
 usage: slopmop NOUN VERB [selectors] [--params] [output flags] [positional]
 
 nouns:
-  file, files    files in the input directory
-  trace, traces  script trace of the input directory
+  file, files          files in the input directory
+  trace, traces        script trace of the input directory
+  finding, findings    detections aggregated from the trace
+  report, reports      summary of an analysis of the input directory
+  campaign, campaigns  campaigns named in a threat intelligence watchlist
 
 more help: slopmop NOUN -h, slopmop NOUN VERB -h

@@ -28,10 +28,11 @@ func (e Env) fileList(v verbSpec) (*cli.Verb, error) {
 	spec := cli.Spec{
 		Selectors: selectors,
 		Params:    map[string]string{inputDir: "<folder>"},
+		Switches:  recursiveSwitch(),
 		Required:  []string{inputDir},
 	}
 	return cli.ListVerb(v.Summary, spec, func(a *cli.Args) error {
-		files, err := inventory.Read(a.Params[inputDir])
+		res, err := inventory.Read(a.Params[inputDir], depth(a))
 		if err != nil {
 			return err
 		}
@@ -41,7 +42,7 @@ func (e Env) fileList(v verbSpec) (*cli.Verb, error) {
 		}
 		table := render.Table{Columns: v.Columns}
 		unreadable := 0
-		for _, f := range files {
+		for _, f := range res.Files {
 			if !wanted[string(f.Role)] {
 				continue
 			}
@@ -58,9 +59,9 @@ func (e Env) fileList(v verbSpec) (*cli.Verb, error) {
 			return err
 		}
 		if unreadable > 0 {
-			return fmt.Errorf("%d file(s) unreadable", unreadable)
+			return errors.Join(fmt.Errorf("%d file(s) unreadable", unreadable), skippedError(res.Skipped))
 		}
-		return nil
+		return skippedError(res.Skipped)
 	}), nil
 }
 

