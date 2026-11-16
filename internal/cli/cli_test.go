@@ -135,8 +135,18 @@ func TestRunReturnsTheVerbsError(t *testing.T) {
 	}
 }
 
-const rootHelp = `usage: slopmop -inputdir <folder> VERB [section ...] [options]
+const usageLine = "usage: slopmop -inputdir <folder> VERB [section ...] [options]\n"
 
+const reportUsage = "usage: slopmop -inputdir <folder> report [section ...] [-outdir <folder>]\nprints the report\n"
+
+// Help is written for the point the command line has come to: each word
+// typed changes what is given, what is needed and what comes next.
+func TestHelpFollowsTheLine(t *testing.T) {
+	tests := []struct {
+		cmd  string
+		want string
+	}{
+		{"", usageLine + `
 verbs:
   report              prints the report
   version             prints the version
@@ -145,38 +155,104 @@ options (one dash or two; each takes a value):
   -inputdir <folder>  the folder to read
   -outdir <folder>    where the output is saved
 
-more help: slopmop VERB --help
-`
+next: slopmop -inputdir <folder> --help
+`},
+		{"-inputdir --help", usageLine + `so far: slopmop -inputdir
 
-const reportHelp = `usage: slopmop -inputdir <folder> report [section ...] [-outdir <folder>]
-prints the report
+-inputdir needs a value:
+  -inputdir <folder>  the folder to read
+
+next: slopmop -inputdir <folder> --help
+`},
+		{"-inputdir case42 --help", usageLine + `so far: slopmop -inputdir case42
+
+given:
+  -inputdir case42  the folder to read
+
+add a verb:
+  report            prints the report
+  version           prints the version
+
+options you can add (one dash or two; each takes a value):
+  -outdir <folder>  where the output is saved
+
+next: slopmop -inputdir case42 report --help
+next: slopmop -inputdir case42 version --help
+`},
+		{"report --help", reportUsage + `so far: slopmop report
+
+still needed:
+  -inputdir <folder>  the folder to read
 
 sections (name any to print only those; none = all):
   summary             the counts
   impact              what it means
 
-options (one dash or two; each takes a value):
-  -inputdir <folder>  the folder to read (required)
+options you can add (one dash or two; each takes a value):
   -outdir <folder>    where the output is saved
-`
 
-func TestHelp(t *testing.T) {
-	tests := []struct {
-		cmd  string
-		want string
-	}{
-		{"", rootHelp},
-		{"-h", rootHelp},
-		{"--help", rootHelp},
-		{"-help", rootHelp},
-		{"help", rootHelp},
-		{"-inputdir case42 --help", rootHelp},
-		{"report --help", reportHelp},
-		{"help report", reportHelp},
-		{"report help", reportHelp},
-		{"-inputdir case42 report impact -h", reportHelp},
-		{"report bogus --bogus x --help", reportHelp},
-		{"version -h", "usage: slopmop version\nprints the version\n"},
+next: slopmop -inputdir <folder> report --help
+`},
+		{"-inputdir case42 report --help", reportUsage + `so far: slopmop -inputdir case42 report
+
+given:
+  -inputdir case42  the folder to read
+
+sections (name any to print only those; none = all):
+  summary           the counts
+  impact            what it means
+
+options you can add (one dash or two; each takes a value):
+  -outdir <folder>  where the output is saved
+
+next: slopmop -inputdir case42 report summary --help
+run:  slopmop -inputdir case42 report
+`},
+		{"-inputdir case42 report impact -h", reportUsage + `so far: slopmop -inputdir case42 report impact
+
+given:
+  -inputdir case42  the folder to read
+
+sections chosen:
+  impact            what it means
+
+sections you can add:
+  summary           the counts
+
+options you can add (one dash or two; each takes a value):
+  -outdir <folder>  where the output is saved
+
+next: slopmop -inputdir case42 report impact summary --help
+run:  slopmop -inputdir case42 report impact
+`},
+		{"report impact summary -outdir out -inputdir case42 help", reportUsage + `so far: slopmop report impact summary -outdir out -inputdir case42
+
+given:
+  -outdir out       where the output is saved
+  -inputdir case42  the folder to read
+
+sections chosen:
+  summary           the counts
+  impact            what it means
+
+run:  slopmop -inputdir case42 report impact summary -outdir out
+`},
+		{"-inputdir case42 report impact -outdir --help", reportUsage + `so far: slopmop -inputdir case42 report impact -outdir
+
+given:
+  -inputdir case42  the folder to read
+
+-outdir needs a value:
+  -outdir <folder>  where the output is saved
+
+next: slopmop -inputdir case42 report impact -outdir <folder> --help
+`},
+		{"version -h", `usage: slopmop version
+prints the version
+so far: slopmop version
+
+run:  slopmop version
+`},
 	}
 	for _, tt := range tests {
 		t.Run(tt.cmd, func(t *testing.T) {
@@ -192,20 +268,136 @@ func TestHelp(t *testing.T) {
 			}
 		})
 	}
+}
+
+// Every way of asking gives the help of the same point.
+func TestHelpIsAskedForInManyWays(t *testing.T) {
+	groups := [][]string{
+		{"", "-h", "--help", "-help", "help"},
+		{"-inputdir case42 --help", "--help -inputdir case42", "-inputdir case42 -h", "-inputdir case42 help"},
+		{"-inputdir case42 report --help", "-inputdir case42 help report", "-inputdir case42 report help", "-inputdir case42 --help report"},
+	}
+	for _, group := range groups {
+		var first string
+		for i, cmd := range group {
+			app, _, out := newApp(t)
+			if err := app.Run(strings.Fields(cmd)); err != nil {
+				t.Fatalf("Run(%q) = %v", cmd, err)
+			}
+			if i == 0 {
+				first = out.String()
+			} else if out.String() != first {
+				t.Errorf("Run(%q) help differs from Run(%q):\n%s", cmd, group[0], out.String())
+			}
+		}
+	}
 	bare := &bytes.Buffer{}
 	if err := cli.New("slopmop", "VERB", bare).Run(nil); err != nil || bare.String() != "usage: slopmop VERB\n" {
 		t.Errorf("help of an App without verbs = %q, %v", bare.String(), err)
 	}
 }
 
-// The value of an option is never read as help or as a verb.
+// Help is asked for by someone unsure, so what does not fit is named and the
+// next line leaves it out; nothing is an error.
+func TestHelpNamesProblems(t *testing.T) {
+	tests := []struct {
+		cmd   string
+		wants []string
+		lacks []string
+	}{
+		{"-inputdir case42 bogus --help", []string{
+			"problems:\n  unknown verb \"bogus\" (verbs: report, version)\n",
+			"add a verb:\n",
+			"next: slopmop -inputdir case42 report --help\n",
+		}, []string{"run:"}},
+		{"-inputdir case42 report bogus --help", []string{
+			"problems:\n  report has no section \"bogus\" (sections: summary, impact)\n",
+			"next: slopmop -inputdir case42 report --help\n",
+		}, []string{"run:", "sections chosen"}},
+		{"-inputdir a -inputdir b report --help", []string{
+			"problems:\n  -inputdir given more than once\n",
+			"given:\n  -inputdir a ",
+		}, []string{"run:", "\n  -inputdir b"}},
+		{"-inputdir a report -bogus x --help", []string{
+			"problems:\n  unknown option -bogus (options: -inputdir <folder>, -outdir <folder>)\n",
+		}, []string{"run:"}},
+		{"-bogus x --help", []string{
+			"problems:\n  unknown option -bogus\n",
+			"next: slopmop -inputdir <folder> --help\n",
+		}, nil},
+		{"version extra -h", []string{"problems:\n  version takes no word, got \"extra\"\n", "next: slopmop version --help\n"}, []string{"run:"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.cmd, func(t *testing.T) {
+			app, ran, out := newApp(t)
+			if err := app.Run(strings.Fields(tt.cmd)); err != nil {
+				t.Fatalf("Run(%q) = %v", tt.cmd, err)
+			}
+			for _, want := range tt.wants {
+				if !strings.Contains(out.String(), want) {
+					t.Errorf("help lacks %q:\n%s", want, out.String())
+				}
+			}
+			for _, lack := range tt.lacks {
+				if strings.Contains(out.String(), lack) {
+					t.Errorf("help holds %q:\n%s", lack, out.String())
+				}
+			}
+			if len(ran) != 0 {
+				t.Error("a verb ran when help was asked for")
+			}
+		})
+	}
+}
+
+// A value is shown as it can be typed again, and never raw when it is not printable.
+func TestHelpQuotesValues(t *testing.T) {
+	app, _, out := newApp(t)
+	if err := app.Run([]string{"-inputdir", "my folder", "-outdir", "x\x1b[2J", "report", "--help"}); err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{`so far: slopmop -inputdir "my folder" -outdir "x\x1b[2J" report`, `run:  slopmop -inputdir "my folder" report -outdir "x\x1b[2J"`} {
+		if !strings.Contains(out.String(), want) {
+			t.Errorf("help lacks %q:\n%s", want, out.String())
+		}
+	}
+	if strings.ContainsRune(out.String(), '\x1b') {
+		t.Errorf("an escape character reached the help: %q", out.String())
+	}
+	app, _, out = newApp(t)
+	if err := app.Run([]string{"-inputdir=", "report", "-h"}); err != nil || !strings.Contains(out.String(), "-inputdir needs a value:") {
+		t.Errorf("an empty value: %v\n%s", err, out.String())
+	}
+}
+
+// The first step is the first verb's required options, or the verb when it has none.
+func TestHelpFirstStep(t *testing.T) {
+	out := &bytes.Buffer{}
+	app := cli.New("slopmop", "VERB", out)
+	if err := app.Register(&cli.Verb{Name: "version", Summary: "prints the version", Run: func(*cli.Args) error { return nil }}); err != nil {
+		t.Fatal(err)
+	}
+	if err := app.Run(nil); err != nil || !strings.HasSuffix(out.String(), "\nnext: slopmop version --help\n") {
+		t.Errorf("help = %q, %v", out.String(), err)
+	}
+	out.Reset()
+	if err := app.Run([]string{"version", "-x", "bad\xffvalue", "--help"}); err != nil || !strings.Contains(out.String(), `so far: slopmop version -x "bad\xffvalue"`) {
+		t.Errorf("a value that is not UTF-8: %q, %v", out.String(), err)
+	}
+}
+
+// The word "help" after an option is its value; a help flag there asks about the option.
 func TestHelpWordsThatAreValues(t *testing.T) {
 	app, ran, out := newApp(t)
-	if err := app.Run(strings.Fields("-inputdir help report -outdir --help")); err != nil {
+	if err := app.Run(strings.Fields("-inputdir help report -outdir=--help")); err != nil {
 		t.Fatal(err)
 	}
 	if out.Len() != 0 || ran["report"] == nil || ran["report"].Options["inputdir"] != "help" || ran["report"].Options["outdir"] != "--help" {
 		t.Errorf("help = %q, ran = %v; want the verb run with both values", out.String(), ran["report"])
+	}
+	app, ran, out = newApp(t)
+	if err := app.Run(strings.Fields("-inputdir case42 -- report --help")); err == nil || len(ran) != 0 || out.Len() != 0 {
+		t.Errorf("after --, --help is a word: error = %v", err)
 	}
 }
 

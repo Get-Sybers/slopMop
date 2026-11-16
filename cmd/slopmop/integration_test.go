@@ -57,8 +57,12 @@ func TestBinary(t *testing.T) {
 		stderr string
 	}{
 		{name: "no arguments print help", code: 0, golden: "help"},
-		{name: "help with an input folder", args: []string{"-inputdir", folder, "--help"}, code: 0, golden: "help"},
-		{name: "verb help", args: []string{"-inputdir", folder, "report", "--help"}, code: 0, golden: "help-report"},
+		{name: "help on an option", args: []string{"-inputdir", "--help"}, code: 0, golden: "help-option"},
+		{name: "help with an input folder", args: []string{"-inputdir", "case42", "--help"}, code: 0, golden: "help-inputdir"},
+		{name: "help with a verb", args: []string{"-inputdir", "case42", "report", "--help"}, code: 0, golden: "help-report"},
+		{name: "help with a section", args: []string{"-inputdir", "case42", "report", "impact", "--help"}, code: 0,
+			golden: "help-report-impact"},
+		{name: "help with a verb and no folder", args: []string{"report", "--help"}, code: 0, golden: "help-report-bare"},
 		{name: "no verb", args: []string{"-inputdir", folder}, code: 2, stderr: "error: slopmop needs a verb (verbs: report)"},
 		{name: "unknown verb", args: []string{"-inputdir", folder, "list"}, code: 2, stderr: `error: unknown verb "list" (verbs: report)`},
 		{name: "no input folder", args: []string{"report"}, code: 2, stderr: "error: report needs -inputdir <folder>"},

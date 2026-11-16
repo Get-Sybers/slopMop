@@ -102,27 +102,73 @@ evidence is escaped as described in the [output schema](02-Output-Schema.md).
 
 ## 8. Help
 
-Help is generated from the registered verbs, so it cannot drift from the parser. `slopmop`,
-`slopmop help`, `slopmop -h` and `slopmop --help` list the verbs and the options, with or without
-an option beside them: `slopmop -inputdir <folder> --help`. With a verb, the same words print the
-help of the verb. The value of an option is never read as a request for help.
+Help is written for the point the command line has come to. `-h`, `-help`, `--help` or the word
+`help`, put anywhere on a line, prints what the line holds so far and what can follow it, and runs
+nothing. It is generated from the registered verbs, so it cannot drift from the parser.
+
+| Line so far | Help says |
+| --- | --- |
+| `slopmop --help`, or `slopmop` alone | the verbs and the options |
+| `slopmop -inputdir --help` | the value the option takes |
+| `slopmop -inputdir <folder> --help` | what was given, and the verbs to add |
+| `slopmop -inputdir <folder> report --help` | what was given, the sections, and the options left to add |
+| `slopmop -inputdir <folder> report impact --help` | the sections chosen and those left to add |
+| `slopmop report --help` | the same as with a folder, and that `-inputdir` is still needed |
+
+- `so far:` repeats the line. A value that holds a space or a character that is not printable is
+  shown quoted.
+- `given:` lists the options that have a value. `still needed:` lists the required options that
+  are missing. The other blocks list what can be added: verbs, sections and options.
+- `problems:` names what does not fit: an unknown verb, section or option, or an option given
+  twice. Help is not an error, so the exit code is 0.
+- `next:` is a line to type to see the help of the next point. `run:` is the command itself; it
+  is shown once nothing is missing and nothing is wrong. Both leave out what was wrong, and write
+  the line in the order of the usage line.
+- A help flag where the value of an option belongs asks about that option. The word `help` there
+  is the value, and so is anything after `=`: `-inputdir help`, `-inputdir=--help`.
 
 ```text
-$ slopmop report --help
+$ slopmop -inputdir case42 --help
+usage: slopmop -inputdir <folder> VERB [section ...] [options]
+so far: slopmop -inputdir case42
+
+given:
+  -inputdir case42   the folder of scripts and outputs to read
+
+add a verb:
+  report             reads the folder and everything below it, runs nothing, prints the report and saves it
+
+options you can add (one dash or two; each takes a value):
+  -intelfile <file>  a watchlist, JSON or STIX 2.1, to attribute the indicators to
+  -outdir <folder>   where the output is saved; slopmop-<name> in the current directory when not given
+
+next: slopmop -inputdir case42 report --help
+```
+
+```text
+$ slopmop -inputdir case42 report impact --help
 usage: slopmop -inputdir <folder> report [section ...] [-intelfile <file>] [-outdir <folder>]
 reads the folder and everything below it, runs nothing, prints the report and saves it
+so far: slopmop -inputdir case42 report impact
 
-sections (name any to print only those; none = all):
-  summary             the counts
-  timeline            each file in order, with what it shows
-  findings            each activity, indicator and tactic, most severe first
-  files               the files that hold a finding of high severity
-  impact              what the findings mean
-  remediation         what to do about them, most urgent first
-  mitigation          what MITRE ATT&CK and ATLAS say prevents the techniques found
+given:
+  -inputdir case42   the folder of scripts and outputs to read
 
-options (one dash or two; each takes a value):
-  -inputdir <folder>  the folder of scripts and outputs to read (required)
-  -intelfile <file>   a watchlist, JSON or STIX 2.1, to attribute the indicators to
-  -outdir <folder>    where the output is saved; slopmop-<name> in the current directory when not given
+sections chosen:
+  impact             what the findings mean
+
+sections you can add:
+  summary            the counts
+  timeline           each file in order, with what it shows
+  findings           each activity, indicator and tactic, most severe first
+  files              the files that hold a finding of high severity
+  remediation        what to do about them, most urgent first
+  mitigation         what MITRE ATT&CK and ATLAS say prevents the techniques found
+
+options you can add (one dash or two; each takes a value):
+  -intelfile <file>  a watchlist, JSON or STIX 2.1, to attribute the indicators to
+  -outdir <folder>   where the output is saved; slopmop-<name> in the current directory when not given
+
+next: slopmop -inputdir case42 report impact summary --help
+run:  slopmop -inputdir case42 report impact
 ```

@@ -26,8 +26,11 @@ All notable changes to this project are recorded in this file. The format follow
   sub-folders once. A bare word after the verb names a section, and no word means every section.
 - An option is written with one dash or two and always takes a value: `-inputdir`, `-intelfile`
   and `-outdir`.
-- `slopmop`, `slopmop --help` and `slopmop -inputdir <folder> --help` print the verbs and the
-  options; `slopmop report --help` prints the sections.
+- Help follows the command line. Asked for at any point, it prints what the line holds so far,
+  what is still needed, what can be added, a `next:` line for the help of the next point and,
+  once nothing is missing, the `run:` line. `slopmop -inputdir --help` explains the option,
+  `slopmop -inputdir <folder> --help` lists the verbs, `slopmop -inputdir <folder> report --help`
+  lists the sections, and with a section named it lists those chosen and those left.
 - A notable file is one with a finding of high severity.
 
 ### Removed

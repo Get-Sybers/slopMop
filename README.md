@@ -49,7 +49,7 @@ Timeline   (step, time, role, file)
 | `slopmop -inputdir <folder> report impact remediation` | prints only the sections named |
 | `slopmop -inputdir <folder> report -intelfile <file>` | attributes the indicators a watchlist matches |
 | `slopmop -inputdir <folder> report -outdir <folder>` | saves the output to the folder named |
-| `slopmop -inputdir <folder> --help` | prints the verbs and the options |
+| `slopmop -inputdir <folder> --help` | prints what the line holds so far and what can follow it; `--help` works at every point |
 
 The sections are `summary`, `timeline`, `findings`, `files`, `impact`, `remediation` and
 `mitigation`. `report` is the one verb, and nothing is remembered between runs.

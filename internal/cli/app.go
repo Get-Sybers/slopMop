@@ -116,10 +116,13 @@ type line struct {
 	options     []given
 	positionals []string
 	help        bool
+	// typed is the command line without the requests for help.
+	typed []string
 }
 
 // lex splits args. Every option takes a value: the text after = or the next
-// argument. "--" ends the options, and -h, --help and the word "help" ask for help.
+// argument. "--" ends the options, and -h, --help and the word "help" ask for
+// help. Help asked for where a value belongs is help on that option.
 func lex(args []string) line {
 	var l line
 	for i := 0; i < len(args); i++ {
@@ -127,42 +130,45 @@ func lex(args []string) line {
 		switch {
 		case arg == "--":
 			l.positionals = append(l.positionals, args[i+1:]...)
+			l.typed = append(l.typed, args[i:]...)
 			return l
-		case arg == "-h" || arg == "-help" || arg == "--help":
+		case isHelpFlag(arg) || isHelp(arg):
 			l.help = true
 		case len(arg) > 1 && arg[0] == '-':
 			name, value, attached := strings.Cut(strings.TrimPrefix(strings.TrimPrefix(arg, "-"), "-"), "=")
 			g := given{name: name, value: value, hasValue: attached, form: strings.TrimSuffix(arg, "="+value)}
-			if !attached && i+1 < len(args) {
+			l.typed = append(l.typed, arg)
+			if !attached && i+1 < len(args) && !isHelpFlag(args[i+1]) {
 				i++
 				g.value, g.hasValue = args[i], true
+				l.typed = append(l.typed, args[i])
 			}
 			l.options = append(l.options, g)
-		case isHelp(arg):
-			l.help = true
 		default:
 			l.positionals = append(l.positionals, arg)
+			l.typed = append(l.typed, arg)
 		}
 	}
 	return l
+}
+
+func isHelpFlag(arg string) bool {
+	return arg == "-h" || arg == "-help" || arg == "--help"
 }
 
 // Run dispatches args, the command line after the binary name. Requested help is not an
 // error; a failure of the grammar matches ErrUsage; a verb's own error is returned as it is.
 func (a *App) Run(args []string) error {
 	l := lex(args)
+	if l.help || len(args) == 0 {
+		return a.writeHelp(a.help(l))
+	}
 	if len(l.positionals) == 0 {
-		if l.help || len(args) == 0 {
-			return a.writeHelp(a.rootHelp())
-		}
 		return Usagef("%s needs a verb%s", a.bin, valid("verbs", a.verbList()))
 	}
 	v := a.verb(l.positionals[0])
 	if v == nil {
-		return Usagef("unknown verb %q%s", l.positionals[0], valid("verbs", a.verbList()))
-	}
-	if l.help {
-		return a.writeHelp(a.verbHelp(v))
+		return Usagef("%s", a.unknownVerb(l.positionals[0]))
 	}
 	parsed, err := v.parse(l)
 	if err != nil {
@@ -171,13 +177,32 @@ func (a *App) Run(args []string) error {
 	return v.Run(parsed)
 }
 
+func (a *App) unknownVerb(word string) string {
+	return fmt.Sprintf("unknown verb %q%s", word, valid("verbs", a.verbList()))
+}
+
+func (v *Verb) unknownOption(g given) string {
+	return fmt.Sprintf("unknown option %s%s", g.form, valid("options", v.optionList()))
+}
+
+func (v *Verb) unknownWord(word string) string {
+	if len(v.Words) == 0 {
+		return fmt.Sprintf("%s takes no word, got %q", v.Name, word)
+	}
+	return fmt.Sprintf("%s has no %s %q%s", v.Name, singular(v.Kind), word, valid(v.Kind, v.wordList()))
+}
+
+func (v *Verb) hasWord(word string) bool {
+	return slices.ContainsFunc(v.Words, func(w Word) bool { return w.Name == word })
+}
+
 func (v *Verb) parse(l line) (*Args, error) {
 	args := &Args{Options: map[string]string{}}
 	for _, g := range l.options {
 		o, ok := v.option(g.name)
 		switch {
 		case !ok:
-			return nil, Usagef("unknown option %s%s", g.form, valid("options", v.optionList()))
+			return nil, Usagef("%s", v.unknownOption(g))
 		case !g.hasValue || g.value == "":
 			return nil, Usagef("%s needs a value %s", g.form, o.Hint)
 		}
@@ -193,11 +218,8 @@ func (v *Verb) parse(l line) (*Args, error) {
 	}
 	var chosen []string
 	for _, word := range l.positionals[1:] {
-		if !slices.ContainsFunc(v.Words, func(w Word) bool { return w.Name == word }) {
-			if len(v.Words) == 0 {
-				return nil, Usagef("%s takes no word, got %q", v.Name, word)
-			}
-			return nil, Usagef("%s has no %s %q%s", v.Name, singular(v.Kind), word, valid(v.Kind, v.wordList()))
+		if !v.hasWord(word) {
+			return nil, Usagef("%s", v.unknownWord(word))
 		}
 		chosen = append(chosen, word)
 	}

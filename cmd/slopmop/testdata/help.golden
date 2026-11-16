@@ -8,4 +8,4 @@ options (one dash or two; each takes a value):
   -intelfile <file>   a watchlist, JSON or STIX 2.1, to attribute the indicators to
   -outdir <folder>    where the output is saved; slopmop-<name> in the current directory when not given
 
-more help: slopmop VERB --help
+next: slopmop -inputdir <folder> --help
