@@ -26,7 +26,7 @@ var (
 		"import-csv": true, "ipcsv": true,
 	}
 
-	rxCmdlet     = regexp.MustCompile(`\b([A-Z][a-z]+-[A-Z][A-Za-z]+)\b`)
+	rxCmdlet     = regexp.MustCompile(`(?i)\b([A-Z][a-z]+-[A-Z][A-Za-z]+)\b`)
 	rxExe        = regexp.MustCompile(`\b(\w[\w.-]*\.exe)\b`)
 	rxPsVar      = regexp.MustCompile(`^\s*\$([A-Za-z_]\w*)\s*=\s*(.*)$`)
 	rxPsParam    = regexp.MustCompile(`(?i)^\s*\[(?:string|int|switch|bool)\]?\s*\$(\w+)\s*=\s*(.*)$`)
@@ -47,7 +47,7 @@ var (
 	rxBxor        = regexp.MustCompile(`(?i)-bxor\b`)
 	rxCharArray   = regexp.MustCompile(`(?i)\.ToCharArray\s*\(`)
 	rxArrReverse  = regexp.MustCompile(`(?i)\[array\]::Reverse\b`)
-	rxEncCmd      = regexp.MustCompile(`(?i)-(?:EncodedCommand|enc)\s+`)
+	rxEncCmd      = regexp.MustCompile(`(?i)-(?:(?:EncodedCommand|enc)\s+|(?:ec|e)\s+['"]?[A-Za-z0-9+/=]{20,})`)
 	rxSecStr      = regexp.MustCompile(`(?i)(ConvertTo-SecureString|ConvertFrom-SecureString)`)
 )
 
@@ -226,6 +226,14 @@ func extractPsIO(line string, _ int, s *Script, seen map[string]bool) {
 	}
 }
 
+// psCompressionLabel matches the labels the bash parser emits.
+func psCompressionLabel(class string) string {
+	if strings.EqualFold(class, "DeflateStream") {
+		return "Deflate"
+	}
+	return "GZip"
+}
+
 func extractPsTransforms(line string, lineNo int, s *Script) {
 	add := func(method string) {
 		s.Transforms = append(s.Transforms, Transform{
@@ -241,10 +249,10 @@ func extractPsTransforms(line string, lineNo int, s *Script) {
 		}
 	}
 	if m := rxGzip.FindStringSubmatch(line); m != nil {
-		add(strings.ToLower(m[1]))
+		add(psCompressionLabel(m[1]))
 	}
 	if m := rxNewGzip.FindStringSubmatch(line); m != nil {
-		add(strings.ToLower(m[1]))
+		add(psCompressionLabel(m[1]))
 	}
 	if rxEncoding.MatchString(line) || rxGetEncoding.MatchString(line) {
 		add("TextEncoding")

@@ -36,3 +36,22 @@ All notable changes to this project are recorded in this file. The format follow
   as output role in the inventory.
 - Indicator patterns `Base64Blob` and `EncodedCommand` (13 patterns total).
 - PowerShell staging fixture `step06_stage.ps1` with `.b64`, `.ses` and `.cmd` output files.
+
+### Fixed
+
+- The bash parser no longer treats a here-string (`<<<`) or an arithmetic shift (`$((1 << 4))`) as
+  a here-doc, which skipped the rest of the script.
+- PowerShell cmdlet matching is now case-insensitive.
+- Transform labels are consistent across parsers (`GZip`, `Deflate` instead of `gzipstream`,
+  `deflatestream`).
+- `-e` and `-ec` abbreviations for `-EncodedCommand` are now detected.
+- IPv4 indicator pattern has word boundaries and rejects trailing octets (`1.2.3.4.5`).
+- Domain indicator pattern rejects .NET namespaces (`System.IO`, `$obj.Count`).
+- `trace list` output linking compares by base name, so directory-prefixed writes match.
+- Each script is parsed once per `trace list` instead of twice.
+- `-o json` and `-o wide` output for `trace list` is no longer truncated.
+
+### Changed
+
+- Helpers shared by the bash and PowerShell parsers live in `internal/parse/helpers.go`.
+- Indicator patterns support an optional `not_followed_by` field for boundary checks.

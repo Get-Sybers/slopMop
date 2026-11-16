@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/get-sybers/slopmop/internal/cli"
 	"github.com/get-sybers/slopmop/internal/indicator"
@@ -11,6 +12,11 @@ import (
 	"github.com/get-sybers/slopmop/internal/render"
 	"github.com/get-sybers/slopmop/internal/tactic"
 	"github.com/get-sybers/slopmop/internal/trace"
+)
+
+const (
+	listWidth = 60
+	ellipsis  = "..."
 )
 
 func (e Env) traceList(v verbSpec) (*cli.Verb, error) {
@@ -25,7 +31,7 @@ func (e Env) traceList(v verbSpec) (*cli.Verb, error) {
 	if err != nil {
 		return nil, err
 	}
-	if _, err := traceRow(trace.Step{}, v.Columns); err != nil {
+	if _, err := traceRow(trace.Step{}, v.Columns, false); err != nil {
 		return nil, err
 	}
 	spec := cli.Spec{
@@ -47,12 +53,14 @@ func (e Env) traceList(v verbSpec) (*cli.Verb, error) {
 		for _, sel := range a.Selectors {
 			wanted[sel] = true
 		}
+		// Only the default table shortens its lists; wide, quiet and JSON carry them whole.
+		shorten := a.Output.View == "" && !a.Output.Quiet
 		table := render.Table{Columns: v.Columns}
 		for _, s := range timeline.Steps {
 			if !wanted[string(s.File.Role)] {
 				continue
 			}
-			row, err := traceRow(s, v.Columns)
+			row, err := traceRow(s, v.Columns, shorten)
 			if err != nil {
 				return err
 			}
@@ -62,7 +70,16 @@ func (e Env) traceList(v verbSpec) (*cli.Verb, error) {
 	}), nil
 }
 
-func traceRow(s trace.Step, columns []render.Column) ([]render.Value, error) {
+// traceRow fills one row. render has no list value, so a list is one text
+// cell joined with ", "; shorten cuts it to listWidth for the default table.
+func traceRow(s trace.Step, columns []render.Column, shorten bool) ([]render.Value, error) {
+	list := func(items []string) render.Value {
+		joined := strings.Join(items, ", ")
+		if shorten {
+			joined = truncate(joined, listWidth)
+		}
+		return render.Text(joined)
+	}
 	cells := map[string]render.Value{
 		"step":       render.Int(int64(s.Turn)),
 		"name":       render.Text(s.File.Path),
@@ -82,16 +99,16 @@ func traceRow(s trace.Step, columns []render.Column) ([]render.Value, error) {
 		cells["time"] = render.Text(s.File.Stamp.Text)
 	}
 	if len(s.Tools) > 0 {
-		cells["tools"] = render.Text(joinTruncate(s.Tools, 60))
+		cells["tools"] = list(s.Tools)
 	}
 	if len(s.Tactics) > 0 {
-		cells["tactics"] = render.Text(joinTruncate(s.Tactics, 60))
+		cells["tactics"] = list(s.Tactics)
 	}
 	if len(s.Transforms) > 0 {
-		cells["transforms"] = render.Text(joinTruncate(s.Transforms, 60))
+		cells["transforms"] = list(s.Transforms)
 	}
 	if len(s.Outputs) > 0 {
-		cells["outputs"] = render.Text(joinTruncate(s.Outputs, 60))
+		cells["outputs"] = list(s.Outputs)
 	}
 	if s.Indicators > 0 {
 		cells["indicators"] = render.Int(int64(s.Indicators))
@@ -113,10 +130,14 @@ func traceRow(s trace.Step, columns []render.Column) ([]render.Value, error) {
 	return row, nil
 }
 
-func joinTruncate(items []string, limit int) string {
-	s := strings.Join(items, ", ")
-	if len(s) > limit {
-		return s[:limit-3] + "..."
+// truncate cuts s to at most limit bytes, ending in "..." and never inside a rune.
+func truncate(s string, limit int) string {
+	if len(s) <= limit {
+		return s
 	}
-	return s
+	cut := limit - len(ellipsis)
+	for cut > 0 && !utf8.RuneStart(s[cut]) {
+		cut--
+	}
+	return s[:cut] + ellipsis
 }

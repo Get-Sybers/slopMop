@@ -225,7 +225,7 @@ func TestPsStep06StageTransforms(t *testing.T) {
 	want := []string{
 		"Base64Encode",
 		"Stream",
-		"gzipstream",
+		"GZip",
 		"TextEncoding",
 		"Crypto:Aes",
 		"XOR",
@@ -250,5 +250,27 @@ func TestPsStep06StageTransforms(t *testing.T) {
 	}
 	if len(s.Writes) < 6 {
 		t.Errorf("writes = %v, want at least 6 staged files", s.Writes)
+	}
+}
+
+func TestBashHereDocDetection(t *testing.T) {
+	tests := []struct {
+		name      string
+		text      string
+		wantTools []string
+	}{
+		{"here-doc body is skipped", "cat <<EOF\nnmap inside\nEOF\ncurl after\n", []string{"cat", "curl"}},
+		{"quoted dash here-doc", "cat <<-'EOF'\nnmap inside\nEOF\ncurl after\n", []string{"cat", "curl"}},
+		{"here-string", "cat <<< \"hello\"\ncurl after\n", []string{"cat", "curl"}},
+		{"arithmetic shift", "x=$((1 << 4))\ncurl after\n", []string{"curl"}},
+		{"arithmetic condition", "if ((1 << 4)); then\ncurl after\nfi\n", []string{"curl"}},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got := toolNames(ExtractBash(tc.text))
+			if !slices.Equal(got, tc.wantTools) {
+				t.Errorf("tools = %v, want %v", got, tc.wantTools)
+			}
+		})
 	}
 }

@@ -32,7 +32,17 @@ type Timeline struct {
 // Build reads the inventory result and produces a trace timeline.
 func Build(files []evidence.File, texts map[string]string, tactics tactic.Table, patterns indicator.Table) Timeline {
 	ordered := sortByTime(files)
-	linked := linkOutputs(ordered, texts)
+	// Each script is parsed once; the result serves both the step and the linking.
+	parsed := map[string]parse.Script{}
+	for _, f := range ordered {
+		if f.Role != evidence.Script {
+			continue
+		}
+		if text := texts[f.Path]; text != "" {
+			parsed[f.Path] = parseScript(f, text)
+		}
+	}
+	linked := linkOutputs(ordered, parsed)
 	steps := make([]Step, len(ordered))
 	turn := 0
 	for i, f := range ordered {
@@ -40,17 +50,12 @@ func Build(files []evidence.File, texts map[string]string, tactics tactic.Table,
 			turn++
 		}
 		s := Step{File: f, Turn: turn}
-		if f.Role == evidence.Script {
-			text := texts[f.Path]
-			if text != "" {
-				parsed := parseScript(f, text)
-				s.Tools = uniqueTools(parsed.Commands)
-				s.Tactics = classifyTools(s.Tools, tactics)
-				s.Transforms = uniqueMethods(parsed.Transforms)
-			}
+		if p, ok := parsed[f.Path]; ok {
+			s.Tools = uniqueTools(p.Commands)
+			s.Tactics = classifyTools(s.Tools, tactics)
+			s.Transforms = uniqueMethods(p.Transforms)
 		}
-		text := texts[f.Path]
-		if text != "" {
+		if text := texts[f.Path]; text != "" {
 			s.Indicators = len(patterns.Extract(text))
 		}
 		s.Outputs = linked[f.Path]
@@ -128,31 +133,41 @@ func classifyTools(tools []string, t tactic.Table) []string {
 	return tactics
 }
 
-func linkOutputs(ordered []evidence.File, texts map[string]string) map[string][]string {
+// linkOutputs maps each script to the evidence files it writes. A write
+// path seldom equals an evidence path ("./out.txt", "C:\\loot\\out.txt"), so
+// the two are compared by base name. The links hold evidence paths.
+func linkOutputs(ordered []evidence.File, parsed map[string]parse.Script) map[string][]string {
+	known := map[string][]string{}
+	for _, o := range ordered {
+		name := baseName(o.Path)
+		known[name] = append(known[name], o.Path)
+	}
 	links := map[string][]string{}
 	for _, f := range ordered {
-		if f.Role != evidence.Script {
+		p, ok := parsed[f.Path]
+		if !ok {
 			continue
 		}
-		text := texts[f.Path]
-		if text == "" {
-			continue
-		}
-		var parsed parse.Script
-		if isPowerShell(f) {
-			parsed = parse.ExtractPowerShell(text)
-		} else {
-			parsed = parse.ExtractBash(text)
-		}
-		known := map[string]bool{}
-		for _, o := range ordered {
-			known[o.Path] = true
-		}
-		for _, w := range parsed.Writes {
-			if known[w] {
-				links[f.Path] = append(links[f.Path], w)
+		seen := map[string]bool{}
+		for _, w := range p.Writes {
+			for _, path := range known[baseName(w)] {
+				if path == f.Path || seen[path] {
+					continue
+				}
+				seen[path] = true
+				links[f.Path] = append(links[f.Path], path)
 			}
 		}
 	}
 	return links
+}
+
+// baseName is the part of a path after its last slash or backslash; scripts
+// from either shell may use either separator.
+func baseName(path string) string {
+	path = strings.TrimRight(path, `/\`)
+	if i := strings.LastIndexAny(path, `/\`); i >= 0 {
+		return path[i+1:]
+	}
+	return path
 }
