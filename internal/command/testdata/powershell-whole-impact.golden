@@ -35,5 +35,6 @@ Remediation   (most urgent first)
       files  20250302_090000_step01_inventory.ps1, 20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1 and 1 more
 
 [x] HIGH - 4 impacts: 2 high, 1 medium, 1 low
+-> saved to <out>: readout.txt, files.json, trace.json, findings.json, report.json
 -> one section: slopmop <folder> impact
 -> a table or JSON: slopmop NOUN VERB -h

@@ -24,6 +24,7 @@ type wholeSpec struct {
 	Positional string        `json:"positional"`
 	Sections   []sectionSpec `json:"sections"`
 	Hints      []string      `json:"hints"`
+	Saved      savedSpec     `json:"saved"`
 }
 
 type sectionSpec struct {
@@ -79,10 +80,15 @@ func sectionBuilders() map[string]sectionBuilder {
 }
 
 // registerWhole binds the command without a noun: it reads the folder and
-// everything below it once and writes every section, or those named.
-func (e Env) registerWhole(app *cli.App, w wholeSpec) error {
+// everything below it once, saves every section and every table, and prints
+// every section or those named.
+func (e Env) registerWhole(app *cli.App, w wholeSpec, nouns []nounSpec) error {
 	builders := sectionBuilders()
 	if err := checkWhole(w, builders); err != nil {
+		return err
+	}
+	columns, err := checkSaved(w.Saved, nouns)
+	if err != nil {
 		return err
 	}
 	pipe, err := loadPipeline()
@@ -93,9 +99,14 @@ func (e Env) registerWhole(app *cli.App, w wholeSpec) error {
 	for i, s := range w.Sections {
 		words[i] = cli.Word{Name: s.Name, Summary: s.Summary}
 	}
-	spec := cli.Spec{Params: map[string]string{intelFile: "<file>"}}
+	spec := cli.Spec{Params: map[string]string{intelFile: "<file>", outDir: "<folder>"}}
 	return app.Whole(w.Summary, w.Positional, words, spec, func(a *cli.Args) error {
 		folder := a.Pos[0]
+		// A folder that cannot be written to is refused before the work is done.
+		dir, err := outputDir(folder, a.Params[outDir], e.WorkDir, w.Saved.Prefix)
+		if err != nil {
+			return err
+		}
 		result, err := pipe.read(folder, inventory.MaxDepth, a.Params[intelFile])
 		if err != nil {
 			return err
@@ -105,16 +116,25 @@ func (e Env) registerWhole(app *cli.App, w wholeSpec) error {
 			sectionRemediation: true, sectionMitigation: true,
 		}
 		run := wholeRun{pipe: pipe, result: result, rows: pipe.report(result, tactic.High, every)}
-		out := render.Readout{Title: "slopmop   " + folder, Banner: run.banner(), Hints: w.Hints}
+		// The disk holds every section; the screen holds those asked for.
+		full := render.Readout{Title: "slopmop   " + folder, Banner: run.banner(), Hints: w.Hints}
+		shown := full
 		for _, s := range w.Sections {
+			section := render.Section{Title: s.Title, Note: s.Note, Groups: builders[s.Name](run)}
+			full.Sections = append(full.Sections, section)
 			if slices.Contains(a.Selectors, s.Name) {
-				out.Sections = append(out.Sections, render.Section{Title: s.Title, Note: s.Note, Groups: builders[s.Name](run)})
+				shown.Sections = append(shown.Sections, section)
 			}
 		}
-		if err := render.WriteReadout(e.Stdout, out, e.Colour); err != nil {
+		// A failed save does not withhold the readout; it fails the command after it.
+		names, saveErr := run.save(dir, w.Saved, columns, full)
+		if saveErr == nil {
+			shown.Hints = append([]string{"saved to " + dir + ": " + strings.Join(names, ", ")}, w.Hints...)
+		}
+		if err := render.WriteReadout(e.Stdout, shown, e.Colour); err != nil {
 			return err
 		}
-		return skippedError(result.skipped)
+		return errors.Join(saveErr, skippedError(result.skipped))
 	})
 }
 

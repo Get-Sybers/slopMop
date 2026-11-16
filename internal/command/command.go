@@ -49,6 +49,8 @@ type Env struct {
 	Local  *time.Location
 	// Colour marks the readout with ANSI colours; a table never has any.
 	Colour bool
+	// WorkDir is where the output folder is made; empty is the current directory.
+	WorkDir string
 }
 
 type builder func(verbSpec) (*cli.Verb, error)
@@ -60,7 +62,7 @@ func Register(app *cli.App, env Env) error {
 	if err != nil {
 		return err
 	}
-	if err := env.registerWhole(app, doc.Whole); err != nil {
+	if err := env.registerWhole(app, doc.Whole, doc.Nouns); err != nil {
 		return err
 	}
 	return register(app, doc.Nouns, map[string]builder{

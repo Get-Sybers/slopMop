@@ -70,7 +70,7 @@ const (
 	hintArrow = "->"
 	gap       = "  "
 	// widest is the most a column is padded to; a longer cell runs past it.
-	widest = 40
+	widest = 60
 )
 
 // mark is the ASCII glyph of a level and its colour; ASCII keeps the columns aligned.

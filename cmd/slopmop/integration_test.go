@@ -34,8 +34,11 @@ func TestBinary(t *testing.T) {
 	if err := os.Rename(filepath.Join(nested, moved), filepath.Join(nested, "stage", moved)); err != nil {
 		t.Fatal(err)
 	}
+	// The binary runs in a folder of its own, where its output folder may land.
+	work := t.TempDir()
 	run := func(args ...string) (string, string, int) {
 		cmd := exec.Command(bin, args...)
+		cmd.Dir = work
 		var stdout, stderr bytes.Buffer
 		cmd.Stdout, cmd.Stderr = &stdout, &stderr
 		err := cmd.Run()
@@ -96,13 +99,13 @@ func TestBinary(t *testing.T) {
 	}
 
 	// The folder alone is the whole command line: every section, the
-	// sub-folder read, and no colour because the output is not a terminal.
+	// sub-folder read, the output saved, and no colour off a terminal.
 	stdout, stderr, code := run(nested)
 	if code != 0 || stderr != "" {
 		t.Fatalf("slopmop <folder>: exit code %d, stderr %q", code, stderr)
 	}
-	golden.Check(t, "whole", []byte(strings.ReplaceAll(stdout, nested, "<folder>")))
-	for _, want := range []string{"\nTimeline", "\nImpact", "\nMitigation", "stage/" + moved} {
+	saved := "slopmop-" + filepath.Base(nested)
+	for _, want := range []string{"\nTimeline", "\nImpact", "\nMitigation", "stage/" + moved, "-> saved to " + saved + ": readout.txt"} {
 		if !strings.Contains(stdout, want) {
 			t.Errorf("slopmop <folder>: output lacks %q", want)
 		}
@@ -110,4 +113,15 @@ func TestBinary(t *testing.T) {
 	if strings.Contains(stdout, "\x1b[") {
 		t.Error("slopmop <folder>: colour codes in output that is not a terminal")
 	}
+	for _, name := range []string{"readout.txt", "files.json", "trace.json", "findings.json", "report.json"} {
+		if info, err := os.Stat(filepath.Join(work, saved, name)); err != nil || info.Size() == 0 {
+			t.Errorf("slopmop <folder>: %s was not saved: %v", name, err)
+		}
+	}
+	out := filepath.Join(t.TempDir(), "out")
+	stdout, _, code = run(nested, "--outdir", out)
+	if code != 0 {
+		t.Fatalf("slopmop <folder> --outdir: exit code %d", code)
+	}
+	golden.Check(t, "whole", []byte(strings.ReplaceAll(strings.ReplaceAll(stdout, out, "<out>"), nested, "<folder>")))
 }

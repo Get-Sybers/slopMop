@@ -171,8 +171,19 @@ whether a step succeeded.
 
 ## 9. The readout
 
-`slopmop <folder>` prints plain lines for reading, not a table. It has no JSON form: a program
-reads the classes above.
+`slopmop <folder>` prints plain lines for reading, not a table, and saves them with the classes
+above to its output folder.
+
+| File | Holds |
+| --- | --- |
+| `readout.txt` | the readout with every section, without colour and without the line that names the folder |
+| `files.json` | the `file` class of the folder and its sub-folders, as `file list -r -o json` prints it |
+| `trace.json` | the `trace` class, as `trace list -r -o json` prints it |
+| `findings.json` | the `finding` class, as `finding list -r -o json` prints it |
+| `report.json` | the `report` class, as `report list -r -o json` prints it |
+
+With `--intelfile`, the JSON files carry the watchlist matches as the same command with that
+param prints them.
 
 ```text
 slopmop   case42/ai_workdir
@@ -192,6 +203,7 @@ Impact
       files  20250302_090900_step03_sync_retry.ps1, 20250302_092200_step05_export.ps1
 
 [x] HIGH - 4 impacts: 2 high, 1 medium, 1 low
+-> saved to slopmop-ai_workdir: readout.txt, files.json, trace.json, findings.json, report.json
 -> one section: slopmop <folder> impact
 -> a table or JSON: slopmop NOUN VERB -h
 ```
@@ -202,7 +214,7 @@ Impact
 - A mark gives a severity or a priority: `[x]` high, `[!]` medium, `[i]` low. The marks are ASCII.
 - A section is its title, then its entries indented two spaces. An entry is one line of cells,
   aligned with the entries around it, and detail lines indented under it, each with a label. A
-  column is padded to at most 40 characters; a longer cell runs past it. A section with no entry
+  column is padded to at most 60 characters; a longer cell runs past it. A section with no entry
   prints `none`.
 - A list of files gives the first three and counts the rest: `a.sh, b.sh, c.sh and 4 more`.
 - The values are those of the classes: a timeline entry is a `trace` row, a finding entry is a

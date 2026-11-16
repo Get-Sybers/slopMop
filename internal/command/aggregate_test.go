@@ -1,9 +1,11 @@
 package command
 
 import (
+	"bytes"
 	"errors"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -61,13 +63,171 @@ func TestWholeViews(t *testing.T) {
 		folder := evidencetest.Copy(t, fixture)
 		for _, v := range views {
 			t.Run(fixture+"/"+v.name, func(t *testing.T) {
-				out, err := run(t, append([]string{folder}, v.args...)...)
+				saved := filepath.Join(t.TempDir(), "out")
+				out, err := run(t, append([]string{folder, "--outdir", saved}, v.args...)...)
 				if err != nil {
 					t.Fatal(err)
 				}
-				golden.Check(t, fixture+"-"+v.name, []byte(strings.ReplaceAll(out, folder, "<folder>")))
+				out = strings.ReplaceAll(strings.ReplaceAll(out, saved, "<out>"), folder, "<folder>")
+				golden.Check(t, fixture+"-"+v.name, []byte(out))
 			})
 		}
+	}
+}
+
+// What is saved is what the nouns print: the readout with every section,
+// whichever were asked for, and each class as its own JSON, every column.
+func TestWholeSaves(t *testing.T) {
+	folder := evidencetest.Copy(t, "linux")
+	nest(t, folder, "step05", "later")
+	saved := filepath.Join(t.TempDir(), "deep", "out")
+	shown, err := run(t, folder, "impact", "--outdir", saved)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := "-> saved to " + saved + ": readout.txt, files.json, trace.json, findings.json, report.json\n"; !strings.Contains(shown, want) {
+		t.Errorf("the readout does not say where it was saved:\n%s", shown)
+	}
+	full, err := run(t, folder, "--outdir", filepath.Join(t.TempDir(), "other"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	readout := readFile(t, filepath.Join(saved, "readout.txt"))
+	if lines := strings.Split(full, "\n"); readout != strings.Join(slices.DeleteFunc(lines, func(l string) bool {
+		return strings.HasPrefix(l, "-> saved to ")
+	}), "\n") {
+		t.Errorf("readout.txt is not the full readout:\n%s", readout)
+	}
+	for file, noun := range map[string]string{"files.json": "file", "trace.json": "trace", "findings.json": "finding", "report.json": "report"} {
+		want, listErr := run(t, noun, "list", "--inputdir", folder, "-r", "-o", "json")
+		if listErr != nil {
+			t.Fatal(listErr)
+		}
+		if got := readFile(t, filepath.Join(saved, file)); got != want {
+			t.Errorf("%s differs from %s list -r -o json:\n%s", file, noun, got)
+		}
+	}
+	entries, err := os.ReadDir(saved)
+	if err != nil || len(entries) != 5 {
+		t.Errorf("the output folder holds %d entries (%v), want 5", len(entries), err)
+	}
+}
+
+func readFile(t *testing.T, path string) string {
+	t.Helper()
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(data)
+}
+
+// The output folder is never in the evidence: not by default, not on request.
+func TestOutputDir(t *testing.T) {
+	root := t.TempDir()
+	input := filepath.Join(root, "case42")
+	if err := os.MkdirAll(filepath.Join(input, "sub"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	elsewhere := t.TempDir()
+	link := filepath.Join(elsewhere, "link")
+	linked := os.Symlink(input, link) == nil
+	tests := []struct {
+		name    string
+		given   string
+		workDir string
+		want    string
+		fails   string
+	}{
+		{"the work folder", "", elsewhere, filepath.Join(elsewhere, "slopmop-case42"), ""},
+		{"beside the input when the work folder is the input", "", input, filepath.Join(root, "slopmop-case42"), ""},
+		{"beside the input when the work folder is inside it", "", filepath.Join(input, "sub"), filepath.Join(root, "slopmop-case42"), ""},
+		{"a folder that is given", filepath.Join(elsewhere, "new", "out"), elsewhere, filepath.Join(elsewhere, "new", "out"), ""},
+		{"given inside the input", filepath.Join(input, "out"), elsewhere, "", "is inside the folder that is read"},
+		{"given as the input", input, elsewhere, "", "is inside the folder that is read"},
+	}
+	if linked {
+		tests = append(tests, struct {
+			name    string
+			given   string
+			workDir string
+			want    string
+			fails   string
+		}{"given through a link into the input", filepath.Join(link, "out"), elsewhere, "", "is inside the folder that is read"})
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := outputDir(input, tt.given, tt.workDir, "slopmop-")
+			switch {
+			case tt.fails != "":
+				if err == nil || !strings.Contains(err.Error(), tt.fails) || !errors.Is(err, cli.ErrUsage) {
+					t.Errorf("outputDir error = %v, want a usage error containing %q", err, tt.fails)
+				}
+			case err != nil || got != tt.want:
+				t.Errorf("outputDir = %q, %v; want %q", got, err, tt.want)
+			}
+		})
+	}
+	if _, err := outputDir(string(filepath.Separator), "", string(filepath.Separator), "slopmop-"); err == nil {
+		t.Error("the root of the file system has a folder outside it")
+	}
+}
+
+// A run from inside the evidence writes beside it and leaves it as it was.
+func TestWholeLeavesTheEvidenceAlone(t *testing.T) {
+	folder := evidencetest.Copy(t, "bash")
+	before, err := os.ReadDir(folder)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var out bytes.Buffer
+	app := cli.New("slopmop", &out)
+	if err = Register(app, Env{Stdout: &out, WorkDir: folder}); err != nil {
+		t.Fatal(err)
+	}
+	if err = app.Run([]string{folder, "summary"}); err != nil {
+		t.Fatal(err)
+	}
+	after, err := os.ReadDir(folder)
+	if err != nil || len(after) != len(before) {
+		t.Errorf("the evidence folder holds %d entries after the run and %d before (%v)", len(after), len(before), err)
+	}
+	beside := filepath.Join(filepath.Dir(folder), "slopmop-"+filepath.Base(folder))
+	if _, err := os.Stat(filepath.Join(beside, "readout.txt")); err != nil {
+		t.Errorf("no readout beside the evidence: %v", err)
+	}
+	if _, err := run(t, folder, "--outdir", filepath.Join(folder, "out")); err == nil || !errors.Is(err, cli.ErrUsage) {
+		t.Errorf("an output folder inside the evidence: error = %v", err)
+	}
+}
+
+func TestCheckSavedRejects(t *testing.T) {
+	nouns, err := loadNouns()
+	if err != nil {
+		t.Fatal(err)
+	}
+	table := savedFile{Noun: "trace", File: "trace.json"}
+	tests := []struct {
+		name  string
+		saved savedSpec
+		want  string
+	}{
+		{"no prefix", savedSpec{Readout: "r.txt", Tables: []savedFile{table}}, "needs a prefix"},
+		{"no tables", savedSpec{Prefix: "p-", Readout: "r.txt"}, "needs a prefix"},
+		{"an unknown noun", savedSpec{Prefix: "p-", Readout: "r.txt", Tables: []savedFile{{Noun: "bogus", File: "b.json"}}}, "which has no table"},
+		{"a path for a name", savedSpec{Prefix: "p-", Readout: "r.txt", Tables: []savedFile{{Noun: "trace", File: "../t.json"}}}, "not a file name of its own"},
+		{"a name twice", savedSpec{Prefix: "p-", Readout: "trace.json", Tables: []savedFile{table}}, "not a file name of its own"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if _, err := checkSaved(tt.saved, nouns); err == nil || !strings.Contains(err.Error(), tt.want) {
+				t.Errorf("checkSaved error = %v, want one containing %q", err, tt.want)
+			}
+		})
+	}
+	if _, err := checkSaved(savedSpec{Prefix: "p-", Readout: "r.txt", Tables: []savedFile{table}}, nil); err == nil ||
+		!strings.Contains(err.Error(), "declares no columns") {
+		t.Errorf("a table whose noun is not declared: error = %v", err)
 	}
 }
 

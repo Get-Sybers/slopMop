@@ -74,30 +74,30 @@ Findings
     [x] FileUpload         1 line  Exfiltration      T1048, AML.T0025
         in  20250301_104500_step07_exfil.sh
   indicators
-    [x] Domain  adfs.corp.example                         20250301_103200_step05_certs.sh
-    [x] Domain  ca01.corp.example                         20250301_101530_step01_recon.txt, 20250301_103200_step05_certs.sh, 20250301_103240_certipy_find.txt
-    [x] Domain  corp.example                              20250301_101800_step02_enum.sh, 20250301_101845_step02_enum.log, 20250301_102300_step03_adsync.sh and 5 more
-    [x] Domain  transfer.example.net                      20250301_104500_step07_exfil.sh
+    [x] Domain  adfs.corp.example                                     20250301_103200_step05_certs.sh
+    [x] Domain  ca01.corp.example                                     20250301_101530_step01_recon.txt, 20250301_103200_step05_certs.sh, 20250301_103240_certipy_find.txt
+    [x] Domain  corp.example                                          20250301_101800_step02_enum.sh, 20250301_101845_step02_enum.log, 20250301_102300_step03_adsync.sh and 5 more
+    [x] Domain  transfer.example.net                                  20250301_104500_step07_exfil.sh
         watchlist  STORM-0940
-    [x] Email   MSOL_USER@corp.example                    20250301_103200_step05_certs.sh
-    [x] Email   administrator@corp.example                20250301_103200_step05_certs.sh, 20250301_103240_certipy_find.txt, 20250301_104010_step06_auth.txt
-    [x] IPv4    10.20.1.17                                20250301_101530_step01_recon.txt, 20250301_101800_step02_enum.sh, 20250301_101845_step02_enum.log and 3 more
-    [x] IPv4    10.20.1.23                                20250301_101530_step01_recon.txt, 20250301_101800_step02_enum.sh, 20250301_101845_step02_enum.log and 2 more
-    [x] IPv4    10.20.1.5                                 20250301_101530_step01_recon.txt, 20250301_101800_step02_enum.sh, 20250301_101845_step02_enum.log and 2 more
+    [x] Email   MSOL_USER@corp.example                                20250301_103200_step05_certs.sh
+    [x] Email   administrator@corp.example                            20250301_103200_step05_certs.sh, 20250301_103240_certipy_find.txt, 20250301_104010_step06_auth.txt
+    [x] IPv4    10.20.1.17                                            20250301_101530_step01_recon.txt, 20250301_101800_step02_enum.sh, 20250301_101845_step02_enum.log and 3 more
+    [x] IPv4    10.20.1.23                                            20250301_101530_step01_recon.txt, 20250301_101800_step02_enum.sh, 20250301_101845_step02_enum.log and 2 more
+    [x] IPv4    10.20.1.5                                             20250301_101530_step01_recon.txt, 20250301_101800_step02_enum.sh, 20250301_101845_step02_enum.log and 2 more
         watchlist  STORM-0940
-    [x] MD5     8846f7eaee8fb117ad06bdd830b7586c          20250301_104000_step06_auth.sh, 20250301_104010_step06_auth.txt, 20250301_104500_step07_exfil.sh
-    [x] MD5     aad3b435b51404eeaad3b435b51404ee          20250301_104010_step06_auth.txt
-    [x] SHA1    3f2a9c1e7b6d5a4f3e2d1c0b9a8f7e6d5c4b3a29  20250301_104030_ca_store.txt, 20250301_104500_step07_exfil.sh
-    [x] URL     https://transfer.example.net/upload       20250301_104500_step07_exfil.sh
-    [x] URL     ldap://$DC_IP                             20250301_101800_step02_enum.sh
-    [i] Domain  CORP.EXAMPLE                              adsync_1740824865.txt
-    [i] Domain  aadc01.corp.example                       20250301_101530_step01_recon.txt
-    [i] Domain  corpexample.onmicrosoft.com               adsync_1740824865.txt
-    [i] Domain  dc01.corp.example                         20250301_101530_step01_recon.txt
-    [i] Domain  nmap.org                                  20250301_101530_step01_recon.txt
+    [x] MD5     8846f7eaee8fb117ad06bdd830b7586c                      20250301_104000_step06_auth.sh, 20250301_104010_step06_auth.txt, 20250301_104500_step07_exfil.sh
+    [x] MD5     aad3b435b51404eeaad3b435b51404ee                      20250301_104010_step06_auth.txt
+    [x] SHA1    3f2a9c1e7b6d5a4f3e2d1c0b9a8f7e6d5c4b3a29              20250301_104030_ca_store.txt, 20250301_104500_step07_exfil.sh
+    [x] URL     https://transfer.example.net/upload                   20250301_104500_step07_exfil.sh
+    [x] URL     ldap://$DC_IP                                         20250301_101800_step02_enum.sh
+    [i] Domain  CORP.EXAMPLE                                          adsync_1740824865.txt
+    [i] Domain  aadc01.corp.example                                   20250301_101530_step01_recon.txt
+    [i] Domain  corpexample.onmicrosoft.com                           adsync_1740824865.txt
+    [i] Domain  dc01.corp.example                                     20250301_101530_step01_recon.txt
+    [i] Domain  nmap.org                                              20250301_101530_step01_recon.txt
     [i] Email   Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com  adsync_1740824865.txt
-    [i] IPv4    10.20.1.0/24                              20250301_101500_step01_recon.sh
-    [i] URL     https://nmap.org                          20250301_101530_step01_recon.txt
+    [i] IPv4    10.20.1.0/24                                          20250301_101500_step01_recon.sh
+    [i] URL     https://nmap.org                                      20250301_101530_step01_recon.txt
   tactics
     [x] CredentialAccess  TA0006, AML.TA0013  20250301_101800_step02_enum.sh, 20250301_102300_step03_adsync.sh, 20250301_103200_step05_certs.sh and 2 more
     [x] Exfiltration      TA0010, AML.TA0010  20250301_104500_step07_exfil.sh
@@ -165,20 +165,21 @@ Remediation   (most urgent first)
       files  20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh
 
 Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
-  [x] M1015 Active Directory Configuration      T1649
-  [x] M1018 User Account Management             T1048
-  [x] M1022 Restrict File and Directory Permissions  T1048
-  [x] M1030 Network Segmentation                T1048
-  [x] M1031 Network Intrusion Prevention        T1048
-  [x] M1037 Filter Network Traffic              T1048
-  [x] M1041 Encrypt Sensitive Information       T1649
-  [x] M1042 Disable or Remove Feature or Program  T1649
-  [x] M1047 Audit                               T1649
-  [x] M1057 Data Loss Prevention                T1048
+  [x] M1015 Active Directory Configuration                    T1649
+  [x] M1018 User Account Management                           T1048
+  [x] M1022 Restrict File and Directory Permissions           T1048
+  [x] M1030 Network Segmentation                              T1048
+  [x] M1031 Network Intrusion Prevention                      T1048
+  [x] M1037 Filter Network Traffic                            T1048
+  [x] M1041 Encrypt Sensitive Information                     T1649
+  [x] M1042 Disable or Remove Feature or Program              T1649
+  [x] M1047 Audit                                             T1649
+  [x] M1057 Data Loss Prevention                              T1048
   [x] AML.M0005 Control Access to AI Models and Data at Rest  AML.T0025
-  [!] AML.M0020 Generative AI Guardrails        AML.T0102
-  [!] AML.M0022 Generative AI Model Alignment   AML.T0102
+  [!] AML.M0020 Generative AI Guardrails                      AML.T0102
+  [!] AML.M0022 Generative AI Model Alignment                 AML.T0102
 
 [x] HIGH - 5 impacts: 3 high, 1 medium, 1 low
+-> saved to <out>: readout.txt, files.json, trace.json, findings.json, report.json
 -> one section: slopmop <folder> impact
 -> a table or JSON: slopmop NOUN VERB -h

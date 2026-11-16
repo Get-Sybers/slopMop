@@ -15,8 +15,13 @@ All notable changes to this project are recorded in this file. The format follow
 - The readout: plain lines for reading, with a verdict line, `[x]`, `[!]` and `[i]` marks for
   high, medium and low, entries aligned in columns and detail lines under them. Colour is used
   only on a terminal, never with `NO_COLOR`, and on Windows only inside Windows Terminal.
-- The `whole` block of `nouns.json` declares the sections of the readout; `cli.App.Whole` and
-  `render.WriteReadout` implement them.
+- `slopmop <folder>` saves every run to an output folder: `readout.txt` with every section, and
+  `files.json`, `trace.json`, `findings.json` and `report.json`, each the JSON its noun prints.
+  The folder is `slopmop-<name>` in the current directory, beside the input folder when the
+  current directory is inside it, or the one `--outdir <folder>` names. An output folder inside
+  the input folder is refused.
+- The `whole` block of `nouns.json` declares the sections of the readout and the files saved;
+  `cli.App.Whole` and `render.WriteReadout` implement them.
 
 ### Changed
 

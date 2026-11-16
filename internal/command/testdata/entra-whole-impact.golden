@@ -59,5 +59,6 @@ Remediation   (most urgent first)
       files  20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh and 1 more
 
 [x] HIGH - 7 impacts: 5 high, 1 medium, 1 low
+-> saved to <out>: readout.txt, files.json, trace.json, findings.json, report.json
 -> one section: slopmop <folder> impact
 -> a table or JSON: slopmop NOUN VERB -h

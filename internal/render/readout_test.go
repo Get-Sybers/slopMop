@@ -91,7 +91,7 @@ func TestWriteReadoutCapsAColumn(t *testing.T) {
 	if err := WriteReadout(&out, r, false); err != nil {
 		t.Fatal(err)
 	}
-	want := "t\n\nS\n  URL   " + long + "  a.sh\n  IPv4  192.0.2.1" + strings.Repeat(" ", 31) + "  b.sh\n"
+	want := "t\n\nS\n  URL   " + long + "  a.sh\n  IPv4  192.0.2.1" + strings.Repeat(" ", 51) + "  b.sh\n"
 	if out.String() != want {
 		t.Errorf("readout = %q, want %q", out.String(), want)
 	}

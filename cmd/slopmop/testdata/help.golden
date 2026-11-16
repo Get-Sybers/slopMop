@@ -1,4 +1,4 @@
-usage: slopmop <folder> [section ...] [--intelfile <file>]
+usage: slopmop <folder> [section ...] [--intelfile <file>] [--outdir <folder>]
 
 reads a folder and everything below it, runs nothing, and prints the whole analysis
 
@@ -13,6 +13,7 @@ sections (name any to print only those; none = all):
 
 params (double dash, take a value):
   --intelfile  <file>
+  --outdir     <folder>
 
 one view as a table or as JSON: slopmop NOUN VERB [selectors] [--params] [output flags] [positional]
 

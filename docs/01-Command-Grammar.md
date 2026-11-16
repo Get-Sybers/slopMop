@@ -1,6 +1,6 @@
 # Command grammar
 
-`slopmop <folder> [section ...] [--intelfile <file>]`
+`slopmop <folder> [section ...] [--intelfile <file>] [--outdir <folder>]`
 
 `slopmop NOUN VERB [selectors] [--params] [output flags] [positional]`
 
@@ -11,8 +11,8 @@ thing, a verb acts on it, and every flag states by its prefix what kind of flag 
 ## 1. The folder alone
 
 `slopmop <folder>` reads every file in the folder and in its sub-folders, 16 levels down, analyses
-them once and prints every section of the readout. Nothing in the folder is run and nothing is
-written to it. No flag is needed.
+them once, prints every section of the readout and saves the analysis to an output folder. Nothing
+in the folder is run and nothing is written to it. No flag is needed.
 
 | Section | Holds |
 | --- | --- |
@@ -27,6 +27,16 @@ written to it. No flag is needed.
 - A section named after the folder prints only that section; several can be named, in any order
   and on either side of the folder. The sections always print in the order of the table.
 - `--intelfile <file>` names a watchlist, and the readout attributes the indicators it matches.
+- Every run saves the readout with every section, whichever were named, and each class of the
+  [output schema](02-Output-Schema.md) as JSON: `readout.txt`, `files.json`, `trace.json`,
+  `findings.json` and `report.json`. A file of an earlier run is replaced. The last lines of the
+  readout name the folder.
+- The output folder is `slopmop-<name of the folder>` in the current directory. When the current
+  directory is the input folder or inside it, the output folder is made beside the input folder.
+  `--outdir <folder>` names another, which is made when it is missing. An output folder inside the
+  input folder is refused before anything is read, with symbolic links resolved.
+- When the output cannot be written, the readout still prints, and the command then fails with
+  exit code 1.
 - The first argument is a noun when it names one, so a folder called `file`, `report` or the like
   is written `./file`. Elsewhere a word that names a section is the section, so a folder called
   `impact` is written `./impact`.
@@ -40,6 +50,7 @@ written to it. No flag is needed.
 | `slopmop case42/ai_workdir` | the whole analysis |
 | `slopmop case42/ai_workdir impact remediation` | two sections |
 | `slopmop case42/ai_workdir --intelfile watchlist.json` | the whole analysis, with the watchlist matches |
+| `slopmop case42/ai_workdir --outdir reports/case42` | the whole analysis, saved to `reports/case42` |
 
 | Command | Error |
 | --- | --- |
@@ -48,6 +59,7 @@ written to it. No flag is needed.
 | `slopmop case42 other` | `slopmop reads one folder, got "case42" and "other" (valid sections: summary, timeline, findings, files, impact, remediation, mitigation)` |
 | `slopmop case42 -o json` | `-o applies only to verbs that print rows` |
 | `slopmop case42/missing` | `not a folder: open case42/missing: no such file or directory` |
+| `slopmop case42 --outdir case42/out` | `--outdir is inside the folder that is read; the evidence is never written to` |
 
 ## 2. Nouns and verbs
 

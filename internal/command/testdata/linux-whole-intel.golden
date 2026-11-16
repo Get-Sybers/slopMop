@@ -241,36 +241,37 @@ Remediation   (most urgent first)
       files  20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 1 more
 
 Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
-  [x] M1017 User Training                       T1552.001
-  [x] M1018 User Account Management             T1048, T1053.002, T1053.003, T1053.006, T1098.004, T1543.002, T1552.007, T1685, T1685.004, T1686
-  [x] M1022 Restrict File and Directory Permissions  T1048, T1053.006, T1070.003, T1098.004, T1543.002, T1546.004, T1548.003, T1552.001, T1552.004, T1685, T1685.006, T1686
-  [x] M1024 Restrict Registry Permissions       T1685, T1686
-  [x] M1026 Privileged Account Management       T1003.008, T1053.002, T1053.006, T1136.001, T1543.002, T1548.003, T1552.007, T1611
-  [x] M1027 Password Policies                   T1003.008, T1552.001, T1552.004
-  [x] M1028 Operating System Configuration      T1053.002, T1548.001, T1548.003, T1552.003, T1690
-  [x] M1029 Remote Data Storage                 T1070.003, T1685.006
-  [x] M1030 Network Segmentation                T1048, T1095, T1552.007
-  [x] M1031 Network Intrusion Prevention        T1048, T1095, T1105
-  [x] M1032 Multi-factor Authentication         T1136.001
-  [x] M1033 Limit Software Installation         T1543.002
-  [x] M1035 Limit Access to Resource Over Network  T1552.005, T1552.007
-  [x] M1037 Filter Network Traffic              T1048, T1095, T1105, T1552.005
-  [x] M1038 Execution Prevention                T1059.004, T1611, T1685
-  [x] M1039 Environment Variable Permissions    T1070.003, T1690
-  [x] M1041 Encrypt Sensitive Information       T1552.004, T1685.006
-  [x] M1042 Disable or Remove Feature or Program  T1098.004, T1552.005, T1611, T1685
-  [x] M1047 Audit                               T1053.002, T1053.003, T1095, T1552.001, T1552.004, T1560.001, T1685, T1685.004, T1686
-  [x] M1048 Application Isolation and Sandboxing  T1611
-  [x] M1051 Update Software                     T1611
-  [x] M1054 Software Configuration              T1685
-  [x] M1057 Data Loss Prevention                T1048
-  [x] AML.M0005 Control Access to AI Models and Data at Rest  AML.T0025
-  [x] AML.M0011 Restrict Library Loading        AML.T0050, AML.T0090, AML.T0142
-  [x] AML.M0013 Code Signing                    AML.T0142
+  [x] M1017 User Training                                        T1552.001
+  [x] M1018 User Account Management                              T1048, T1053.002, T1053.003, T1053.006, T1098.004, T1543.002, T1552.007, T1685, T1685.004, T1686
+  [x] M1022 Restrict File and Directory Permissions              T1048, T1053.006, T1070.003, T1098.004, T1543.002, T1546.004, T1548.003, T1552.001, T1552.004, T1685, T1685.006, T1686
+  [x] M1024 Restrict Registry Permissions                        T1685, T1686
+  [x] M1026 Privileged Account Management                        T1003.008, T1053.002, T1053.006, T1136.001, T1543.002, T1548.003, T1552.007, T1611
+  [x] M1027 Password Policies                                    T1003.008, T1552.001, T1552.004
+  [x] M1028 Operating System Configuration                       T1053.002, T1548.001, T1548.003, T1552.003, T1690
+  [x] M1029 Remote Data Storage                                  T1070.003, T1685.006
+  [x] M1030 Network Segmentation                                 T1048, T1095, T1552.007
+  [x] M1031 Network Intrusion Prevention                         T1048, T1095, T1105
+  [x] M1032 Multi-factor Authentication                          T1136.001
+  [x] M1033 Limit Software Installation                          T1543.002
+  [x] M1035 Limit Access to Resource Over Network                T1552.005, T1552.007
+  [x] M1037 Filter Network Traffic                               T1048, T1095, T1105, T1552.005
+  [x] M1038 Execution Prevention                                 T1059.004, T1611, T1685
+  [x] M1039 Environment Variable Permissions                     T1070.003, T1690
+  [x] M1041 Encrypt Sensitive Information                        T1552.004, T1685.006
+  [x] M1042 Disable or Remove Feature or Program                 T1098.004, T1552.005, T1611, T1685
+  [x] M1047 Audit                                                T1053.002, T1053.003, T1095, T1552.001, T1552.004, T1560.001, T1685, T1685.004, T1686
+  [x] M1048 Application Isolation and Sandboxing                 T1611
+  [x] M1051 Update Software                                      T1611
+  [x] M1054 Software Configuration                               T1685
+  [x] M1057 Data Loss Prevention                                 T1048
+  [x] AML.M0005 Control Access to AI Models and Data at Rest     AML.T0025
+  [x] AML.M0011 Restrict Library Loading                         AML.T0050, AML.T0090, AML.T0142
+  [x] AML.M0013 Code Signing                                     AML.T0142
   [x] AML.M0043 AI Agent External Resource Lifecycle Management  AML.T0072, AML.T0125
-  [!] AML.M0020 Generative AI Guardrails        AML.T0102
-  [!] AML.M0022 Generative AI Model Alignment   AML.T0102
+  [!] AML.M0020 Generative AI Guardrails                         AML.T0102
+  [!] AML.M0022 Generative AI Model Alignment                    AML.T0102
 
 [x] HIGH - 12 impacts: 8 high, 3 medium, 1 low
+-> saved to <out>: readout.txt, files.json, trace.json, findings.json, report.json
 -> one section: slopmop <folder> impact
 -> a table or JSON: slopmop NOUN VERB -h

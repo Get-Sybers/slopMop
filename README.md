@@ -20,7 +20,9 @@ SHA-256. The binary is not code-signed.
 
 Give it the folder. It reads every file in the folder and below it, analyses them once and prints
 the whole analysis: the counts, the timeline, the findings, the notable files, the impact, the
-remediation and the mitigation.
+remediation and the mitigation. It saves the same analysis to `slopmop-<folder name>` in the
+current directory: `readout.txt` to read, and `files.json`, `trace.json`, `findings.json` and
+`report.json` for a program. Nothing is written into the folder that is read.
 
 ```text
 $ slopmop case42/ai_workdir
@@ -46,6 +48,7 @@ Timeline   (step, time, role, file)
 | `slopmop <folder>` | prints every section |
 | `slopmop <folder> impact remediation` | prints only the sections named |
 | `slopmop <folder> --intelfile <file>` | attributes the indicators a watchlist matches |
+| `slopmop <folder> --outdir <folder>` | saves the output to the folder named |
 
 The sections are `summary`, `timeline`, `findings`, `files`, `impact`, `remediation` and
 `mitigation`. Nothing is remembered between runs.

@@ -20,7 +20,8 @@ func run(t *testing.T, args ...string) (string, error) {
 	t.Helper()
 	var out bytes.Buffer
 	app := cli.New("slopmop", &out)
-	if err := Register(app, Env{Stdout: &out, Local: time.FixedZone("test", 10*60*60)}); err != nil {
+	// A work folder of its own keeps the output folder out of the source tree.
+	if err := Register(app, Env{Stdout: &out, Local: time.FixedZone("test", 10*60*60), WorkDir: t.TempDir()}); err != nil {
 		t.Fatal(err)
 	}
 	err := app.Run(args)

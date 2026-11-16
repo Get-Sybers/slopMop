@@ -79,38 +79,38 @@ Findings
     [i] KeyVaultKeyEnumeration         2 lines  Discovery                         T1580, AML.T0075
         in  20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl
   indicators
-    [x] Domain              corpvault.vault.azure.net                 20261015_093000_step05_vault.sh
-    [x] Domain              finvault.vault.azure.net                  agent_20261015_093500.jsonl
-    [x] Domain              graph.microsoft.com                       20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_091000_step03_escalate.ps1 and 2 more
-    [x] Domain              login.microsoftonline.com                 20261015_090000_step01_token.sh
-    [x] EntraLoginEndpoint  https://login.microsoftonline.com/$TENANT/oauth2/v2.0/token  20261015_090000_step01_token.sh
-    [x] GUID                11111111-2222-4333-8444-555555555555      20261015_090000_step01_token.sh
-    [x] GUID                62e90394-69f5-4237-9190-012177145e10      20261015_091000_step03_escalate.ps1
-    [x] GUID                66666666-7777-4888-9999-000000000000      20261015_090000_step01_token.sh, 20261015_091000_step03_escalate.ps1
-    [x] GUID                9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d      20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl
+    [x] Domain              corpvault.vault.azure.net                                     20261015_093000_step05_vault.sh
+    [x] Domain              finvault.vault.azure.net                                      agent_20261015_093500.jsonl
+    [x] Domain              graph.microsoft.com                                           20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_091000_step03_escalate.ps1 and 2 more
+    [x] Domain              login.microsoftonline.com                                     20261015_090000_step01_token.sh
+    [x] EntraLoginEndpoint  https://login.microsoftonline.com/$TENANT/oauth2/v2.0/token   20261015_090000_step01_token.sh
+    [x] GUID                11111111-2222-4333-8444-555555555555                          20261015_090000_step01_token.sh
+    [x] GUID                62e90394-69f5-4237-9190-012177145e10                          20261015_091000_step03_escalate.ps1
+    [x] GUID                66666666-7777-4888-9999-000000000000                          20261015_090000_step01_token.sh, 20261015_091000_step03_escalate.ps1
+    [x] GUID                9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d                          20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl
     [x] GraphEndpoint       https://graph.microsoft.com/v1.0/applications/66666666-7777-4888-9999-000000000000/addPassword  20261015_091000_step03_escalate.ps1
     [x] GraphEndpoint       https://graph.microsoft.com/v1.0/directoryRoles/roleTemplateId=62e90394-69f5-4237-9190-012177145e10/members/  20261015_091000_step03_escalate.ps1
     [x] GraphEndpoint       https://graph.microsoft.com/v1.0/servicePrincipals/$sp/appRoleAssignments  20261015_091000_step03_escalate.ps1
     [x] GraphEndpoint       https://graph.microsoft.com/v1.0/servicePrincipals/9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d/appRoleAssignments  agent_20261015_093500.jsonl
-    [x] IPv4                144.172.64.128                            20261015_090000_step01_token.sh, agent_20261015_093500.jsonl
-    [x] IPv4                144.172.64.60                             agent_20261015_093500.jsonl
+    [x] IPv4                144.172.64.128                                                20261015_090000_step01_token.sh, agent_20261015_093500.jsonl
+    [x] IPv4                144.172.64.60                                                 agent_20261015_093500.jsonl
     [x] KeyVaultEndpoint    https://corpvault.vault.azure.net/keys/kek/0a1b2c3d/unwrapkey?api-version=7.4  20261015_093000_step05_vault.sh
     [x] KeyVaultEndpoint    https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4  20261015_093000_step05_vault.sh
-    [x] KeyVaultEndpoint    https://finvault.vault.azure.net/keys?api-version=7.4  agent_20261015_093500.jsonl
-    [x] OAuthScope          https://graph.microsoft.com/.default      20261015_090000_step01_token.sh
-    [x] URL                 http://144.172.64.128:8080                20261015_090000_step01_token.sh
-    [!] Domain              corp.example                              20261015_092000_step04_collect.py, directory_20261015_090530.txt
-    [!] Domain              corp.sharepoint.com                       collect_20261015_092040.txt
-    [!] Email               alice@corp.example                        20261015_092000_step04_collect.py, directory_20261015_090530.txt
-    [!] Email               bob@corp.example                          20261015_092000_step04_collect.py, directory_20261015_090530.txt
-    [!] GraphEndpoint       https://graph.microsoft.com/v1.0          20261015_092000_step04_collect.py
-    [!] GraphEndpoint       https://graph.microsoft.com/v1.0/sites/root/drives  20261015_092000_step04_collect.py
-    [!] GraphEndpoint       https://graph.microsoft.com/v1.0/sites?search=*  20261015_092000_step04_collect.py
-    [!] GraphEndpoint       https://graph.microsoft.com/v1.0/users/   20261015_092000_step04_collect.py
-    [!] URL                 https://corp.sharepoint.com/sites/hr      collect_20261015_092040.txt
-    [i] GraphEndpoint       https://graph.microsoft.com/v1.0/directoryRoles  20261015_090500_step02_recon.ps1
-    [i] GraphEndpoint       https://graph.microsoft.com/v1.0/servicePrincipals?  20261015_090500_step02_recon.ps1
-    [i] GraphEndpoint       https://graph.microsoft.com/v1.0/users?   20261015_090500_step02_recon.ps1
+    [x] KeyVaultEndpoint    https://finvault.vault.azure.net/keys?api-version=7.4         agent_20261015_093500.jsonl
+    [x] OAuthScope          https://graph.microsoft.com/.default                          20261015_090000_step01_token.sh
+    [x] URL                 http://144.172.64.128:8080                                    20261015_090000_step01_token.sh
+    [!] Domain              corp.example                                                  20261015_092000_step04_collect.py, directory_20261015_090530.txt
+    [!] Domain              corp.sharepoint.com                                           collect_20261015_092040.txt
+    [!] Email               alice@corp.example                                            20261015_092000_step04_collect.py, directory_20261015_090530.txt
+    [!] Email               bob@corp.example                                              20261015_092000_step04_collect.py, directory_20261015_090530.txt
+    [!] GraphEndpoint       https://graph.microsoft.com/v1.0                              20261015_092000_step04_collect.py
+    [!] GraphEndpoint       https://graph.microsoft.com/v1.0/sites/root/drives            20261015_092000_step04_collect.py
+    [!] GraphEndpoint       https://graph.microsoft.com/v1.0/sites?search=*               20261015_092000_step04_collect.py
+    [!] GraphEndpoint       https://graph.microsoft.com/v1.0/users/                       20261015_092000_step04_collect.py
+    [!] URL                 https://corp.sharepoint.com/sites/hr                          collect_20261015_092040.txt
+    [i] GraphEndpoint       https://graph.microsoft.com/v1.0/directoryRoles               20261015_090500_step02_recon.ps1
+    [i] GraphEndpoint       https://graph.microsoft.com/v1.0/servicePrincipals?           20261015_090500_step02_recon.ps1
+    [i] GraphEndpoint       https://graph.microsoft.com/v1.0/users?                       20261015_090500_step02_recon.ps1
   tactics
     [x] CredentialAccess     TA0006, AML.TA0013  20261015_093000_step05_vault.sh
     [x] InitialAccess        TA0001, AML.TA0004  20261015_090000_step01_token.sh
@@ -188,25 +188,26 @@ Remediation   (most urgent first)
       files  20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh and 1 more
 
 Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
-  [x] M1015 Active Directory Configuration      T1078.004
-  [x] M1017 User Training                       T1078.004, T1213.002, T1213.005
-  [x] M1018 User Account Management             T1078.004, T1087.004, T1098.001, T1098.003, T1213.002, T1580
-  [x] M1026 Privileged Account Management       T1078.004, T1098.001, T1098.003, T1555.006
-  [x] M1027 Password Policies                   T1078.004
-  [x] M1030 Network Segmentation                T1098.001
-  [x] M1032 Multi-factor Authentication         T1078.004, T1098.001, T1098.003, T1114.002
-  [x] M1036 Account Use Policies                T1078.004
-  [x] M1042 Disable or Remove Feature or Program  T1098.001
-  [!] M1041 Encrypt Sensitive Information       T1114.002
-  [!] M1047 Audit                               T1087.004, T1213.002, T1213.005
-  [!] M1060 Out-of-Band Communications Channel  T1114.002, T1213.005
-  [x] AML.M0005 Control Access to AI Models and Data at Rest  AML.T0012, AML.T0126
+  [x] M1015 Active Directory Configuration                          T1078.004
+  [x] M1017 User Training                                           T1078.004, T1213.002, T1213.005
+  [x] M1018 User Account Management                                 T1078.004, T1087.004, T1098.001, T1098.003, T1213.002, T1580
+  [x] M1026 Privileged Account Management                           T1078.004, T1098.001, T1098.003, T1555.006
+  [x] M1027 Password Policies                                       T1078.004
+  [x] M1030 Network Segmentation                                    T1098.001
+  [x] M1032 Multi-factor Authentication                             T1078.004, T1098.001, T1098.003, T1114.002
+  [x] M1036 Account Use Policies                                    T1078.004
+  [x] M1042 Disable or Remove Feature or Program                    T1098.001
+  [!] M1041 Encrypt Sensitive Information                           T1114.002
+  [!] M1047 Audit                                                   T1087.004, T1213.002, T1213.005
+  [!] M1060 Out-of-Band Communications Channel                      T1114.002, T1213.005
+  [x] AML.M0005 Control Access to AI Models and Data at Rest        AML.T0012, AML.T0126
   [x] AML.M0019 Control Access to AI Models and Data in Production  AML.T0012
-  [x] AML.M0043 AI Agent External Resource Lifecycle Management  AML.T0012
-  [!] AML.M0020 Generative AI Guardrails        AML.T0102
-  [!] AML.M0022 Generative AI Model Alignment   AML.T0102
-  [!] AML.M0039 AI Honeypots                    AML.T0126
+  [x] AML.M0043 AI Agent External Resource Lifecycle Management     AML.T0012
+  [!] AML.M0020 Generative AI Guardrails                            AML.T0102
+  [!] AML.M0022 Generative AI Model Alignment                       AML.T0102
+  [!] AML.M0039 AI Honeypots                                        AML.T0126
 
 [x] HIGH - 7 impacts: 5 high, 1 medium, 1 low
+-> saved to <out>: readout.txt, files.json, trace.json, findings.json, report.json
 -> one section: slopmop <folder> impact
 -> a table or JSON: slopmop NOUN VERB -h

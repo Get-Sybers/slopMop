@@ -18,7 +18,17 @@
     "hints": [
       "one section: slopmop <folder> impact",
       "a table or JSON: slopmop NOUN VERB -h"
-    ]
+    ],
+    "saved": {
+      "prefix": "slopmop-",
+      "readout": "readout.txt",
+      "tables": [
+        {"noun": "file", "file": "files.json"},
+        {"noun": "trace", "file": "trace.json"},
+        {"noun": "finding", "file": "findings.json"},
+        {"noun": "report", "file": "report.json"}
+      ]
+    }
   },
   "nouns": [
     {

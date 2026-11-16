@@ -62,19 +62,19 @@ Findings
     [x] CertificateExport  1 line  CredentialAccess  T1649
         in  20250302_092200_step05_export.ps1
   indicators
-    [x] Domain          CA01.corp.example                         20250302_091500_step04_certs.ps1, ca_ping_20250302_091540.log, cert_store_20250302_091530.txt
-    [x] Domain          app01.corp.example                        20250302_092200_step05_export.ps1
-    [x] GUID            6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c      20250302_091500_step04_certs.ps1, 20250302_092200_step05_export.ps1, sync_10.20.1.17_retry_20250302_090930.txt
-    [x] IPv4            10.20.1.17                                20250302_090900_step03_sync_retry.ps1, hosts_20250302_090030.csv, sync_10.20.1.17_20250302_090530.txt
-    [x] IPv4            10.20.1.23                                20250302_091500_step04_certs.ps1, hosts_20250302_090030.csv
-    [x] IPv4            10.20.1.5                                 20250302_091500_step04_certs.ps1, hosts_20250302_090030.csv
-    [x] SHA1            0C9B8A7F6E5D4C3B2A1908F7E6D5C4B3A2918070  export_summary_20250302_092215.txt
-    [x] SHA1            5F2A9C1E7B3D4A6C8E0F1A2B3C4D5E6F7A8B9C0D  20250302_092200_step05_export.ps1, cert_store_20250302_091530.txt, export_summary_20250302_092215.txt
-    [x] SHA1            A1B2C3D4E5F60718293A4B5C6D7E8F9012345678  cert_store_20250302_091530.txt
-    [!] EncodedCommand  -enc U3RhZ2VkIGV4cG9ydCBzdW1tYXJ5         staged_20250302_093100.cmd
+    [x] Domain          CA01.corp.example                                             20250302_091500_step04_certs.ps1, ca_ping_20250302_091540.log, cert_store_20250302_091530.txt
+    [x] Domain          app01.corp.example                                            20250302_092200_step05_export.ps1
+    [x] GUID            6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c                          20250302_091500_step04_certs.ps1, 20250302_092200_step05_export.ps1, sync_10.20.1.17_retry_20250302_090930.txt
+    [x] IPv4            10.20.1.17                                                    20250302_090900_step03_sync_retry.ps1, hosts_20250302_090030.csv, sync_10.20.1.17_20250302_090530.txt
+    [x] IPv4            10.20.1.23                                                    20250302_091500_step04_certs.ps1, hosts_20250302_090030.csv
+    [x] IPv4            10.20.1.5                                                     20250302_091500_step04_certs.ps1, hosts_20250302_090030.csv
+    [x] SHA1            0C9B8A7F6E5D4C3B2A1908F7E6D5C4B3A2918070                      export_summary_20250302_092215.txt
+    [x] SHA1            5F2A9C1E7B3D4A6C8E0F1A2B3C4D5E6F7A8B9C0D                      20250302_092200_step05_export.ps1, cert_store_20250302_091530.txt, export_summary_20250302_092215.txt
+    [x] SHA1            A1B2C3D4E5F60718293A4B5C6D7E8F9012345678                      cert_store_20250302_091530.txt
+    [!] EncodedCommand  -enc U3RhZ2VkIGV4cG9ydCBzdW1tYXJ5                             staged_20250302_093100.cmd
     [i] Base64Blob      U3RhZ2VkIGV4cG9ydCBzdW1tYXJ5IGZvciBleGZpbHRyYXRpb24gdGVzdGluZy4gVGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHBheWxvYWQu  stage/staged_20250302_093010.b64
-    [i] Domain          contoso.onmicrosoft.com                   sync_10.20.1.17_retry_20250302_090930.txt
-    [i] Domain          corp.example                              20250302_090000_step01_inventory.ps1, sync_10.20.1.17_retry_20250302_090930.txt
+    [i] Domain          contoso.onmicrosoft.com                                       sync_10.20.1.17_retry_20250302_090930.txt
+    [i] Domain          corp.example                                                  20250302_090000_step01_inventory.ps1, sync_10.20.1.17_retry_20250302_090930.txt
   tactics
     [x] CredentialAccess  TA0006, AML.TA0013  20250302_090900_step03_sync_retry.ps1, 20250302_092200_step05_export.ps1
     [x] LateralMovement   TA0008, AML.TA0015  20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1, 20250302_091500_step04_certs.ps1
@@ -125,13 +125,14 @@ Remediation   (most urgent first)
       files  20250302_090000_step01_inventory.ps1, 20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1 and 1 more
 
 Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
-  [x] M1015 Active Directory Configuration      T1649
-  [x] M1041 Encrypt Sensitive Information       T1649
+  [x] M1015 Active Directory Configuration        T1649
+  [x] M1041 Encrypt Sensitive Information         T1649
   [x] M1042 Disable or Remove Feature or Program  T1649
-  [x] M1047 Audit                               T1649
-  [!] AML.M0020 Generative AI Guardrails        AML.T0102
-  [!] AML.M0022 Generative AI Model Alignment   AML.T0102
+  [x] M1047 Audit                                 T1649
+  [!] AML.M0020 Generative AI Guardrails          AML.T0102
+  [!] AML.M0022 Generative AI Model Alignment     AML.T0102
 
 [x] HIGH - 4 impacts: 2 high, 1 medium, 1 low
+-> saved to <out>: readout.txt, files.json, trace.json, findings.json, report.json
 -> one section: slopmop <folder> impact
 -> a table or JSON: slopmop NOUN VERB -h
