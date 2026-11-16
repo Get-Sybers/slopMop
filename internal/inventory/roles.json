@@ -9,7 +9,8 @@
     {
       "name": "output",
       "summary": "an output a script produced",
-      "extensions": [".txt", ".tsv", ".csv", ".log", ".out", ".json", ".xml"]
+      "extensions": [".txt", ".tsv", ".csv", ".log", ".out", ".json", ".xml",
+                     ".b64", ".gz", ".bin", ".cmd", ".ses", ".enc", ".dat", ".raw"]
     },
     {
       "name": "other",

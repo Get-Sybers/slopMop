@@ -14,17 +14,22 @@ about evidence touch no file, and every static table is a data file validated at
 | `internal/inventory` | walks the input directory and builds one record per file; owns all evidence I/O |
 | `internal/evidence` | the file record and its vocabularies (role, note); no I/O |
 | `internal/nametime` | detects the timestamp written into a file name; no I/O |
+| `internal/parse` | extracts commands, variables and file references from bash and PowerShell scripts |
+| `internal/tactic` | classifies commands by MITRE ATT&CK tactic using `tactics.json` |
+| `internal/indicator` | extracts security indicators (IPs, URLs, hashes, CVEs) using `indicators.json` |
+| `internal/trace` | reconstructs the timeline from scripts and outputs: ordering, tool extraction, tactic classification, indicator counting, output linking |
 | `internal/evidencetest` | embeds the fixtures and copies one into a temporary folder for a test |
 | `internal/golden` | compares test output with a golden file; owns the `-update` flag |
 
 Imports run one way:
 
 ```text
-cmd/slopmop -> command -> cli, render, inventory -> evidence -> nametime
+cmd/slopmop -> command -> cli, render, trace -> parse, tactic, indicator
+                                   |-> inventory -> evidence -> nametime
 ```
 
-`cli` and `render` import no other internal package. `evidencetest` and `golden` are imported by
-tests only.
+`cli` and `render` import no other internal package. `parse`, `tactic` and `indicator` import no
+other internal package. `evidencetest` and `golden` are imported by tests only.
 
 ## 2. Data files
 
@@ -32,8 +37,10 @@ tests only.
 | --- | --- | --- |
 | `internal/inventory/roles.json` | each role's summary, extensions and shebang patterns | the roles are `script`, `output`, `other` in that order; extensions are lower-case, dotted and in one role; patterns compile; `other` takes neither |
 | `internal/command/nouns.json` | nouns, verbs, aliases, summaries, columns | names and summaries present; columns pass the table check; every declared verb has an implementation and every implementation a declaration |
+| `internal/tactic/tactics.json` | MITRE ATT&CK tactics and the commands each claims | every tactic has a name and at least one command; no command appears in two tactics |
+| `internal/indicator/indicators.json` | indicator types and their regex patterns | every entry has a type and a pattern; every pattern compiles |
 
-Both are embedded with `go:embed` and decoded strictly: an unknown field or trailing data is an
+All are embedded with `go:embed` and decoded strictly: an unknown field or trailing data is an
 error. The selectors of `file list` are the role names, and its columns are the declared columns.
 
 ## 3. Reading evidence
@@ -54,7 +61,8 @@ standard output and standard error.
 - Lines: the number of line breaks, plus one when non-empty text does not end with one.
 - Role: by lower-cased extension. A file no extension claims becomes a script when its text opens
   with a shebang pattern.
-- No text is kept after a record is built, so memory is bounded by one file.
+- `Read` discards text after a record is built, so memory is bounded by one file. `ReadAll` retains
+  the decoded text for callers that need it (trace reconstruction).
 
 ## 4. File-name timestamps
 

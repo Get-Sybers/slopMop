@@ -50,7 +50,8 @@ func TestReadClassifies(t *testing.T) {
 		{"script by extension", "a.sh", []byte("echo hi\n"), evidence.Script, 1, ""},
 		{"extension case is ignored", "A.PS1", []byte("Get-Date\r\n"), evidence.Script, 1, ""},
 		{"output by extension", "a.log", []byte("one\ntwo"), evidence.Output, 2, ""},
-		{"unknown extension", "a.bin", []byte("text"), evidence.Other, 1, ""},
+		{"staging extension", "a.bin", []byte("text"), evidence.Output, 1, ""},
+		{"unknown extension", "a.xyz", []byte("text"), evidence.Other, 1, ""},
 		{"empty file", "empty.txt", nil, evidence.Output, 0, ""},
 		{"crlf folds", "crlf.txt", []byte("a\r\nb\r\n"), evidence.Output, 2, ""},
 		{"lone cr is kept", "cr.txt", []byte("a\rb"), evidence.Output, 1, ""},
@@ -111,10 +112,11 @@ func TestReadOversize(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	files, err := read(folder, 8)
+	res, err := readAll(folder, 8, false)
 	if err != nil {
 		t.Fatal(err)
 	}
+	files := res.Files
 	at, over := files[0], files[1]
 	if at.Note != "" || at.Lines != 1 {
 		t.Errorf("at the limit: note %q lines %d, want text with 1 line", at.Note, at.Lines)

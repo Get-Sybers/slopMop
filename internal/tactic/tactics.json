@@ -1,0 +1,148 @@
+[
+  {
+    "tactic": "Discovery",
+    "commands": [
+      "nmap", "masscan", "rustscan", "ping", "fping", "arp", "arp-scan",
+      "nbtscan", "dig", "nslookup", "host", "whois", "traceroute", "ip",
+      "ifconfig", "netstat", "ss", "ps", "whoami", "id", "hostname", "uname",
+      "lsblk", "df", "mount", "env", "printenv", "getent", "last", "w", "who",
+      "find", "locate", "ls", "stat", "dpkg", "rpm", "systemctl", "service",
+      "ldapsearch", "enum4linux", "enum4linux-ng", "smbmap", "smbclient",
+      "rpcclient", "showmount", "snmpwalk", "nikto", "gobuster", "ffuf",
+      "dirb", "feroxbuster", "wfuzz", "whatweb", "wpscan", "nuclei", "httpx",
+      "subfinder", "amass", "sslscan", "kubectl", "docker", "aws", "az",
+      "gcloud", "bloodhound-python", "ldapdomaindump", "get-aduser",
+      "get-adcomputer", "get-adgroup", "get-adgroupmember", "get-addomain",
+      "get-addomaincontroller", "get-adforest", "get-adobject", "get-adtrust",
+      "get-adserviceaccount", "get-adsyncconnector", "get-adsyncscheduler",
+      "get-adsyncglobalsettings", "get-adsyncserverconfiguration",
+      "get-adsyncconnectorstatistics", "get-mguser", "get-mggroup",
+      "get-mgapplication", "get-mgserviceprincipal", "get-mgdirectoryrole",
+      "get-mgorganization", "get-mgcontext", "get-azureaduser",
+      "get-azureadgroup", "get-azureadapplication",
+      "get-azureadserviceprincipal", "get-azureaddirectoryrole",
+      "get-azureadtenantdetail", "get-msoluser", "get-msolrole",
+      "get-msolcompanyinformation", "get-azaduser", "get-azadapplication",
+      "get-azadserviceprincipal", "get-azroleassignment",
+      "get-azsubscription", "get-azcontext", "get-aztenant", "get-azresource",
+      "get-azkeyvault", "get-childitem", "gci", "dir", "get-item",
+      "get-itemproperty", "get-itempropertyvalue", "get-process",
+      "get-service", "get-ciminstance", "get-wmiobject", "gwmi",
+      "get-netipconfiguration", "get-netipaddress", "get-nettcpconnection",
+      "get-netadapter", "get-localuser", "get-localgroup",
+      "get-localgroupmember", "get-smbshare", "get-acl", "get-hotfix",
+      "get-computerinfo", "get-eventlog", "get-winevent", "get-command",
+      "get-module", "get-certificationauthority", "get-certificatetemplate",
+      "test-netconnection", "test-connection", "resolve-dnsname", "test-path",
+      "systeminfo", "ipconfig", "net", "net1", "nltest", "dsquery", "dsget",
+      "netsh", "tasklist", "quser", "qwinsta", "query", "wmic", "sc", "reg",
+      "route", "nbtstat", "setspn", "klist", "dsregcmd", "cmdkey", "where"
+    ]
+  },
+  {
+    "tactic": "CredentialAccess",
+    "commands": [
+      "hydra", "medusa", "ncrack", "john", "hashcat", "kerbrute",
+      "secretsdump.py", "impacket-secretsdump", "mimikatz", "lazagne",
+      "getnpusers.py", "getuserspns.py", "crackmapexec", "netexec", "nxc",
+      "unshadow", "certipy", "certipy-ad", "certi.py", "certify.exe",
+      "certutil", "certutil.exe", "certreq", "gettgtpkinit.py",
+      "getnthash.py", "passthecert.py", "pywhisker", "pywhisker.py",
+      "adconnectdump.py", "ntlmrelayx.py", "impacket-ntlmrelayx",
+      "mssqlclient.py", "impacket-mssqlclient", "rubeus.exe", "certify",
+      "rubeus", "procdump", "procdump64", "ntdsutil", "vaultcmd",
+      "adsyncdecrypt", "adconnectdump", "get-aadintsynccredentials",
+      "get-aadintsyncencryptionkey",
+      "export-aadintadfssigningcertificate",
+      "export-aadintadfsencryptioncertificate",
+      "get-aadintaccesstokenforaadgraph",
+      "get-aadintaccesstokenformsgraph", "invoke-mimikatz",
+      "invoke-kerberoast", "invoke-dcsync", "invoke-rubeus",
+      "get-adreplaccount", "get-adsyncaadpasswordsyncconfiguration",
+      "export-pfxcertificate", "export-certificate", "get-pfxcertificate",
+      "get-pfxdata", "import-pfxcertificate", "new-selfsignedcertificate",
+      "get-certificate", "get-credential", "convertto-securestring",
+      "convertfrom-securestring", "get-secret", "get-azkeyvaultsecret",
+      "get-azkeyvaultcertificate", "get-azkeyvaultkey", "get-azaccesstoken",
+      "get-storedcredential"
+    ]
+  },
+  {
+    "tactic": "LateralMovement",
+    "commands": [
+      "ssh", "sshpass", "psexec.py", "wmiexec.py", "smbexec.py",
+      "evil-winrm", "xfreerdp", "rdesktop", "ansible", "ansible-playbook",
+      "pssh", "invoke-command", "icm", "enter-pssession", "new-pssession",
+      "invoke-wmimethod", "invoke-cimmethod", "new-cimsession", "psexec",
+      "psexec64", "winrs", "mstsc", "connect-mggraph", "connect-azaccount",
+      "connect-azuread", "connect-msolservice", "connect-exchangeonline",
+      "connect-aadintazuread", "connect-pnponline"
+    ]
+  },
+  {
+    "tactic": "Execution",
+    "commands": [
+      "python", "python3", "perl", "ruby", "php", "node", "bash", "sh",
+      "zsh", "eval", "msfconsole", "msfvenom", "sqlmap", "gcc", "make",
+      "chmod", "nohup", "screen", "tmux", "pwsh", "powershell",
+      "invoke-expression", "iex", "start-process", "saps", "start-job",
+      "invoke-item", "add-type", "import-module", "ipmo", "install-module",
+      "cmd", "rundll32", "regsvr32", "mshta", "cscript", "wscript",
+      "msbuild", "installutil"
+    ]
+  },
+  {
+    "tactic": "Persistence",
+    "commands": [
+      "crontab", "useradd", "adduser", "usermod", "chpasswd", "passwd",
+      "ssh-keygen", "at", "schtasks", "register-scheduledtask",
+      "new-scheduledtask", "new-scheduledtaskaction",
+      "new-scheduledtasktrigger", "new-service", "set-service",
+      "new-localuser", "add-localgroupmember", "new-aduser",
+      "add-adgroupmember", "set-adaccountpassword", "set-aduser",
+      "new-itemproperty", "set-itemproperty", "new-mguser",
+      "new-azureaduser", "new-msoluser", "add-mgdirectoryrolemember",
+      "add-azureaddirectoryrolemember", "add-msolrolemember",
+      "new-azroleassignment", "new-mgapplication",
+      "new-mgserviceprincipal", "add-mgapplicationkey",
+      "add-mgapplicationpassword", "add-mgserviceprincipalkey",
+      "add-mgserviceprincipalpassword", "update-mgapplication",
+      "update-mgserviceprincipal", "new-azadappcredential",
+      "new-azadspcredential", "new-azureadapplicationkeycredential",
+      "new-azureadapplicationpasswordcredential",
+      "new-azureadserviceprincipalkeycredential", "new-aadintbackdoor",
+      "convertto-aadintbackdoor", "set-msoldomainauthentication",
+      "set-adsyncaadcompanyfeature"
+    ]
+  },
+  {
+    "tactic": "DefenseEvasion",
+    "commands": [
+      "shred", "chattr", "setenforce", "iptables", "ufw", "auditctl",
+      "truncate", "history", "set-mppreference", "add-mppreference",
+      "clear-eventlog", "remove-eventlog", "wevtutil", "clear-history",
+      "set-executionpolicy", "unblock-file", "auditpol", "fsutil", "bcdedit",
+      "vssadmin", "wbadmin",
+      "format-hex"
+    ]
+  },
+  {
+    "tactic": "Collection",
+    "commands": [
+      "tar", "zip", "7z", "gzip", "mysqldump", "pg_dump", "mongodump",
+      "mysql", "psql", "sqlite3", "redis-cli", "mongosh", "dd", "sqlcmd",
+      "compress-archive", "expand-archive", "invoke-sqlcmd", "robocopy",
+      "xcopy"
+    ]
+  },
+  {
+    "tactic": "Exfiltration",
+    "commands": [
+      "curl", "wget", "nc", "ncat", "netcat", "socat", "scp", "sftp", "ftp",
+      "rsync", "rclone", "gsutil", "azcopy", "openssl", "ngrok", "chisel",
+      "cloudflared", "base64", "invoke-webrequest", "iwr",
+      "invoke-restmethod", "irm", "start-bitstransfer", "bitsadmin",
+      "send-mailmessage", "new-psdrive"
+    ]
+  }
+]

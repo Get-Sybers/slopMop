@@ -127,15 +127,19 @@ func TestRegisterBindsBothWays(t *testing.T) {
 			declared = append(declared, n.Name+" "+v.Name)
 		}
 	}
-	if want := []string{"file list"}; !slices.Equal(declared, want) {
+	if want := []string{"file list", "trace list"}; !slices.Equal(declared, want) {
 		t.Errorf("nouns.json declares %v, want %v", declared, want)
 	}
 
 	if err := register(cli.New("slopmop", &bytes.Buffer{}), nouns, map[string]builder{}); err == nil ||
-		!strings.Contains(err.Error(), "file list, which has no implementation") {
+		!strings.Contains(err.Error(), "which has no implementation") {
 		t.Errorf("a declared verb without an implementation: error = %v", err)
 	}
-	builders := map[string]builder{"file list": env.fileList, "file show": env.fileList}
+	builders := map[string]builder{
+		"file list":  env.fileList,
+		"trace list": env.traceList,
+		"file show":  env.fileList,
+	}
 	if err := register(cli.New("slopmop", &bytes.Buffer{}), nouns, builders); err == nil ||
 		!strings.Contains(err.Error(), "does not declare file show") {
 		t.Errorf("an implementation without a declaration: error = %v", err)

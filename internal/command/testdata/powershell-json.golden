@@ -50,6 +50,16 @@
     "note": null
   },
   {
+    "name": "20250302_093000_step06_stage.ps1",
+    "role": "script",
+    "size": 1469,
+    "lines": 37,
+    "modified": "2025-03-02T09:30:03Z",
+    "sha256": "61b10e78d346303da7ffb05f0507e33b6dc8373c4041d1f9ea1cfc82c5e42d3d",
+    "name_time": "20250302_093000",
+    "note": null
+  },
+  {
     "name": "ca01_20250302_092210.cer",
     "role": "other",
     "size": 18,
@@ -97,6 +107,36 @@
     "modified": "2025-03-02T09:00:33Z",
     "sha256": "536220524fc2f82fbc954badc4e6eada96675d56c390d841a645e8ffff11da2d",
     "name_time": "20250302_090030",
+    "note": null
+  },
+  {
+    "name": "staged_20250302_093010.b64",
+    "role": "output",
+    "size": 109,
+    "lines": 1,
+    "modified": "2025-03-02T09:30:13Z",
+    "sha256": "aa73e74ee766206d8bd65bc07647a498302d7dd466a1373295aa4e51d60159a3",
+    "name_time": "20250302_093010",
+    "note": null
+  },
+  {
+    "name": "staged_20250302_093050.ses",
+    "role": "output",
+    "size": 59,
+    "lines": 1,
+    "modified": "2025-03-02T09:30:53Z",
+    "sha256": "5fc8e479f8045a7d1fa977cfea3261bbc174be93c173cf1bb8ec54a3f819bc41",
+    "name_time": "20250302_093050",
+    "note": null
+  },
+  {
+    "name": "staged_20250302_093100.cmd",
+    "role": "output",
+    "size": 55,
+    "lines": 2,
+    "modified": "2025-03-02T09:31:03Z",
+    "sha256": "8cd058cde924699ec92257705bffbddafaf4a5bf4f064931c4a548c4b4768cd6",
+    "name_time": "20250302_093100",
     "note": null
   },
   {

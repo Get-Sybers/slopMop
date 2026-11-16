@@ -23,3 +23,16 @@ All notable changes to this project are recorded in this file. The format follow
 - CI workflow with `conform`, `vuln` and `all_green`, and Dependabot for GitHub Actions and Go modules.
 - Documents: command grammar, output schema, architecture, conformance, and `AGENTS.md`.
 - MIT licence in `LICENSE`, declared in `README.md` and checked by the structural lint.
+- `trace list --inputdir <folder>`: timeline reconstruction of AI agent scripts, with command
+  extraction, MITRE ATT&CK tactic classification, security indicator extraction and output linking.
+- Data files `internal/tactic/tactics.json` (8 ATT&CK tactics) and `internal/indicator/indicators.json`
+  (11 indicator patterns), embedded and validated at load.
+- Packages `internal/parse` (bash and PowerShell script parsing), `internal/tactic` (command
+  classification), `internal/indicator` (IoC extraction) and `internal/trace` (timeline builder).
+- Transform detection in `trace list`: Base64, GZip, Deflate, AES and other .NET cryptography,
+  XOR, hex encoding, string manipulation, `-EncodedCommand` and `SecureString` in PowerShell;
+  base64, xxd, gzip, openssl and related tools in bash. TRANSFORMS column in trace output.
+- Staging file extensions `.b64`, `.gz`, `.bin`, `.cmd`, `.ses`, `.enc`, `.dat` and `.raw` recognised
+  as output role in the inventory.
+- Indicator patterns `Base64Blob` and `EncodedCommand` (13 patterns total).
+- PowerShell staging fixture `step06_stage.ps1` with `.b64`, `.ses` and `.cmd` output files.
