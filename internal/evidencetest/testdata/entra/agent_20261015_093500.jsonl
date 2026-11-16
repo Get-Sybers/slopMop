@@ -1,0 +1,3 @@
+{"ts":"2026-10-15T09:10:04Z","agent":"escalate","src":"144.172.64.128","request":"POST https://graph.microsoft.com/v1.0/servicePrincipals/9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d/appRoleAssignments","status":201}
+{"ts":"2026-10-15T09:30:12Z","agent":"vault","src":"144.172.64.128","command":"az keyvault secret show --vault-name finvault --name api-key","status":0}
+{"ts":"2026-10-15T09:30:40Z","agent":"vault","src":"144.172.64.60","request":"GET https://finvault.vault.azure.net/keys?api-version=7.4","status":200}

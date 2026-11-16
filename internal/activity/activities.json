@@ -1,0 +1,168 @@
+{
+  "contexts": {
+    "graph": "(?i)graph\\.microsoft\\.(?:com|us)(?:[/'\\\"\\s]|$)",
+    "vault": "(?i)\\.vault\\.(?:azure\\.net|usgovcloudapi\\.net)(?:[/'\\\"\\s]|$)",
+    "arm": "(?i)management\\.(?:azure\\.com|usgovcloudapi\\.net)(?:[/'\\\"\\s]|$)"
+  },
+  "activities": [
+    {
+      "name": "GlobalAdministratorAssignment",
+      "tactics": ["PrivilegeEscalation", "Persistence"],
+      "patterns": [
+        "(?i)(?:members/[`\\\\]?(?:\\$|%24)ref|role-?assignments?|role-?member|role\\s+assignment).*62e90394-69f5-4237-9190-012177145e10",
+        "(?i)62e90394-69f5-4237-9190-012177145e10.*(?:members/[`\\\\]?(?:\\$|%24)ref|role-?assignments?|role-?member|role\\s+assignment)",
+        "(?i)(?:role-?assignment|role-?member|role\\s+assignment).*(?:global|company) administrator",
+        "(?i)(?:global|company) administrator.*(?:role-?assignment|role-?member|role\\s+assignment)"
+      ],
+      "unless": "(?i)\\bget-(?:mg|az|msol)|\\bassignment\\s+list\\b|-(?:method|x)\\s+get\\b"
+    },
+    {
+      "name": "RoleAssignment",
+      "tactics": ["PrivilegeEscalation", "Persistence"],
+      "patterns": [
+        "(?i)directoryRoles/.{0,120}?members/[`\\\\]?(?:\\$|%24)ref",
+        "(?i)(?:\\bpost\\b|--data\\b|\\s-d\\s|-body\\b|--body\\b).*roleManagement/directory/roleAssignments\\b",
+        "(?i)roleManagement/directory/roleAssignments\\b.*(?:\\bpost\\b|--data\\b|\\s-d\\s|-body\\b|--body\\b)",
+        "(?i)\\b(?:new-mgdirectoryrolememberbyref|add-mgdirectoryrolemember|new-mgrolemanagementdirectoryroleassignment|new-mgrolemanagementdirectoryroleeligibilityschedulerequest|add-azureaddirectoryrolemember|add-msolrolemember|new-azroleassignment)\\b",
+        "(?i)\\baz\\s+role\\s+assignment\\s+create\\b"
+      ],
+      "unless": "(?i)62e90394-69f5-4237-9190-012177145e10|(?:global|company) administrator"
+    },
+    {
+      "name": "AppRoleAssignment",
+      "tactics": ["Persistence", "PrivilegeEscalation"],
+      "patterns": [
+        "(?i)(?:\\bpost\\b|--data\\b|\\s-d\\s|-body\\b|--body\\b).*\\b(?:appRoleAssignments|appRoleAssignedTo|oauth2PermissionGrants)\\b",
+        "(?i)\\b(?:appRoleAssignments|appRoleAssignedTo|oauth2PermissionGrants)\\b.*(?:\\bpost\\b|--data\\b|\\s-d\\s|-body\\b|--body\\b)",
+        "(?i)\\b(?:new-mgserviceprincipalapproleassignment|new-mgserviceprincipalapproleassignedto|new-azureadserviceapproleassignment|new-mgoauth2permissiongrant|new-azureadoauth2permissiongrant)\\b",
+        "(?i)\\baz\\s+ad\\s+app\\s+permission\\s+(?:add|grant|admin-consent)\\b"
+      ]
+    },
+    {
+      "name": "AppCredentialAddition",
+      "tactics": ["Persistence"],
+      "patterns": [
+        "(?i)(?:applications|servicePrincipals)/.{0,120}?/(?:addPassword|addKey)\\b",
+        "(?i)\\b(?:add-mgapplicationpassword|add-mgapplicationkey|add-mgserviceprincipalpassword|add-mgserviceprincipalkey|new-azadappcredential|new-azadspcredential|new-azureadapplicationpasswordcredential|new-azureadapplicationkeycredential|new-azureadserviceprincipalpasswordcredential|new-azureadserviceprincipalkeycredential)\\b",
+        "(?i)\\baz\\s+ad\\s+(?:app|sp)\\s+credential\\s+reset\\b"
+      ]
+    },
+    {
+      "name": "TokenRequest",
+      "tactics": ["InitialAccess"],
+      "patterns": [
+        "(?i)login\\.microsoftonline\\.(?:com|us)/.{0,120}?/oauth2/(?:v2\\.0/)?token\\b",
+        "(?i)\\baz\\s+login\\b.*--service-principal\\b",
+        "(?i)\\bconnect-(?:mggraph|azaccount)\\b.*\\s-(?:clientsecretcredential|serviceprincipal|certificatethumbprint|accesstoken)\\b",
+        "(?i)\\bacquire_token_(?:for_client|by_username_password)\\(|\\bClientSecretCredential\\("
+      ]
+    },
+    {
+      "name": "GraphDirectoryEnumeration",
+      "tactics": ["Discovery"],
+      "patterns": [
+        "(?i)\\bget-(?:mg|azuread)(?:user|group|application|serviceprincipal|directoryrole|organization|domain|device)\\b",
+        "(?i)\\baz\\s+ad\\s+(?:user|group|app|sp)\\s+(?:list|show)\\b"
+      ],
+      "context": "graph",
+      "paths": [
+        "/(?:users|groups|applications|servicePrincipals|directoryRoles|directoryObjects|organization|domains|devices|roleManagement|oauth2PermissionGrants|auditLogs)\\b"
+      ],
+      "unless": "(?i)\\b(?:post|patch|put|delete)\\b|--data\\b|\\s-d\\s|-body\\b|--body\\b|/messages\\b|/mailFolders\\b|/chats\\b|/drives?\\b|members/[`\\\\]?(?:\\$|%24)ref|/add(?:Password|Key)\\b"
+    },
+    {
+      "name": "MailboxAccess",
+      "tactics": ["Collection"],
+      "patterns": [
+        "(?i)\\bget-mguser(?:message|mailfolder)\\w*",
+        "(?i)outlook\\.office(?:365)?\\.com/(?:EWS/Exchange\\.asmx|api/)",
+        "(?i)\\b(?:new-mailboxexportrequest|search-mailbox)\\b"
+      ],
+      "context": "graph",
+      "paths": [
+        "/(?:users/.{1,80}?|me)/(?:messages|mailFolders)\\b"
+      ],
+      "unless": "(?i)TeamsMessagesData"
+    },
+    {
+      "name": "TeamsMessageAccess",
+      "tactics": ["Collection"],
+      "patterns": [
+        "(?i)TeamsMessagesData",
+        "(?i)\\b(?:chats|channels)/getAllMessages\\b",
+        "(?i)\\bget-mg(?:chat|userchat|teamchannel)message\\b"
+      ],
+      "context": "graph",
+      "paths": [
+        "/(?:chats|channels)/.{1,80}?/messages\\b"
+      ]
+    },
+    {
+      "name": "SharePointEnumeration",
+      "tactics": ["Collection", "Exfiltration"],
+      "patterns": [
+        "(?i)\\.sharepoint\\.(?:com|us)/[^\\s'\\\"]*_api/",
+        "(?i)\\bget-mg(?:site|drive|userdrive|groupdrive)\\w*",
+        "(?i)\\bget-pnp(?:tenantsite|site|list|listitem|file|folderitem)\\b"
+      ],
+      "context": "graph",
+      "paths": [
+        "/(?:sites|drives?)\\b"
+      ]
+    },
+    {
+      "name": "KeyVaultSecretRead",
+      "tactics": ["CredentialAccess"],
+      "patterns": [
+        "(?i)\\.vault\\.(?:azure\\.net|usgovcloudapi\\.net)/secrets\\b",
+        "(?i)\\baz\\s+keyvault\\s+secret\\s+(?:list|show|download|backup)\\b",
+        "(?i)\\b(?:get|backup)-azkeyvaultsecret\\b",
+        "(?i)\\.get_secret\\(|\\blist_properties_of_secrets\\("
+      ],
+      "context": "vault",
+      "paths": [
+        "/secrets\\b.*api-version"
+      ]
+    },
+    {
+      "name": "KeyVaultKeyUnwrap",
+      "tactics": ["CredentialAccess"],
+      "patterns": [
+        "(?i)/keys/.{1,120}?/(?:unwrapkey|decrypt)\\b",
+        "(?i)\\baz\\s+keyvault\\s+key\\s+decrypt\\b",
+        "(?i)\\binvoke-azkeyvaultkeyoperation\\b.*\\b(?:unwrapkey|decrypt)\\b",
+        "(?i)\\.unwrap_key\\("
+      ]
+    },
+    {
+      "name": "KeyVaultKeyEnumeration",
+      "tactics": ["Discovery"],
+      "patterns": [
+        "(?i)\\.vault\\.(?:azure\\.net|usgovcloudapi\\.net)/keys\\b",
+        "(?i)\\baz\\s+keyvault\\s+key\\s+(?:list|show|download|backup)\\b",
+        "(?i)\\bget-azkeyvaultkey\\b",
+        "(?i)\\blist_properties_of_keys\\("
+      ],
+      "context": "vault",
+      "paths": [
+        "/keys\\b.*api-version"
+      ],
+      "unless": "(?i)/(?:unwrapkey|decrypt|wrapkey|encrypt|sign|verify)\\b"
+    },
+    {
+      "name": "AzureResourceEnumeration",
+      "tactics": ["Discovery"],
+      "patterns": [
+        "(?i)management\\.(?:azure\\.com|usgovcloudapi\\.net)/subscriptions\\b",
+        "(?i)\\baz\\s+(?:resource|account|group|keyvault|vm|storage\\s+account)\\s+list\\b",
+        "(?i)\\baz\\s+graph\\s+query\\b",
+        "(?i)\\bget-az(?:resource|resourcegroup|subscription|keyvault|storageaccount|vm)\\b"
+      ],
+      "context": "arm",
+      "paths": [
+        "/subscriptions\\b.*api-version"
+      ],
+      "unless": "(?i)\\b(?:post|patch|put|delete)\\b|--data\\b|\\s-d\\s|-body\\b|--body\\b"
+    }
+  ]
+}

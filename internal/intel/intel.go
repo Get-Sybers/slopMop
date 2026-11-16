@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/netip"
 	"regexp"
 	"sort"
 	"strings"
@@ -17,6 +18,8 @@ type entry struct {
 	Value       string `json:"value"`
 	Type        string `json:"type"`
 	Attribution string `json:"attribution"`
+	// prefix is set when Value is an address range such as 144.172.64.0/24.
+	prefix netip.Prefix
 }
 
 // Hit records one indicator that matched the watchlist.
@@ -55,7 +58,17 @@ func LoadWatchlist(data []byte) (Watchlist, error) {
 		}
 		entries[i].Value = strings.ToLower(e.Value)
 	}
-	return Watchlist{entries: entries}, nil
+	return Watchlist{entries: withPrefixes(entries)}, nil
+}
+
+// withPrefixes marks the entries whose value is an address range.
+func withPrefixes(entries []entry) []entry {
+	for i, e := range entries {
+		if p, err := netip.ParsePrefix(e.Value); err == nil {
+			entries[i].prefix = p.Masked()
+		}
+	}
+	return entries
 }
 
 type bundle struct {
@@ -102,19 +115,24 @@ func loadBundle(data []byte) (Watchlist, error) {
 			}
 		}
 	}
-	return Watchlist{entries: entries}, nil
+	return Watchlist{entries: withPrefixes(entries)}, nil
 }
 
-// Match checks extracted indicators against the watchlist and returns every
-// hit. A match is case-insensitive on the indicator value. When an entry
-// specifies a type, the indicator's type must also match.
+// Match returns every watchlist hit: a case-insensitive match on the value,
+// or an address inside an entry that is a range. An entry's type, when it
+// has one, must also match.
 func (w Watchlist) Match(indicators []indicator.Match) []Hit {
 	var hits []Hit
 	seen := map[string]bool{}
 	for _, ind := range indicators {
 		low := strings.ToLower(ind.Value)
+		addr, isAddr := netip.Addr{}, false
+		if a, err := netip.ParseAddr(low); err == nil {
+			addr, isAddr = a, true
+		}
 		for _, e := range w.entries {
-			if e.Value != low {
+			inRange := isAddr && e.prefix.IsValid() && e.prefix.Contains(addr)
+			if e.Value != low && !inRange {
 				continue
 			}
 			if e.Type != "" && !strings.EqualFold(e.Type, ind.Type) {

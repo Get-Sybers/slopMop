@@ -8,12 +8,8 @@ import (
 	"unicode/utf8"
 
 	"github.com/get-sybers/slopmop/internal/cli"
-	"github.com/get-sybers/slopmop/internal/indicator"
 	"github.com/get-sybers/slopmop/internal/intel"
-	"github.com/get-sybers/slopmop/internal/inventory"
 	"github.com/get-sybers/slopmop/internal/render"
-	"github.com/get-sybers/slopmop/internal/structured"
-	"github.com/get-sybers/slopmop/internal/tactic"
 	"github.com/get-sybers/slopmop/internal/trace"
 )
 
@@ -26,15 +22,7 @@ func (e Env) traceList(v verbSpec) (*cli.Verb, error) {
 	if v.Name != "list" || len(v.Aliases) > 0 {
 		return nil, errors.New("the global list verb takes its name and alias from cli.ListVerb")
 	}
-	tactics, err := tactic.LoadTactics()
-	if err != nil {
-		return nil, err
-	}
-	patterns, err := indicator.LoadPatterns()
-	if err != nil {
-		return nil, err
-	}
-	formats, err := structured.LoadFormats()
+	pipe, err := loadPipeline()
 	if err != nil {
 		return nil, err
 	}
@@ -52,19 +40,10 @@ func (e Env) traceList(v verbSpec) (*cli.Verb, error) {
 		Required: []string{inputDir},
 	}
 	return cli.ListVerb(v.Summary, spec, func(a *cli.Args) error {
-		res, err := inventory.ReadAll(a.Params[inputDir], depth(a))
+		result, err := pipe.run(a)
 		if err != nil {
 			return err
 		}
-		tables := trace.Tables{Tactics: tactics, Patterns: patterns, Formats: formats}
-		if path := a.Params[intelFile]; path != "" {
-			wl, loadErr := loadIntelFile(path)
-			if loadErr != nil {
-				return loadErr
-			}
-			tables.Watchlist = &wl
-		}
-		timeline := trace.Build(res.Files, res.Texts, tables)
 		wanted := map[string]bool{}
 		for _, sel := range a.Selectors {
 			wanted[sel] = true
@@ -72,7 +51,7 @@ func (e Env) traceList(v verbSpec) (*cli.Verb, error) {
 		// Only the default table shortens its lists; wide, quiet and JSON carry them whole.
 		shorten := a.Output.View == "" && !a.Output.Quiet
 		table := render.Table{Columns: v.Columns}
-		for _, s := range timeline.Steps {
+		for _, s := range result.timeline.Steps {
 			if !wanted[string(s.File.Role)] {
 				continue
 			}
@@ -85,7 +64,7 @@ func (e Env) traceList(v verbSpec) (*cli.Verb, error) {
 		if err := render.Write(e.Stdout, table, e.options(a.Output)); err != nil {
 			return err
 		}
-		return skippedError(res.Skipped)
+		return skippedError(result.skipped)
 	}), nil
 }
 
@@ -115,6 +94,7 @@ func traceRow(s trace.Step, columns []render.Column, shorten bool) ([]render.Val
 		"tools":      render.NotApplicable(),
 		"tactics":    render.NotApplicable(),
 		"transforms": render.NotApplicable(),
+		"activities": render.NotApplicable(),
 		"outputs":    render.NotApplicable(),
 		"indicators": render.NotApplicable(),
 		"intel":      render.NotApplicable(),
@@ -134,6 +114,13 @@ func traceRow(s trace.Step, columns []render.Column, shorten bool) ([]render.Val
 	}
 	if len(s.Transforms) > 0 {
 		cells["transforms"] = list(s.Transforms)
+	}
+	if len(s.Activities) > 0 {
+		names := make([]string, len(s.Activities))
+		for i, a := range s.Activities {
+			names[i] = a.Name
+		}
+		cells["activities"] = list(names)
 	}
 	if len(s.Outputs) > 0 {
 		cells["outputs"] = list(s.Outputs)

@@ -9,5 +9,6 @@ indicators EncodedCommand  1
 indicators GUID            1
 indicators IPv4            3
 indicators SHA1            3
+activities                 0
 tactics                    3
 intel hits                 1

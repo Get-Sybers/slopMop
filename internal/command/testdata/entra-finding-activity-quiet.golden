@@ -1,0 +1,12 @@
+AppCredentialAddition
+AppRoleAssignment
+GlobalAdministratorAssignment
+KeyVaultKeyUnwrap
+KeyVaultSecretRead
+SharePointEnumeration
+TokenRequest
+MailboxAccess
+TeamsMessageAccess
+AzureResourceEnumeration
+GraphDirectoryEnumeration
+KeyVaultKeyEnumeration

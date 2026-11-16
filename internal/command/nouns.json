@@ -37,6 +37,7 @@
             {"header": "TOOLS", "key": "tools"},
             {"header": "TACTICS", "key": "tactics"},
             {"header": "TRANSFORMS", "key": "transforms"},
+            {"header": "ACTIVITIES", "key": "activities", "wide": true},
             {"header": "OUTPUTS", "key": "outputs", "wide": true},
             {"header": "INDICATORS", "key": "indicators", "wide": true},
             {"header": "INTEL", "key": "intel", "wide": true},

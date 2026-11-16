@@ -1,0 +1,28 @@
+METRIC                                    VALUE
+files                                     11
+scripts                                   5
+outputs                                   6
+indicators                                32
+indicators Domain                         6
+indicators Email                          2
+indicators EntraLoginEndpoint             1
+indicators GUID                           4
+indicators GraphEndpoint                  11
+indicators IPv4                           2
+indicators KeyVaultEndpoint               3
+indicators OAuthScope                     1
+indicators URL                            2
+activities                                12
+activities AppCredentialAddition          1
+activities AppRoleAssignment              2
+activities AzureResourceEnumeration       1
+activities GlobalAdministratorAssignment  1
+activities GraphDirectoryEnumeration      4
+activities KeyVaultKeyEnumeration         2
+activities KeyVaultKeyUnwrap              1
+activities KeyVaultSecretRead             3
+activities MailboxAccess                  1
+activities SharePointEnumeration          2
+activities TeamsMessageAccess             1
+activities TokenRequest                   2
+tactics                                   7

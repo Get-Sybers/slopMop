@@ -4,6 +4,7 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/get-sybers/slopmop/internal/activity"
 	"github.com/get-sybers/slopmop/internal/evidence"
 	"github.com/get-sybers/slopmop/internal/evidencetest"
 	"github.com/get-sybers/slopmop/internal/indicator"
@@ -27,7 +28,11 @@ func loadTables(t *testing.T) Tables {
 	if err != nil {
 		t.Fatal(err)
 	}
-	return Tables{Tactics: tac, Patterns: ind, Formats: formats}
+	acts, err := activity.LoadActivities()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return Tables{Tactics: tac, Activities: acts, Patterns: ind, Formats: formats}
 }
 
 func TestBuildBash(t *testing.T) {
@@ -298,5 +303,40 @@ func TestBuildStructuredReports(t *testing.T) {
 				t.Errorf("no tactic for %q", s.Tools)
 			}
 		})
+	}
+}
+
+func TestBuildActivities(t *testing.T) {
+	files := []evidence.File{
+		{Path: "grant.ps1", Role: evidence.Script},
+		{Path: "agent.jsonl", Role: evidence.Output},
+		{Path: "notes.txt", Role: evidence.Output},
+	}
+	texts := map[string]string{
+		"grant.ps1":   "Invoke-RestMethod -Method Post -Uri \"$graph/applications/$app/addPassword\"\nAdd-MgApplicationPassword -ApplicationId $app\n",
+		"agent.jsonl": `{"request":"GET https://corpvault.vault.azure.net/secrets?api-version=7.4"}` + "\n",
+		"notes.txt":   "nothing of note\n",
+	}
+	steps := map[string]Step{}
+	for _, s := range Build(files, texts, loadTables(t)).Steps {
+		steps[s.File.Path] = s
+	}
+	script := steps["grant.ps1"]
+	if len(script.Activities) != 1 || script.Activities[0].Name != "AppCredentialAddition" || script.Activities[0].Lines != 2 {
+		t.Errorf("grant.ps1 activities = %+v, want AppCredentialAddition on 2 lines", script.Activities)
+	}
+	// The command table gives Exfiltration and Persistence; the activity adds nothing twice.
+	if got, want := script.Tactics, []string{"Exfiltration", "Persistence"}; !slices.Equal(got, want) {
+		t.Errorf("grant.ps1 tactics = %q, want %q", got, want)
+	}
+	log := steps["agent.jsonl"]
+	if len(log.Activities) != 1 || log.Activities[0].Name != "KeyVaultSecretRead" {
+		t.Errorf("agent.jsonl activities = %+v, want KeyVaultSecretRead", log.Activities)
+	}
+	if got, want := log.Tactics, []string{"CredentialAccess"}; !slices.Equal(got, want) {
+		t.Errorf("agent.jsonl tactics = %q, want %q", got, want)
+	}
+	if plain := steps["notes.txt"]; len(plain.Activities) != 0 || len(plain.Tactics) != 0 {
+		t.Errorf("notes.txt = %+v, want no activity and no tactic", plain)
 	}
 }

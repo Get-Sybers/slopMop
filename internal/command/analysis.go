@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 
+	"github.com/get-sybers/slopmop/internal/activity"
 	"github.com/get-sybers/slopmop/internal/cli"
 	"github.com/get-sybers/slopmop/internal/indicator"
 	"github.com/get-sybers/slopmop/internal/intel"
@@ -17,18 +18,31 @@ import (
 type analysis struct {
 	timeline  trace.Timeline
 	watchlist *intel.Watchlist
+	// skipped names the sub-folders a recursive read left out.
+	skipped []string
 }
 
 type pipeline struct {
-	tactics  tactic.Table
-	patterns indicator.Table
-	formats  structured.Table
+	tactics    tactic.Table
+	activities activity.Table
+	patterns   indicator.Table
+	formats    structured.Table
 }
 
 func loadPipeline() (pipeline, error) {
 	tactics, err := tactic.LoadTactics()
 	if err != nil {
 		return pipeline{}, err
+	}
+	activities, err := activity.LoadActivities()
+	if err != nil {
+		return pipeline{}, err
+	}
+	// The two tables are separate files; a tactic one names must exist in the other.
+	for _, name := range activities.Tactics() {
+		if !tactics.Has(name) {
+			return pipeline{}, fmt.Errorf("activities.json names the tactic %q, which tactics.json lacks", name)
+		}
 	}
 	patterns, err := indicator.LoadPatterns()
 	if err != nil {
@@ -38,7 +52,7 @@ func loadPipeline() (pipeline, error) {
 	if err != nil {
 		return pipeline{}, err
 	}
-	return pipeline{tactics: tactics, patterns: patterns, formats: formats}, nil
+	return pipeline{tactics: tactics, activities: activities, patterns: patterns, formats: formats}, nil
 }
 
 func (p pipeline) run(a *cli.Args) (analysis, error) {
@@ -54,10 +68,13 @@ func (p pipeline) run(a *cli.Args) (analysis, error) {
 		}
 		watchlist = &wl
 	}
-	tables := trace.Tables{Tactics: p.tactics, Patterns: p.patterns, Formats: p.formats, Watchlist: watchlist}
+	tables := trace.Tables{
+		Tactics: p.tactics, Activities: p.activities, Patterns: p.patterns, Formats: p.formats, Watchlist: watchlist,
+	}
 	return analysis{
 		timeline:  trace.Build(res.Files, res.Texts, tables),
 		watchlist: watchlist,
+		skipped:   res.Skipped,
 	}, nil
 }
 

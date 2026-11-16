@@ -325,3 +325,32 @@ func TestBashToolNameIgnoresSeparators(t *testing.T) {
 		}
 	}
 }
+
+func TestBashContinuedCommandIsOneCommand(t *testing.T) {
+	script := "curl -s -X POST \\\n  -d \"scope=x\" \\\n  \"https://login.example.com/token\" > token.json\n" +
+		"# a comment that ends in a backslash \\\n" +
+		"echo 'a\\\\'\n" +
+		"id\n"
+	s := ExtractBash(script)
+	if got, want := toolNames(s), []string{"curl", "id"}; !slices.Equal(got, want) {
+		t.Errorf("tools = %q, want %q", got, want)
+	}
+	if !slices.Contains(s.Writes, "token.json") {
+		t.Errorf("writes = %q, want token.json", s.Writes)
+	}
+	if len(s.Commands) == 0 || s.Commands[0].Line != 1 {
+		t.Errorf("commands = %+v, want the continued command on line 1", s.Commands)
+	}
+}
+
+func TestBashForListIsNotACommand(t *testing.T) {
+	cases := map[string][]string{
+		"for v in $(cat vaults.txt); do az keyvault secret list --vault-name \"$v\"; done": {"az"},
+		"for f in *.txt; do\n  gzip \"$f\"\ndone":                                          {"gzip"},
+	}
+	for script, want := range cases {
+		if got := toolNames(ExtractBash(script + "\n")); !slices.Equal(got, want) {
+			t.Errorf("ExtractBash(%q) tools = %q, want %q", script, got, want)
+		}
+	}
+}
