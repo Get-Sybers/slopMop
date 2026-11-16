@@ -8,9 +8,9 @@ about evidence touch no file, and every static table is a data file validated at
 | Package | Concern |
 | --- | --- |
 | `cmd/slopmop` | builds the application, runs it, maps the result to an exit code |
-| `internal/cli` | the grammar: flag kinds, parser, noun registry, dispatch, generated help; knows no noun |
+| `internal/cli` | the grammar: flag kinds, parser, noun registry, the command that takes a folder in place of a noun, dispatch, generated help; knows no noun |
 | `internal/command` | the nouns: declares them in `nouns.json` and binds each verb to its implementation |
-| `internal/render` | prints a table in the default, wide, JSON and quiet views; escapes evidence text |
+| `internal/render` | prints a table in the default, wide, JSON and quiet views, and the readout of `slopmop <folder>`; escapes evidence text |
 | `internal/inventory` | walks the input directory and builds one record per file; owns all evidence I/O |
 | `internal/evidence` | the file record and its vocabularies (role, note); no I/O |
 | `internal/nametime` | detects the timestamp written into a file name; no I/O |

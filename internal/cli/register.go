@@ -19,6 +19,32 @@ func (a *App) Register(n *Noun) error {
 	return nil
 }
 
+// Whole sets the command that runs when the first argument names no noun.
+// It takes one positional and bare words that select its sections; no word
+// means every section. It takes no output flags.
+func (a *App) Whole(summary, positional string, words []Word, s Spec, run func(a *Args) error) error {
+	s.Rows, s.Selectors = false, map[string]string{}
+	s.Positional, s.MinPos, s.MaxPos = positional, 1, 1
+	for _, w := range words {
+		if _, twice := s.Selectors[w.Name]; twice || w.Name == "" || w.Summary == "" {
+			return fmt.Errorf("the command without a noun: the word %q is repeated or lacks a name or a summary", w.Name)
+		}
+		s.Selectors[w.Name] = w.Summary
+	}
+	v := &Verb{Summary: summary, Spec: s, Run: run}
+	switch {
+	case a.whole != nil:
+		return errors.New("the command without a noun is already set")
+	case summary == "" || positional == "":
+		return errors.New("the command without a noun needs a summary and a positional")
+	}
+	if err := checkVerb(v); err != nil {
+		return fmt.Errorf("the command without a noun: %w", err)
+	}
+	a.whole, a.words = v, words
+	return nil
+}
+
 func (a *App) check(n *Noun) error {
 	nouns := map[string]bool{}
 	for _, name := range n.names() {

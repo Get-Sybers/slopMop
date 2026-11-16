@@ -1,0 +1,212 @@
+slopmop   <folder>
+[x] HIGH - 7 impacts: 5 high, 1 medium, 1 low
+[x] high   [!] medium   [i] low
+
+Summary
+  files       11  5 scripts, 6 outputs
+  indicators  32  6 Domain, 2 Email, 1 EntraLoginEndpoint, 4 GUID, 11 GraphEndpoint, 2 IPv4, 3 KeyVaultEndpoint, 1 OAuthScope, 2 URL
+  activities  12
+  tactics     6
+  intel hits  0
+
+Timeline   (step, time, role, file)
+  1  20261015_090000  script  20261015_090000_step01_token.sh
+      tools       curl, az
+      tactics     Discovery, InitialAccess
+      activities  TokenRequest
+      wrote       token_20261015_090010.json
+      indicators  8
+  1  20261015_090010  output  token_20261015_090010.json
+  2  20261015_090500  script  20261015_090500_step02_recon.ps1
+      tools       invoke-restmethod, convertto-json, out-file, get-mgapplication
+      tactics     Discovery
+      activities  GraphDirectoryEnumeration
+      wrote       directory_20261015_090530.txt
+      indicators  4
+  2  20261015_090530  output  directory_20261015_090530.txt
+      indicators  3
+  3  20261015_091000  script  20261015_091000_step03_escalate.ps1
+      tools       invoke-restmethod
+      tactics     PrivilegeEscalation, Persistence
+      activities  GlobalAdministratorAssignment, AppRoleAssignment, AppCredentialAddition
+      indicators  7
+  4  20261015_092000  script  20261015_092000_step04_collect.py
+      tools       requests.get
+      tactics     Collection
+      activities  MailboxAccess, TeamsMessageAccess, SharePointEnumeration
+      wrote       collect_20261015_092040.txt
+      indicators  8
+  4  20261015_092040  output  collect_20261015_092040.txt
+      indicators  2
+  5  20261015_093000  script  20261015_093000_step05_vault.sh
+      tools       az, cat, curl
+      tactics     Discovery, CredentialAccess
+      activities  KeyVaultSecretRead, KeyVaultKeyUnwrap, KeyVaultKeyEnumeration, AzureResourceEnumeration
+      wrote       vaults_20261015_093010.txt, secrets_20261015_093030.txt
+      indicators  3
+  5  20261015_093010  output  vaults_20261015_093010.txt
+  5  20261015_093030  output  secrets_20261015_093030.txt
+  5  20261015_093500  output  agent_20261015_093500.jsonl
+      tools       az
+      tactics     Discovery, Persistence, PrivilegeEscalation, CredentialAccess
+      activities  AppRoleAssignment, KeyVaultSecretRead, KeyVaultKeyEnumeration
+      indicators  7
+
+Findings
+  activities
+    [x] AppCredentialAddition          1 line   Persistence                       T1098.001
+        in  20261015_091000_step03_escalate.ps1
+    [x] AppRoleAssignment              2 lines  Persistence, PrivilegeEscalation  T1098.003
+        in  20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl
+    [x] GlobalAdministratorAssignment  1 line   Persistence, PrivilegeEscalation  T1098.003
+        in  20261015_091000_step03_escalate.ps1
+    [x] KeyVaultKeyUnwrap              1 line   CredentialAccess                  T1555.006
+        in  20261015_093000_step05_vault.sh
+    [x] KeyVaultSecretRead             3 lines  CredentialAccess                  T1555.006
+        in  20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl
+    [x] TokenRequest                   2 lines  InitialAccess                     T1078.004, AML.T0012
+        in  20261015_090000_step01_token.sh
+    [!] MailboxAccess                  1 line   Collection                        T1114.002, AML.T0126
+        in  20261015_092000_step04_collect.py
+    [!] SharePointEnumeration          2 lines  Collection                        T1213.002, AML.T0126, AML.T0036
+        in  20261015_092000_step04_collect.py
+    [!] TeamsMessageAccess             1 line   Collection                        T1213.005, AML.T0126, AML.T0036
+        in  20261015_092000_step04_collect.py
+    [i] AzureResourceEnumeration       1 line   Discovery                         T1580, AML.T0075
+        in  20261015_093000_step05_vault.sh
+    [i] GraphDirectoryEnumeration      4 lines  Discovery                         T1087.004, T1069.003, AML.T0075
+        in  20261015_090500_step02_recon.ps1
+    [i] KeyVaultKeyEnumeration         2 lines  Discovery                         T1580, AML.T0075
+        in  20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl
+  indicators
+    [x] Domain              corpvault.vault.azure.net                 20261015_093000_step05_vault.sh
+    [x] Domain              finvault.vault.azure.net                  agent_20261015_093500.jsonl
+    [x] Domain              graph.microsoft.com                       20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_091000_step03_escalate.ps1 and 2 more
+    [x] Domain              login.microsoftonline.com                 20261015_090000_step01_token.sh
+    [x] EntraLoginEndpoint  https://login.microsoftonline.com/$TENANT/oauth2/v2.0/token  20261015_090000_step01_token.sh
+    [x] GUID                11111111-2222-4333-8444-555555555555      20261015_090000_step01_token.sh
+    [x] GUID                62e90394-69f5-4237-9190-012177145e10      20261015_091000_step03_escalate.ps1
+    [x] GUID                66666666-7777-4888-9999-000000000000      20261015_090000_step01_token.sh, 20261015_091000_step03_escalate.ps1
+    [x] GUID                9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d      20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl
+    [x] GraphEndpoint       https://graph.microsoft.com/v1.0/applications/66666666-7777-4888-9999-000000000000/addPassword  20261015_091000_step03_escalate.ps1
+    [x] GraphEndpoint       https://graph.microsoft.com/v1.0/directoryRoles/roleTemplateId=62e90394-69f5-4237-9190-012177145e10/members/  20261015_091000_step03_escalate.ps1
+    [x] GraphEndpoint       https://graph.microsoft.com/v1.0/servicePrincipals/$sp/appRoleAssignments  20261015_091000_step03_escalate.ps1
+    [x] GraphEndpoint       https://graph.microsoft.com/v1.0/servicePrincipals/9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d/appRoleAssignments  agent_20261015_093500.jsonl
+    [x] IPv4                144.172.64.128                            20261015_090000_step01_token.sh, agent_20261015_093500.jsonl
+    [x] IPv4                144.172.64.60                             agent_20261015_093500.jsonl
+    [x] KeyVaultEndpoint    https://corpvault.vault.azure.net/keys/kek/0a1b2c3d/unwrapkey?api-version=7.4  20261015_093000_step05_vault.sh
+    [x] KeyVaultEndpoint    https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4  20261015_093000_step05_vault.sh
+    [x] KeyVaultEndpoint    https://finvault.vault.azure.net/keys?api-version=7.4  agent_20261015_093500.jsonl
+    [x] OAuthScope          https://graph.microsoft.com/.default      20261015_090000_step01_token.sh
+    [x] URL                 http://144.172.64.128:8080                20261015_090000_step01_token.sh
+    [!] Domain              corp.example                              20261015_092000_step04_collect.py, directory_20261015_090530.txt
+    [!] Domain              corp.sharepoint.com                       collect_20261015_092040.txt
+    [!] Email               alice@corp.example                        20261015_092000_step04_collect.py, directory_20261015_090530.txt
+    [!] Email               bob@corp.example                          20261015_092000_step04_collect.py, directory_20261015_090530.txt
+    [!] GraphEndpoint       https://graph.microsoft.com/v1.0          20261015_092000_step04_collect.py
+    [!] GraphEndpoint       https://graph.microsoft.com/v1.0/sites/root/drives  20261015_092000_step04_collect.py
+    [!] GraphEndpoint       https://graph.microsoft.com/v1.0/sites?search=*  20261015_092000_step04_collect.py
+    [!] GraphEndpoint       https://graph.microsoft.com/v1.0/users/   20261015_092000_step04_collect.py
+    [!] URL                 https://corp.sharepoint.com/sites/hr      collect_20261015_092040.txt
+    [i] GraphEndpoint       https://graph.microsoft.com/v1.0/directoryRoles  20261015_090500_step02_recon.ps1
+    [i] GraphEndpoint       https://graph.microsoft.com/v1.0/servicePrincipals?  20261015_090500_step02_recon.ps1
+    [i] GraphEndpoint       https://graph.microsoft.com/v1.0/users?   20261015_090500_step02_recon.ps1
+  tactics
+    [x] CredentialAccess     TA0006, AML.TA0013  20261015_093000_step05_vault.sh
+    [x] InitialAccess        TA0001, AML.TA0004  20261015_090000_step01_token.sh
+    [x] Persistence          TA0003, AML.TA0006  20261015_091000_step03_escalate.ps1
+    [x] PrivilegeEscalation  TA0004, AML.TA0012  20261015_091000_step03_escalate.ps1
+    [!] Collection           TA0009, AML.TA0009  20261015_092000_step04_collect.py
+    [i] Discovery            TA0007, AML.TA0008  20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh
+
+Notable files   (a finding of high severity)
+  [x] script  20261015_090000_step01_token.sh
+      found   TokenRequest
+      linked  token_20261015_090010.json
+  [x] script  20261015_091000_step03_escalate.ps1
+      found   GlobalAdministratorAssignment, AppRoleAssignment, AppCredentialAddition
+  [x] script  20261015_093000_step05_vault.sh
+      found   KeyVaultSecretRead, KeyVaultKeyUnwrap
+      linked  vaults_20261015_093010.txt, secrets_20261015_093030.txt
+  [x] output  agent_20261015_093500.jsonl
+      found   AppRoleAssignment, KeyVaultSecretRead
+
+Impact
+  [x] Privileged access obtained
+      A principal was given a privileged role or permission, or a route to root on a host was opened. Treat what it governs as under attacker control until reviewed.
+      basis  GlobalAdministratorAssignment, AppRoleAssignment
+      files  20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl
+  [x] Credentials exposed
+      Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker. Affected: corpvault.vault.azure.net, finvault.vault.azure.net.
+      basis  KeyVaultSecretRead, KeyVaultKeyUnwrap
+      files  20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl
+  [x] Persistence established
+      A way back in was created: a credential, an account, a key, a scheduled job, a service or a start-up entry. Access survives a password reset.
+      basis  AppCredentialAddition
+      files  20261015_091000_step03_escalate.ps1
+  [x] Valid identity used
+      The attacker signed in as an identity that exists. Sign-in controls did not stop it.
+      basis  TokenRequest
+      files  20261015_090000_step01_token.sh
+  [x] Data collected
+      Mail, chat, documents or files were gathered in bulk. Treat their content as disclosed. Affected: alice@corp.example, bob@corp.example.
+      basis  MailboxAccess, TeamsMessageAccess, SharePointEnumeration
+      files  20261015_092000_step04_collect.py
+  [!] Commands generated by an AI agent
+      The scripts were written by an AI agent, which is the premise of this tool. Generated commands differ from run to run, so a detection that matches exact text misses them.
+      basis  the premise of the tool
+      files  20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_091000_step03_escalate.ps1 and 3 more
+  [i] Environment mapped
+      Identities, resources or configuration were listed. Later steps were probably aimed with the result.
+      basis  GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, Discovery tools
+      files  20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh and 1 more
+
+Remediation   (most urgent first)
+  [x] Revoke sessions and reset identities
+      Revoke the sessions and tokens of every identity in the evidence and reset its credentials.
+      basis  TokenRequest
+      files  20261015_090000_step01_token.sh
+  [x] Remove added credentials
+      Remove every password and key added to an application or service principal, then review all credentials added since the first step.
+      basis  AppCredentialAddition
+      files  20261015_091000_step03_escalate.ps1
+  [x] Remove role and permission grants
+      Remove the role assignments and application permissions that were granted, then review every privileged member and consent.
+      basis  GlobalAdministratorAssignment, AppRoleAssignment
+      files  20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl
+  [x] Rotate what was read
+      Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.
+      basis  KeyVaultSecretRead, KeyVaultKeyUnwrap
+      files  20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl
+  [x] Scope the data taken
+      Establish from audit logs which mailboxes, chats, sites and files were read or sent out, and assess that data as breached.
+      basis  MailboxAccess, TeamsMessageAccess, SharePointEnumeration
+      files  20261015_092000_step04_collect.py
+  [i] Follow what was enumerated
+      Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
+      basis  GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, Discovery tools
+      files  20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh and 1 more
+
+Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
+  [x] M1015 Active Directory Configuration      T1078.004
+  [x] M1017 User Training                       T1078.004, T1213.002, T1213.005
+  [x] M1018 User Account Management             T1078.004, T1087.004, T1098.001, T1098.003, T1213.002, T1580
+  [x] M1026 Privileged Account Management       T1078.004, T1098.001, T1098.003, T1555.006
+  [x] M1027 Password Policies                   T1078.004
+  [x] M1030 Network Segmentation                T1098.001
+  [x] M1032 Multi-factor Authentication         T1078.004, T1098.001, T1098.003, T1114.002
+  [x] M1036 Account Use Policies                T1078.004
+  [x] M1042 Disable or Remove Feature or Program  T1098.001
+  [!] M1041 Encrypt Sensitive Information       T1114.002
+  [!] M1047 Audit                               T1087.004, T1213.002, T1213.005
+  [!] M1060 Out-of-Band Communications Channel  T1114.002, T1213.005
+  [x] AML.M0005 Control Access to AI Models and Data at Rest  AML.T0012, AML.T0126
+  [x] AML.M0019 Control Access to AI Models and Data in Production  AML.T0012
+  [x] AML.M0043 AI Agent External Resource Lifecycle Management  AML.T0012
+  [!] AML.M0020 Generative AI Guardrails        AML.T0102
+  [!] AML.M0022 Generative AI Model Alignment   AML.T0102
+  [!] AML.M0039 AI Honeypots                    AML.T0126
+
+[x] HIGH - 7 impacts: 5 high, 1 medium, 1 low
+-> one section: slopmop <folder> impact
+-> a table or JSON: slopmop NOUN VERB -h

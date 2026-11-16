@@ -26,7 +26,13 @@ type entry struct{ label, text string }
 
 func (a *App) rootHelp() string {
 	var b strings.Builder
-	fmt.Fprintf(&b, "usage: %s NOUN VERB %s\n", a.bin, grammar)
+	nounsTitle := "nouns"
+	if a.whole == nil {
+		fmt.Fprintf(&b, "usage: %s NOUN VERB %s\n", a.bin, grammar)
+	} else {
+		a.wholeHelp(&b)
+		nounsTitle = "nouns"
+	}
 	if len(a.nouns) == 0 {
 		return b.String()
 	}
@@ -34,10 +40,42 @@ func (a *App) rootHelp() string {
 	for _, n := range a.nouns {
 		entries = append(entries, entry{strings.Join(n.names(), ", "), n.Summary})
 	}
-	b.WriteString("\nnouns:\n")
+	b.WriteString("\n" + nounsTitle + ":\n")
 	writeEntries(&b, entries, widest(entries)+2)
 	fmt.Fprintf(&b, "\nmore help: %s NOUN -h, %s NOUN VERB -h\n", a.bin, a.bin)
 	return b.String()
+}
+
+// wholeHelp leads the root help with the command that takes no noun.
+func (a *App) wholeHelp(b *strings.Builder) {
+	s := a.whole.Spec
+	fmt.Fprintf(b, "usage: %s %s", a.bin, s.Positional)
+	if len(a.words) > 0 {
+		b.WriteString(" [section ...]")
+	}
+	for _, name := range sortedKeys(s.Params) {
+		b.WriteString(" [" + withHint("--"+name, s.Params[name]) + "]")
+	}
+	b.WriteString("\n\n" + a.whole.Summary + "\n")
+	words := make([]entry, len(a.words))
+	for i, w := range a.words {
+		words[i] = entry{w.Name, w.Summary}
+	}
+	params, switches := flagEntries("--", s.Params), switchEntries(s.Switches)
+	width := max(flagColumn, widest(words)+2, widest(params)+2, widest(switches)+2)
+	if len(words) > 0 {
+		b.WriteString("\nsections (name any to print only those; none = all):\n")
+		writeEntries(b, words, width)
+	}
+	if len(params) > 0 {
+		b.WriteString("\nparams (double dash, take a value):\n")
+		writeEntries(b, params, width)
+	}
+	if len(switches) > 0 {
+		b.WriteString("\nswitches (double dash, take no value; the short form takes one dash):\n")
+		writeEntries(b, switches, width)
+	}
+	fmt.Fprintf(b, "\none view as a table or as JSON: %s NOUN VERB %s\n", a.bin, grammar)
 }
 
 func (a *App) nounHelp(n *Noun) string {

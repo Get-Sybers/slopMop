@@ -55,7 +55,11 @@ func TestBinary(t *testing.T) {
 	}{
 		{name: "no arguments print help", code: 0, golden: "help"},
 		{name: "verb help", args: []string{"file", "list", "-h"}, code: 0, golden: "help-file-list"},
-		{name: "unknown noun", args: []string{"bogus", "list"}, code: 2, stderr: `error: unknown noun "bogus"`},
+		{name: "two words that are no noun", args: []string{"bogus", "list"}, code: 2,
+			stderr: `error: slopmop reads one folder, got "bogus" and "list"`},
+		{name: "a section without a folder", args: []string{"impact"}, code: 2,
+			stderr: `error: the word "impact" names a section; give the folder too`},
+		{name: "a folder that is missing", args: []string{filepath.Join(folder, "missing")}, code: 1, stderr: "not a folder"},
 		{name: "no input directory", args: []string{"file", "list"}, code: 2,
 			stderr: "error: file list needs --inputdir <folder>"},
 		{name: "wrong prefix", args: []string{"file", "list", "-inputdir", folder}, code: 2,
@@ -89,5 +93,21 @@ func TestBinary(t *testing.T) {
 				t.Errorf("stdout on failure: %q", stdout)
 			}
 		})
+	}
+
+	// The folder alone is the whole command line: every section, the
+	// sub-folder read, and no colour because the output is not a terminal.
+	stdout, stderr, code := run(nested)
+	if code != 0 || stderr != "" {
+		t.Fatalf("slopmop <folder>: exit code %d, stderr %q", code, stderr)
+	}
+	golden.Check(t, "whole", []byte(strings.ReplaceAll(stdout, nested, "<folder>")))
+	for _, want := range []string{"\nTimeline", "\nImpact", "\nMitigation", "stage/" + moved} {
+		if !strings.Contains(stdout, want) {
+			t.Errorf("slopmop <folder>: output lacks %q", want)
+		}
+	}
+	if strings.Contains(stdout, "\x1b[") {
+		t.Error("slopmop <folder>: colour codes in output that is not a terminal")
 	}
 }

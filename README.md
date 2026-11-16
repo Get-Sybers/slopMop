@@ -18,7 +18,40 @@ SHA-256. The binary is not code-signed.
 
 ## Use
 
-The grammar is `slopmop NOUN VERB [selectors] [--params] [output flags] [positional]`.
+Give it the folder. It reads every file in the folder and below it, analyses them once and prints
+the whole analysis: the counts, the timeline, the findings, the notable files, the impact, the
+remediation and the mitigation.
+
+```text
+$ slopmop case42/ai_workdir
+slopmop   case42/ai_workdir
+[x] HIGH - 4 impacts: 2 high, 1 medium, 1 low
+[x] high   [!] medium   [i] low
+
+Summary
+  files       16  6 scripts, 9 outputs
+  indicators  13  1 Base64Blob, 4 Domain, 1 EncodedCommand, 1 GUID, 3 IPv4, 3 SHA1
+  activities  1
+  tactics     4
+
+Timeline   (step, time, role, file)
+  1  20250302_090000  script  20250302_090000_step01_inventory.ps1
+      tools       get-date, join-path, get-adcomputer, select-object, export-csv
+      tactics     Discovery
+      indicators  1
+```
+
+| Command | What it does |
+| --- | --- |
+| `slopmop <folder>` | prints every section |
+| `slopmop <folder> impact remediation` | prints only the sections named |
+| `slopmop <folder> --intelfile <file>` | attributes the indicators a watchlist matches |
+
+The sections are `summary`, `timeline`, `findings`, `files`, `impact`, `remediation` and
+`mitigation`. Nothing is remembered between runs.
+
+One view of the same analysis prints as a table or as JSON through the grammar
+`slopmop NOUN VERB [selectors] [--params] [output flags] [positional]`:
 
 | Command | What it does |
 | --- | --- |
@@ -29,27 +62,8 @@ The grammar is `slopmop NOUN VERB [selectors] [--params] [output flags] [positio
 | `slopmop report list --inputdir <folder>` | reports the counts, the notable files, the impact, and the remediation and mitigation |
 | `slopmop campaign list --intelfile <file>` | lists the attributions in a watchlist |
 
-The input directory is always named on the command line with `--inputdir`; nothing is remembered
-between runs.
-
-```text
-$ slopmop file list --inputdir case42/ai_workdir
-NAME                                       ROLE    SIZE   LINES  MODIFIED
-20250302_090000_step01_inventory.ps1       script  487 B  13     2025-03-02T09:00:03Z
-20250302_090500_step02_sync.ps1            script  385 B  7      2025-03-02T09:05:03Z
-20250302_090900_step03_sync_retry.ps1      script  478 B  13     2025-03-02T09:09:03Z
-20250302_091500_step04_certs.ps1           script  387 B  7      2025-03-02T09:15:03Z
-20250302_092200_step05_export.ps1          script  639 B  12     2025-03-02T09:22:03Z
-ca01_20250302_092210.cer                   other   18 B   -      2025-03-02T09:22:13Z
-ca_ping_20250302_091540.log                output  162 B  3      2025-03-02T09:15:43Z
-cert_store_20250302_091530.txt             output  656 B  7      2025-03-02T09:15:33Z
-export_summary_20250302_092215.txt         output  116 B  2      2025-03-02T09:22:18Z
-hosts_20250302_090030.csv                  output  200 B  4      2025-03-02T09:00:33Z
-sync_10.20.1.17_20250302_090530.txt        output  548 B  3      2025-03-02T09:05:33Z
-sync_10.20.1.17_retry_20250302_090930.txt  output  397 B  10     2025-03-02T09:09:33Z
-```
-
-`slopmop`, `slopmop NOUN` and `slopmop NOUN VERB -h` print help generated from the command table.
+`slopmop` alone prints the usage, the sections and the nouns; `slopmop NOUN` and
+`slopmop NOUN VERB -h` print help generated from the command table.
 
 ## Layout
 

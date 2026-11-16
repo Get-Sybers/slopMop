@@ -1,6 +1,7 @@
 # Output schema
 
-The conventions every `list` output obeys, then the view of each class.
+The conventions every `list` output obeys, the view of each class, and then the readout that
+`slopmop <folder>` prints.
 
 ## 1. Views
 
@@ -167,3 +168,59 @@ remediation from `high` to `low`; then the ATT&CK mitigations and the ATLAS miti
 
 An impact says what the evidence shows was done. The tool does not run a script, so it cannot say
 whether a step succeeded.
+
+## 9. The readout
+
+`slopmop <folder>` prints plain lines for reading, not a table. It has no JSON form: a program
+reads the classes above.
+
+```text
+slopmop   case42/ai_workdir
+[x] HIGH - 4 impacts: 2 high, 1 medium, 1 low
+[x] high   [!] medium   [i] low
+
+Summary
+  files       16  6 scripts, 9 outputs
+  indicators  13  1 Base64Blob, 4 Domain, 1 EncodedCommand, 1 GUID, 3 IPv4, 3 SHA1
+  activities  1
+  tactics     4
+
+Impact
+  [x] Credentials exposed
+      Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.
+      basis  CertificateExport, CredentialAccess tools
+      files  20250302_090900_step03_sync_retry.ps1, 20250302_092200_step05_export.ps1
+
+[x] HIGH - 4 impacts: 2 high, 1 medium, 1 low
+-> one section: slopmop <folder> impact
+-> a table or JSON: slopmop NOUN VERB -h
+```
+
+- Line 1 names the folder. Line 2 is the verdict: the highest severity among the impacts and the
+  count at each, or `[ok] NOTHING FOUND in <n> files`. The verdict is repeated at the end when
+  more than one section prints, where a terminal leaves the reader.
+- A mark gives a severity or a priority: `[x]` high, `[!]` medium, `[i]` low. The marks are ASCII.
+- A section is its title, then its entries indented two spaces. An entry is one line of cells,
+  aligned with the entries around it, and detail lines indented under it, each with a label. A
+  column is padded to at most 40 characters; a longer cell runs past it. A section with no entry
+  prints `none`.
+- A list of files gives the first three and counts the rest: `a.sh, b.sh, c.sh and 4 more`.
+- The values are those of the classes: a timeline entry is a `trace` row, a finding entry is a
+  `finding` row and the other sections are `report` rows. An activity's `lines` is its count in the
+  summary of `report`. Times are UTC.
+- Colour is used only when standard output is a terminal, `NO_COLOR` is unset and `TERM` is not
+  `dumb`; on Windows, only inside Windows Terminal. A file or a pipe receives no colour code.
+- Every text is escaped as section 6 describes, whole: a cell, a detail or a title that holds a
+  character that is not printable prints as one quoted string.
+
+| Section | Entry | Detail lines |
+| --- | --- | --- |
+| Summary | a count and its breakdown | none |
+| Timeline | step, time, role, file | `tools`, `tactics`, `activities`, `transforms`, `wrote`, `watchlist`, `note`, `indicators` |
+| Findings, activities | activity, lines, tactics, techniques | `in`: the files |
+| Findings, indicators | type, value, files | `watchlist`: the attributions |
+| Findings, tactics | tactic, its ATT&CK and ATLAS identifiers, files | none |
+| Notable files | role, file | `found`, `linked` |
+| Impact | the impact | its statement, `basis`, `files` |
+| Remediation | the action | its text, `basis`, `files` |
+| Mitigation | the mitigation, the techniques found that it addresses | none |

@@ -140,12 +140,17 @@ func loadAssessment(tactics tactic.Table, activities activity.Table, patterns in
 }
 
 func (p pipeline) run(a *cli.Args) (analysis, error) {
-	res, err := inventory.ReadAll(a.Params[inputDir], depth(a))
+	return p.read(a.Params[inputDir], depth(a), a.Params[intelFile])
+}
+
+// read analyses a folder, levels deep, against the watchlist at path, if any.
+func (p pipeline) read(folder string, levels int, path string) (analysis, error) {
+	res, err := inventory.ReadAll(folder, levels)
 	if err != nil {
 		return analysis{}, err
 	}
 	var watchlist *intel.Watchlist
-	if path := a.Params[intelFile]; path != "" {
+	if path != "" {
 		wl, err := loadIntelFile(path)
 		if err != nil {
 			return analysis{}, err

@@ -6,6 +6,24 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Added
+
+- `slopmop <folder>` is the whole command line: it reads the folder and its sub-folders once and
+  prints a readout of every section, `summary`, `timeline`, `findings`, `files`, `impact`,
+  `remediation` and `mitigation`. A section named after the folder prints only that section, and
+  `--intelfile <file>` adds the watchlist matches.
+- The readout: plain lines for reading, with a verdict line, `[x]`, `[!]` and `[i]` marks for
+  high, medium and low, entries aligned in columns and detail lines under them. Colour is used
+  only on a terminal, never with `NO_COLOR`, and on Windows only inside Windows Terminal.
+- The `whole` block of `nouns.json` declares the sections of the readout; `cli.App.Whole` and
+  `render.WriteReadout` implement them.
+
+### Changed
+
+- `slopmop` without arguments leads its help with the folder form and its sections.
+- A first argument that names no noun is read as the folder. `slopmop bogus list` fails with
+  `slopmop reads one folder, got "bogus" and "list"` where it failed with `unknown noun "bogus"`.
+
 ## [0.3.1] - 2026-11-16
 
 ### Added

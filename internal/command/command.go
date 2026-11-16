@@ -47,6 +47,8 @@ func skippedError(skipped []string) error {
 type Env struct {
 	Stdout io.Writer
 	Local  *time.Location
+	// Colour marks the readout with ANSI colours; a table never has any.
+	Colour bool
 }
 
 type builder func(verbSpec) (*cli.Verb, error)
@@ -54,11 +56,14 @@ type builder func(verbSpec) (*cli.Verb, error)
 // Register adds every noun nouns.json declares. A declared verb without an
 // implementation, or an implementation without a declaration, is an error.
 func Register(app *cli.App, env Env) error {
-	nouns, err := loadNouns()
+	doc, err := decodeDoc(nounsJSON)
 	if err != nil {
 		return err
 	}
-	return register(app, nouns, map[string]builder{
+	if err := env.registerWhole(app, doc.Whole); err != nil {
+		return err
+	}
+	return register(app, doc.Nouns, map[string]builder{
 		"file list":     env.fileList,
 		"trace list":    env.traceList,
 		"finding list":  env.findingList,

@@ -1,4 +1,20 @@
-usage: slopmop NOUN VERB [selectors] [--params] [output flags] [positional]
+usage: slopmop <folder> [section ...] [--intelfile <file>]
+
+reads a folder and everything below it, runs nothing, and prints the whole analysis
+
+sections (name any to print only those; none = all):
+  summary      the counts
+  timeline     each file in order, with what it shows
+  findings     each activity, indicator and tactic, most severe first
+  files        the files that hold a finding of high severity
+  impact       what the findings mean
+  remediation  what to do about them, most urgent first
+  mitigation   what MITRE ATT&CK and ATLAS say prevents the techniques found
+
+params (double dash, take a value):
+  --intelfile  <file>
+
+one view as a table or as JSON: slopmop NOUN VERB [selectors] [--params] [output flags] [positional]
 
 nouns:
   file, files          files in the input directory
