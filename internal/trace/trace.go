@@ -11,6 +11,7 @@ import (
 	"github.com/get-sybers/slopmop/internal/indicator"
 	"github.com/get-sybers/slopmop/internal/intel"
 	"github.com/get-sybers/slopmop/internal/parse"
+	"github.com/get-sybers/slopmop/internal/structured"
 	"github.com/get-sybers/slopmop/internal/tactic"
 )
 
@@ -31,9 +32,17 @@ type Timeline struct {
 	Steps []Step
 }
 
-// Build reads the inventory result and produces a trace timeline. When
-// watchlist is non-nil, extracted indicators are matched against it.
-func Build(files []evidence.File, texts map[string]string, tactics tactic.Table, patterns indicator.Table, watchlist *intel.Watchlist) Timeline {
+// Tables holds the data tables a timeline is built with. Watchlist may be
+// nil; when it is set, extracted indicators are matched against it.
+type Tables struct {
+	Tactics   tactic.Table
+	Patterns  indicator.Table
+	Formats   structured.Table
+	Watchlist *intel.Watchlist
+}
+
+// Build reads the inventory result and produces a trace timeline.
+func Build(files []evidence.File, texts map[string]string, tables Tables) Timeline {
 	ordered := sortByTime(files)
 	// Each script is parsed once; the result serves both the step and the linking.
 	parsed := map[string]parse.Script{}
@@ -46,6 +55,16 @@ func Build(files []evidence.File, texts map[string]string, tactics tactic.Table,
 		}
 	}
 	linked := linkOutputs(ordered, parsed)
+	// A report is not a turn and links no output, so it stays out of the linking.
+	content := map[string]string{}
+	for _, f := range ordered {
+		text := texts[f.Path]
+		if p, decoded, ok := parseReport(f, text, tables.Formats); ok {
+			parsed[f.Path] = p
+			text = decoded
+		}
+		content[f.Path] = text
+	}
 	steps := make([]Step, len(ordered))
 	turn := 0
 	for i, f := range ordered {
@@ -55,14 +74,14 @@ func Build(files []evidence.File, texts map[string]string, tactics tactic.Table,
 		s := Step{File: f, Turn: turn}
 		if p, ok := parsed[f.Path]; ok {
 			s.Tools = uniqueTools(p.Commands)
-			s.Tactics = classifyTools(s.Tools, tactics)
+			s.Tactics = classifyTools(s.Tools, tables.Tactics)
 			s.Transforms = uniqueMethods(p.Transforms)
 		}
-		if text := texts[f.Path]; text != "" {
-			matches := patterns.Extract(text)
+		if text := content[f.Path]; text != "" {
+			matches := tables.Patterns.Extract(text)
 			s.Indicators = len(matches)
-			if watchlist != nil {
-				s.IntelHits = watchlist.Match(matches)
+			if tables.Watchlist != nil {
+				s.IntelHits = tables.Watchlist.Match(matches)
 			}
 		}
 		s.Outputs = linked[f.Path]
@@ -97,6 +116,27 @@ func parseScript(f evidence.File, text string) parse.Script {
 		return parse.ExtractPowerShell(text)
 	}
 	return parse.ExtractBash(text)
+}
+
+// parseReport decodes a structured file that is not a script. It returns
+// the commands the report records and the decoded text to search for
+// indicators; ok is false when the file has no format or is malformed.
+func parseReport(f evidence.File, text string, formats structured.Table) (parse.Script, string, bool) {
+	format, known := formats.Detect(f.Path)
+	if !known || f.Role == evidence.Script || text == "" {
+		return parse.Script{}, "", false
+	}
+	report, err := formats.Extract(format, text)
+	if err != nil {
+		return parse.Script{}, "", false
+	}
+	var s parse.Script
+	for _, c := range report.Commands {
+		p := parse.ExtractCommand(c)
+		s.Commands = append(s.Commands, p.Commands...)
+		s.Transforms = append(s.Transforms, p.Transforms...)
+	}
+	return s, strings.Join(report.Values, "\n"), true
 }
 
 func isPowerShell(f evidence.File) bool {

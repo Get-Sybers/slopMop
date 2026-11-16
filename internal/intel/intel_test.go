@@ -153,3 +153,47 @@ func TestMatchMultipleAttributions(t *testing.T) {
 		t.Fatalf("hits = %d, want 2 (two attributions)", len(hits))
 	}
 }
+
+func TestLoadWatchlistBundle(t *testing.T) {
+	data := []byte(`{
+		"type": "bundle",
+		"id": "bundle--1",
+		"objects": [
+			{"type": "identity", "id": "identity--1", "name": "Analyst"},
+			{"type": "indicator", "id": "indicator--1", "name": "STORM-0940 C2", "pattern_type": "stix",
+			 "pattern": "[ipv4-addr:value = '198.51.100.7' OR domain-name:value = 'C2.Example']"},
+			{"type": "indicator", "id": "indicator--2", "pattern": "[file:name = 'it\\'s.exe']"},
+			{"type": "indicator", "id": "indicator--3", "name": "Sigma", "pattern_type": "sigma", "pattern": "x = 'y'"}
+		]
+	}`)
+	wl, err := LoadWatchlist(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if wl.Len() != 3 {
+		t.Fatalf("Len = %d, want 3", wl.Len())
+	}
+	hits := wl.Match([]indicator.Match{
+		{Type: "IPv4", Value: "198.51.100.7"},
+		{Type: "Domain", Value: "c2.example"},
+		{Type: "File", Value: "it's.exe"},
+		{Type: "IPv4", Value: "10.0.0.1"},
+	})
+	want := []string{"STORM-0940 C2", "STORM-0940 C2", "indicator--2"}
+	if len(hits) != len(want) {
+		t.Fatalf("hits = %+v, want %d", hits, len(want))
+	}
+	for i, h := range hits {
+		if h.Attribution != want[i] {
+			t.Errorf("hit %d attributed to %q, want %q", i, h.Attribution, want[i])
+		}
+	}
+}
+
+func TestLoadWatchlistRejectsOtherObjects(t *testing.T) {
+	for _, data := range []string{`{"type": "report"}`, `{"type": "bundle", "objects": 3}`, `{`} {
+		if _, err := LoadWatchlist([]byte(data)); err == nil {
+			t.Errorf("no error for %s", data)
+		}
+	}
+}

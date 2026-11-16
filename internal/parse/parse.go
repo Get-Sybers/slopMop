@@ -1,6 +1,8 @@
 // Package parse extracts commands, variables and file references from scripts.
 package parse
 
+import "regexp"
+
 // Script holds the static analysis of one script file.
 type Script struct {
 	Commands   []Command
@@ -30,3 +32,14 @@ type Transform struct {
 	Method string
 	Text   string
 }
+
+// ExtractCommand parses a command line found outside a script, where no
+// file extension names the shell. A cmdlet or a PowerShell host decides.
+func ExtractCommand(text string) Script {
+	if rxPsShape.MatchString(text) {
+		return ExtractPowerShell(text)
+	}
+	return ExtractBash(text)
+}
+
+var rxPsShape = regexp.MustCompile(`\b[A-Z][a-z]+-[A-Z][A-Za-z]+\b|(?i)\b(?:powershell|pwsh)(?:\.exe)?\b`)

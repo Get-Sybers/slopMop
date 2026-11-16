@@ -10,6 +10,7 @@
       "name": "output",
       "summary": "an output a script produced",
       "extensions": [".txt", ".tsv", ".csv", ".log", ".out", ".json", ".xml",
+                     ".jsonl", ".ndjson", ".html", ".htm",
                      ".b64", ".gz", ".bin", ".cmd", ".ses", ".enc", ".dat", ".raw"]
     },
     {

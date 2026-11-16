@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/get-sybers/slopmop/internal/indicator"
@@ -29,8 +30,12 @@ type Watchlist struct {
 	entries []entry
 }
 
-// LoadWatchlist decodes a JSON watchlist from raw bytes.
+// LoadWatchlist decodes a watchlist from raw bytes: a JSON array of
+// entries, or a STIX 2.1 bundle, which is a JSON object.
 func LoadWatchlist(data []byte) (Watchlist, error) {
+	if trimmed := bytes.TrimLeft(data, " \t\r\n"); len(trimmed) > 0 && trimmed[0] == '{' {
+		return loadBundle(data)
+	}
 	dec := json.NewDecoder(bytes.NewReader(data))
 	dec.DisallowUnknownFields()
 	var entries []entry
@@ -48,6 +53,53 @@ func LoadWatchlist(data []byte) (Watchlist, error) {
 			return Watchlist{}, fmt.Errorf("intel watchlist[%d]: empty attribution", i)
 		}
 		entries[i].Value = strings.ToLower(e.Value)
+	}
+	return Watchlist{entries: entries}, nil
+}
+
+type bundle struct {
+	Type    string         `json:"type"`
+	Objects []bundleObject `json:"objects"`
+}
+
+type bundleObject struct {
+	Type        string `json:"type"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Pattern     string `json:"pattern"`
+	PatternType string `json:"pattern_type"`
+}
+
+// loadBundle reads the indicator objects of a STIX 2.1 bundle. Every quoted
+// literal an equality compares in a STIX pattern becomes one entry,
+// attributed to the indicator's name, or to its id when it has none.
+func loadBundle(data []byte) (Watchlist, error) {
+	var b bundle
+	if err := json.Unmarshal(data, &b); err != nil {
+		return Watchlist{}, fmt.Errorf("intel watchlist: %w", err)
+	}
+	if b.Type != "bundle" {
+		return Watchlist{}, fmt.Errorf("intel watchlist: object type %q, want a STIX bundle", b.Type)
+	}
+	literal := regexp.MustCompile(`=\s*'((?:[^'\\]|\\.)*)'`)
+	unescape := strings.NewReplacer(`\'`, `'`, `\\`, `\`)
+	var entries []entry
+	for _, o := range b.Objects {
+		if o.Type != "indicator" || (o.PatternType != "" && o.PatternType != "stix") {
+			continue
+		}
+		attribution := o.Name
+		if attribution == "" {
+			attribution = o.ID
+		}
+		if attribution == "" {
+			continue
+		}
+		for _, m := range literal.FindAllStringSubmatch(o.Pattern, -1) {
+			if value := unescape.Replace(m[1]); value != "" {
+				entries = append(entries, entry{Value: strings.ToLower(value), Attribution: attribution})
+			}
+		}
 	}
 	return Watchlist{entries: entries}, nil
 }

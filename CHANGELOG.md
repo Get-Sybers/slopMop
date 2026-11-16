@@ -8,6 +8,14 @@ All notable changes to this project are recorded in this file. The format follow
 
 ### Added
 
+- Structured report parsing in `trace list`: JSON (and JSON Lines), XML and HTML outputs are decoded
+  before indicators are extracted, and the commands they record fill the TOOLS, TACTICS and
+  TRANSFORMS columns (#8).
+- Package `internal/structured` and its data file `formats.json`, embedded and validated at load.
+- `--intelfile` accepts a STIX 2.1 bundle: the literals in the patterns of its indicator objects
+  become watchlist entries.
+- Extensions `.jsonl`, `.ndjson`, `.html` and `.htm` recognised as output role in the inventory.
+- `parse.ExtractCommand`, which chooses the shell of a command line found outside a script.
 - `--intelfile <file>` parameter for `trace list`: loads a JSON watchlist of known indicators and
   matches them against extracted IoCs, showing attributions in the new INTEL column.
 - Package `internal/intel` for loading and matching threat intelligence watchlists.
