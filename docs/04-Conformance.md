@@ -16,7 +16,7 @@ same command.**
 | `integration` | `go test -count=1 -tags integration ./cmd/...` | the built binary, driven through `os/exec` |
 | `tidy-check` | `go mod tidy -diff` | drift in `go.mod` or `go.sum` |
 | `generate-check` | `go generate ./...`, then compares the tree | stale generated files |
-| `cross` | `go build ./...` for windows/amd64, darwin/arm64, linux/arm64 | a platform-specific break |
+| `cross` | `go build ./...` for windows/amd64, windows/arm64, darwin/amd64, darwin/arm64, linux/arm64 | a platform-specific break |
 | `structlint` | `scripts/structlint.sh` | the structural rules of section 3 |
 | `structlint-test` | the structural lint over `scripts/testdata/structlint/tree` | a lint that stops reporting; the output must equal `expected.txt` |
 | `lint` | `golangci-lint config verify`, `golangci-lint run` | the linters of `.golangci.yml` |
@@ -76,7 +76,11 @@ read-only permissions.
 | --- | --- |
 | `conform` | `make conform` |
 | `vuln` | `make vuln` |
-| `all_green` | fails when either job failed or was cancelled; the one status check a branch rule requires |
+| `platform` | on Windows and macOS: `go test -count=1 -shuffle=on ./...`, then the integration test, which builds the binary and drives it through `os/exec` |
+| `all_green` | fails when any job failed or was cancelled; the one status check a branch rule requires |
+
+`conform` runs on Linux. `platform` runs no lint: it shows that the tests pass and the binary runs
+on the other two operating systems.
 
 Dependabot raises the GitHub Actions and Go module pins weekly, seven days after a release.
 

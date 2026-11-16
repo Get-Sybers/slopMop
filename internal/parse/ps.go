@@ -1,7 +1,6 @@
 package parse
 
 import (
-	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -109,7 +108,7 @@ func extractPsCmds(line string, lineNo int, s *Script, seen map[string]bool) {
 	}
 
 	for _, m := range rxExe.FindAllStringSubmatch(line, -1) {
-		name := strings.ToLower(filepath.Base(m[1]))
+		name := strings.ToLower(BaseName(m[1]))
 		key := "cmd:" + name
 		if seen[key] {
 			continue
