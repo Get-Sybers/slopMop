@@ -1,7 +1,13 @@
 [
   {"type": "IPv4", "pattern": "\\b(?:(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:/(?:3[0-2]|[12]?\\d))?\\b", "not_followed_by": "\\.\\d"},
+  {"type": "OAuthScope", "pattern": "(?i:(?:https|api)://[^\\s'\"<>`\\\\)\\]},;]+/\\.default)\\b|\\b(?:offline_access|user_impersonation|full_access_as_app)\\b|\\b[A-Z][A-Za-z0-9]+(?:\\.[A-Z][A-Za-z]+)?\\.(?:Read|ReadWrite|ReadBasic|Send|Manage|Create|Invite|Export|FullControl|AccessAsUser|AccessAsApp|Impersonate)(?:\\.(?:All|Shared|OwnedBy|Directory|AzureAD|AzureADGroup|ConditionalAccess))?\\b", "not_followed_by": "[(\\[]|[.][A-Za-z]"},
+  {"type": "GraphEndpoint", "pattern": "(?i)https://(?:graph\\.microsoft\\.com|graph\\.microsoft\\.us|dod-graph\\.microsoft\\.us|microsoftgraph\\.chinacloudapi\\.cn|graph\\.windows\\.net)(?:/[^\\s'\"<>`\\\\)\\]},;]*)?", "not_followed_by": "[A-Za-z0-9@\\-]|[.][A-Za-z0-9]"},
+  {"type": "AzureManagementEndpoint", "pattern": "(?i)https://management\\.(?:azure\\.com|usgovcloudapi\\.net|chinacloudapi\\.cn)(?:/[^\\s'\"<>`\\\\)\\]},;]*)?", "not_followed_by": "[A-Za-z0-9@\\-]|[.][A-Za-z0-9]"},
+  {"type": "EntraLoginEndpoint", "pattern": "(?i)https://login\\.(?:microsoftonline\\.com|microsoftonline\\.us|partner\\.microsoftonline\\.cn|windows\\.net)(?:/[^\\s'\"<>`\\\\)\\]},;]*)?", "not_followed_by": "[A-Za-z0-9@\\-]|[.][A-Za-z0-9]"},
+  {"type": "KeyVaultEndpoint", "pattern": "(?i)https://[a-z0-9\\-]{3,24}\\.(?:vault\\.azure\\.net|vault\\.usgovcloudapi\\.net|vault\\.azure\\.cn|managedhsm\\.azure\\.net)(?:/[^\\s'\"<>`\\\\)\\]},;]*)?", "not_followed_by": "[A-Za-z0-9@\\-]|[.][A-Za-z0-9]"},
   {"type": "URL", "pattern": "(?i)(?:https?|ftps?|sftp|ssh|smb|ldaps?)://[^\\s'\"<>`\\\\)\\]},;]+"},
   {"type": "Email", "pattern": "(?i)[a-z0-9][a-z0-9._%+\\-]{0,63}@(?:[a-z0-9\\-]+\\.)+[a-z]{2,24}"},
+  {"type": "GUID", "pattern": "(?i)\\b[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\\b"},
   {"type": "SHA256", "pattern": "(?i)\\b[a-f0-9]{64}\\b"},
   {"type": "SHA1", "pattern": "(?i)\\b[a-f0-9]{40}\\b"},
   {"type": "MD5", "pattern": "(?i)\\b[a-f0-9]{32}\\b"},

@@ -1,6 +1,7 @@
 [
   {
     "tactic": "Discovery",
+    "severity": "low",
     "commands": [
       "nmap", "masscan", "rustscan", "ping", "fping", "arp", "arp-scan",
       "nbtscan", "dig", "nslookup", "host", "whois", "traceroute", "ip",
@@ -36,11 +37,16 @@
       "test-netconnection", "test-connection", "resolve-dnsname", "test-path",
       "systeminfo", "ipconfig", "net", "net1", "nltest", "dsquery", "dsget",
       "netsh", "tasklist", "quser", "qwinsta", "query", "wmic", "sc", "reg",
-      "route", "nbtstat", "setspn", "klist", "dsregcmd", "cmdkey", "where"
+      "route", "nbtstat", "setspn", "klist", "dsregcmd", "cmdkey", "where",
+      "get-mgauditlogdirectoryaudit", "get-mgauditlogsignin",
+      "get-mgsecurityalert", "get-azactivitylog", "get-mgdomain",
+      "get-mgoauth2permissiongrant",
+      "get-mgserviceprincipalapproleassignment"
     ]
   },
   {
     "tactic": "CredentialAccess",
+    "severity": "high",
     "commands": [
       "hydra", "medusa", "ncrack", "john", "hashcat", "kerbrute",
       "secretsdump.py", "impacket-secretsdump", "mimikatz", "lazagne",
@@ -64,11 +70,15 @@
       "get-certificate", "get-credential", "convertto-securestring",
       "convertfrom-securestring", "get-secret", "get-azkeyvaultsecret",
       "get-azkeyvaultcertificate", "get-azkeyvaultkey", "get-azaccesstoken",
-      "get-storedcredential"
+      "get-storedcredential",
+      "backup-azkeyvaultsecret", "backup-azkeyvaultkey",
+      "backup-azkeyvaultcertificate", "get-azstorageaccountkey",
+      "get-msaltoken"
     ]
   },
   {
     "tactic": "LateralMovement",
+    "severity": "high",
     "commands": [
       "ssh", "sshpass", "psexec.py", "wmiexec.py", "smbexec.py",
       "evil-winrm", "xfreerdp", "rdesktop", "ansible", "ansible-playbook",
@@ -76,11 +86,13 @@
       "invoke-wmimethod", "invoke-cimmethod", "new-cimsession", "psexec",
       "psexec64", "winrs", "mstsc", "connect-mggraph", "connect-azaccount",
       "connect-azuread", "connect-msolservice", "connect-exchangeonline",
-      "connect-aadintazuread", "connect-pnponline"
+      "connect-aadintazuread", "connect-pnponline",
+      "connect-ippssession"
     ]
   },
   {
     "tactic": "Execution",
+    "severity": "medium",
     "commands": [
       "python", "python3", "perl", "ruby", "php", "node", "bash", "sh",
       "zsh", "eval", "msfconsole", "msfvenom", "sqlmap", "gcc", "make",
@@ -96,6 +108,7 @@
   },
   {
     "tactic": "Persistence",
+    "severity": "high",
     "commands": [
       "crontab", "useradd", "adduser", "usermod", "chpasswd", "passwd",
       "ssh-keygen", "at", "schtasks", "register-scheduledtask",
@@ -115,31 +128,49 @@
       "new-azureadapplicationpasswordcredential",
       "new-azureadserviceprincipalkeycredential", "new-aadintbackdoor",
       "convertto-aadintbackdoor", "set-msoldomainauthentication",
-      "set-adsyncaadcompanyfeature"
+      "set-adsyncaadcompanyfeature",
+      "set-azureadapplication", "new-azureadapplication",
+      "new-azureadserviceprincipal", "new-azadapplication",
+      "new-azadserviceprincipal",
+      "new-mgapplicationfederatedidentitycredential",
+      "new-mgserviceprincipalapproleassignment",
+      "new-azureadserviceapproleassignment", "new-mgoauth2permissiongrant",
+      "new-mgrolemanagementdirectoryroleassignment",
+      "new-mgdomainfederationconfiguration",
+      "set-msoldomainfederationsettings"
     ]
   },
   {
     "tactic": "DefenseEvasion",
+    "severity": "medium",
     "commands": [
       "shred", "chattr", "setenforce", "iptables", "ufw", "auditctl",
       "truncate", "history", "set-mppreference", "add-mppreference",
       "clear-eventlog", "remove-eventlog", "wevtutil", "clear-history",
       "set-executionpolicy", "unblock-file", "auditpol", "fsutil", "bcdedit",
       "vssadmin", "wbadmin",
-      "format-hex"
+      "format-hex",
+      "set-adminauditlogconfig", "set-mailboxauditbypassassociation",
+      "remove-azdiagnosticsetting"
     ]
   },
   {
     "tactic": "Collection",
+    "severity": "medium",
     "commands": [
       "tar", "zip", "7z", "gzip", "mysqldump", "pg_dump", "mongodump",
       "mysql", "psql", "sqlite3", "redis-cli", "mongosh", "dd", "sqlcmd",
       "compress-archive", "expand-archive", "invoke-sqlcmd", "robocopy",
-      "xcopy"
+      "xcopy",
+      "export-mailbox", "new-mailboxexportrequest", "search-mailbox",
+      "search-unifiedauditlog", "new-compliancesearch",
+      "start-compliancesearch", "new-compliancesearchaction",
+      "get-mgusermessage"
     ]
   },
   {
     "tactic": "Exfiltration",
+    "severity": "high",
     "commands": [
       "curl", "wget", "nc", "ncat", "netcat", "socat", "scp", "sftp", "ftp",
       "rsync", "rclone", "gsutil", "azcopy", "openssl", "ngrok", "chisel",

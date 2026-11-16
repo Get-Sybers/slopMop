@@ -12,9 +12,23 @@ All notable changes to this project are recorded in this file. The format follow
   `trace list` extracts their imports, variables, file reads and writes, transforms, network and
   process calls, and the commands those process calls run. The Python calls are classified in
   `tactics.json`.
+- `finding list --inputdir <folder>`: one finding per distinct indicator and per tactic, with
+  severity, contributing files and, with `--intelfile`, attribution. Selectors `-indicator` and
+  `-tactic`.
+- `report list --inputdir <folder>`: summary metrics of an analysis: files, scripts, outputs,
+  distinct indicators in total and by type, distinct tactics and, with `--intelfile`, intel hits.
+- `campaign list --intelfile <file>`: the distinct attributions in a watchlist with their entry
+  counts.
+- A `severity` of `low`, `medium` or `high` for each tactic in `internal/tactic/tactics.json`.
 - `--intelfile <file>` parameter for `trace list`: loads a JSON watchlist of known indicators and
   matches them against extracted IoCs, showing attributions in the new INTEL column.
 - Package `internal/intel` for loading and matching threat intelligence watchlists.
+- Cloud commands in `tactics.json`: Entra ID, Microsoft Graph, Azure, Key Vault and Exchange Online
+  cmdlets for audit-log discovery, Key Vault backup, application and federation persistence,
+  audit evasion and mailbox collection.
+- Indicator types `GUID`, `GraphEndpoint`, `AzureManagementEndpoint`, `EntraLoginEndpoint`,
+  `KeyVaultEndpoint` and `OAuthScope` in `indicators.json`. A Microsoft endpoint is reported under
+  its own type, not as `URL`, and a lookalike host is not reported as an endpoint.
 - Go module `github.com/get-sybers/slopmop` with the command `slopmop`.
 - Command grammar `slopmop NOUN VERB [selectors] [--params] [output flags] [positional]` with
   enforced flag prefixes, generated help and exit codes 0, 1 and 2.

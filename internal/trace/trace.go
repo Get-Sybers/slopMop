@@ -23,6 +23,7 @@ type Step struct {
 	Transforms []string
 	Outputs    []string
 	Indicators int
+	Matches    []indicator.Match
 	IntelHits  []intel.Hit
 }
 
@@ -61,6 +62,7 @@ func Build(files []evidence.File, texts map[string]string, tactics tactic.Table,
 		if text := texts[f.Path]; text != "" {
 			matches := patterns.Extract(text)
 			s.Indicators = len(matches)
+			s.Matches = matches
 			if watchlist != nil {
 				s.IntelHits = watchlist.Match(matches)
 			}

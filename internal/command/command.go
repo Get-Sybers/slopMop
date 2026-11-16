@@ -33,8 +33,11 @@ func Register(app *cli.App, env Env) error {
 		return err
 	}
 	return register(app, nouns, map[string]builder{
-		"file list":  env.fileList,
-		"trace list": env.traceList,
+		"file list":     env.fileList,
+		"trace list":    env.traceList,
+		"finding list":  env.findingList,
+		"report list":   env.reportList,
+		"campaign list": env.campaignList,
 	})
 }
 

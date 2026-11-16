@@ -32,6 +32,19 @@ func TestExtract(t *testing.T) {
 		{"private key", "-----BEGIN RSA PRIVATE KEY-----", "PrivateKey", "-----BEGIN RSA PRIVATE KEY-----"},
 		{"email", "user admin@corp.example", "Email", "admin@corp.example"},
 		{"domain", "host ca01.corp.example", "Domain", "ca01.corp.example"},
+		{"guid", "-TenantId 8F3C2A10-7b6d-4e21-9a55-0c1d2e3f4a5b", "GUID", "8F3C2A10-7b6d-4e21-9a55-0c1d2e3f4a5b"},
+		{"graph", "irm https://graph.microsoft.com/v1.0/users?$top=5", "GraphEndpoint", "https://graph.microsoft.com/v1.0/users?$top=5"},
+		{"graph bare host", "-Resource https://graph.microsoft.com", "GraphEndpoint", "https://graph.microsoft.com"},
+		{"graph legacy", "https://graph.windows.net/me", "GraphEndpoint", "https://graph.windows.net/me"},
+		{"management", "'https://management.azure.com/subscriptions?api-version=2022-12-01'", "AzureManagementEndpoint", "https://management.azure.com/subscriptions?api-version=2022-12-01"},
+		{"login", "https://login.microsoftonline.com/common/oauth2/v2.0/token", "EntraLoginEndpoint", "https://login.microsoftonline.com/common/oauth2/v2.0/token"},
+		{"key vault", "https://corp-kv01.vault.azure.net/secrets/sql?api-version=7.4", "KeyVaultEndpoint", "https://corp-kv01.vault.azure.net/secrets/sql?api-version=7.4"},
+		{"scope default", "scope=https://graph.microsoft.com/.default", "OAuthScope", "https://graph.microsoft.com/.default"},
+		{"scope app uri", "api://8f3c2a10-7b6d-4e21-9a55-0c1d2e3f4a5b/.default", "OAuthScope", "api://8f3c2a10-7b6d-4e21-9a55-0c1d2e3f4a5b/.default"},
+		{"scope permission", "-Scopes 'Directory.ReadWrite.All'", "OAuthScope", "Directory.ReadWrite.All"},
+		{"scope two parts", "Mail.Send", "OAuthScope", "Mail.Send"},
+		{"scope qualifier", "RoleManagement.ReadWrite.Directory", "OAuthScope", "RoleManagement.ReadWrite.Directory"},
+		{"scope offline", "openid offline_access", "OAuthScope", "offline_access"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -125,6 +138,22 @@ func TestExtractBoundaries(t *testing.T) {
 		{"domain property", "$obj.Count", "Domain", nil},
 		{"domain sentence end", "see evil.example.com.", "Domain", []string{"evil.example.com"}},
 		{"domain path", "evil.example.com/a", "Domain", []string{"evil.example.com"}},
+		{"guid short", "id 8f3c2a10-7b6d-4e21-9a55-0c1d2e3f4a5", "GUID", nil},
+		{"guid long", "id 8f3c2a10-7b6d-4e21-9a55-0c1d2e3f4a5b6", "GUID", nil},
+		{"guid not hex", "id 8f3c2a10-7b6d-4e21-9a55-0c1d2e3f4a5g", "GUID", nil},
+		{"guid braces", "{8f3c2a10-7b6d-4e21-9a55-0c1d2e3f4a5b}", "GUID", []string{"8f3c2a10-7b6d-4e21-9a55-0c1d2e3f4a5b"}},
+		{"graph lookalike suffix", "https://graph.microsoft.com.evil.example/v1.0", "GraphEndpoint", nil},
+		{"graph lookalike userinfo", "https://graph.microsoft.com@evil.example/", "GraphEndpoint", nil},
+		{"graph lookalike prefix", "https://evilgraph.microsoft.com/v1.0", "GraphEndpoint", nil},
+		{"graph not url", "https://graph.microsoft.com/v1.0/me", "URL", nil},
+		{"graph sentence end", "see https://graph.microsoft.com.", "GraphEndpoint", []string{"https://graph.microsoft.com"}},
+		{"management lookalike", "https://management.azure.com-evil.example/", "AzureManagementEndpoint", nil},
+		{"key vault lookalike", "https://kv01.vault.azure.net.evil.example/secrets", "KeyVaultEndpoint", nil},
+		{"scope method call", "$Stream.Read($buf, 0, 4)", "OAuthScope", nil},
+		{"scope namespace", "[System.IO.File]::ReadAllText", "OAuthScope", nil},
+		{"scope member chain", "Mail.Read.Length", "OAuthScope", nil},
+		{"scope lower case", "$user.read", "OAuthScope", nil},
+		{"scope list", "User.Read.All,Mail.ReadWrite", "OAuthScope", []string{"User.Read.All", "Mail.ReadWrite"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
