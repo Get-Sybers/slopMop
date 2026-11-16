@@ -6,6 +6,7 @@ import (
 	"github.com/get-sybers/slopmop/internal/evidence"
 	"github.com/get-sybers/slopmop/internal/evidencetest"
 	"github.com/get-sybers/slopmop/internal/indicator"
+	"github.com/get-sybers/slopmop/internal/intel"
 	"github.com/get-sybers/slopmop/internal/inventory"
 	"github.com/get-sybers/slopmop/internal/tactic"
 )
@@ -30,7 +31,7 @@ func TestBuildBash(t *testing.T) {
 		t.Fatal(err)
 	}
 	tac, ind := loadTables(t)
-	tl := Build(res.Files, res.Texts, tac, ind)
+	tl := Build(res.Files, res.Texts, tac, ind, nil)
 	if len(tl.Steps) == 0 {
 		t.Fatal("no steps")
 	}
@@ -55,7 +56,7 @@ func TestBuildHasToolsAndTactics(t *testing.T) {
 		t.Fatal(err)
 	}
 	tac, ind := loadTables(t)
-	tl := Build(res.Files, res.Texts, tac, ind)
+	tl := Build(res.Files, res.Texts, tac, ind, nil)
 	foundTools := false
 	foundTactics := false
 	for _, s := range tl.Steps {
@@ -81,7 +82,7 @@ func TestBuildHasIndicators(t *testing.T) {
 		t.Fatal(err)
 	}
 	tac, ind := loadTables(t)
-	tl := Build(res.Files, res.Texts, tac, ind)
+	tl := Build(res.Files, res.Texts, tac, ind, nil)
 	total := 0
 	for _, s := range tl.Steps {
 		total += s.Indicators
@@ -93,7 +94,7 @@ func TestBuildHasIndicators(t *testing.T) {
 
 func TestBuildEmpty(t *testing.T) {
 	tac, ind := loadTables(t)
-	tl := Build(nil, nil, tac, ind)
+	tl := Build(nil, nil, tac, ind, nil)
 	if len(tl.Steps) != 0 {
 		t.Errorf("steps = %d, want 0", len(tl.Steps))
 	}
@@ -122,7 +123,7 @@ func TestLinkOutputsByBaseName(t *testing.T) {
 	}
 	tac, ind := loadTables(t)
 	got := map[string][]string{}
-	for _, s := range Build(files, texts, tac, ind).Steps {
+	for _, s := range Build(files, texts, tac, ind, nil).Steps {
 		got[s.File.Path] = s.Outputs
 	}
 	if o := got["run.sh"]; len(o) != 1 || o[0] != "out.txt" {
@@ -130,6 +131,30 @@ func TestLinkOutputsByBaseName(t *testing.T) {
 	}
 	if o := got["run.ps1"]; len(o) != 1 || o[0] != "loot/dump.log" {
 		t.Errorf("run.ps1 outputs = %v, want [loot/dump.log]", o)
+	}
+}
+
+func TestBuildWithWatchlist(t *testing.T) {
+	folder := evidencetest.Copy(t, "bash")
+	res, err := inventory.ReadAll(folder)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tac, ind := loadTables(t)
+
+	// Build a watchlist with an IP that appears in the bash fixtures.
+	wlData := []byte(`[{"value": "10.20.1.5", "attribution": "TEST-ACTOR"}]`)
+	wl, err := intel.LoadWatchlist(wlData)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tl := Build(res.Files, res.Texts, tac, ind, &wl)
+	totalHits := 0
+	for _, s := range tl.Steps {
+		totalHits += len(s.IntelHits)
+	}
+	if totalHits == 0 {
+		t.Error("expected at least one intel hit against 10.20.1.5")
 	}
 }
 

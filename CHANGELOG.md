@@ -8,6 +8,9 @@ All notable changes to this project are recorded in this file. The format follow
 
 ### Added
 
+- `--intelfile <file>` parameter for `trace list`: loads a JSON watchlist of known indicators and
+  matches them against extracted IoCs, showing attributions in the new INTEL column.
+- Package `internal/intel` for loading and matching threat intelligence watchlists.
 - Go module `github.com/get-sybers/slopmop` with the command `slopmop`.
 - Command grammar `slopmop NOUN VERB [selectors] [--params] [output flags] [positional]` with
   enforced flag prefixes, generated help and exit codes 0, 1 and 2.
