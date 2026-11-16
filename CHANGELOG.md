@@ -8,6 +8,11 @@ All notable changes to this project are recorded in this file. The format follow
 
 ### Added
 
+- `--recursive` switch, short form `-r`, for `file list` and `trace list`: reads the sub-folders of
+  the input directory, 16 levels down, and names each file by its path below that directory. A
+  sub-folder that is deeper or unreadable is named in an error after the rows. Closes #9.
+- Switch flag kind in the grammar: `cli.Spec.Switches` declares a double-dash flag without a value
+  and its one-letter short form.
 - `--intelfile <file>` parameter for `trace list`: loads a JSON watchlist of known indicators and
   matches them against extracted IoCs, showing attributions in the new INTEL column.
 - Package `internal/intel` for loading and matching threat intelligence watchlists.

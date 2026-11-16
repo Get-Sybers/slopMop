@@ -26,7 +26,7 @@ func loadTables(t *testing.T) (tactic.Table, indicator.Table) {
 
 func TestBuildBash(t *testing.T) {
 	folder := evidencetest.Copy(t, "bash")
-	res, err := inventory.ReadAll(folder)
+	res, err := inventory.ReadAll(folder, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,7 +51,7 @@ func TestBuildBash(t *testing.T) {
 
 func TestBuildHasToolsAndTactics(t *testing.T) {
 	folder := evidencetest.Copy(t, "bash")
-	res, err := inventory.ReadAll(folder)
+	res, err := inventory.ReadAll(folder, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -77,7 +77,7 @@ func TestBuildHasToolsAndTactics(t *testing.T) {
 
 func TestBuildHasIndicators(t *testing.T) {
 	folder := evidencetest.Copy(t, "bash")
-	res, err := inventory.ReadAll(folder)
+	res, err := inventory.ReadAll(folder, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -136,7 +136,7 @@ func TestLinkOutputsByBaseName(t *testing.T) {
 
 func TestBuildWithWatchlist(t *testing.T) {
 	folder := evidencetest.Copy(t, "bash")
-	res, err := inventory.ReadAll(folder)
+	res, err := inventory.ReadAll(folder, 0)
 	if err != nil {
 		t.Fatal(err)
 	}

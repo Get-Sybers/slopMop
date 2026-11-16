@@ -50,8 +50,16 @@ standard output and standard error.
 
 - The input directory is opened as a root (`os.OpenRoot`) and every file is opened through it read-only, so
   no path leads outside the folder.
-- Only regular files directly in the folder are listed. Symbolic links, sub-folders and special
-  files are skipped without being opened. Hidden files are listed.
+- Only regular files are listed. Symbolic links and special files are skipped without being
+  opened. Hidden files are listed.
+- A read takes a depth. At depth 0 only the files directly in the folder are listed and sub-folders
+  are skipped. `--recursive` reads at `inventory.MaxDepth`, 16 levels of sub-folder. Each
+  sub-folder is opened through the same root. A symbolic link to a folder is not walked, so a walk
+  cannot loop or leave the folder.
+- A file's path is below the input directory and slash separated. Its role and file-name timestamp
+  come from the last element only.
+- A sub-folder below the depth, or one that cannot be read, is recorded in `Result.Skipped` and the
+  verb reports it as an error after the rows.
 - Each file is read once. That one pass feeds SHA-256, counts the bytes and keeps the bytes the text
   needs. A file over 64 MiB is hashed and noted `oversize`; its text is not kept.
 - A file that cannot be opened or read is listed with the note `unreadable`.

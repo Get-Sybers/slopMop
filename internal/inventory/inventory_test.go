@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 	"time"
 
@@ -17,10 +18,11 @@ import (
 func TestReadFixtures(t *testing.T) {
 	for _, name := range evidencetest.List() {
 		t.Run(name, func(t *testing.T) {
-			files, err := Read(evidencetest.Copy(t, name))
+			res, err := Read(evidencetest.Copy(t, name), 0)
 			if err != nil {
 				t.Fatal(err)
 			}
+			files := res.Files
 			var out bytes.Buffer
 			for _, f := range files {
 				stamp := "-"
@@ -81,10 +83,11 @@ func TestReadClassifies(t *testing.T) {
 			if err := os.WriteFile(filepath.Join(folder, c.file), c.data, 0o600); err != nil {
 				t.Fatal(err)
 			}
-			files, err := Read(folder)
+			res, err := Read(folder, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
+			files := res.Files
 			if len(files) != 1 {
 				t.Fatalf("%d files, want 1", len(files))
 			}
@@ -112,7 +115,7 @@ func TestReadOversize(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	res, err := readAll(folder, 8, false)
+	res, err := readAll(folder, 8, 0, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -149,10 +152,11 @@ func TestReadSkipsWhatIsNotARegularFile(t *testing.T) {
 			t.Skipf("symbolic links are not available: %v", err)
 		}
 	}
-	files, err := Read(folder)
+	res, err := Read(folder, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
+	files := res.Files
 	if len(files) != 1 || files[0].Path != "kept.txt" {
 		t.Errorf("files = %+v, want only kept.txt", files)
 	}
@@ -168,20 +172,22 @@ func TestReadUnreadable(t *testing.T) {
 		h.Close()
 		t.Skip("this user can read a file with no permissions")
 	}
-	files, err := Read(folder)
+	res, err := Read(folder, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
+	files := res.Files
 	if len(files) != 1 || files[0].Note != evidence.Unreadable || files[0].SHA256 != "" {
 		t.Errorf("files = %+v, want one unreadable row without a hash", files)
 	}
 }
 
 func TestReadEmptyFolder(t *testing.T) {
-	files, err := Read(t.TempDir())
+	res, err := Read(t.TempDir(), 0)
 	if err != nil {
 		t.Fatal(err)
 	}
+	files := res.Files
 	if len(files) != 0 {
 		t.Errorf("%d files, want 0", len(files))
 	}
@@ -194,9 +200,127 @@ func TestReadNotFolder(t *testing.T) {
 	}
 	for name, path := range map[string]string{"missing": filepath.Join(t.TempDir(), "missing"), "a file": file} {
 		t.Run(name, func(t *testing.T) {
-			if _, err := Read(path); !errors.Is(err, ErrNotFolder) {
+			if _, err := Read(path, 0); !errors.Is(err, ErrNotFolder) {
 				t.Errorf("Read(%s) error = %v, want ErrNotFolder", name, err)
 			}
 		})
+	}
+}
+
+// writeTree writes each slash-separated path below folder, making its parents.
+func writeTree(t *testing.T, folder string, paths ...string) {
+	t.Helper()
+	for _, p := range paths {
+		full := filepath.Join(folder, filepath.FromSlash(p))
+		if err := os.MkdirAll(filepath.Dir(full), 0o700); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(full, []byte("#!/bin/bash\nid\n"), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func TestReadDepth(t *testing.T) {
+	folder := t.TempDir()
+	writeTree(t, folder, "top.sh", "host1/20250301_101500_recon.sh", "host1/out/recon.txt", "host2/a/b/deep")
+	if err := os.Mkdir(filepath.Join(folder, "empty"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	all := []string{"host1/20250301_101500_recon.sh", "host1/out/recon.txt", "host2/a/b/deep", "top.sh"}
+	cases := []struct {
+		name    string
+		depth   int
+		files   []string
+		skipped []string
+	}{
+		{"flat", 0, []string{"top.sh"}, nil},
+		{"one level", 1, []string{"host1/20250301_101500_recon.sh", "top.sh"}, []string{"host1/out", "host2/a"}},
+		{"two levels", 2, all[:2:2], []string{"host2/a/b"}},
+		{"three levels", 3, all, nil},
+		{"the limit", MaxDepth, all, nil},
+	}
+	cases[2].files = append(cases[2].files, "top.sh")
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			res, err := ReadAll(folder, c.depth)
+			if err != nil {
+				t.Fatal(err)
+			}
+			paths := make([]string, len(res.Files))
+			for i, f := range res.Files {
+				paths[i] = f.Path
+				if f.Name != filepath.Base(f.Path) {
+					t.Errorf("%s: name %q, want the last element", f.Path, f.Name)
+				}
+				if res.Texts[f.Path] == "" {
+					t.Errorf("%s: no text kept", f.Path)
+				}
+			}
+			if !slices.Equal(paths, c.files) {
+				t.Errorf("files = %q, want %q", paths, c.files)
+			}
+			if !slices.Equal(res.Skipped, c.skipped) {
+				t.Errorf("skipped = %q, want %q", res.Skipped, c.skipped)
+			}
+		})
+	}
+}
+
+func TestReadDepthClassifiesByLastElement(t *testing.T) {
+	folder := t.TempDir()
+	writeTree(t, folder, "20250301_101500.d/run", "logs.txt/20250302_090000_step.ps1")
+	res, err := Read(folder, MaxDepth)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(res.Files) != 2 {
+		t.Fatalf("%d files, want 2", len(res.Files))
+	}
+	run, step := res.Files[0], res.Files[1]
+	if run.Role != evidence.Script || run.Stamped {
+		t.Errorf("%s: role %q stamped %t, want a script by shebang without a stamp", run.Path, run.Role, run.Stamped)
+	}
+	if step.Role != evidence.Script || !step.Stamped {
+		t.Errorf("%s: role %q stamped %t, want a stamped script", step.Path, step.Role, step.Stamped)
+	}
+}
+
+func TestReadDepthDoesNotFollowLinks(t *testing.T) {
+	folder, outside := t.TempDir(), t.TempDir()
+	writeTree(t, folder, "sub/kept.sh")
+	writeTree(t, outside, "secret.sh")
+	for link, target := range map[string]string{"escape": outside, "sub/loop": folder, "sub/again": "."} {
+		if err := os.Symlink(target, filepath.Join(folder, filepath.FromSlash(link))); err != nil {
+			t.Skipf("symbolic links are not available: %v", err)
+		}
+	}
+	res, err := Read(folder, MaxDepth)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(res.Files) != 1 || res.Files[0].Path != "sub/kept.sh" || len(res.Skipped) != 0 {
+		t.Errorf("files = %+v skipped = %q, want only sub/kept.sh", res.Files, res.Skipped)
+	}
+}
+
+func TestReadDepthUnreadableFolder(t *testing.T) {
+	folder := t.TempDir()
+	writeTree(t, folder, "open/a.sh", "locked/b.sh")
+	locked := filepath.Join(folder, "locked")
+	if err := os.Chmod(locked, 0o000); err != nil {
+		t.Fatal(err)
+	}
+	//nolint:gosec // a folder needs its search bit before the test can remove it
+	t.Cleanup(func() { _ = os.Chmod(locked, 0o700) })
+	if _, err := os.ReadDir(locked); err == nil {
+		t.Skip("this user can read a folder with no permissions")
+	}
+	res, err := Read(folder, MaxDepth)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(res.Files) != 1 || res.Files[0].Path != "open/a.sh" || !slices.Equal(res.Skipped, []string{"locked"}) {
+		t.Errorf("files = %+v skipped = %q, want open/a.sh and locked skipped", res.Files, res.Skipped)
 	}
 }
