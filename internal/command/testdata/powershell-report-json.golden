@@ -13,7 +13,7 @@
   },
   {
     "metric": "indicators",
-    "value": 12
+    "value": 13
   },
   {
     "metric": "indicators Base64Blob",
@@ -25,6 +25,10 @@
   },
   {
     "metric": "indicators EncodedCommand",
+    "value": 1
+  },
+  {
+    "metric": "indicators GUID",
     "value": 1
   },
   {

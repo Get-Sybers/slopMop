@@ -16,7 +16,7 @@ about evidence touch no file, and every static table is a data file validated at
 | `internal/nametime` | detects the timestamp written into a file name; no I/O |
 | `internal/parse` | extracts commands, variables and file references from bash and PowerShell scripts |
 | `internal/tactic` | classifies commands by MITRE ATT&CK tactic and ranks each tactic's severity using `tactics.json` |
-| `internal/indicator` | extracts security indicators (IPs, URLs, hashes, CVEs) using `indicators.json` |
+| `internal/indicator` | extracts security indicators (IPs, URLs, hashes, CVEs, GUIDs, Microsoft cloud endpoints, OAuth scopes) using `indicators.json` |
 | `internal/trace` | reconstructs the timeline from scripts and outputs: ordering, tool extraction, tactic classification, indicator counting, output linking |
 | `internal/evidencetest` | embeds the fixtures and copies one into a temporary folder for a test |
 | `internal/golden` | compares test output with a golden file; owns the `-update` flag |

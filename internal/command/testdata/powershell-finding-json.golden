@@ -16,6 +16,14 @@
     "attribution": null
   },
   {
+    "finding": "GUID",
+    "severity": "high",
+    "tactic": "CredentialAccess, Discovery, LateralMovement",
+    "indicator": "6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c",
+    "files": "20250302_091500_step04_certs.ps1, 20250302_092200_step05_export.ps1, sync_10.20.1.17_retry_20250302_090930.txt",
+    "attribution": null
+  },
+  {
     "finding": "IPv4",
     "severity": "high",
     "tactic": "CredentialAccess, Discovery, LateralMovement",

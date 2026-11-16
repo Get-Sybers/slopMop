@@ -37,7 +37,11 @@
       "test-netconnection", "test-connection", "resolve-dnsname", "test-path",
       "systeminfo", "ipconfig", "net", "net1", "nltest", "dsquery", "dsget",
       "netsh", "tasklist", "quser", "qwinsta", "query", "wmic", "sc", "reg",
-      "route", "nbtstat", "setspn", "klist", "dsregcmd", "cmdkey", "where"
+      "route", "nbtstat", "setspn", "klist", "dsregcmd", "cmdkey", "where",
+      "get-mgauditlogdirectoryaudit", "get-mgauditlogsignin",
+      "get-mgsecurityalert", "get-azactivitylog", "get-mgdomain",
+      "get-mgoauth2permissiongrant",
+      "get-mgserviceprincipalapproleassignment"
     ]
   },
   {
@@ -66,7 +70,10 @@
       "get-certificate", "get-credential", "convertto-securestring",
       "convertfrom-securestring", "get-secret", "get-azkeyvaultsecret",
       "get-azkeyvaultcertificate", "get-azkeyvaultkey", "get-azaccesstoken",
-      "get-storedcredential"
+      "get-storedcredential",
+      "backup-azkeyvaultsecret", "backup-azkeyvaultkey",
+      "backup-azkeyvaultcertificate", "get-azstorageaccountkey",
+      "get-msaltoken"
     ]
   },
   {
@@ -79,7 +86,8 @@
       "invoke-wmimethod", "invoke-cimmethod", "new-cimsession", "psexec",
       "psexec64", "winrs", "mstsc", "connect-mggraph", "connect-azaccount",
       "connect-azuread", "connect-msolservice", "connect-exchangeonline",
-      "connect-aadintazuread", "connect-pnponline"
+      "connect-aadintazuread", "connect-pnponline",
+      "connect-ippssession"
     ]
   },
   {
@@ -117,7 +125,16 @@
       "new-azureadapplicationpasswordcredential",
       "new-azureadserviceprincipalkeycredential", "new-aadintbackdoor",
       "convertto-aadintbackdoor", "set-msoldomainauthentication",
-      "set-adsyncaadcompanyfeature"
+      "set-adsyncaadcompanyfeature",
+      "set-azureadapplication", "new-azureadapplication",
+      "new-azureadserviceprincipal", "new-azadapplication",
+      "new-azadserviceprincipal",
+      "new-mgapplicationfederatedidentitycredential",
+      "new-mgserviceprincipalapproleassignment",
+      "new-azureadserviceapproleassignment", "new-mgoauth2permissiongrant",
+      "new-mgrolemanagementdirectoryroleassignment",
+      "new-mgdomainfederationconfiguration",
+      "set-msoldomainfederationsettings"
     ]
   },
   {
@@ -129,7 +146,9 @@
       "clear-eventlog", "remove-eventlog", "wevtutil", "clear-history",
       "set-executionpolicy", "unblock-file", "auditpol", "fsutil", "bcdedit",
       "vssadmin", "wbadmin",
-      "format-hex"
+      "format-hex",
+      "set-adminauditlogconfig", "set-mailboxauditbypassassociation",
+      "remove-azdiagnosticsetting"
     ]
   },
   {
@@ -139,7 +158,11 @@
       "tar", "zip", "7z", "gzip", "mysqldump", "pg_dump", "mongodump",
       "mysql", "psql", "sqlite3", "redis-cli", "mongosh", "dd", "sqlcmd",
       "compress-archive", "expand-archive", "invoke-sqlcmd", "robocopy",
-      "xcopy"
+      "xcopy",
+      "export-mailbox", "new-mailboxexportrequest", "search-mailbox",
+      "search-unifiedauditlog", "new-compliancesearch",
+      "start-compliancesearch", "new-compliancesearchaction",
+      "get-mgusermessage"
     ]
   },
   {
