@@ -425,6 +425,73 @@ func TestAssessmentCoversEveryActivity(t *testing.T) {
 	}
 }
 
+// A tactic an activity claims must be one ATT&CK files its techniques
+// under, and every identifier must be one the catalogue lists.
+func TestActivitiesAgreeWithTheCatalogue(t *testing.T) {
+	pipe, err := loadPipeline()
+	if err != nil {
+		t.Fatal(err)
+	}
+	pipe.activities.Each(func(name string, tactics, attack, _ []string) {
+		var official []string
+		for _, id := range attack {
+			official = append(official, pipe.catalogue.Attack.TacticsOf(id)...)
+		}
+		for _, tactic := range tactics {
+			if id := pipe.tactics.Attack(tactic); !slices.Contains(official, id) {
+				t.Errorf("%s claims %s (%s), which ATT&CK does not give to %q", name, tactic, id, attack)
+			}
+		}
+	})
+}
+
+// The mitigation section is derived: each row is a mitigation the framework
+// links to a technique that was found.
+func TestReportMitigationsComeFromTheCatalogue(t *testing.T) {
+	pipe, err := loadPipeline()
+	if err != nil {
+		t.Fatal(err)
+	}
+	folder := evidencetest.Copy(t, "lolbin")
+	out, err := run(t, "report", "list", "--inputdir", folder, "-mitigation", "-q")
+	if err != nil {
+		t.Fatal(err)
+	}
+	rows := strings.Split(strings.TrimSpace(out), "\n")
+	attack, atlas := 0, 0
+	for _, row := range rows {
+		id, name, _ := strings.Cut(row, " ")
+		switch {
+		case strings.HasPrefix(id, "AML.M"):
+			atlas++
+			if got := pipe.catalogue.Atlas.Mitigations[id].Name; got != name {
+				t.Errorf("%s is named %q, the catalogue says %q", id, name, got)
+			}
+		case strings.HasPrefix(id, "M"):
+			if atlas > 0 {
+				t.Errorf("%s follows an ATLAS mitigation; ATT&CK comes first", id)
+			}
+			attack++
+			if got := pipe.catalogue.Attack.Mitigations[id].Name; got != name {
+				t.Errorf("%s is named %q, the catalogue says %q", id, name, got)
+			}
+		default:
+			t.Errorf("row %q is not a mitigation of either framework", row)
+		}
+	}
+	if attack == 0 || atlas == 0 {
+		t.Errorf("%d ATT&CK and %d ATLAS mitigations, want some of each", attack, atlas)
+	}
+	// The premise of the tool brings in the ATLAS technique for generated commands.
+	if !strings.Contains(out, "AML.M0020 Generative AI Guardrails") {
+		t.Errorf("mitigations = %q, want the one ATLAS gives for generated commands", out)
+	}
+	empty, err := run(t, "report", "list", "--inputdir", t.TempDir(), "-impact", "-remediation", "-mitigation", "--no-headers")
+	if err != nil || empty != "" {
+		t.Errorf("an empty folder gives %q and %v, want no assessment", empty, err)
+	}
+}
+
 func TestPipelineRejectsAnUnknownTactic(t *testing.T) {
 	pipe, err := loadPipeline()
 	if err != nil {

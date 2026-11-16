@@ -1,52 +1,66 @@
-ITEM                                          SECTION      VALUE   DETAIL
-files                                         summary      11      -
-scripts                                       summary      5       -
-outputs                                       summary      6       -
-indicators                                    summary      32      -
-indicators Domain                             summary      6       -
-indicators Email                              summary      2       -
-indicators EntraLoginEndpoint                 summary      1       -
-indicators GUID                               summary      4       -
-indicators GraphEndpoint                      summary      11      -
-indicators IPv4                               summary      2       -
-indicators KeyVaultEndpoint                   summary      3       -
-indicators OAuthScope                         summary      1       -
-indicators URL                                summary      2       -
-activities                                    summary      12      -
-activities AppCredentialAddition              summary      1       -
-activities AppRoleAssignment                  summary      2       -
-activities AzureResourceEnumeration           summary      1       -
-activities GlobalAdministratorAssignment      summary      1       -
-activities GraphDirectoryEnumeration          summary      4       -
-activities KeyVaultKeyEnumeration             summary      2       -
-activities KeyVaultKeyUnwrap                  summary      1       -
-activities KeyVaultSecretRead                 summary      3       -
-activities MailboxAccess                      summary      1       -
-activities SharePointEnumeration              summary      2       -
-activities TeamsMessageAccess                 summary      1       -
-activities TokenRequest                       summary      2       -
-tactics                                       summary      7       -
-intel hits                                    summary      2       -
-20261015_090000_step01_token.sh               script       high    TokenRequest, watchlist STORM-0940
-20261015_091000_step03_escalate.ps1           script       high    GlobalAdministratorAssignment, AppRoleAssignment, AppCredentialAddition
-20261015_092000_step04_collect.py             script       high    SharePointEnumeration
-20261015_093000_step05_vault.sh               script       high    KeyVaultSecretRead, KeyVaultKeyUnwrap
-agent_20261015_093500.jsonl                   output       high    AppRoleAssignment, KeyVaultSecretRead, watchlist STORM-0940
-Privileged access obtained                    impact       high    A principal was given a privileged role or permission. Treat what it governs as under attacker control until reviewed.
-Credentials exposed                           impact       high    Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker. Affected: corpvault.vault.azure.net, finvault.vault.azure.net.
-Persistence established                       impact       high    A way back in was created: a credential, a run key, a task or a service. Access survives a password reset.
-Valid identity used                           impact       high    The attacker signed in as an identity that exists. Sign-in controls did not stop it.
-Known threat infrastructure involved          impact       high    The evidence names infrastructure on the watchlist, which ties the activity to a known actor.
-Data collected                                impact       high    Mail, chat or documents were read in bulk. Treat their content as disclosed. Affected: alice@corp.example, bob@corp.example.
-Environment mapped                            impact       low     Identities, resources or configuration were listed. Later steps were probably aimed with the result.
-Revoke sessions and reset identities          remediation  high    Revoke the sessions and tokens of every identity in the evidence and reset its credentials.
-Remove added credentials                      remediation  high    Remove every password and key added to an application or service principal, then review all credentials added since the first step.
-Remove role and permission grants             remediation  high    Remove the role assignments and application permissions that were granted, then review every privileged member and consent.
-Rotate what was read                          remediation  high    Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.
-Block and hunt the infrastructure             remediation  high    Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.
-Scope the data taken                          remediation  high    Establish from audit logs which mailboxes, chats, sites and files were read or sent out, and assess that data as breached.
-Follow what was enumerated                    remediation  low     Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
-Restrict application credentials and consent  mitigation   medium  Limit who may add a credential or grant a permission to an application, and alert when either happens.
-Guard privileged roles                        mitigation   medium  Require approval and raise an alert for every privileged role assignment, and keep standing membership small.
-Harden Key Vault access                       mitigation   medium  Give each identity the least vault access it needs, close vaults to public networks, and alert on bulk reads.
-Watch application access to mail and files    mitigation   low     Alert on an application that is granted mail or file permissions, and on one that reads them in volume.
+ITEM                                                          SECTION      VALUE   DETAIL
+files                                                         summary      11      -
+scripts                                                       summary      5       -
+outputs                                                       summary      6       -
+indicators                                                    summary      32      -
+indicators Domain                                             summary      6       -
+indicators Email                                              summary      2       -
+indicators EntraLoginEndpoint                                 summary      1       -
+indicators GUID                                               summary      4       -
+indicators GraphEndpoint                                      summary      11      -
+indicators IPv4                                               summary      2       -
+indicators KeyVaultEndpoint                                   summary      3       -
+indicators OAuthScope                                         summary      1       -
+indicators URL                                                summary      2       -
+activities                                                    summary      12      -
+activities AppCredentialAddition                              summary      1       -
+activities AppRoleAssignment                                  summary      2       -
+activities AzureResourceEnumeration                           summary      1       -
+activities GlobalAdministratorAssignment                      summary      1       -
+activities GraphDirectoryEnumeration                          summary      4       -
+activities KeyVaultKeyEnumeration                             summary      2       -
+activities KeyVaultKeyUnwrap                                  summary      1       -
+activities KeyVaultSecretRead                                 summary      3       -
+activities MailboxAccess                                      summary      1       -
+activities SharePointEnumeration                              summary      2       -
+activities TeamsMessageAccess                                 summary      1       -
+activities TokenRequest                                       summary      2       -
+tactics                                                       summary      6       -
+intel hits                                                    summary      2       -
+20261015_090000_step01_token.sh                               script       high    TokenRequest, watchlist STORM-0940
+20261015_091000_step03_escalate.ps1                           script       high    GlobalAdministratorAssignment, AppRoleAssignment, AppCredentialAddition
+20261015_093000_step05_vault.sh                               script       high    KeyVaultSecretRead, KeyVaultKeyUnwrap
+agent_20261015_093500.jsonl                                   output       high    AppRoleAssignment, KeyVaultSecretRead, watchlist STORM-0940
+Privileged access obtained                                    impact       high    A principal was given a privileged role or permission. Treat what it governs as under attacker control until reviewed.
+Credentials exposed                                           impact       high    Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker. Affected: corpvault.vault.azure.net, finvault.vault.azure.net.
+Persistence established                                       impact       high    A way back in was created: a credential, a run key, a task or a service. Access survives a password reset.
+Valid identity used                                           impact       high    The attacker signed in as an identity that exists. Sign-in controls did not stop it.
+Known threat infrastructure involved                          impact       high    The evidence names infrastructure on the watchlist, which ties the activity to a known actor.
+Data collected                                                impact       high    Mail, chat or documents were read in bulk. Treat their content as disclosed. Affected: alice@corp.example, bob@corp.example.
+Commands generated by an AI agent                             impact       medium  The scripts were written by an AI agent, which is the premise of this tool. Generated commands differ from run to run, so a detection that matches exact text misses them.
+Environment mapped                                            impact       low     Identities, resources or configuration were listed. Later steps were probably aimed with the result.
+Revoke sessions and reset identities                          remediation  high    Revoke the sessions and tokens of every identity in the evidence and reset its credentials.
+Remove added credentials                                      remediation  high    Remove every password and key added to an application or service principal, then review all credentials added since the first step.
+Remove role and permission grants                             remediation  high    Remove the role assignments and application permissions that were granted, then review every privileged member and consent.
+Rotate what was read                                          remediation  high    Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.
+Block and hunt the infrastructure                             remediation  high    Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.
+Scope the data taken                                          remediation  high    Establish from audit logs which mailboxes, chats, sites and files were read or sent out, and assess that data as breached.
+Follow what was enumerated                                    remediation  low     Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
+M1015 Active Directory Configuration                          mitigation   high    Implement robust Active Directory (AD) configurations using group policies to secure user accounts, control access, and minimize the attack surface.
+M1017 User Training                                           mitigation   high    User Training involves educating employees and contractors on recognizing, reporting, and preventing cyber threats that rely on human interaction, such as phishing, social engineering, and other manipulative techniques.
+M1018 User Account Management                                 mitigation   high    User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.
+M1026 Privileged Account Management                           mitigation   high    Privileged Account Management focuses on implementing policies, controls, and tools to securely manage privileged accounts (e.g., SYSTEM, root, or administrative accounts).
+M1027 Password Policies                                       mitigation   high    Set and enforce secure password policies for accounts to reduce the likelihood of unauthorized access.
+M1030 Network Segmentation                                    mitigation   high    Network segmentation involves dividing a network into smaller, isolated segments to control and limit the flow of traffic between devices, systems, and applications.
+M1032 Multi-factor Authentication                             mitigation   high    Multi-Factor Authentication (MFA) enhances security by requiring users to provide at least two forms of verification to prove their identity before granting access.
+M1036 Account Use Policies                                    mitigation   high    Account Use Policies help mitigate unauthorized access by configuring and enforcing rules that govern how and when accounts can be used.
+M1042 Disable or Remove Feature or Program                    mitigation   high    Disable or remove unnecessary and potentially vulnerable software, features, or services to reduce the attack surface and prevent abuse by adversaries.
+M1041 Encrypt Sensitive Information                           mitigation   medium  Protect sensitive information at rest, in transit, and during processing by using strong encryption algorithms.
+M1047 Audit                                                   mitigation   medium  Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.
+M1060 Out-of-Band Communications Channel                      mitigation   medium  Establish secure out-of-band communication channels to ensure the continuity of critical communications during security incidents, data integrity attacks, or in-network communication failures.
+AML.M0005 Control Access to AI Models and Data at Rest        mitigation   high    Establish access controls on internal model registries and limit internal access to production models.
+AML.M0019 Control Access to AI Models and Data in Production  mitigation   high    Require users to verify their identities before accessing a production model.
+AML.M0043 AI Agent External Resource Lifecycle Management     mitigation   high    Organizations should control external resources created or acquired by AI agents during execution by treating those resources as attributable, lifecycle-managed assets.
+AML.M0020 Generative AI Guardrails                            mitigation   medium  Guardrails are safety controls placed between users, tools, and generative AI models to evaluate prompts, retrieved context, model outputs, and agent actions before they are accepted, executed, or shown to a user.
+AML.M0022 Generative AI Model Alignment                       mitigation   medium  Generative AI Model Alignment is the process of training or fine-tuning a generative model to guide its output toward a set of human values, goals, or ethical principles.
+AML.M0039 AI Honeypots                                        mitigation   medium  Deploy monitored decoy AI services, agents, credentials, or other resources that resemble legitimate, active assets in the external or internal environment, but serve no real business or operational functions.

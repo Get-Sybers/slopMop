@@ -2,13 +2,16 @@ package command
 
 import (
 	"errors"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
 
+	"github.com/get-sybers/slopmop/internal/activity"
 	"github.com/get-sybers/slopmop/internal/assess"
 	"github.com/get-sybers/slopmop/internal/cli"
 	"github.com/get-sybers/slopmop/internal/evidence"
+	"github.com/get-sybers/slopmop/internal/mitre"
 	"github.com/get-sybers/slopmop/internal/render"
 	"github.com/get-sybers/slopmop/internal/tactic"
 )
@@ -19,8 +22,8 @@ const (
 	sectionSummary     = "summary"
 	sectionFiles       = "files"
 	sectionImpact      = "impact"
-	sectionRemediation = assess.Remediation
-	sectionMitigation  = assess.Mitigation
+	sectionRemediation = "remediation"
+	sectionMitigation  = "mitigation"
 )
 
 // severityParam sets how severe a finding makes a file notable.
@@ -42,6 +45,10 @@ type reportRow struct {
 	detail string
 	basis  []string
 	files  []string
+	// attack and atlas are the techniques a file or an impact shows, or
+	// those a mitigation addresses.
+	attack []string
+	atlas  []string
 }
 
 func (e Env) reportList(v verbSpec) (*cli.Verb, error) {
@@ -109,9 +116,10 @@ func (p pipeline) report(a analysis, threshold tactic.Severity, wanted map[strin
 	if wanted[sectionFiles] {
 		rows = append(rows, p.notableFiles(a, threshold)...)
 	}
-	found := p.gather(a)
+	found, shown := p.gather(a)
+	impacts := p.assessment.Impacts(found)
 	if wanted[sectionImpact] {
-		for _, r := range p.assessment.Impacts(found) {
+		for _, r := range impacts {
 			detail := r.Text
 			if len(r.Affected) > 0 {
 				detail += " Affected: " + strings.Join(r.Affected, ", ")
@@ -120,14 +128,109 @@ func (p pipeline) report(a analysis, threshold tactic.Severity, wanted map[strin
 				}
 				detail += "."
 			}
-			rows = append(rows, reportRow{item: r.Name, section: sectionImpact, level: r.Level, detail: detail, basis: r.Basis, files: r.Files})
+			row := reportRow{item: r.Name, section: sectionImpact, level: r.Level, detail: detail, basis: r.Basis, files: r.Files}
+			row.attack, row.atlas = p.techniques(shown, r.Activities)
+			row.atlas = appendUnique(row.atlas, r.Atlas...)
+			rows = append(rows, row)
 		}
 	}
-	for _, r := range p.assessment.Actions(found) {
-		if wanted[r.Kind] {
-			rows = append(rows, reportRow{item: r.Name, section: r.Kind, level: r.Level, detail: r.Text, basis: r.Basis, files: r.Files})
+	if wanted[sectionRemediation] {
+		for _, r := range p.assessment.Remediation(found) {
+			rows = append(rows, reportRow{item: r.Name, section: sectionRemediation, level: r.Level, detail: r.Text, basis: r.Basis, files: r.Files})
 		}
 	}
+	if wanted[sectionMitigation] {
+		rows = append(rows, p.mitigations(shown, impacts)...)
+	}
+	return rows
+}
+
+// techniques returns the ATT&CK and ATLAS techniques of the named activities.
+func (p pipeline) techniques(shown []shownActivity, names []string) (attack, atlas []string) {
+	for _, s := range shown {
+		if slices.Contains(names, s.hit.Name) {
+			attack = appendUnique(attack, s.hit.Attack...)
+			atlas = appendUnique(atlas, p.atlasOf(s.hit)...)
+		}
+	}
+	return attack, atlas
+}
+
+// shownActivity is an activity the timeline found and the files that show it.
+type shownActivity struct {
+	hit   activity.Hit
+	files []string
+}
+
+// cause is what showed a technique: the activities or impacts, their files
+// and the highest severity among them.
+type cause struct {
+	names []string
+	files []string
+	level tactic.Severity
+}
+
+// mitigations lists what ATT&CK and then ATLAS say mitigates the techniques
+// that were found. The link from technique to mitigation is the framework's.
+func (p pipeline) mitigations(shown []shownActivity, impacts []assess.Result) []reportRow {
+	attack, atlas := map[string]*cause{}, map[string]*cause{}
+	note := func(by map[string]*cause, id, name string, files []string, level tactic.Severity) {
+		c, ok := by[id]
+		if !ok {
+			c = &cause{level: tactic.Low}
+			by[id] = c
+		}
+		c.names = appendUnique(c.names, name)
+		c.files = appendUnique(c.files, files...)
+		if level.Rank() > c.level.Rank() {
+			c.level = level
+		}
+	}
+	for _, s := range shown {
+		level := p.highest(s.hit.Tactics)
+		for _, id := range s.hit.Attack {
+			note(attack, id, s.hit.Name, s.files, level)
+		}
+		for _, id := range p.atlasOf(s.hit) {
+			note(atlas, id, s.hit.Name, s.files, level)
+		}
+	}
+	// An impact can stand for an ATLAS technique that no single line shows.
+	for _, im := range impacts {
+		for _, id := range im.Atlas {
+			note(atlas, id, im.Name, im.Files, im.Level)
+		}
+	}
+	rows := mitigationRows(p.catalogue.Attack, attack, false)
+	return append(rows, mitigationRows(p.catalogue.Atlas, atlas, true)...)
+}
+
+func mitigationRows(framework mitre.Framework, by map[string]*cause, isAtlas bool) []reportRow {
+	found := make([]string, 0, len(by))
+	for id := range by {
+		found = append(found, id)
+	}
+	sort.Strings(found)
+	var rows []reportRow
+	for _, m := range framework.MitigationsFor(found) {
+		row := reportRow{item: m.ID + " " + m.Name, section: sectionMitigation, level: tactic.Low, detail: m.Summary}
+		for _, id := range m.Techniques {
+			c := by[id]
+			row.basis = appendUnique(row.basis, c.names...)
+			row.files = appendUnique(row.files, c.files...)
+			if c.level.Rank() > row.level.Rank() {
+				row.level = c.level
+			}
+		}
+		sort.Strings(row.files)
+		if isAtlas {
+			row.atlas = m.Techniques
+		} else {
+			row.attack = m.Techniques
+		}
+		rows = append(rows, row)
+	}
+	sort.SliceStable(rows, func(i, j int) bool { return rows[i].level.Rank() > rows[j].level.Rank() })
 	return rows
 }
 
@@ -180,10 +283,15 @@ func (p pipeline) notableFiles(a analysis, threshold tactic.Severity) []reportRo
 		if s.File.Role != evidence.Script {
 			linked = writers[s.File.Path]
 		}
-		rows = append(rows, reportRow{
+		row := reportRow{
 			item: s.File.Path, section: string(s.File.Role), level: level,
 			detail: strings.Join(reasons, ", "), files: linked,
-		})
+		}
+		for _, hit := range s.Activities {
+			row.attack = appendUnique(row.attack, hit.Attack...)
+			row.atlas = appendUnique(row.atlas, p.atlasOf(hit)...)
+		}
+		rows = append(rows, row)
 	}
 	return rows
 }
@@ -198,8 +306,11 @@ func (p pipeline) highest(tactics []string) tactic.Severity {
 	return severity
 }
 
-// gather indexes what the timeline found by the files it was found in.
-func (p pipeline) gather(a analysis) assess.Evidence {
+// gather indexes what the timeline found by the files it was found in, and
+// lists the activities in the order they were first seen.
+func (p pipeline) gather(a analysis) (assess.Evidence, []shownActivity) {
+	var shown []shownActivity
+	index := map[string]int{}
 	found := assess.Evidence{
 		Activities: map[string][]string{},
 		Tactics:    map[string][]string{},
@@ -210,6 +321,13 @@ func (p pipeline) gather(a analysis) assess.Evidence {
 		path := s.File.Path
 		for _, hit := range s.Activities {
 			found.Activities[hit.Name] = appendUnique(found.Activities[hit.Name], path)
+			i, ok := index[hit.Name]
+			if !ok {
+				i = len(shown)
+				index[hit.Name] = i
+				shown = append(shown, shownActivity{hit: hit})
+			}
+			shown[i].files = appendUnique(shown[i].files, path)
 		}
 		for _, tool := range s.Tools {
 			if name := p.tactics.Classify(tool); name != "" {
@@ -226,7 +344,7 @@ func (p pipeline) gather(a analysis) assess.Evidence {
 			found.Indicators[path][m.Type] = append(found.Indicators[path][m.Type], m.Value)
 		}
 	}
-	return found
+	return found, shown
 }
 
 // listMetrics counts distinct values across the whole timeline; an activity
@@ -304,6 +422,8 @@ func reportCells(r reportRow, columns []render.Column) ([]render.Value, error) {
 		"detail":  render.NotApplicable(),
 		"basis":   list(r.basis),
 		"files":   list(r.files),
+		"attack":  list(r.attack),
+		"atlas":   list(r.atlas),
 	}
 	if r.section == sectionSummary || r.level == "" {
 		cells["value"] = render.Int(int64(r.count))

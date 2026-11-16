@@ -10,6 +10,7 @@ import (
 	"github.com/get-sybers/slopmop/internal/indicator"
 	"github.com/get-sybers/slopmop/internal/intel"
 	"github.com/get-sybers/slopmop/internal/inventory"
+	"github.com/get-sybers/slopmop/internal/mitre"
 	"github.com/get-sybers/slopmop/internal/render"
 	"github.com/get-sybers/slopmop/internal/structured"
 	"github.com/get-sybers/slopmop/internal/tactic"
@@ -30,6 +31,7 @@ type pipeline struct {
 	patterns   indicator.Table
 	formats    structured.Table
 	assessment assess.Table
+	catalogue  mitre.Catalogue
 }
 
 func loadPipeline() (pipeline, error) {
@@ -55,24 +57,65 @@ func loadPipeline() (pipeline, error) {
 	if err != nil {
 		return pipeline{}, err
 	}
-	assessment, err := loadAssessment(tactics, activities, patterns)
+	catalogue, err := loadCatalogue(tactics, activities)
+	if err != nil {
+		return pipeline{}, err
+	}
+	assessment, err := loadAssessment(tactics, activities, patterns, catalogue)
 	if err != nil {
 		return pipeline{}, err
 	}
 	return pipeline{
-		tactics: tactics, activities: activities, patterns: patterns, formats: formats, assessment: assessment,
+		tactics: tactics, activities: activities, patterns: patterns, formats: formats,
+		assessment: assessment, catalogue: catalogue,
 	}, nil
+}
+
+// loadCatalogue checks that every ATT&CK and ATLAS identifier the tactic
+// and activity tables give is one the catalogue lists.
+func loadCatalogue(tactics tactic.Table, activities activity.Table) (mitre.Catalogue, error) {
+	catalogue, err := mitre.Load()
+	if err != nil {
+		return mitre.Catalogue{}, err
+	}
+	for _, name := range tactics.Names() {
+		if id := tactics.Attack(name); !catalogue.Attack.HasTactic(id) {
+			return mitre.Catalogue{}, fmt.Errorf("tactics.json gives %s the ATT&CK tactic %q, which the catalogue lacks", name, id)
+		}
+		if id := tactics.Atlas(name); !catalogue.Atlas.HasTactic(id) {
+			return mitre.Catalogue{}, fmt.Errorf("tactics.json gives %s the ATLAS tactic %q, which the catalogue lacks", name, id)
+		}
+	}
+	activities.Each(func(name string, _, attack, atlas []string) {
+		for _, id := range attack {
+			if err == nil && !catalogue.Attack.HasTechnique(id) {
+				err = fmt.Errorf("activities.json gives %s the ATT&CK technique %q, which the catalogue lacks", name, id)
+			}
+		}
+		for _, id := range atlas {
+			if err == nil && !catalogue.Atlas.HasTechnique(id) {
+				err = fmt.Errorf("activities.json gives %s the ATLAS technique %q, which the catalogue lacks", name, id)
+			}
+		}
+	})
+	return catalogue, err
+}
+
+// atlasOf returns the ATLAS techniques of an activity: those it names and
+// those that refer to one of its ATT&CK techniques.
+func (p pipeline) atlasOf(hit activity.Hit) []string {
+	return appendUnique(slices.Clone(hit.Atlas), p.catalogue.AtlasFor(hit.Attack)...)
 }
 
 // loadAssessment checks that the impact and action tables name only what
 // the other tables declare.
-func loadAssessment(tactics tactic.Table, activities activity.Table, patterns indicator.Table) (assess.Table, error) {
+func loadAssessment(tactics tactic.Table, activities activity.Table, patterns indicator.Table, catalogue mitre.Catalogue) (assess.Table, error) {
 	table, err := assess.LoadTable()
 	if err != nil {
 		return assess.Table{}, err
 	}
 	known := activities.Names()
-	named, namedTactics, namedTypes := table.Names()
+	named, namedTactics, namedTypes, namedAtlas := table.Names()
 	for _, name := range named {
 		if !slices.Contains(known, name) {
 			return assess.Table{}, fmt.Errorf("the assessment tables name the activity %q, which activities.json lacks", name)
@@ -86,6 +129,11 @@ func loadAssessment(tactics tactic.Table, activities activity.Table, patterns in
 	for _, typ := range namedTypes {
 		if !patterns.Has(typ) {
 			return assess.Table{}, fmt.Errorf("impacts.json names the indicator type %q, which indicators.json lacks", typ)
+		}
+	}
+	for _, id := range namedAtlas {
+		if !catalogue.Atlas.HasTechnique(id) {
+			return assess.Table{}, fmt.Errorf("impacts.json names the ATLAS technique %q, which the catalogue lacks", id)
 		}
 	}
 	return table, nil

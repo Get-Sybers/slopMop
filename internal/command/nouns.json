@@ -60,7 +60,9 @@
             {"header": "TACTIC", "key": "tactic"},
             {"header": "INDICATOR", "key": "indicator"},
             {"header": "FILES", "key": "files"},
-            {"header": "ATTRIBUTION", "key": "attribution"}
+            {"header": "ATTRIBUTION", "key": "attribution"},
+            {"header": "ATTACK", "key": "attack", "wide": true},
+            {"header": "ATLAS", "key": "atlas", "wide": true}
           ]
         }
       ]
@@ -79,7 +81,9 @@
             {"header": "VALUE", "key": "value"},
             {"header": "DETAIL", "key": "detail"},
             {"header": "BASIS", "key": "basis", "wide": true},
-            {"header": "FILES", "key": "files", "wide": true}
+            {"header": "FILES", "key": "files", "wide": true},
+            {"header": "ATTACK", "key": "attack", "wide": true},
+            {"header": "ATLAS", "key": "atlas", "wide": true}
           ]
         }
       ]

@@ -2,6 +2,8 @@
   {
     "tactic": "InitialAccess",
     "severity": "high",
+    "id": "TA0001",
+    "atlas": "AML.TA0004",
     "commands": [
       "evilginx", "evilginx2", "gophish", "modlishka", "muraena"
     ]
@@ -9,6 +11,8 @@
   {
     "tactic": "Discovery",
     "severity": "low",
+    "id": "TA0007",
+    "atlas": "AML.TA0008",
     "commands": [
       "nmap", "masscan", "rustscan", "ping", "fping", "arp", "arp-scan",
       "nbtscan", "dig", "nslookup", "host", "whois", "traceroute", "ip",
@@ -54,6 +58,8 @@
   {
     "tactic": "CredentialAccess",
     "severity": "high",
+    "id": "TA0006",
+    "atlas": "AML.TA0013",
     "commands": [
       "hydra", "medusa", "ncrack", "john", "hashcat", "kerbrute",
       "secretsdump.py", "impacket-secretsdump", "mimikatz", "lazagne",
@@ -86,6 +92,8 @@
   {
     "tactic": "LateralMovement",
     "severity": "high",
+    "id": "TA0008",
+    "atlas": "AML.TA0015",
     "commands": [
       "ssh", "sshpass", "psexec.py", "wmiexec.py", "smbexec.py",
       "evil-winrm", "xfreerdp", "rdesktop", "ansible", "ansible-playbook",
@@ -100,6 +108,8 @@
   {
     "tactic": "Execution",
     "severity": "medium",
+    "id": "TA0002",
+    "atlas": "AML.TA0005",
     "commands": [
       "python", "python3", "perl", "ruby", "php", "node", "bash", "sh",
       "zsh", "eval", "msfconsole", "msfvenom", "sqlmap", "gcc", "make",
@@ -117,6 +127,8 @@
   {
     "tactic": "PrivilegeEscalation",
     "severity": "high",
+    "id": "TA0004",
+    "atlas": "AML.TA0012",
     "commands": [
       "runas", "pkexec", "juicypotato", "printspoofer", "godpotato",
       "roguepotato", "sweetpotato", "invoke-tokenmanipulation"
@@ -125,6 +137,8 @@
   {
     "tactic": "Persistence",
     "severity": "high",
+    "id": "TA0003",
+    "atlas": "AML.TA0006",
     "commands": [
       "crontab", "useradd", "adduser", "usermod", "chpasswd", "passwd",
       "ssh-keygen", "at", "schtasks", "register-scheduledtask",
@@ -157,23 +171,33 @@
     ]
   },
   {
-    "tactic": "DefenseEvasion",
+    "tactic": "Stealth",
     "severity": "medium",
+    "id": "TA0005",
+    "atlas": "AML.TA0007",
     "commands": [
-      "shred", "chattr", "setenforce", "iptables", "ufw", "auditctl",
-      "truncate", "history", "set-mppreference", "add-mppreference",
-      "clear-eventlog", "remove-eventlog", "wevtutil", "clear-history",
-      "set-executionpolicy", "unblock-file", "auditpol", "fsutil", "bcdedit",
-      "vssadmin", "wbadmin",
-      "format-hex",
-      "set-adminauditlogconfig", "set-mailboxauditbypassassociation",
-      "remove-azdiagnosticsetting",
+      "shred", "truncate", "history", "clear-history", "fsutil", "format-hex",
       "csc", "vbc", "jsc", "ilasm"
+    ]
+  },
+  {
+    "tactic": "DefenseImpairment",
+    "severity": "high",
+    "id": "TA0112",
+    "atlas": "AML.TA0007",
+    "commands": [
+      "chattr", "setenforce", "iptables", "ufw", "auditctl",
+      "set-mppreference", "add-mppreference", "clear-eventlog",
+      "remove-eventlog", "wevtutil", "set-executionpolicy", "unblock-file",
+      "auditpol", "set-adminauditlogconfig",
+      "set-mailboxauditbypassassociation", "remove-azdiagnosticsetting"
     ]
   },
   {
     "tactic": "Collection",
     "severity": "medium",
+    "id": "TA0009",
+    "atlas": "AML.TA0009",
     "commands": [
       "tar", "zip", "7z", "gzip", "mysqldump", "pg_dump", "mongodump",
       "mysql", "psql", "sqlite3", "redis-cli", "mongosh", "dd", "sqlcmd",
@@ -189,6 +213,8 @@
   {
     "tactic": "CommandAndControl",
     "severity": "high",
+    "id": "TA0011",
+    "atlas": "AML.TA0014",
     "commands": [
       "ngrok", "chisel", "cloudflared", "plink", "frpc", "ligolo-ng",
       "desktopimgdownldr", "socket.connect", "socket.create_connection"
@@ -197,9 +223,20 @@
   {
     "tactic": "Exfiltration",
     "severity": "high",
+    "id": "TA0010",
+    "atlas": "AML.TA0010",
     "commands": [
       "nc", "ncat", "netcat", "socat", "scp", "sftp", "ftp", "rsync",
       "rclone", "gsutil", "azcopy", "send-mailmessage", "new-psdrive"
+    ]
+  },
+  {
+    "tactic": "Impact",
+    "severity": "high",
+    "id": "TA0040",
+    "atlas": "AML.TA0011",
+    "commands": [
+      "bcdedit", "vssadmin", "wbadmin"
     ]
   }
 ]

@@ -1,6 +1,6 @@
 // Package assess turns what a timeline shows into its consequences and the
-// actions they call for, using impacts.json and actions.json. It judges what
-// the evidence says was done; it cannot tell whether a step succeeded.
+// remediation they call for, using impacts.json and actions.json. It judges
+// what the evidence says was done; it cannot tell whether a step succeeded.
 package assess
 
 import (
@@ -21,12 +21,6 @@ var rawImpacts []byte
 //go:embed actions.json
 var rawActions []byte
 
-// The kinds of action: one undoes what was done, the other prevents a repeat.
-const (
-	Remediation = "remediation"
-	Mitigation  = "mitigation"
-)
-
 // maxAffected bounds the indicator values listed with one impact.
 const maxAffected = 5
 
@@ -36,6 +30,8 @@ type trigger struct {
 	// Tactics are those of the tools that ran, not of the activities.
 	Tactics   []string `json:"tactics,omitempty"`
 	Watchlist bool     `json:"watchlist,omitempty"`
+	// Always brings the entry in whenever the evidence shows anything at all.
+	Always bool `json:"always,omitempty"`
 }
 
 type impact struct {
@@ -45,11 +41,12 @@ type impact struct {
 	trigger
 	// Affected names indicator types; their values in the evidence files are listed.
 	Affected []string `json:"affected,omitempty"`
+	// Atlas names ATLAS techniques the impact stands for by itself.
+	Atlas []string `json:"atlas,omitempty"`
 }
 
 type action struct {
 	Name     string          `json:"name"`
-	Kind     string          `json:"kind"`
 	Priority tactic.Severity `json:"priority"`
 	Action   string          `json:"action"`
 	trigger
@@ -75,14 +72,16 @@ type Evidence struct {
 // Result is one impact or one action that the evidence calls for.
 type Result struct {
 	Name string
-	// Kind is empty for an impact, and Remediation or Mitigation for an action.
-	Kind string
 	// Level is the severity of an impact or the priority of an action.
 	Level tactic.Severity
 	Text  string
-	// Basis names what in the evidence brought the entry in.
-	Basis    []string
-	Files    []string
+	// Basis names what in the evidence brought the entry in, and Activities
+	// the activities among it.
+	Basis      []string
+	Activities []string
+	Files      []string
+	// Atlas names the ATLAS techniques an impact stands for by itself.
+	Atlas    []string
 	Affected []string
 	// More counts the affected values beyond those listed.
 	More int
@@ -112,9 +111,6 @@ func decode(impactsJSON, actionsJSON []byte) (Table, error) {
 		if err := check("actions.json", i, e.Name, e.Action, e.Priority, e.trigger, seen); err != nil {
 			return Table{}, err
 		}
-		if e.Kind != Remediation && e.Kind != Mitigation {
-			return Table{}, fmt.Errorf("actions.json[%d] %s: kind %q is not remediation or mitigation", i, e.Name, e.Kind)
-		}
 	}
 	return t, nil
 }
@@ -141,16 +137,16 @@ func check(file string, i int, name, text string, level tactic.Severity, tr trig
 		return fmt.Errorf("%s[%d] %s: no text", file, i, name)
 	case level.Rank() == 0:
 		return fmt.Errorf("%s[%d] %s: %q is not low, medium or high", file, i, name, level)
-	case len(tr.Activities)+len(tr.Tactics) == 0 && !tr.Watchlist:
+	case len(tr.Activities)+len(tr.Tactics) == 0 && !tr.Watchlist && !tr.Always:
 		return fmt.Errorf("%s[%d] %s: nothing triggers it", file, i, name)
 	}
 	seen[name] = true
 	return nil
 }
 
-// Names lists every activity, tactic and indicator type the table refers
-// to, so a caller that holds those tables can check that each one exists.
-func (t Table) Names() (activities, tactics, indicators []string) {
+// Names lists every activity, tactic, indicator type and ATLAS technique the
+// table refers to, so a caller that holds those tables can check each one.
+func (t Table) Names() (activities, tactics, indicators, atlas []string) {
 	add := func(list []string, items []string) []string {
 		for _, item := range items {
 			if !slices.Contains(list, item) {
@@ -161,12 +157,12 @@ func (t Table) Names() (activities, tactics, indicators []string) {
 	}
 	for _, e := range t.impacts {
 		activities, tactics = add(activities, e.Activities), add(tactics, e.Tactics)
-		indicators = add(indicators, e.Affected)
+		indicators, atlas = add(indicators, e.Affected), add(atlas, e.Atlas)
 	}
 	for _, e := range t.actions {
 		activities, tactics = add(activities, e.Activities), add(tactics, e.Tactics)
 	}
-	return activities, tactics, indicators
+	return activities, tactics, indicators, atlas
 }
 
 // Covers reports whether an impact and an action each answer the activity.
@@ -185,11 +181,14 @@ func (t Table) Covers(activity string) bool {
 func (t Table) Impacts(e Evidence) []Result {
 	var results []Result
 	for _, im := range t.impacts {
-		basis, files := im.fired(e)
+		basis, activities, files := im.fired(e)
 		if len(basis) == 0 {
 			continue
 		}
-		r := Result{Name: im.Name, Level: im.Severity, Text: im.Statement, Basis: basis, Files: files}
+		r := Result{
+			Name: im.Name, Level: im.Severity, Text: im.Statement,
+			Basis: basis, Activities: activities, Files: files, Atlas: im.Atlas,
+		}
 		r.Affected, r.More = affected(im.Affected, files, e)
 		results = append(results, r)
 	}
@@ -197,19 +196,18 @@ func (t Table) Impacts(e Evidence) []Result {
 	return results
 }
 
-// Actions returns the actions the evidence calls for: remediation before
-// mitigation, and the most urgent first within each.
-func (t Table) Actions(e Evidence) []Result {
+// Remediation returns the actions that undo what the evidence shows, the
+// most urgent first.
+func (t Table) Remediation(e Evidence) []Result {
 	var results []Result
 	for _, a := range t.actions {
-		if basis, files := a.fired(e); len(basis) > 0 {
-			results = append(results, Result{Name: a.Name, Kind: a.Kind, Level: a.Priority, Text: a.Action, Basis: basis, Files: files})
+		if basis, activities, files := a.fired(e); len(basis) > 0 {
+			results = append(results, Result{
+				Name: a.Name, Level: a.Priority, Text: a.Action, Basis: basis, Activities: activities, Files: files,
+			})
 		}
 	}
 	byLevel(results)
-	sort.SliceStable(results, func(i, j int) bool {
-		return results[i].Kind == Remediation && results[j].Kind == Mitigation
-	})
 	return results
 }
 
@@ -219,38 +217,56 @@ func byLevel(results []Result) {
 	})
 }
 
-// fired returns what in the evidence triggers the entry and the files that
-// show it; an empty basis means the entry does not apply.
-func (tr trigger) fired(e Evidence) (basis, files []string) {
-	note := func(label string, found []string) {
+// fired returns what in the evidence triggers the entry, the activities
+// among it and the files that show it; an empty basis means it does not apply.
+func (tr trigger) fired(e Evidence) (basis, activities, files []string) {
+	note := func(label string, found []string) bool {
 		if len(found) == 0 {
-			return
+			return false
 		}
-		basis = append(basis, label)
+		if label != "" {
+			basis = append(basis, label)
+		}
 		for _, f := range found {
 			if !slices.Contains(files, f) {
 				files = append(files, f)
 			}
 		}
+		return true
 	}
 	for _, name := range tr.Activities {
-		note(name, e.Activities[name])
+		if note(name, e.Activities[name]) {
+			activities = append(activities, name)
+		}
 	}
 	for _, name := range tr.Tactics {
 		note(name+" tools", e.Tactics[name])
 	}
 	if tr.Watchlist {
-		names := make([]string, 0, len(e.Hits))
-		for name := range e.Hits {
-			names = append(names, name)
-		}
-		sort.Strings(names)
-		for _, name := range names {
+		for _, name := range sortedKeys(e.Hits) {
 			note("watchlist "+name, e.Hits[name])
 		}
 	}
+	if tr.Always && len(e.Activities)+len(e.Tactics) > 0 {
+		basis = append(basis, "the premise of the tool")
+		for _, name := range sortedKeys(e.Activities) {
+			note("", e.Activities[name])
+		}
+		for _, name := range sortedKeys(e.Tactics) {
+			note("", e.Tactics[name])
+		}
+	}
 	sort.Strings(files)
-	return basis, files
+	return basis, activities, files
+}
+
+func sortedKeys(m map[string][]string) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 // affected lists the values of the named indicator types in the files. An

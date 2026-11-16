@@ -47,7 +47,7 @@
     "role": "script",
     "time": "20261015_092000",
     "tools": "requests.get",
-    "tactics": "Collection, Exfiltration",
+    "tactics": "Collection",
     "transforms": null,
     "activities": "MailboxAccess, TeamsMessageAccess, SharePointEnumeration",
     "outputs": "collect_20261015_092040.txt",

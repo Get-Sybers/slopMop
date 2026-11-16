@@ -8,6 +8,7 @@
     {
       "name": "GlobalAdministratorAssignment",
       "tactics": ["PrivilegeEscalation", "Persistence"],
+      "attack": ["T1098.003"],
       "patterns": [
         "(?i)(?:members/[`\\\\]?(?:\\$|%24)ref|role-?assignments?|role-?member|role\\s+assignment).*62e90394-69f5-4237-9190-012177145e10",
         "(?i)62e90394-69f5-4237-9190-012177145e10.*(?:members/[`\\\\]?(?:\\$|%24)ref|role-?assignments?|role-?member|role\\s+assignment)",
@@ -19,6 +20,7 @@
     {
       "name": "RoleAssignment",
       "tactics": ["PrivilegeEscalation", "Persistence"],
+      "attack": ["T1098.003"],
       "patterns": [
         "(?i)directoryRoles/.{0,120}?members/[`\\\\]?(?:\\$|%24)ref",
         "(?i)(?:\\bpost\\b|--data\\b|\\s-d\\s|-body\\b|--body\\b).*roleManagement/directory/roleAssignments\\b",
@@ -31,6 +33,7 @@
     {
       "name": "AppRoleAssignment",
       "tactics": ["Persistence", "PrivilegeEscalation"],
+      "attack": ["T1098.003"],
       "patterns": [
         "(?i)(?:\\bpost\\b|--data\\b|\\s-d\\s|-body\\b|--body\\b).*\\b(?:appRoleAssignments|appRoleAssignedTo|oauth2PermissionGrants)\\b",
         "(?i)\\b(?:appRoleAssignments|appRoleAssignedTo|oauth2PermissionGrants)\\b.*(?:\\bpost\\b|--data\\b|\\s-d\\s|-body\\b|--body\\b)",
@@ -41,6 +44,7 @@
     {
       "name": "AppCredentialAddition",
       "tactics": ["Persistence"],
+      "attack": ["T1098.001"],
       "patterns": [
         "(?i)(?:applications|servicePrincipals)/.{0,120}?/(?:addPassword|addKey)\\b",
         "(?i)\\b(?:add-mgapplicationpassword|add-mgapplicationkey|add-mgserviceprincipalpassword|add-mgserviceprincipalkey|new-azadappcredential|new-azadspcredential|new-azureadapplicationpasswordcredential|new-azureadapplicationkeycredential|new-azureadserviceprincipalpasswordcredential|new-azureadserviceprincipalkeycredential)\\b",
@@ -50,6 +54,7 @@
     {
       "name": "TokenRequest",
       "tactics": ["InitialAccess"],
+      "attack": ["T1078.004"],
       "patterns": [
         "(?i)login\\.microsoftonline\\.(?:com|us)/.{0,120}?/oauth2/(?:v2\\.0/)?token\\b",
         "(?i)\\baz\\s+login\\b.*--service-principal\\b",
@@ -60,6 +65,8 @@
     {
       "name": "GraphDirectoryEnumeration",
       "tactics": ["Discovery"],
+      "attack": ["T1087.004", "T1069.003"],
+      "atlas": ["AML.T0075"],
       "patterns": [
         "(?i)\\bget-(?:mg|azuread)(?:user|group|application|serviceprincipal|directoryrole|organization|domain|device)\\b",
         "(?i)\\baz\\s+ad\\s+(?:user|group|app|sp)\\s+(?:list|show)\\b"
@@ -73,6 +80,8 @@
     {
       "name": "MailboxAccess",
       "tactics": ["Collection"],
+      "attack": ["T1114.002"],
+      "atlas": ["AML.T0126"],
       "patterns": [
         "(?i)\\bget-mguser(?:message|mailfolder)\\w*",
         "(?i)outlook\\.office(?:365)?\\.com/(?:EWS/Exchange\\.asmx|api/)",
@@ -87,6 +96,8 @@
     {
       "name": "TeamsMessageAccess",
       "tactics": ["Collection"],
+      "attack": ["T1213.005"],
+      "atlas": ["AML.T0126"],
       "patterns": [
         "(?i)TeamsMessagesData",
         "(?i)\\b(?:chats|channels)/getAllMessages\\b",
@@ -99,7 +110,9 @@
     },
     {
       "name": "SharePointEnumeration",
-      "tactics": ["Collection", "Exfiltration"],
+      "tactics": ["Collection"],
+      "attack": ["T1213.002"],
+      "atlas": ["AML.T0126"],
       "patterns": [
         "(?i)\\.sharepoint\\.(?:com|us)/[^\\s'\\\"]*_api/",
         "(?i)\\bget-mg(?:site|drive|userdrive|groupdrive)\\w*",
@@ -113,6 +126,7 @@
     {
       "name": "KeyVaultSecretRead",
       "tactics": ["CredentialAccess"],
+      "attack": ["T1555.006"],
       "patterns": [
         "(?i)\\.vault\\.(?:azure\\.net|usgovcloudapi\\.net)/secrets\\b",
         "(?i)\\baz\\s+keyvault\\s+secret\\s+(?:list|show|download|backup)\\b",
@@ -127,6 +141,7 @@
     {
       "name": "KeyVaultKeyUnwrap",
       "tactics": ["CredentialAccess"],
+      "attack": ["T1555.006"],
       "patterns": [
         "(?i)/keys/.{1,120}?/(?:unwrapkey|decrypt)\\b",
         "(?i)\\baz\\s+keyvault\\s+key\\s+decrypt\\b",
@@ -137,6 +152,8 @@
     {
       "name": "KeyVaultKeyEnumeration",
       "tactics": ["Discovery"],
+      "attack": ["T1580"],
+      "atlas": ["AML.T0075"],
       "patterns": [
         "(?i)\\.vault\\.(?:azure\\.net|usgovcloudapi\\.net)/keys\\b",
         "(?i)\\baz\\s+keyvault\\s+key\\s+(?:list|show|download|backup)\\b",
@@ -152,6 +169,8 @@
     {
       "name": "AzureResourceEnumeration",
       "tactics": ["Discovery"],
+      "attack": ["T1580"],
+      "atlas": ["AML.T0075"],
       "patterns": [
         "(?i)management\\.(?:azure\\.com|usgovcloudapi\\.net)/subscriptions\\b",
         "(?i)\\baz\\s+(?:resource|account|group|keyvault|vm|storage\\s+account)\\s+list\\b",
@@ -167,6 +186,8 @@
     {
       "name": "FileDownload",
       "tactics": ["CommandAndControl"],
+      "attack": ["T1105"],
+      "atlas": ["AML.T0072"],
       "patterns": [
         "(?i)\\bcertutil(?:\\.exe)?\\b.*[-/](?:urlcache|verifyctl)\\b",
         "(?i)\\bbitsadmin(?:\\.exe)?\\b.*/(?:transfer|addfile)\\b",
@@ -185,6 +206,8 @@
     {
       "name": "FileUpload",
       "tactics": ["Exfiltration"],
+      "attack": ["T1048"],
+      "atlas": ["AML.T0025"],
       "patterns": [
         "(?i)\\bbitsadmin(?:\\.exe)?\\b.*/upload\\b",
         "(?i)\\bstart-bitstransfer\\b.*-transfertype\\s+upload\\b",
@@ -200,6 +223,8 @@
     {
       "name": "DownloadAndExecute",
       "tactics": ["Execution", "CommandAndControl"],
+      "attack": ["T1059.001", "T1105"],
+      "atlas": ["AML.T0072"],
       "patterns": [
         "(?i)\\b(?:iex|invoke-expression)\\b.*\\.Download(?:String|Data)\\(",
         "(?i)\\.Download(?:String|Data)\\(.*\\|\\s*(?:iex|invoke-expression)\\b",
@@ -211,7 +236,8 @@
     },
     {
       "name": "ReflectiveCodeLoading",
-      "tactics": ["DefenseEvasion", "Execution"],
+      "tactics": ["Stealth"],
+      "attack": ["T1620"],
       "patterns": [
         "(?i)\\bAssembly\\]?(?:::|\\.)(?:Load|LoadFile|LoadFrom|UnsafeLoadFrom|ReflectionOnlyLoad)\\(",
         "(?i)\\bCurrentDomain\\.Load\\(",
@@ -220,7 +246,8 @@
     },
     {
       "name": "NativeApiCall",
-      "tactics": ["Execution", "DefenseEvasion"],
+      "tactics": ["Execution", "Stealth"],
+      "attack": ["T1106", "T1055"],
       "patterns": [
         "(?i)\\bDllImport\\s*\\(",
         "\\b(?:VirtualAlloc(?:Ex)?|VirtualProtect(?:Ex)?|CreateThread|CreateRemoteThread|WriteProcessMemory|NtCreateThreadEx|QueueUserAPC|RtlMoveMemory)\\b",
@@ -229,7 +256,8 @@
     },
     {
       "name": "RuntimeCompilation",
-      "tactics": ["DefenseEvasion", "Execution"],
+      "tactics": ["Stealth"],
+      "attack": ["T1027.004"],
       "patterns": [
         "(?i)\\badd-type\\b.*\\s-(?:typedefinition|memberdefinition|path|literalpath)\\b",
         "(?i)\\b(?:CSharpCodeProvider|VBCodeProvider|CompileAssemblyFrom(?:Source|File))\\b",
@@ -239,6 +267,7 @@
     {
       "name": "ProcessStart",
       "tactics": ["Execution"],
+      "attack": ["T1059", "T1047"],
       "patterns": [
         "(?i)\\bProcess\\]::Start\\(",
         "(?i)\\bProcessStartInfo\\b",
@@ -249,6 +278,8 @@
     {
       "name": "NetworkSocket",
       "tactics": ["CommandAndControl"],
+      "attack": ["T1095"],
+      "atlas": ["AML.T0072"],
       "patterns": [
         "(?i)\\bSockets\\.(?:TcpClient|UdpClient|Socket|TcpListener)\\b",
         "(?i)\\bnew\\s+(?:TcpClient|UdpClient|TcpListener)\\("
@@ -256,7 +287,8 @@
     },
     {
       "name": "SignedBinaryProxyExecution",
-      "tactics": ["DefenseEvasion", "Execution"],
+      "tactics": ["Stealth", "Execution"],
+      "attack": ["T1218", "T1127"],
       "patterns": [
         "(?i)\\bregsvr32(?:\\.exe)?\\b.*(?:/i:|scrobj)",
         "(?i)\\bmshta(?:\\.exe)?\\b.*(?:https?:|javascript:|vbscript:|\\.hta\\b)",
@@ -273,6 +305,8 @@
     {
       "name": "RunKeyPersistence",
       "tactics": ["Persistence"],
+      "attack": ["T1547.001"],
+      "atlas": ["AML.T0142"],
       "patterns": [
         "(?i)\\breg(?:\\.exe)?\\b\\s+add\\b.*\\\\CurrentVersion\\\\Run(?:Once)?\\b",
         "(?i)\\b(?:set-itemproperty|new-itemproperty|sp)\\b.*\\\\CurrentVersion\\\\Run(?:Once)?\\b",
@@ -282,6 +316,7 @@
     {
       "name": "ScheduledTaskCreation",
       "tactics": ["Persistence", "Execution"],
+      "attack": ["T1053.005"],
       "patterns": [
         "(?i)\\bschtasks(?:\\.exe)?\\b.*/create\\b",
         "(?i)\\b(?:register-scheduledtask|new-scheduledtask|new-scheduledtaskaction)\\b",
@@ -291,6 +326,7 @@
     {
       "name": "ServiceCreation",
       "tactics": ["Persistence", "PrivilegeEscalation"],
+      "attack": ["T1543.003"],
       "patterns": [
         "(?i)\\bsc(?:\\.exe)?\\b\\s+(?:\\\\\\\\\\S+\\s+)?(?:create|config)\\b",
         "(?i)\\bnew-service\\b"
@@ -298,7 +334,9 @@
     },
     {
       "name": "EventLogClearing",
-      "tactics": ["DefenseEvasion"],
+      "tactics": ["DefenseImpairment"],
+      "attack": ["T1685.005"],
+      "atlas": ["AML.T0138"],
       "patterns": [
         "(?i)\\bwevtutil(?:\\.exe)?\\b\\s+(?:cl|clear-log)\\b",
         "(?i)\\b(?:clear-eventlog|remove-eventlog)\\b",
@@ -308,6 +346,7 @@
     {
       "name": "LsassDump",
       "tactics": ["CredentialAccess"],
+      "attack": ["T1003.001"],
       "patterns": [
         "(?i)\\bcomsvcs(?:\\.dll)?\\b.*\\bMiniDump\\b",
         "(?i)\\bprocdump(?:64)?(?:\\.exe)?\\b.*\\blsass\\b",
@@ -317,6 +356,7 @@
     {
       "name": "RegistryHiveDump",
       "tactics": ["CredentialAccess"],
+      "attack": ["T1003.002"],
       "patterns": [
         "(?i)\\breg(?:\\.exe)?\\b\\s+(?:save|export)\\s+\\\"?hk(?:lm|ey_local_machine)\\\\(?:sam|system|security)\\b"
       ]
@@ -324,6 +364,8 @@
     {
       "name": "RegistryQuery",
       "tactics": ["Discovery"],
+      "attack": ["T1012"],
+      "atlas": ["AML.T0089"],
       "patterns": [
         "(?i)\\breg(?:\\.exe)?\\b\\s+query\\b"
       ]
@@ -331,6 +373,7 @@
     {
       "name": "CertificateExport",
       "tactics": ["CredentialAccess"],
+      "attack": ["T1649"],
       "patterns": [
         "(?i)\\bcertutil(?:\\.exe)?\\b.*[-/](?:exportpfx|backupkey|backup|key)\\b",
         "(?i)\\b(?:export-pfxcertificate|export-certificate)\\b"
@@ -338,7 +381,8 @@
     },
     {
       "name": "AmsiBypass",
-      "tactics": ["DefenseEvasion"],
+      "tactics": ["DefenseImpairment"],
+      "attack": ["T1685"],
       "patterns": [
         "(?i)\\bamsi(?:InitFailed|Utils|ScanBuffer|Context)\\b"
       ]
@@ -346,6 +390,8 @@
     {
       "name": "DirectorySearch",
       "tactics": ["Discovery"],
+      "attack": ["T1087.002"],
+      "atlas": ["AML.T0075"],
       "patterns": [
         "(?i)\\bDirectoryServices\\.(?:DirectorySearcher|DirectoryEntry)\\b",
         "(?i)\\[adsi(?:searcher)?\\]",

@@ -1,13 +1,13 @@
-FINDING                        SEVERITY  TACTIC                            INDICATOR  FILES                                                             ATTRIBUTION
-AppCredentialAddition          high      Persistence                       -          20261015_091000_step03_escalate.ps1                               -
-AppRoleAssignment              high      Persistence, PrivilegeEscalation  -          20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl  -
-GlobalAdministratorAssignment  high      Persistence, PrivilegeEscalation  -          20261015_091000_step03_escalate.ps1                               -
-KeyVaultKeyUnwrap              high      CredentialAccess                  -          20261015_093000_step05_vault.sh                                   -
-KeyVaultSecretRead             high      CredentialAccess                  -          20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl      -
-SharePointEnumeration          high      Collection, Exfiltration          -          20261015_092000_step04_collect.py                                 -
-TokenRequest                   high      InitialAccess                     -          20261015_090000_step01_token.sh                                   -
-MailboxAccess                  medium    Collection                        -          20261015_092000_step04_collect.py                                 -
-TeamsMessageAccess             medium    Collection                        -          20261015_092000_step04_collect.py                                 -
-AzureResourceEnumeration       low       Discovery                         -          20261015_093000_step05_vault.sh                                   -
-GraphDirectoryEnumeration      low       Discovery                         -          20261015_090500_step02_recon.ps1                                  -
-KeyVaultKeyEnumeration         low       Discovery                         -          20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl      -
+FINDING                        SEVERITY  TACTIC                            INDICATOR  FILES                                                             ATTRIBUTION  ATTACK                ATLAS
+AppCredentialAddition          high      Persistence                       -          20261015_091000_step03_escalate.ps1                               -            T1098.001             -
+AppRoleAssignment              high      Persistence, PrivilegeEscalation  -          20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl  -            T1098.003             -
+GlobalAdministratorAssignment  high      Persistence, PrivilegeEscalation  -          20261015_091000_step03_escalate.ps1                               -            T1098.003             -
+KeyVaultKeyUnwrap              high      CredentialAccess                  -          20261015_093000_step05_vault.sh                                   -            T1555.006             -
+KeyVaultSecretRead             high      CredentialAccess                  -          20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl      -            T1555.006             -
+TokenRequest                   high      InitialAccess                     -          20261015_090000_step01_token.sh                                   -            T1078.004             AML.T0012
+MailboxAccess                  medium    Collection                        -          20261015_092000_step04_collect.py                                 -            T1114.002             AML.T0126
+SharePointEnumeration          medium    Collection                        -          20261015_092000_step04_collect.py                                 -            T1213.002             AML.T0126, AML.T0036
+TeamsMessageAccess             medium    Collection                        -          20261015_092000_step04_collect.py                                 -            T1213.005             AML.T0126, AML.T0036
+AzureResourceEnumeration       low       Discovery                         -          20261015_093000_step05_vault.sh                                   -            T1580                 AML.T0075
+GraphDirectoryEnumeration      low       Discovery                         -          20261015_090500_step02_recon.ps1                                  -            T1087.004, T1069.003  AML.T0075
+KeyVaultKeyEnumeration         low       Discovery                         -          20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl      -            T1580                 AML.T0075

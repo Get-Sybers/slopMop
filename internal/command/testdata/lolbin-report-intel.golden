@@ -1,46 +1,65 @@
-ITEM                                    SECTION      VALUE   DETAIL
-files                                   summary      11      -
-scripts                                 summary      7       -
-outputs                                 summary      3       -
-indicators                              summary      20      -
-indicators Domain                       summary      5       -
-indicators EncodedCommand               summary      1       -
-indicators IPv4                         summary      3       -
-indicators URL                          summary      11      -
-activities                              summary      11      -
-activities DownloadAndExecute           summary      1       -
-activities EventLogClearing             summary      3       -
-activities FileDownload                 summary      9       -
-activities NativeApiCall                summary      2       -
-activities NetworkSocket                summary      1       -
-activities ProcessStart                 summary      1       -
-activities ReflectiveCodeLoading        summary      3       -
-activities RunKeyPersistence            summary      1       -
-activities RuntimeCompilation           summary      1       -
-activities ScheduledTaskCreation        summary      2       -
-activities SignedBinaryProxyExecution   summary      9       -
-tactics                                 summary      5       -
-intel hits                              summary      0       -
-20261020_100500_step02_download.ps1     script       high    FileDownload
-build_20261020_101200.xml               output       high    FileDownload
-20261020_101500_step04_persist.ps1      script       high    RunKeyPersistence, ScheduledTaskCreation, schtasks.exe (Persistence)
-20261020_102000_step05_dotnet.ps1       script       high    FileDownload
-20261020_102500_step06_pinvoke.ps1      script       high    FileDownload, DownloadAndExecute, NetworkSocket
-loader_20261020_102600.cs               other        high    FileDownload
-20261020_103000_step07_cleanup.bat      script       high    FileDownload
-proc_20261020_103500.jsonl              output       high    FileDownload, ScheduledTaskCreation, schtasks (Persistence)
-Persistence established                 impact       high    A way back in was created: a credential, a run key, a task or a service. Access survives a password reset.
-Outside hosts contacted                 impact       high    Files or commands were fetched from, or a channel was opened to, hosts outside the environment. Affected: 203.0.113.10, 203.0.113.20, 203.0.113.30.
-Defences and logging impaired           impact       high    Logs were cleared or security tooling was interfered with. Records of this period are incomplete.
-Code run outside normal controls        impact       medium  Code was run in ways that avoid application control and leave little on disk.
-Environment mapped                      impact       low     Identities, resources or configuration were listed. Later steps were probably aimed with the result.
-Remove persistence                      remediation  high    Delete the run keys, scheduled tasks, services and accounts that were created, and the files they start.
-Block and hunt the infrastructure       remediation  high    Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.
-Find the delivered files                remediation  medium  Collect the files that were downloaded, dropped or loaded, hash them, and search every host for the same hashes.
-Recover the missing logs                remediation  medium  Treat local logs as incomplete, and recover the period from a central collector or a backup.
-Follow what was enumerated              remediation  low     Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
-Constrain living-off-the-land binaries  mitigation   medium  Use application control to stop system binaries that have no need to from fetching files or running code.
-Constrain PowerShell and .NET           mitigation   medium  Enforce constrained language mode with application control, and log script blocks and module loads.
-Send logs off the host                  mitigation   medium  Forward security logs to a collector as they are written, and alert when a log is cleared.
-Filter outbound traffic                 mitigation   medium  Deny outbound connections from servers by default and allow them by destination.
-Alert on new autostart entries          mitigation   low     Alert when a run key, scheduled task or service is created outside change control.
+ITEM                                                       SECTION      VALUE   DETAIL
+files                                                      summary      11      -
+scripts                                                    summary      7       -
+outputs                                                    summary      3       -
+indicators                                                 summary      20      -
+indicators Domain                                          summary      5       -
+indicators EncodedCommand                                  summary      1       -
+indicators IPv4                                            summary      3       -
+indicators URL                                             summary      11      -
+activities                                                 summary      11      -
+activities DownloadAndExecute                              summary      1       -
+activities EventLogClearing                                summary      3       -
+activities FileDownload                                    summary      9       -
+activities NativeApiCall                                   summary      2       -
+activities NetworkSocket                                   summary      1       -
+activities ProcessStart                                    summary      1       -
+activities ReflectiveCodeLoading                           summary      3       -
+activities RunKeyPersistence                               summary      1       -
+activities RuntimeCompilation                              summary      1       -
+activities ScheduledTaskCreation                           summary      2       -
+activities SignedBinaryProxyExecution                      summary      9       -
+tactics                                                    summary      6       -
+intel hits                                                 summary      0       -
+20261020_100500_step02_download.ps1                        script       high    FileDownload
+build_20261020_101200.xml                                  output       high    FileDownload
+20261020_101500_step04_persist.ps1                         script       high    RunKeyPersistence, ScheduledTaskCreation, EventLogClearing, schtasks.exe (Persistence), wevtutil (DefenseImpairment)
+20261020_102000_step05_dotnet.ps1                          script       high    FileDownload
+20261020_102500_step06_pinvoke.ps1                         script       high    FileDownload, DownloadAndExecute, NetworkSocket
+loader_20261020_102600.cs                                  other        high    FileDownload
+20261020_103000_step07_cleanup.bat                         script       high    FileDownload, EventLogClearing, wevtutil (DefenseImpairment)
+proc_20261020_103500.jsonl                                 output       high    FileDownload, ScheduledTaskCreation, EventLogClearing, schtasks (Persistence), wevtutil (DefenseImpairment)
+Persistence established                                    impact       high    A way back in was created: a credential, a run key, a task or a service. Access survives a password reset.
+Outside hosts contacted                                    impact       high    Files or commands were fetched from, or a channel was opened to, hosts outside the environment. Affected: 203.0.113.10, 203.0.113.20, 203.0.113.30.
+Defences and logging impaired                              impact       high    Logs were cleared or security tooling was interfered with. Records of this period are incomplete.
+Code run outside normal controls                           impact       medium  Code was run in ways that avoid application control and leave little on disk.
+Commands generated by an AI agent                          impact       medium  The scripts were written by an AI agent, which is the premise of this tool. Generated commands differ from run to run, so a detection that matches exact text misses them.
+Environment mapped                                         impact       low     Identities, resources or configuration were listed. Later steps were probably aimed with the result.
+Remove persistence                                         remediation  high    Delete the run keys, scheduled tasks, services and accounts that were created, and the files they start.
+Block and hunt the infrastructure                          remediation  high    Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.
+Find the delivered files                                   remediation  medium  Collect the files that were downloaded, dropped or loaded, hash them, and search every host for the same hashes.
+Recover the missing logs                                   remediation  medium  Treat local logs as incomplete, and recover the period from a central collector or a backup.
+Follow what was enumerated                                 remediation  low     Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
+M1018 User Account Management                              mitigation   high    User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.
+M1022 Restrict File and Directory Permissions              mitigation   high    Restricting file and directory permissions involves setting access controls at the file system level to limit which users, groups, or processes can read, write, or execute files.
+M1026 Privileged Account Management                        mitigation   high    Privileged Account Management focuses on implementing policies, controls, and tools to securely manage privileged accounts (e.g., SYSTEM, root, or administrative accounts).
+M1028 Operating System Configuration                       mitigation   high    Operating System Configuration involves adjusting system settings and hardening the default configurations of an operating system (OS) to mitigate adversary exploitation and prevent abuse of system functionality.
+M1029 Remote Data Storage                                  mitigation   high    Remote Data Storage focuses on moving critical data, such as security logs and sensitive files, to secure, off-host locations to minimize unauthorized access, tampering, or destruction by adversaries.
+M1030 Network Segmentation                                 mitigation   high    Network segmentation involves dividing a network into smaller, isolated segments to control and limit the flow of traffic between devices, systems, and applications.
+M1031 Network Intrusion Prevention                         mitigation   high    Use intrusion detection signatures to block traffic at network boundaries.
+M1037 Filter Network Traffic                               mitigation   high    Employ network appliances and endpoint software to filter ingress, egress, and lateral network traffic.
+M1038 Execution Prevention                                 mitigation   high    Prevent the execution of unauthorized or malicious code on systems by implementing application control, script blocking, and other execution prevention mechanisms.
+M1041 Encrypt Sensitive Information                        mitigation   high    Protect sensitive information at rest, in transit, and during processing by using strong encryption algorithms.
+M1042 Disable or Remove Feature or Program                 mitigation   high    Disable or remove unnecessary and potentially vulnerable software, features, or services to reduce the attack surface and prevent abuse by adversaries.
+M1045 Code Signing                                         mitigation   high    Code Signing is a security process that ensures the authenticity and integrity of software by digitally signing executables, scripts, and other code artifacts.
+M1047 Audit                                                mitigation   high    Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.
+M1049 Antivirus/Antimalware                                mitigation   high    Antivirus/Antimalware solutions utilize signatures, heuristics, and behavioral analysis to detect, block, and remediate malicious software, including viruses, trojans, ransomware, and spyware.
+M1021 Restrict Web-Based Content                           mitigation   medium  Restricting web-based content involves enforcing policies and technologies that limit access to potentially malicious websites, unsafe downloads, and unauthorized browser behaviors.
+M1033 Limit Software Installation                          mitigation   medium  Prevent users or groups from installing unauthorized or unapproved software to reduce the risk of introducing malicious or vulnerable applications.
+M1040 Behavior Prevention on Endpoint                      mitigation   medium  Behavior Prevention on Endpoint refers to the use of technologies and strategies to detect and block potentially malicious activities by analyzing the behavior of processes, files, API calls, and other endpoint events.
+M1050 Exploit Protection                                   mitigation   medium  Deploy capabilities that detect, block, and mitigate conditions indicative of software exploits.
+AML.M0011 Restrict Library Loading                         mitigation   high    Prevent abuse of library loading mechanisms in the operating system and software to load untrusted code by configuring appropriate library loading mechanisms and investigating potential vulnerable software.
+AML.M0013 Code Signing                                     mitigation   high    Enforce binary and application integrity with digital signature verification to prevent untrusted code from executing.
+AML.M0043 AI Agent External Resource Lifecycle Management  mitigation   high    Organizations should control external resources created or acquired by AI agents during execution by treating those resources as attributable, lifecycle-managed assets.
+AML.M0020 Generative AI Guardrails                         mitigation   medium  Guardrails are safety controls placed between users, tools, and generative AI models to evaluate prompts, retrieved context, model outputs, and agent actions before they are accepted, executed, or shown to a user.
+AML.M0022 Generative AI Model Alignment                    mitigation   medium  Generative AI Model Alignment is the process of training or fine-tuning a generative model to guide its output toward a set of human values, goals, or ethical principles.

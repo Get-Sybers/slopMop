@@ -5,7 +5,9 @@
     "value": 11,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "scripts",
@@ -13,7 +15,9 @@
     "value": 7,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "outputs",
@@ -21,7 +25,9 @@
     "value": 3,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators",
@@ -29,7 +35,9 @@
     "value": 20,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators Domain",
@@ -37,7 +45,9 @@
     "value": 5,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators EncodedCommand",
@@ -45,7 +55,9 @@
     "value": 1,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators IPv4",
@@ -53,7 +65,9 @@
     "value": 3,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "indicators URL",
@@ -61,7 +75,9 @@
     "value": 11,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities",
@@ -69,7 +85,9 @@
     "value": 11,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities DownloadAndExecute",
@@ -77,7 +95,9 @@
     "value": 1,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities EventLogClearing",
@@ -85,7 +105,9 @@
     "value": 3,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities FileDownload",
@@ -93,7 +115,9 @@
     "value": 9,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities NativeApiCall",
@@ -101,7 +125,9 @@
     "value": 2,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities NetworkSocket",
@@ -109,7 +135,9 @@
     "value": 1,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities ProcessStart",
@@ -117,7 +145,9 @@
     "value": 1,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities ReflectiveCodeLoading",
@@ -125,7 +155,9 @@
     "value": 3,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities RunKeyPersistence",
@@ -133,7 +165,9 @@
     "value": 1,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities RuntimeCompilation",
@@ -141,7 +175,9 @@
     "value": 1,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities ScheduledTaskCreation",
@@ -149,7 +185,9 @@
     "value": 2,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "activities SignedBinaryProxyExecution",
@@ -157,15 +195,19 @@
     "value": 9,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "tactics",
     "section": "summary",
-    "value": 5,
+    "value": 6,
     "detail": null,
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "20261020_100500_step02_download.ps1",
@@ -173,7 +215,9 @@
     "value": "high",
     "detail": "FileDownload",
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": "T1105",
+    "atlas": "AML.T0072"
   },
   {
     "item": "build_20261020_101200.xml",
@@ -181,15 +225,19 @@
     "value": "high",
     "detail": "FileDownload",
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": "T1105",
+    "atlas": "AML.T0072"
   },
   {
     "item": "20261020_101500_step04_persist.ps1",
     "section": "script",
     "value": "high",
-    "detail": "RunKeyPersistence, ScheduledTaskCreation, schtasks.exe (Persistence)",
+    "detail": "RunKeyPersistence, ScheduledTaskCreation, EventLogClearing, schtasks.exe (Persistence), wevtutil (DefenseImpairment)",
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": "T1218, T1127, T1547.001, T1053.005, T1685.005",
+    "atlas": "AML.T0142, AML.T0138"
   },
   {
     "item": "20261020_102000_step05_dotnet.ps1",
@@ -197,7 +245,9 @@
     "value": "high",
     "detail": "FileDownload",
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": "T1105, T1620",
+    "atlas": "AML.T0072"
   },
   {
     "item": "20261020_102500_step06_pinvoke.ps1",
@@ -205,7 +255,9 @@
     "value": "high",
     "detail": "FileDownload, DownloadAndExecute, NetworkSocket",
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": "T1105, T1059.001, T1106, T1055, T1027.004, T1059, T1047, T1095",
+    "atlas": "AML.T0072, AML.T0050, AML.T0123"
   },
   {
     "item": "loader_20261020_102600.cs",
@@ -213,23 +265,29 @@
     "value": "high",
     "detail": "FileDownload",
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": "T1105, T1620",
+    "atlas": "AML.T0072"
   },
   {
     "item": "20261020_103000_step07_cleanup.bat",
     "section": "script",
     "value": "high",
-    "detail": "FileDownload",
+    "detail": "FileDownload, EventLogClearing, wevtutil (DefenseImpairment)",
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": "T1105, T1685.005",
+    "atlas": "AML.T0072, AML.T0138"
   },
   {
     "item": "proc_20261020_103500.jsonl",
     "section": "output",
     "value": "high",
-    "detail": "FileDownload, ScheduledTaskCreation, schtasks (Persistence)",
+    "detail": "FileDownload, ScheduledTaskCreation, EventLogClearing, schtasks (Persistence), wevtutil (DefenseImpairment)",
     "basis": null,
-    "files": null
+    "files": null,
+    "attack": "T1105, T1218, T1127, T1053.005, T1685.005",
+    "atlas": "AML.T0072, AML.T0138"
   },
   {
     "item": "Persistence established",
@@ -237,7 +295,9 @@
     "value": "high",
     "detail": "A way back in was created: a credential, a run key, a task or a service. Access survives a password reset.",
     "basis": "RunKeyPersistence, ScheduledTaskCreation, Persistence tools",
-    "files": "20261020_101500_step04_persist.ps1, proc_20261020_103500.jsonl"
+    "files": "20261020_101500_step04_persist.ps1, proc_20261020_103500.jsonl",
+    "attack": "T1547.001, T1053.005",
+    "atlas": "AML.T0142"
   },
   {
     "item": "Outside hosts contacted",
@@ -245,15 +305,19 @@
     "value": "high",
     "detail": "Files or commands were fetched from, or a channel was opened to, hosts outside the environment. Affected: 203.0.113.10, 203.0.113.20, 203.0.113.30.",
     "basis": "FileDownload, DownloadAndExecute, NetworkSocket",
-    "files": "20261020_100500_step02_download.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl"
+    "files": "20261020_100500_step02_download.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl",
+    "attack": "T1105, T1059.001, T1095",
+    "atlas": "AML.T0072, AML.T0050"
   },
   {
     "item": "Defences and logging impaired",
     "section": "impact",
     "value": "high",
     "detail": "Logs were cleared or security tooling was interfered with. Records of this period are incomplete.",
-    "basis": "EventLogClearing, DefenseEvasion tools",
-    "files": "20261020_101500_step04_persist.ps1, 20261020_103000_step07_cleanup.bat, proc_20261020_103500.jsonl"
+    "basis": "EventLogClearing, DefenseImpairment tools",
+    "files": "20261020_101500_step04_persist.ps1, 20261020_103000_step07_cleanup.bat, proc_20261020_103500.jsonl",
+    "attack": "T1685.005",
+    "atlas": "AML.T0138"
   },
   {
     "item": "Code run outside normal controls",
@@ -261,7 +325,19 @@
     "value": "medium",
     "detail": "Code was run in ways that avoid application control and leave little on disk.",
     "basis": "ReflectiveCodeLoading, NativeApiCall, SignedBinaryProxyExecution, RuntimeCompilation, DownloadAndExecute, ProcessStart",
-    "files": "20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, loader_20261020_102600.cs, proc_20261020_103500.jsonl"
+    "files": "20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, loader_20261020_102600.cs, proc_20261020_103500.jsonl",
+    "attack": "T1218, T1127, T1620, T1059.001, T1105, T1106, T1055, T1027.004, T1059, T1047",
+    "atlas": "AML.T0072, AML.T0050, AML.T0123"
+  },
+  {
+    "item": "Commands generated by an AI agent",
+    "section": "impact",
+    "value": "medium",
+    "detail": "The scripts were written by an AI agent, which is the premise of this tool. Generated commands differ from run to run, so a detection that matches exact text misses them.",
+    "basis": "the premise of the tool",
+    "files": "20261020_100000_step01_recon.ps1, 20261020_100500_step02_download.ps1, 20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl",
+    "attack": null,
+    "atlas": "AML.T0102"
   },
   {
     "item": "Environment mapped",
@@ -269,7 +345,9 @@
     "value": "low",
     "detail": "Identities, resources or configuration were listed. Later steps were probably aimed with the result.",
     "basis": "Discovery tools",
-    "files": "20261020_100000_step01_recon.ps1, 20261020_102500_step06_pinvoke.ps1"
+    "files": "20261020_100000_step01_recon.ps1, 20261020_102500_step06_pinvoke.ps1",
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "Remove persistence",
@@ -277,7 +355,9 @@
     "value": "high",
     "detail": "Delete the run keys, scheduled tasks, services and accounts that were created, and the files they start.",
     "basis": "RunKeyPersistence, ScheduledTaskCreation, Persistence tools",
-    "files": "20261020_101500_step04_persist.ps1, proc_20261020_103500.jsonl"
+    "files": "20261020_101500_step04_persist.ps1, proc_20261020_103500.jsonl",
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "Block and hunt the infrastructure",
@@ -285,7 +365,9 @@
     "value": "high",
     "detail": "Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.",
     "basis": "FileDownload, DownloadAndExecute, NetworkSocket",
-    "files": "20261020_100500_step02_download.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl"
+    "files": "20261020_100500_step02_download.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl",
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "Find the delivered files",
@@ -293,15 +375,19 @@
     "value": "medium",
     "detail": "Collect the files that were downloaded, dropped or loaded, hash them, and search every host for the same hashes.",
     "basis": "FileDownload, DownloadAndExecute, ReflectiveCodeLoading, SignedBinaryProxyExecution, RuntimeCompilation, NativeApiCall, ProcessStart",
-    "files": "20261020_100500_step02_download.ps1, 20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl"
+    "files": "20261020_100500_step02_download.ps1, 20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl",
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "Recover the missing logs",
     "section": "remediation",
     "value": "medium",
     "detail": "Treat local logs as incomplete, and recover the period from a central collector or a backup.",
-    "basis": "EventLogClearing, DefenseEvasion tools",
-    "files": "20261020_101500_step04_persist.ps1, 20261020_103000_step07_cleanup.bat, proc_20261020_103500.jsonl"
+    "basis": "EventLogClearing, DefenseImpairment tools",
+    "files": "20261020_101500_step04_persist.ps1, 20261020_103000_step07_cleanup.bat, proc_20261020_103500.jsonl",
+    "attack": null,
+    "atlas": null
   },
   {
     "item": "Follow what was enumerated",
@@ -309,46 +395,238 @@
     "value": "low",
     "detail": "Use what was listed to predict targets: check those identities, vaults and hosts for later activity.",
     "basis": "Discovery tools",
-    "files": "20261020_100000_step01_recon.ps1, 20261020_102500_step06_pinvoke.ps1"
+    "files": "20261020_100000_step01_recon.ps1, 20261020_102500_step06_pinvoke.ps1",
+    "attack": null,
+    "atlas": null
   },
   {
-    "item": "Constrain living-off-the-land binaries",
+    "item": "M1018 User Account Management",
     "section": "mitigation",
-    "value": "medium",
-    "detail": "Use application control to stop system binaries that have no need to from fetching files or running code.",
-    "basis": "SignedBinaryProxyExecution, FileDownload, ProcessStart",
-    "files": "20261020_100500_step02_download.ps1, 20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl"
+    "value": "high",
+    "detail": "User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.",
+    "basis": "ProcessStart, ScheduledTaskCreation",
+    "files": "20261020_101500_step04_persist.ps1, 20261020_102500_step06_pinvoke.ps1, proc_20261020_103500.jsonl",
+    "attack": "T1047, T1053.005",
+    "atlas": null
   },
   {
-    "item": "Constrain PowerShell and .NET",
+    "item": "M1022 Restrict File and Directory Permissions",
     "section": "mitigation",
-    "value": "medium",
-    "detail": "Enforce constrained language mode with application control, and log script blocks and module loads.",
-    "basis": "DownloadAndExecute, ReflectiveCodeLoading, NativeApiCall, RuntimeCompilation",
-    "files": "20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, loader_20261020_102600.cs"
+    "value": "high",
+    "detail": "Restricting file and directory permissions involves setting access controls at the file system level to limit which users, groups, or processes can read, write, or execute files.",
+    "basis": "EventLogClearing",
+    "files": "20261020_101500_step04_persist.ps1, 20261020_103000_step07_cleanup.bat, proc_20261020_103500.jsonl",
+    "attack": "T1685.005",
+    "atlas": null
   },
   {
-    "item": "Send logs off the host",
+    "item": "M1026 Privileged Account Management",
     "section": "mitigation",
-    "value": "medium",
-    "detail": "Forward security logs to a collector as they are written, and alert when a log is cleared.",
-    "basis": "EventLogClearing, DefenseEvasion tools",
-    "files": "20261020_101500_step04_persist.ps1, 20261020_103000_step07_cleanup.bat, proc_20261020_103500.jsonl"
+    "value": "high",
+    "detail": "Privileged Account Management focuses on implementing policies, controls, and tools to securely manage privileged accounts (e.g., SYSTEM, root, or administrative accounts).",
+    "basis": "ProcessStart, ScheduledTaskCreation, NativeApiCall, DownloadAndExecute, SignedBinaryProxyExecution",
+    "files": "20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102500_step06_pinvoke.ps1, proc_20261020_103500.jsonl",
+    "attack": "T1047, T1053.005, T1055, T1059, T1059.001, T1218",
+    "atlas": null
   },
   {
-    "item": "Filter outbound traffic",
+    "item": "M1028 Operating System Configuration",
     "section": "mitigation",
-    "value": "medium",
-    "detail": "Deny outbound connections from servers by default and allow them by destination.",
+    "value": "high",
+    "detail": "Operating System Configuration involves adjusting system settings and hardening the default configurations of an operating system (OS) to mitigate adversary exploitation and prevent abuse of system functionality.",
+    "basis": "ScheduledTaskCreation",
+    "files": "20261020_101500_step04_persist.ps1, proc_20261020_103500.jsonl",
+    "attack": "T1053.005",
+    "atlas": null
+  },
+  {
+    "item": "M1029 Remote Data Storage",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Remote Data Storage focuses on moving critical data, such as security logs and sensitive files, to secure, off-host locations to minimize unauthorized access, tampering, or destruction by adversaries.",
+    "basis": "EventLogClearing",
+    "files": "20261020_101500_step04_persist.ps1, 20261020_103000_step07_cleanup.bat, proc_20261020_103500.jsonl",
+    "attack": "T1685.005",
+    "atlas": null
+  },
+  {
+    "item": "M1030 Network Segmentation",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Network segmentation involves dividing a network into smaller, isolated segments to control and limit the flow of traffic between devices, systems, and applications.",
+    "basis": "NetworkSocket",
+    "files": "20261020_102500_step06_pinvoke.ps1",
+    "attack": "T1095",
+    "atlas": null
+  },
+  {
+    "item": "M1031 Network Intrusion Prevention",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Use intrusion detection signatures to block traffic at network boundaries.",
     "basis": "NetworkSocket, FileDownload, DownloadAndExecute",
-    "files": "20261020_100500_step02_download.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl"
+    "files": "20261020_100500_step02_download.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl",
+    "attack": "T1095, T1105",
+    "atlas": null
   },
   {
-    "item": "Alert on new autostart entries",
+    "item": "M1037 Filter Network Traffic",
     "section": "mitigation",
-    "value": "low",
-    "detail": "Alert when a run key, scheduled task or service is created outside change control.",
-    "basis": "RunKeyPersistence, ScheduledTaskCreation, Persistence tools",
-    "files": "20261020_101500_step04_persist.ps1, proc_20261020_103500.jsonl"
+    "value": "high",
+    "detail": "Employ network appliances and endpoint software to filter ingress, egress, and lateral network traffic.",
+    "basis": "NetworkSocket, FileDownload, DownloadAndExecute, SignedBinaryProxyExecution",
+    "files": "20261020_100500_step02_download.ps1, 20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl",
+    "attack": "T1095, T1105, T1218",
+    "atlas": null
+  },
+  {
+    "item": "M1038 Execution Prevention",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Prevent the execution of unauthorized or malicious code on systems by implementing application control, script blocking, and other execution prevention mechanisms.",
+    "basis": "ProcessStart, DownloadAndExecute, NativeApiCall, SignedBinaryProxyExecution",
+    "files": "20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102500_step06_pinvoke.ps1, proc_20261020_103500.jsonl",
+    "attack": "T1047, T1059, T1059.001, T1106, T1127, T1218",
+    "atlas": null
+  },
+  {
+    "item": "M1041 Encrypt Sensitive Information",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Protect sensitive information at rest, in transit, and during processing by using strong encryption algorithms.",
+    "basis": "EventLogClearing",
+    "files": "20261020_101500_step04_persist.ps1, 20261020_103000_step07_cleanup.bat, proc_20261020_103500.jsonl",
+    "attack": "T1685.005",
+    "atlas": null
+  },
+  {
+    "item": "M1042 Disable or Remove Feature or Program",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Disable or remove unnecessary and potentially vulnerable software, features, or services to reduce the attack surface and prevent abuse by adversaries.",
+    "basis": "ProcessStart, DownloadAndExecute, SignedBinaryProxyExecution",
+    "files": "20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102500_step06_pinvoke.ps1, proc_20261020_103500.jsonl",
+    "attack": "T1059, T1059.001, T1127, T1218",
+    "atlas": null
+  },
+  {
+    "item": "M1045 Code Signing",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Code Signing is a security process that ensures the authenticity and integrity of software by digitally signing executables, scripts, and other code artifacts.",
+    "basis": "ProcessStart, DownloadAndExecute",
+    "files": "20261020_102500_step06_pinvoke.ps1",
+    "attack": "T1059, T1059.001",
+    "atlas": null
+  },
+  {
+    "item": "M1047 Audit",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.",
+    "basis": "ScheduledTaskCreation, ProcessStart, NetworkSocket",
+    "files": "20261020_101500_step04_persist.ps1, 20261020_102500_step06_pinvoke.ps1, proc_20261020_103500.jsonl",
+    "attack": "T1053.005, T1059, T1095",
+    "atlas": null
+  },
+  {
+    "item": "M1049 Antivirus/Antimalware",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Antivirus/Antimalware solutions utilize signatures, heuristics, and behavioral analysis to detect, block, and remediate malicious software, including viruses, trojans, ransomware, and spyware.",
+    "basis": "ProcessStart, DownloadAndExecute",
+    "files": "20261020_102500_step06_pinvoke.ps1",
+    "attack": "T1059, T1059.001",
+    "atlas": null
+  },
+  {
+    "item": "M1021 Restrict Web-Based Content",
+    "section": "mitigation",
+    "value": "medium",
+    "detail": "Restricting web-based content involves enforcing policies and technologies that limit access to potentially malicious websites, unsafe downloads, and unauthorized browser behaviors.",
+    "basis": "ProcessStart, SignedBinaryProxyExecution",
+    "files": "20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102500_step06_pinvoke.ps1, proc_20261020_103500.jsonl",
+    "attack": "T1059, T1127, T1218",
+    "atlas": null
+  },
+  {
+    "item": "M1033 Limit Software Installation",
+    "section": "mitigation",
+    "value": "medium",
+    "detail": "Prevent users or groups from installing unauthorized or unapproved software to reduce the risk of introducing malicious or vulnerable applications.",
+    "basis": "ProcessStart",
+    "files": "20261020_102500_step06_pinvoke.ps1",
+    "attack": "T1059",
+    "atlas": null
+  },
+  {
+    "item": "M1040 Behavior Prevention on Endpoint",
+    "section": "mitigation",
+    "value": "medium",
+    "detail": "Behavior Prevention on Endpoint refers to the use of technologies and strategies to detect and block potentially malicious activities by analyzing the behavior of processes, files, API calls, and other endpoint events.",
+    "basis": "ProcessStart, NativeApiCall",
+    "files": "20261020_102500_step06_pinvoke.ps1",
+    "attack": "T1047, T1055, T1059, T1106",
+    "atlas": null
+  },
+  {
+    "item": "M1050 Exploit Protection",
+    "section": "mitigation",
+    "value": "medium",
+    "detail": "Deploy capabilities that detect, block, and mitigate conditions indicative of software exploits.",
+    "basis": "SignedBinaryProxyExecution",
+    "files": "20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, proc_20261020_103500.jsonl",
+    "attack": "T1218",
+    "atlas": null
+  },
+  {
+    "item": "AML.M0011 Restrict Library Loading",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Prevent abuse of library loading mechanisms in the operating system and software to load untrusted code by configuring appropriate library loading mechanisms and investigating potential vulnerable software.",
+    "basis": "DownloadAndExecute, ProcessStart, RunKeyPersistence",
+    "files": "20261020_101500_step04_persist.ps1, 20261020_102500_step06_pinvoke.ps1",
+    "attack": null,
+    "atlas": "AML.T0050, AML.T0142"
+  },
+  {
+    "item": "AML.M0013 Code Signing",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Enforce binary and application integrity with digital signature verification to prevent untrusted code from executing.",
+    "basis": "RunKeyPersistence",
+    "files": "20261020_101500_step04_persist.ps1",
+    "attack": null,
+    "atlas": "AML.T0142"
+  },
+  {
+    "item": "AML.M0043 AI Agent External Resource Lifecycle Management",
+    "section": "mitigation",
+    "value": "high",
+    "detail": "Organizations should control external resources created or acquired by AI agents during execution by treating those resources as attributable, lifecycle-managed assets.",
+    "basis": "FileDownload, DownloadAndExecute, NetworkSocket",
+    "files": "20261020_100500_step02_download.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl",
+    "attack": null,
+    "atlas": "AML.T0072"
+  },
+  {
+    "item": "AML.M0020 Generative AI Guardrails",
+    "section": "mitigation",
+    "value": "medium",
+    "detail": "Guardrails are safety controls placed between users, tools, and generative AI models to evaluate prompts, retrieved context, model outputs, and agent actions before they are accepted, executed, or shown to a user.",
+    "basis": "Commands generated by an AI agent",
+    "files": "20261020_100000_step01_recon.ps1, 20261020_100500_step02_download.ps1, 20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl",
+    "attack": null,
+    "atlas": "AML.T0102"
+  },
+  {
+    "item": "AML.M0022 Generative AI Model Alignment",
+    "section": "mitigation",
+    "value": "medium",
+    "detail": "Generative AI Model Alignment is the process of training or fine-tuning a generative model to guide its output toward a set of human values, goals, or ethical principles.",
+    "basis": "Commands generated by an AI agent",
+    "files": "20261020_100000_step01_recon.ps1, 20261020_100500_step02_download.ps1, 20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102000_step05_dotnet.ps1, 20261020_102500_step06_pinvoke.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, loader_20261020_102600.cs, proc_20261020_103500.jsonl",
+    "attack": null,
+    "atlas": "AML.T0102"
   }
 ]

@@ -30,7 +30,7 @@ func TestClassify(t *testing.T) {
 		{"psexec.py", "LateralMovement"},
 		{"python3", "Execution"},
 		{"crontab", "Persistence"},
-		{"shred", "DefenseEvasion"},
+		{"shred", "Stealth"},
 		{"mysqldump", "Collection"},
 		{"scp", "Exfiltration"},
 		{"chisel", "CommandAndControl"},
@@ -60,9 +60,9 @@ func TestClassify(t *testing.T) {
 		{"New-MgServicePrincipalAppRoleAssignment", "Persistence"},
 		{"New-MgOauth2PermissionGrant", "Persistence"},
 		{"New-MgRoleManagementDirectoryRoleAssignment", "Persistence"},
-		{"Set-AdminAuditLogConfig", "DefenseEvasion"},
-		{"Set-MailboxAuditBypassAssociation", "DefenseEvasion"},
-		{"Remove-AzDiagnosticSetting", "DefenseEvasion"},
+		{"Set-AdminAuditLogConfig", "DefenseImpairment"},
+		{"Set-MailboxAuditBypassAssociation", "DefenseImpairment"},
+		{"Remove-AzDiagnosticSetting", "DefenseImpairment"},
 		{"Export-Mailbox", "Collection"},
 		{"New-MailboxExportRequest", "Collection"},
 		{"Search-UnifiedAuditLog", "Collection"},
@@ -171,6 +171,12 @@ func TestHas(t *testing.T) {
 	tab, err := LoadTactics()
 	if err != nil {
 		t.Fatal(err)
+	}
+	if tab.Attack("Stealth") != "TA0005" || tab.Atlas("CommandAndControl") != "AML.TA0014" || tab.Attack("NoSuchTactic") != "" {
+		t.Error("a tactic's identifier is wrong")
+	}
+	if names := tab.Names(); len(names) != 13 || names[0] != "InitialAccess" || names[12] != "Impact" {
+		t.Errorf("Names() = %q, want the 13 tactics in file order", names)
 	}
 	for _, name := range []string{"Discovery", "InitialAccess", "PrivilegeEscalation"} {
 		if !tab.Has(name) {
