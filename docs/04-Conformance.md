@@ -89,3 +89,16 @@ Dependabot raises the GitHub Actions and Go module pins weekly, seven days after
 `make upgrade` moves the `go` directive and every dependency to the newest version, re-applies each
 ceiling in `upgrade.limits`, runs `go mod tidy`, then runs the gate. When the gate fails, `go.mod`
 and `go.sum` are restored.
+
+## 7. Release
+
+`.github/workflows/release.yml` is run by hand on `main` with a version such as `v0.1.0`. It stops
+unless `CHANGELOG.md` has a section for that version.
+
+- It runs on Windows: the tests, the integration test, then `go build -trimpath` for windows/amd64.
+- It runs the built file against the PowerShell fixture; that same file is the one published.
+- It publishes `slopmop-<version>-windows-amd64.exe` and its `.sha256` as a GitHub release, tags the
+  commit with the version, and takes the release notes from the version's changelog section.
+
+A pull request that changes the workflow runs every step except the publish. Only the publish step
+uses the job's write permission.

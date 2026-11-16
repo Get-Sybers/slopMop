@@ -13,6 +13,9 @@ make build      # writes bin/slopmop
 make conform    # the gate CI runs
 ```
 
+Each GitHub release carries a Windows x64 binary, `slopmop-<version>-windows-amd64.exe`, and its
+SHA-256. The binary is not code-signed.
+
 ## Use
 
 The grammar is `slopmop NOUN VERB [selectors] [--params] [output flags] [positional]`.
