@@ -45,7 +45,7 @@ var (
 	}
 
 	rxAssign  = regexp.MustCompile(`^([A-Za-z_][A-Za-z0-9_]*)(\+?=)(.*)$`)
-	rxHereDoc = regexp.MustCompile(`<<-?\s*['"]?(\w+)['"]?\s*(?:>\s*(\S+))?`)
+	rxHereDoc = regexp.MustCompile(`(?:^|[^<])<<-?[ \t]*['"]?(\w+)['"]?\s*(?:>\s*(\S+))?`)
 	rxInputRe = regexp.MustCompile(`<\s+(\S+)`)
 
 	bashTransformCmds = map[string]string{
@@ -67,31 +67,6 @@ var (
 	rxOpenSSLEnc = regexp.MustCompile(`(?i)\bopenssl\s+(?:enc|aes|des|bf|rc[24])`)
 )
 
-const maxText = 200
-
-func truncate(s string) string {
-	if len(s) <= maxText {
-		return s
-	}
-	return s[:maxText]
-}
-
-func stripQuotes(s string) string {
-	if len(s) >= 2 {
-		if (s[0] == '\'' && s[len(s)-1] == '\'') || (s[0] == '"' && s[len(s)-1] == '"') {
-			return s[1 : len(s)-1]
-		}
-	}
-	return s
-}
-
-func looksLikeFile(s string) bool {
-	if s == "" || strings.HasPrefix(s, "-") || strings.HasPrefix(s, "$") {
-		return false
-	}
-	return strings.Contains(s, ".") || strings.Contains(s, "/")
-}
-
 // ExtractBash parses a bash script by line to find commands, variables and IO.
 func ExtractBash(text string) Script {
 	var s Script
@@ -111,7 +86,7 @@ func ExtractBash(text string) Script {
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue
 		}
-		if m := rxHereDoc.FindStringSubmatch(line); m != nil {
+		if m := matchHereDoc(line); m != nil {
 			hereEnd = m[1]
 		}
 
@@ -122,6 +97,36 @@ func ExtractBash(text string) Script {
 		extractBashTransforms(line, lineNo, &s)
 	}
 	return s
+}
+
+// matchHereDoc ignores "<<" inside arithmetic, where it is a shift.
+func matchHereDoc(line string) []string {
+	return rxHereDoc.FindStringSubmatch(blankArithmetic(line))
+}
+
+func blankArithmetic(line string) string {
+	out := []byte(line)
+	for i := 0; i+1 < len(out); i++ {
+		if out[i] != '(' || out[i+1] != '(' {
+			continue
+		}
+		depth := 0
+		j := i
+		for ; j < len(out); j++ {
+			switch out[j] {
+			case '(':
+				depth++
+			case ')':
+				depth--
+			}
+			out[j] = ' '
+			if depth == 0 {
+				break
+			}
+		}
+		i = j
+	}
+	return string(out)
 }
 
 func extractBashVars(line string, lineNo int, s *Script) {
@@ -192,7 +197,7 @@ func extractBashRedirections(line string, _ int, s *Script, seen map[string]bool
 		}
 	}
 
-	m := rxHereDoc.FindStringSubmatch(line)
+	m := matchHereDoc(line)
 	if m != nil && m[2] != "" {
 		addWrite(m[2])
 	}
@@ -431,56 +436,12 @@ func splitPipe(line string) []string {
 	return segs
 }
 
-func shellWords(s string) []string {
-	var words []string
-	var buf strings.Builder
-	inSingle := false
-	inDouble := false
-
-	for i := 0; i < len(s); i++ {
-		c := s[i]
-		switch {
-		case c == '\\' && !inSingle:
-			if i+1 < len(s) {
-				buf.WriteByte(s[i+1])
-				i++
-			}
-		case c == '\'' && !inDouble:
-			inSingle = !inSingle
-			buf.WriteByte(c)
-		case c == '"' && !inSingle:
-			inDouble = !inDouble
-			buf.WriteByte(c)
-		case !inSingle && !inDouble && (c == ' ' || c == '\t'):
-			if buf.Len() > 0 {
-				words = append(words, buf.String())
-				buf.Reset()
-			}
-		default:
-			buf.WriteByte(c)
-		}
-	}
-	if buf.Len() > 0 {
-		words = append(words, buf.String())
-	}
-	return words
-}
-
 func firstWord(s string) string {
 	s = strings.TrimSpace(s)
 	for i, c := range s {
 		if c == ' ' || c == '\t' || c == ';' || c == '&' || c == '|' || c == '\n' {
 			return s[:i]
 		}
-	}
-	return s
-}
-
-func trimVarExpansion(s string) string {
-	s = strings.ReplaceAll(s, "\"", "")
-	s = strings.ReplaceAll(s, "'", "")
-	if strings.HasPrefix(s, "$") {
-		return ""
 	}
 	return s
 }

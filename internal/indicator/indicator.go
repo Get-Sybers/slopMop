@@ -16,6 +16,10 @@ var raw []byte
 type entry struct {
 	Type    string `json:"type"`
 	Pattern string `json:"pattern"`
+	// NotFollowedBy is an optional pattern; a match is dropped when the text
+	// immediately after it matches. Go's regexp (RE2) has no lookahead, so
+	// the trailing context is checked here instead of inside Pattern.
+	NotFollowedBy string `json:"not_followed_by,omitempty"`
 }
 
 // Match is one indicator found in a text.
@@ -33,6 +37,9 @@ type Table struct {
 type compiled struct {
 	typ string
 	rx  *regexp.Regexp
+	// notAfter, when non-nil, is anchored at the start of the text that
+	// follows a match and rejects the match if it matches there.
+	notAfter *regexp.Regexp
 }
 
 // LoadPatterns decodes indicators.json and compiles each pattern.
@@ -62,6 +69,13 @@ func LoadPatterns() (Table, error) {
 			return Table{}, fmt.Errorf("indicators.json[%d] %s: %w", i, e.Type, err)
 		}
 		patterns[i] = compiled{typ: e.Type, rx: rx}
+		if e.NotFollowedBy != "" {
+			na, err := regexp.Compile(`^(?:` + e.NotFollowedBy + `)`)
+			if err != nil {
+				return Table{}, fmt.Errorf("indicators.json[%d] %s not_followed_by: %w", i, e.Type, err)
+			}
+			patterns[i].notAfter = na
+		}
 	}
 	return Table{patterns: patterns}, nil
 }
@@ -73,6 +87,9 @@ func (t Table) Extract(text string) []Match {
 	var matches []Match
 	for _, p := range t.patterns {
 		for _, loc := range p.rx.FindAllStringIndex(text, -1) {
+			if p.notAfter != nil && p.notAfter.MatchString(text[loc[1]:]) {
+				continue
+			}
 			val := text[loc[0]:loc[1]]
 			if seen[val] {
 				continue

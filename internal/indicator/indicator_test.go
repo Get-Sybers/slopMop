@@ -102,3 +102,46 @@ func TestCountByType(t *testing.T) {
 		t.Errorf("URL count: got %d, want 1", counts["URL"])
 	}
 }
+
+func TestExtractBoundaries(t *testing.T) {
+	tbl, err := LoadPatterns()
+	if err != nil {
+		t.Fatalf("LoadPatterns: %v", err)
+	}
+	tests := []struct {
+		name string
+		text string
+		typ  string
+		want []string
+	}{
+		{"ipv4 five octets", "ver 1.2.3.4.5", "IPv4", nil},
+		{"ipv4 octet overflow", "ping 10.0.0.256", "IPv4", nil},
+		{"ipv4 leading digits", "id 1234.1.1.1", "IPv4", nil},
+		{"ipv4 sentence end", "ping 10.20.1.5.", "IPv4", []string{"10.20.1.5"}},
+		{"ipv4 port", "nc 10.20.1.5:443", "IPv4", []string{"10.20.1.5"}},
+		{"ipv4 list", "10.20.1.5,10.20.1.6", "IPv4", []string{"10.20.1.5", "10.20.1.6"}},
+		{"domain namespace", "[System.Net.Sockets.TcpClient]", "Domain", nil},
+		{"domain io namespace", "[System.IO.File]::ReadAllText", "Domain", nil},
+		{"domain property", "$obj.Count", "Domain", nil},
+		{"domain sentence end", "see evil.example.com.", "Domain", []string{"evil.example.com"}},
+		{"domain path", "evil.example.com/a", "Domain", []string{"evil.example.com"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var got []string
+			for _, m := range tbl.Extract(tt.text) {
+				if m.Type == tt.typ {
+					got = append(got, m.Value)
+				}
+			}
+			if len(got) != len(tt.want) {
+				t.Fatalf("Extract(%q) %s: got %v, want %v", tt.text, tt.typ, got, tt.want)
+			}
+			for i := range got {
+				if got[i] != tt.want[i] {
+					t.Fatalf("Extract(%q) %s: got %v, want %v", tt.text, tt.typ, got, tt.want)
+				}
+			}
+		})
+	}
+}

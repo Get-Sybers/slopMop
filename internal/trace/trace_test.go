@@ -107,3 +107,43 @@ func TestSortByTime(t *testing.T) {
 		t.Errorf("sorted = %v %v, want a.sh b.sh", sorted[0].Path, sorted[1].Path)
 	}
 }
+
+func TestLinkOutputsByBaseName(t *testing.T) {
+	files := []evidence.File{
+		{Path: "run.sh", Role: evidence.Script},
+		{Path: "run.ps1", Role: evidence.Script},
+		{Path: "out.txt", Role: evidence.Output},
+		{Path: "loot/dump.log", Role: evidence.Output},
+		{Path: "unrelated.txt", Role: evidence.Output},
+	}
+	texts := map[string]string{
+		"run.sh":  "id > ./out.txt\nid >> ./out.txt\n",
+		"run.ps1": "whoami | Out-File -FilePath C:\\work\\dump.log\n",
+	}
+	tac, ind := loadTables(t)
+	got := map[string][]string{}
+	for _, s := range Build(files, texts, tac, ind).Steps {
+		got[s.File.Path] = s.Outputs
+	}
+	if o := got["run.sh"]; len(o) != 1 || o[0] != "out.txt" {
+		t.Errorf("run.sh outputs = %v, want [out.txt]", o)
+	}
+	if o := got["run.ps1"]; len(o) != 1 || o[0] != "loot/dump.log" {
+		t.Errorf("run.ps1 outputs = %v, want [loot/dump.log]", o)
+	}
+}
+
+func TestBaseName(t *testing.T) {
+	cases := map[string]string{
+		"out.txt":             "out.txt",
+		"./out.txt":           "out.txt",
+		"/tmp/a/out.txt":      "out.txt",
+		`C:\loot\out.txt`:     "out.txt",
+		`.\sub/mixed\out.txt`: "out.txt",
+	}
+	for in, want := range cases {
+		if got := baseName(in); got != want {
+			t.Errorf("baseName(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
