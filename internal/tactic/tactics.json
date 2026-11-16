@@ -122,7 +122,8 @@
       "truncate", "history", "set-mppreference", "add-mppreference",
       "clear-eventlog", "remove-eventlog", "wevtutil", "clear-history",
       "set-executionpolicy", "unblock-file", "auditpol", "fsutil", "bcdedit",
-      "vssadmin", "wbadmin"
+      "vssadmin", "wbadmin",
+      "format-hex"
     ]
   },
   {

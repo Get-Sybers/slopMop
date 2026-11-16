@@ -26,8 +26,8 @@ func TestCopy(t *testing.T) {
 		{"bash", 17, "20250301_101500_step01_recon.sh", "2025-03-01T10:15:03Z"},
 		{"bash", 17, "20250301_104100_ca_backup.p12", "2025-03-01T10:41:03Z"},
 		{"bash", 17, "adsync_1740824625.txt", "2025-03-01T10:23:48Z"},
-		{"powershell", 12, "hosts_20250302_090030.csv", "2025-03-02T09:00:33Z"},
-		{"powershell", 12, "ca01_20250302_092210.cer", "2025-03-02T09:22:13Z"},
+		{"powershell", 16, "hosts_20250302_090030.csv", "2025-03-02T09:00:33Z"},
+		{"powershell", 16, "ca01_20250302_092210.cer", "2025-03-02T09:22:13Z"},
 	}
 	for _, c := range cases {
 		t.Run(c.fixture+"/"+c.file, func(t *testing.T) {

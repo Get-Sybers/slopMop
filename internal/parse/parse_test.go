@@ -209,3 +209,46 @@ func TestPsStep05Export(t *testing.T) {
 		t.Errorf("writes = %v, want export_summary", s.Writes)
 	}
 }
+
+func transformMethods(s Script) []string {
+	var methods []string
+	for _, x := range s.Transforms {
+		methods = append(methods, x.Method)
+	}
+	return methods
+}
+
+func TestPsStep06StageTransforms(t *testing.T) {
+	s := ExtractPowerShell(readPsFixture(t, "20250302_093000_step06_stage.ps1"))
+
+	methods := transformMethods(s)
+	want := []string{
+		"Base64Encode",
+		"Stream",
+		"gzipstream",
+		"TextEncoding",
+		"Crypto:Aes",
+		"XOR",
+		"StringManip",
+		"HexEncode",
+		"EncodedCommand",
+	}
+	for _, w := range want {
+		if !contains(methods, w) {
+			t.Errorf("transforms = %v, missing %s", methods, w)
+		}
+	}
+
+	if !contains(s.Writes, "staged_20250302_093010.b64") {
+		t.Errorf("writes = %v, want staged .b64", s.Writes)
+	}
+	if !contains(s.Writes, "staged_20250302_093050.ses") {
+		t.Errorf("writes = %v, want staged .ses", s.Writes)
+	}
+	if !contains(s.Writes, "staged_20250302_093100.cmd") {
+		t.Errorf("writes = %v, want staged .cmd", s.Writes)
+	}
+	if len(s.Writes) < 6 {
+		t.Errorf("writes = %v, want at least 6 staged files", s.Writes)
+	}
+}

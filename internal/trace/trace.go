@@ -19,6 +19,7 @@ type Step struct {
 	Turn       int
 	Tools      []string
 	Tactics    []string
+	Transforms []string
 	Outputs    []string
 	Indicators int
 }
@@ -45,6 +46,7 @@ func Build(files []evidence.File, texts map[string]string, tactics tactic.Table,
 				parsed := parseScript(f, text)
 				s.Tools = uniqueTools(parsed.Commands)
 				s.Tactics = classifyTools(s.Tools, tactics)
+				s.Transforms = uniqueMethods(parsed.Transforms)
 			}
 		}
 		text := texts[f.Path]
@@ -100,6 +102,18 @@ func uniqueTools(cmds []parse.Command) []string {
 		}
 	}
 	return tools
+}
+
+func uniqueMethods(xforms []parse.Transform) []string {
+	seen := map[string]bool{}
+	var methods []string
+	for _, x := range xforms {
+		if !seen[x.Method] {
+			seen[x.Method] = true
+			methods = append(methods, x.Method)
+		}
+	}
+	return methods
 }
 
 func classifyTools(tools []string, t tactic.Table) []string {

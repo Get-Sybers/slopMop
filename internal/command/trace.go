@@ -70,6 +70,7 @@ func traceRow(s trace.Step, columns []render.Column) ([]render.Value, error) {
 		"time":       render.NotApplicable(),
 		"tools":      render.NotApplicable(),
 		"tactics":    render.NotApplicable(),
+		"transforms": render.NotApplicable(),
 		"outputs":    render.NotApplicable(),
 		"indicators": render.NotApplicable(),
 		"note":       render.NotApplicable(),
@@ -85,6 +86,9 @@ func traceRow(s trace.Step, columns []render.Column) ([]render.Value, error) {
 	}
 	if len(s.Tactics) > 0 {
 		cells["tactics"] = render.Text(joinTruncate(s.Tactics, 60))
+	}
+	if len(s.Transforms) > 0 {
+		cells["transforms"] = render.Text(joinTruncate(s.Transforms, 60))
 	}
 	if len(s.Outputs) > 0 {
 		cells["outputs"] = render.Text(joinTruncate(s.Outputs, 60))

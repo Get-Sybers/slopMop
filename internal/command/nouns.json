@@ -36,6 +36,7 @@
             {"header": "TIME", "key": "time"},
             {"header": "TOOLS", "key": "tools"},
             {"header": "TACTICS", "key": "tactics"},
+            {"header": "TRANSFORMS", "key": "transforms"},
             {"header": "OUTPUTS", "key": "outputs", "wide": true},
             {"header": "INDICATORS", "key": "indicators", "wide": true},
             {"header": "NOTE", "key": "note", "wide": true}

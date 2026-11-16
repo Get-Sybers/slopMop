@@ -47,6 +47,24 @@ var (
 	rxAssign  = regexp.MustCompile(`^([A-Za-z_][A-Za-z0-9_]*)(\+?=)(.*)$`)
 	rxHereDoc = regexp.MustCompile(`<<-?\s*['"]?(\w+)['"]?\s*(?:>\s*(\S+))?`)
 	rxInputRe = regexp.MustCompile(`<\s+(\S+)`)
+
+	bashTransformCmds = map[string]string{
+		"base64":  "Base64",
+		"b64":     "Base64",
+		"xxd":     "HexEncode",
+		"od":      "HexEncode",
+		"hexdump": "HexEncode",
+		"gzip":    "GZip",
+		"gunzip":  "GZip",
+		"zcat":    "GZip",
+		"xz":      "XZ",
+		"bzip2":   "BZip2",
+		"bunzip2": "BZip2",
+		"lz4":     "LZ4",
+		"zstd":    "Zstd",
+		"gpg":     "GPG",
+	}
+	rxOpenSSLEnc = regexp.MustCompile(`(?i)\bopenssl\s+(?:enc|aes|des|bf|rc[24])`)
 )
 
 const maxText = 200
@@ -79,18 +97,29 @@ func ExtractBash(text string) Script {
 	var s Script
 	seen := map[string]bool{}
 	lines := strings.Split(text, "\n")
+	var hereEnd string
 
 	for i, raw := range lines {
 		lineNo := i + 1
 		line := strings.TrimSpace(raw)
+		if hereEnd != "" {
+			if line == hereEnd {
+				hereEnd = ""
+			}
+			continue
+		}
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue
+		}
+		if m := rxHereDoc.FindStringSubmatch(line); m != nil {
+			hereEnd = m[1]
 		}
 
 		extractBashVars(line, lineNo, &s)
 		extractBashRedirections(line, lineNo, &s, seen)
 		extractBashReads(line, lineNo, &s, seen)
 		extractBashCommands(line, lineNo, &s)
+		extractBashTransforms(line, lineNo, &s)
 	}
 	return s
 }
@@ -134,8 +163,22 @@ func extractBashRedirections(line string, _ int, s *Script, seen map[string]bool
 		}
 	}
 
+	inSQ := false
+	inDQ := false
 	for j := 0; j < len(line); j++ {
-		if line[j] == '>' {
+		c := line[j]
+		if c == '\'' && !inDQ {
+			inSQ = !inSQ
+			continue
+		}
+		if c == '"' && !inSQ {
+			inDQ = !inDQ
+			continue
+		}
+		if inSQ || inDQ {
+			continue
+		}
+		if c == '>' {
 			rest := strings.TrimPrefix(line[j+1:], ">")
 			rest = strings.TrimSpace(rest)
 			if rest == "" {
@@ -274,7 +317,14 @@ func findTool(words []string) string {
 		if rxAssign.MatchString(w) {
 			continue
 		}
-		if strings.HasPrefix(w, "-") || strings.HasPrefix(w, "$") {
+		if strings.HasPrefix(w, "-") || strings.HasPrefix(w, "$") ||
+			strings.HasPrefix(w, "'") || strings.HasPrefix(w, "\"") {
+			continue
+		}
+		if !hasLetter(w) || len(w) < 2 {
+			continue
+		}
+		if w[0] >= '0' && w[0] <= '9' {
 			continue
 		}
 
@@ -294,6 +344,15 @@ func findTool(words []string) string {
 		return name
 	}
 	return ""
+}
+
+func hasLetter(s string) bool {
+	for _, c := range s {
+		if (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') {
+			return true
+		}
+	}
+	return false
 }
 
 func splitSegments(line string) []string {
@@ -321,6 +380,12 @@ func splitSegments(line string) []string {
 				depth--
 			}
 		case depth == 0 && (c == '|' || c == ';' || c == '&'):
+			if c == '&' && i > 0 && line[i-1] == '>' {
+				break
+			}
+			if c == '&' && i > 1 && line[i-2] >= '0' && line[i-2] <= '9' && line[i-1] == '>' {
+				break
+			}
 			segs = append(segs, line[start:i])
 			start = i + 1
 			if i+1 < len(line) && (line[i+1] == '|' || line[i+1] == '&') {
@@ -418,4 +483,25 @@ func trimVarExpansion(s string) string {
 		return ""
 	}
 	return s
+}
+
+func extractBashTransforms(line string, lineNo int, s *Script) {
+	for _, seg := range splitPipe(line) {
+		seg = strings.TrimSpace(seg)
+		words := shellWords(seg)
+		if len(words) == 0 {
+			continue
+		}
+		cmd := strings.ToLower(filepath.Base(words[0]))
+		if method, ok := bashTransformCmds[cmd]; ok {
+			s.Transforms = append(s.Transforms, Transform{
+				Line: lineNo, Method: method, Text: truncate(seg),
+			})
+		}
+	}
+	if rxOpenSSLEnc.MatchString(line) {
+		s.Transforms = append(s.Transforms, Transform{
+			Line: lineNo, Method: "OpenSSLEncrypt", Text: truncate(line),
+		})
+	}
 }

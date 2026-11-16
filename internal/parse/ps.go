@@ -33,6 +33,22 @@ var (
 	rxPsPath     = regexp.MustCompile(`(?i)-(?:Path|LiteralPath|FilePath|OutFile|OutputFile|OutputPath)\s+['"]?([^\s'"]+)`)
 	rxPsRedir    = regexp.MustCompile(`>>?\s*(\S+)`)
 	rxStaticCall = regexp.MustCompile(`\[System\.IO\.File\]::(\w+)\s*\(\s*["']([^"']+)`)
+
+	rxConvert     = regexp.MustCompile(`(?i)\[(?:System\.)?Convert\]::(To|From)Base64String`)
+	rxGzip        = regexp.MustCompile(`(?i)\[(?:System\.IO\.)?Compression\.(GZipStream|DeflateStream)\]`)
+	rxNewGzip     = regexp.MustCompile(`(?i)New-Object\s+(?:System\.)?IO\.Compression\.(GZipStream|DeflateStream)`)
+	rxEncoding    = regexp.MustCompile(`(?i)\[(?:System\.)?Text\.Encoding\]::(UTF8|Unicode|ASCII|UTF7|UTF32|BigEndianUnicode|Default)`)
+	rxGetEncoding = regexp.MustCompile(`(?i)\[(?:System\.)?Text\.Encoding\]::GetEncoding\s*\(`)
+	rxCrypto      = regexp.MustCompile(`(?i)\[(?:System\.)?Security\.Cryptography\.(Aes|AesManaged|AesCryptoServiceProvider|RijndaelManaged|TripleDES|TripleDESCryptoServiceProvider|DES|DESCryptoServiceProvider|RSA|RSACryptoServiceProvider|SHA256|SHA512|MD5|HMACSHA256|HMACSHA512)\]`)
+	rxNewCrypto   = regexp.MustCompile(`(?i)New-Object\s+(?:System\.)?Security\.Cryptography\.(Aes|AesManaged|AesCryptoServiceProvider|RijndaelManaged|TripleDES|TripleDESCryptoServiceProvider|DES|RSA|RC2|HMACSHA256|HMACSHA512)`)
+	rxMemStream   = regexp.MustCompile(`(?i)\[(?:System\.)?IO\.(MemoryStream|StreamReader|StreamWriter|BinaryReader|BinaryWriter)\]`)
+	rxNewStream   = regexp.MustCompile(`(?i)New-Object\s+(?:System\.)?IO\.(MemoryStream|StreamReader|StreamWriter|BinaryReader|BinaryWriter)`)
+	rxBitConv     = regexp.MustCompile(`(?i)\[(?:System\.)?BitConverter\]::ToString`)
+	rxBxor        = regexp.MustCompile(`(?i)-bxor\b`)
+	rxCharArray   = regexp.MustCompile(`(?i)\.ToCharArray\s*\(`)
+	rxArrReverse  = regexp.MustCompile(`(?i)\[array\]::Reverse\b`)
+	rxEncCmd      = regexp.MustCompile(`(?i)-(?:EncodedCommand|enc)\s+`)
+	rxSecStr      = regexp.MustCompile(`(?i)(ConvertTo-SecureString|ConvertFrom-SecureString)`)
 )
 
 // ExtractPowerShell parses a PowerShell script for commands, variables and IO.
@@ -52,6 +68,7 @@ func ExtractPowerShell(text string) Script {
 		extractPsVars(trimmed, lineNo, &s)
 		extractPsCmds(trimmed, lineNo, &s, seen)
 		extractPsIO(trimmed, lineNo, &s, seen)
+		extractPsTransforms(trimmed, lineNo, &s)
 	}
 	return s
 }
@@ -206,5 +223,54 @@ func extractPsIO(line string, _ int, s *Script, seen map[string]bool) {
 			seen["w:"+f] = true
 			s.Writes = append(s.Writes, f)
 		}
+	}
+}
+
+func extractPsTransforms(line string, lineNo int, s *Script) {
+	add := func(method string) {
+		s.Transforms = append(s.Transforms, Transform{
+			Line: lineNo, Method: method, Text: truncate(line),
+		})
+	}
+
+	if m := rxConvert.FindStringSubmatch(line); m != nil {
+		if strings.EqualFold(m[1], "To") {
+			add("Base64Encode")
+		} else {
+			add("Base64Decode")
+		}
+	}
+	if m := rxGzip.FindStringSubmatch(line); m != nil {
+		add(strings.ToLower(m[1]))
+	}
+	if m := rxNewGzip.FindStringSubmatch(line); m != nil {
+		add(strings.ToLower(m[1]))
+	}
+	if rxEncoding.MatchString(line) || rxGetEncoding.MatchString(line) {
+		add("TextEncoding")
+	}
+	if m := rxCrypto.FindStringSubmatch(line); m != nil {
+		add("Crypto:" + m[1])
+	}
+	if m := rxNewCrypto.FindStringSubmatch(line); m != nil {
+		add("Crypto:" + m[1])
+	}
+	if rxMemStream.MatchString(line) || rxNewStream.MatchString(line) {
+		add("Stream")
+	}
+	if rxBitConv.MatchString(line) {
+		add("HexEncode")
+	}
+	if rxBxor.MatchString(line) {
+		add("XOR")
+	}
+	if rxCharArray.MatchString(line) || rxArrReverse.MatchString(line) {
+		add("StringManip")
+	}
+	if rxEncCmd.MatchString(line) {
+		add("EncodedCommand")
+	}
+	if m := rxSecStr.FindStringSubmatch(line); m != nil {
+		add("SecureString")
 	}
 }

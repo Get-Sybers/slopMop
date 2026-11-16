@@ -29,3 +29,10 @@ All notable changes to this project are recorded in this file. The format follow
   (11 indicator patterns), embedded and validated at load.
 - Packages `internal/parse` (bash and PowerShell script parsing), `internal/tactic` (command
   classification), `internal/indicator` (IoC extraction) and `internal/trace` (timeline builder).
+- Transform detection in `trace list`: Base64, GZip, Deflate, AES and other .NET cryptography,
+  XOR, hex encoding, string manipulation, `-EncodedCommand` and `SecureString` in PowerShell;
+  base64, xxd, gzip, openssl and related tools in bash. TRANSFORMS column in trace output.
+- Staging file extensions `.b64`, `.gz`, `.bin`, `.cmd`, `.ses`, `.enc`, `.dat` and `.raw` recognised
+  as output role in the inventory.
+- Indicator patterns `Base64Blob` and `EncodedCommand` (13 patterns total).
+- PowerShell staging fixture `step06_stage.ps1` with `.b64`, `.ses` and `.cmd` output files.
