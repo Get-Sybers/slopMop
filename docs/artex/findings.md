@@ -50,17 +50,15 @@ has gaps wherever the agent created something else first. Two different intents 
 `i4028` from two different incidents are not necessarily the same step of the same
 playbook — they just both happened to be the 4028th row written to that table.
 
-One session key did **not** make it into the generated rules: `task-%d-exp-%d-worker-i%d`
-is a lower-value key than it looks. Reading the code (`server/side_questions.go` in
-most forks) shows it is the key for a side-question record, written when a worker asks
-the planner a clarifying question mid-task — not the header carrying the LLM session
-id for the main run. It is included as `paths.add.json` for completeness, but I would
-weight a hit on it lower than a hit on the worker/planner/main keys above.
+`task-%d-exp-%d-worker-i%d` is not a worker's own session id. It is the key under which
+the side questions (`/btw`) that an operator asks about a worker are filed
+(`sidequestion/capture.go` and `sidequestion/README.md` in the forks that have them). A
+worker's own session is `exp%d-worker-i%d`.
 
-Two subfolder names also recur under at least half the run folders: `cmd-output`
-(a worker's captured command output) and `noa` (seen in 6 of 12, name unexplained in
-any comment or doc I found — treat it as a fork-specific scratch directory rather than
-a name with forensic meaning on its own).
+`cmd-output` recurs under the run folders: it holds the tool output that was too long for
+the model. `noa` is not a run-folder name: it is the folder of the data directory where
+the SDK archives the context of a conversation when a setting enables it (10 of 12
+checkouts carry it; see [records.md](records.md)).
 
 ## 3. What varies by fork
 

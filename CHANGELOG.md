@@ -6,6 +6,19 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Added
+
+- `docs/artex/records.md`, recording the files ARTEX writes about its own work: where the intent
+  number comes from, the data folder, the formats of its transcripts, spilled output and context
+  archives, its session names, the vocabulary of its graph and the tools that write results back,
+  from reading twelve checkouts of ARTEX and its forks.
+
+### Fixed
+
+- `docs/artex/findings.md` states that `task-%d-exp-%d-worker-i%d` is the key of the side
+  questions an operator asks about a worker, and that `noa` is the folder where the SDK archives
+  the context of a conversation.
+
 ## [0.5.2] - 2026-11-17
 
 ### Added
