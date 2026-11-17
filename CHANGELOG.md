@@ -6,6 +6,15 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Added
+
+- `-cores <percent>` sets how much of the processors of the machine a run may use, and
+  `-memory <percent>` how much of its memory the run tries to stay within. Each is a percentage
+  from 1 to 100 of the machine the run is on. Neither changes anything the run writes.
+- A run tries to stay within 75 percent of the memory of the machine when `-memory` is not given.
+- `internal/device`, which reads the processors and the memory of the machine on Linux, Windows
+  and macOS.
+
 ### Changed
 
 - A run uses every processor. The files are analysed apart from one another; a large text is

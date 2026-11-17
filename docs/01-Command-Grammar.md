@@ -24,6 +24,8 @@ start.
 | `-intelfile` | `<file>` | a watchlist, JSON or STIX 2.1, to attribute the indicators to |
 | `-outdir` | `<folder>` | where the output is saved |
 | `-secrets` | `masked` or `shown` | how a password, a hash, a token or a key is written; `masked` when not given |
+| `-cores` | a percentage, 1 to 100 | how much of the processors of this machine the run may use; all of them when not given |
+| `-memory` | a percentage, 1 to 100 | how much of the memory of this machine the run tries to stay within; 75 when not given |
 
 - An option is written with one dash or two, and its value follows as the next argument or after
   `=`: `-inputdir case42`, `--inputdir case42`, `-inputdir=case42`.
@@ -64,6 +66,11 @@ The sections print in the order of the table, whatever order they are named in.
 - A file of an earlier run is replaced. The last lines of the output name the folder.
 - A secret is masked in everything it prints and saves: in the exposure, in a command quoted as
   evidence and among the indicators. `-secrets shown` writes each as it stands in the evidence.
+- `-cores` and `-memory` take a percentage of the machine the run is on, with or without the
+  sign: `-cores 50` is half of its processors, and never fewer than one. Neither changes anything
+  the run writes.
+- The memory limit is one the run works to keep: it frees what it no longer needs sooner as it
+  nears the limit. What a folder needs in order to be analysed, the run still takes.
 - The output folder is `slopmop-<name of the input folder>` in the current directory. When the
   current directory is the input folder or inside it, the output folder is made beside the input
   folder. `-outdir <folder>` names another, which is made when it is missing. A drive that is
@@ -97,8 +104,9 @@ The sections print in the order of the table, whatever order they are named in.
 | `slopmop report -inputdir` | `-inputdir needs a value <folder>` |
 | `slopmop -inputdir a -inputdir b report` | `-inputdir given more than once` |
 | `slopmop -inputdir case42 report bogus` | `report has no section "bogus" (sections: summary, timeline, intents, findings, files, targeted, exposure, impact, remediation, mitigation)` |
-| `slopmop -inputdir case42 report -o json` | `unknown option -o (options: -inputdir <folder>, -intelfile <file>, -outdir <folder>, -secrets masked\|shown)` |
+| `slopmop -inputdir case42 report -o json` | `unknown option -o (options: -inputdir <folder>, -intelfile <file>, -outdir <folder>, -secrets masked\|shown, -cores <percent>, -memory <percent>)` |
 | `slopmop -inputdir case42 report -secrets plain` | `-secrets takes masked or shown, not "plain"` |
+| `slopmop -inputdir case42 report -cores 0` | `-cores takes a percentage from 1 to 100, not "0"` |
 | `slopmop -inputdir case42/missing report` | `not a folder: open case42/missing: no such file or directory` |
 | `slopmop -inputdir case42 report -outdir case42/out` | `-outdir is inside the folder that is read; the evidence is never written to` |
 
@@ -155,13 +163,15 @@ options you can add (one dash or two; each takes a value):
   -intelfile <file>      a watchlist, JSON or STIX 2.1, to attribute the indicators to
   -outdir <folder>       where the output is saved; slopmop-<name> in the current directory when not given
   -secrets masked|shown  how a password, a hash, a token or a key is written; masked when not given
+  -cores <percent>       how much of the processors of this machine the run may use, 1 to 100; all of them when not given
+  -memory <percent>      how much of the memory of this machine the run tries to stay within, 1 to 100; 75 when not given
 
 next: slopmop -inputdir case42 report --help
 ```
 
 ```text
 $ slopmop -inputdir case42 report impact --help
-usage: slopmop -inputdir <folder> report [section ...] [-intelfile <file>] [-outdir <folder>] [-secrets masked|shown]
+usage: slopmop -inputdir <folder> report [section ...] [-intelfile <file>] [-outdir <folder>] [-secrets masked|shown] [-cores <percent>] [-memory <percent>]
 reads the folder and everything below it, runs nothing, prints the report and saves it
 so far: slopmop -inputdir case42 report impact
 
@@ -186,6 +196,8 @@ options you can add (one dash or two; each takes a value):
   -intelfile <file>      a watchlist, JSON or STIX 2.1, to attribute the indicators to
   -outdir <folder>       where the output is saved; slopmop-<name> in the current directory when not given
   -secrets masked|shown  how a password, a hash, a token or a key is written; masked when not given
+  -cores <percent>       how much of the processors of this machine the run may use, 1 to 100; all of them when not given
+  -memory <percent>      how much of the memory of this machine the run tries to stay within, 1 to 100; 75 when not given
 
 next: slopmop -inputdir case42 report impact summary --help
 run:  slopmop -inputdir case42 report impact

@@ -22,6 +22,7 @@ about evidence touch no file, and every static table is a data file validated at
 | `internal/assess` | turns what a run found into its impacts and the remediation they call for, using `impacts.json` and `actions.json` |
 | `internal/exposure` | names what the evidence holds that an attacker can use: usernames, email addresses, passwords and other secrets, devices and IP addresses; masks a secret; no I/O |
 | `internal/intent` | names the ARTEX intent a path lies in, by its run folder or its session name; no I/O |
+| `internal/device` | reads how many processors and how much memory the machine has, on Linux, Windows and macOS; changes nothing |
 | `internal/parallel` | runs independent pieces of work on every processor; no I/O |
 | `internal/vars` | reads the variables a script sets to a plain value, so a command that names one is shown with what it holds; no I/O |
 | `internal/mitre` | holds the identifiers, names and mitigation links of MITRE ATT&CK and MITRE ATLAS in `catalogue.json` |
@@ -35,7 +36,7 @@ Imports run one way:
 ```text
 cmd/slopmop -> cli, command, render
 command     -> cli, render, inventory, trace, assess, exposure, mitre, activity,
-               indicator, intel, intent, structured, tactic, evidence, parallel
+               indicator, intel, intent, structured, tactic, evidence, parallel, device
 trace       -> parse, structured, tactic, activity, indicator, intel, evidence, parallel
 inventory   -> evidence -> nametime
 activity    -> vars, parallel
@@ -47,8 +48,8 @@ parse       -> parallel
 render      -> parallel
 ```
 
-`cli`, `structured`, `tactic`, `intent`, `mitre`, `nametime`, `parallel` and `vars` import no other
-internal package. `evidencetest` and `golden` are imported by tests only.
+`cli`, `structured`, `tactic`, `intent`, `mitre`, `nametime`, `parallel`, `device` and `vars` import
+no other internal package. `evidencetest` and `golden` are imported by tests only.
 
 ## 2. Data files
 
@@ -89,7 +90,15 @@ work writes only its own result, and the results are taken in a fixed order.
   that hold it, when fewer than half of the lines do. The text is read from the pattern's literals.
 - The saved files are made apart from one another, and a table of more than 2,000 rows is encoded
   in batches.
-- `GOMAXPROCS` in the environment sets how many processors a run uses.
+- `-cores` sets how many processors a run uses, as a percentage of those of the machine, and
+  `-memory` a limit on its memory, as a percentage of that of the machine. Without `-memory` the
+  limit is 75 percent.
+- The memory of the machine is `MemTotal` of `/proc/meminfo` on Linux, or the limit of the control
+  group when that is less; `GlobalMemoryStatusEx` on Windows; `hw.memsize` on macOS. Elsewhere it
+  is not known: no limit is set, and `-memory` is refused.
+- The limit is the soft limit of the Go runtime: the collector frees memory sooner as the run
+  nears it, and a run that must hold more still does. `GOMAXPROCS` and `GOMEMLIMIT` in the
+  environment are kept when the options are not given.
 
 - The input directory is opened as a root (`os.OpenRoot`) and every file is opened through it read-only, so
   no path leads outside the folder.
