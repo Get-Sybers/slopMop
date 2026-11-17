@@ -6,20 +6,7 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
-### Added
-
-- `docs/artex/report.md` and `docs/artex/findings.md`, recording which markers survive a fork of
-  ARTEX and which are specific to one build, from reading twelve checkouts of ARTEX and its forks.
-
-### Changed
-
-- The input directory is read on every processor, not one file after another.
-- The report is assembled in time that grows with the evidence, not with its square. The files
-  behind an impact, an action, a finding and an output are gathered through a set, and the affected
-  values of an impact are deduplicated through one. A folder of 24,000 files that did not finish in
-  two minutes is reported in about forty seconds, and one of 6,000 files in half the time it took.
-
-## [0.6.0] - 2026-11-17
+## [0.5.2] - 2026-11-17
 
 ### Added
 
@@ -29,6 +16,8 @@ All notable changes to this project are recorded in this file. The format follow
 - A run tries to stay within 75 percent of the memory of the machine when `-memory` is not given.
 - `internal/device`, which reads the processors and the memory of the machine on Linux, Windows
   and macOS.
+- `docs/artex/report.md` and `docs/artex/findings.md`, recording which markers survive a fork of
+  ARTEX and which are specific to one build, from reading twelve checkouts of ARTEX and its forks.
 
 ### Changed
 
@@ -38,6 +27,11 @@ All notable changes to this project are recorded in this file. The format follow
   output is byte for byte what one processor gives.
 - An indicator pattern whose every match holds a fixed text, such as `://` or `@`, is tried only
   on the lines that hold it.
+- The input directory is read on every processor, not one file after another.
+- The report is assembled in time that grows with the evidence, not with its square. The files
+  behind an impact, an action, a finding and an output are gathered through a set, and the affected
+  values of an impact are deduplicated through one. A folder of 24,000 files that did not finish in
+  two minutes is reported in about forty seconds, and one of 6,000 files in half the time it took.
 - A 50 MB log that took 59 seconds takes 15 on four processors and 49 on one. The peak of memory
   for that log rises from about 610 MB to about 810 MB.
 
