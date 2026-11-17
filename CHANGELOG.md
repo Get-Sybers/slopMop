@@ -6,6 +6,19 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Changed
+
+- The timeline and the `trace.json` `time` field write every instant as one ISO-8601 UTC stamp,
+  whether it comes from the file name or the modified time. A file-name timestamp is read as UTC,
+  so a time column no longer mixes a bare token or a Unix epoch with an ISO instant. The intent
+  `first` and `last` fields follow; the file name's own token stays in the `file` class `name_time`.
+
+### Fixed
+
+- The overflow line under an impact, a remediation, a mitigation, a finding activity or a targeted
+  value names the saved file that holds the lines it omits, such as `report.json` or the saved
+  findings, not "the saved report", which keeps the same limit and never held them.
+
 ## [0.6.0] - 2026-11-17
 
 ### Added

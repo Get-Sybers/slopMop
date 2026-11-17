@@ -101,8 +101,8 @@ the `report` class.
 
 ### Limits
 
-A long list is cut on the screen and in the saved report, and says how much more the JSON files
-hold.
+A long list is cut on the screen and in the saved report alike; the cut entry names the JSON file
+that holds every line it omits, because the screen and the saved report share one limit.
 
 | List | Shown |
 | --- | --- |
@@ -122,7 +122,7 @@ and holds only printable characters. Any other text prints as a Go quoted string
 sequence cannot reach the terminal and one entry line is always one line:
 
 ```text
-  1  20261022_090000  script  "odd\x1b[31mname.sh"
+  1  2026-10-22T09:00:00Z  script  "odd\x1b[31mname.sh"
 ```
 
 A cell, a detail or a title is escaped whole. Error messages on standard error are escaped the
@@ -237,7 +237,7 @@ One row per file, in time order: the time in the file name, or else the modified
 | `step` | the number of the script this file belongs to; `0` before the first script |
 | `name` | the path below the input folder |
 | `role` | `script`, `output` or `other` |
-| `time` | the timestamp in the file name as it stands, or else the modified time |
+| `time` | the file-name timestamp read as UTC, or else the modified time, as one ISO-8601 instant to the second; the file name's own token stays in the `file` class `name_time` |
 | `intent` | the ARTEX intent the file belongs to, such as `i1042`; `null` when its path names none |
 | `tools` | the commands the file runs or records |
 | `tactics` | the tactics of those tools and of the activities |

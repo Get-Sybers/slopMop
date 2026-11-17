@@ -89,7 +89,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <table>
 <thead><tr><th>step</th><th>time</th><th>role</th><th>file</th></tr></thead>
 <tbody>
-<tr class="entry"><td class="cell">1</td><td class="cell">20261022_090000</td><td class="cell">script</td><td class="cell">20261022_090000_step01_recon.sh</td></tr>
+<tr class="entry"><td class="cell">1</td><td class="cell">2026-10-22T09:00:00Z</td><td class="cell">script</td><td class="cell">20261022_090000_step01_recon.sh</td></tr>
 <tr class="detail"><td colspan="4"><div class="under">
 <div class="pair"><span class="label">tools</span><span class="value">id, uname, cat, cut, systemctl, find, curl</span></div>
 <div class="pair"><span class="label">tactics</span><span class="value">Discovery, CredentialAccess</span></div>
@@ -97,44 +97,44 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <div class="pair"><span class="label">wrote</span><span class="value">passwd_20261022_090020.txt, hosts_20261022_090025.txt, suid_20261022_090030.txt, meta_20261022_090040.txt</span></div>
 <div class="pair"><span class="label">indicators</span><span class="value">2</span></div>
 </div></td></tr>
-<tr class="entry"><td class="cell">1</td><td class="cell">20261022_090020</td><td class="cell">output</td><td class="cell">passwd_20261022_090020.txt</td></tr>
-<tr class="entry"><td class="cell">1</td><td class="cell">20261022_090025</td><td class="cell">output</td><td class="cell">hosts_20261022_090025.txt</td></tr>
+<tr class="entry"><td class="cell">1</td><td class="cell">2026-10-22T09:00:20Z</td><td class="cell">output</td><td class="cell">passwd_20261022_090020.txt</td></tr>
+<tr class="entry"><td class="cell">1</td><td class="cell">2026-10-22T09:00:25Z</td><td class="cell">output</td><td class="cell">hosts_20261022_090025.txt</td></tr>
 <tr class="detail"><td colspan="4"><div class="under">
 <div class="pair"><span class="label">indicators</span><span class="value">5</span></div>
 </div></td></tr>
-<tr class="entry"><td class="cell">1</td><td class="cell">20261022_090030</td><td class="cell">output</td><td class="cell">suid_20261022_090030.txt</td></tr>
-<tr class="entry"><td class="cell">1</td><td class="cell">20261022_090040</td><td class="cell">output</td><td class="cell">meta_20261022_090040.txt</td></tr>
-<tr class="entry"><td class="cell">2</td><td class="cell">20261022_090500</td><td class="cell">script</td><td class="cell">20261022_090500_step02_creds.sh</td></tr>
+<tr class="entry"><td class="cell">1</td><td class="cell">2026-10-22T09:00:30Z</td><td class="cell">output</td><td class="cell">suid_20261022_090030.txt</td></tr>
+<tr class="entry"><td class="cell">1</td><td class="cell">2026-10-22T09:00:40Z</td><td class="cell">output</td><td class="cell">meta_20261022_090040.txt</td></tr>
+<tr class="entry"><td class="cell">2</td><td class="cell">2026-10-22T09:05:00Z</td><td class="cell">script</td><td class="cell">20261022_090500_step02_creds.sh</td></tr>
 <tr class="detail"><td colspan="4"><div class="under">
 <div class="pair"><span class="label">tools</span><span class="value">cat, grep, kubectl</span></div>
 <div class="pair"><span class="label">tactics</span><span class="value">Discovery, CredentialAccess</span></div>
 <div class="pair"><span class="label">activities</span><span class="value">ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, ClusterSecretRead</span></div>
 <div class="pair"><span class="label">wrote</span><span class="value">shadow_20261022_090530.txt, env_20261022_090540.txt</span></div>
 </div></td></tr>
-<tr class="entry"><td class="cell">2</td><td class="cell">20261022_090530</td><td class="cell">output</td><td class="cell">shadow_20261022_090530.txt</td></tr>
-<tr class="entry"><td class="cell">2</td><td class="cell">20261022_090540</td><td class="cell">output</td><td class="cell">env_20261022_090540.txt</td></tr>
+<tr class="entry"><td class="cell">2</td><td class="cell">2026-10-22T09:05:30Z</td><td class="cell">output</td><td class="cell">shadow_20261022_090530.txt</td></tr>
+<tr class="entry"><td class="cell">2</td><td class="cell">2026-10-22T09:05:40Z</td><td class="cell">output</td><td class="cell">env_20261022_090540.txt</td></tr>
 <tr class="detail"><td colspan="4"><div class="under">
 <div class="pair"><span class="label">indicators</span><span class="value">3</span></div>
 </div></td></tr>
-<tr class="entry"><td class="cell">3</td><td class="cell">20261022_091000</td><td class="cell">script</td><td class="cell">20261022_091000_step03_privesc.sh</td></tr>
+<tr class="entry"><td class="cell">3</td><td class="cell">2026-10-22T09:10:00Z</td><td class="cell">script</td><td class="cell">20261022_091000_step03_privesc.sh</td></tr>
 <tr class="detail"><td colspan="4"><div class="under">
 <div class="pair"><span class="label">tools</span><span class="value">chmod, docker</span></div>
 <div class="pair"><span class="label">tactics</span><span class="value">Discovery, PrivilegeEscalation</span></div>
 <div class="pair"><span class="label">activities</span><span class="value">SudoersModification, SetuidBit, ContainerEscape</span></div>
 </div></td></tr>
-<tr class="entry"><td class="cell">4</td><td class="cell">20261022_091500</td><td class="cell">script</td><td class="cell">20261022_091500_step04_persist.sh</td></tr>
+<tr class="entry"><td class="cell">4</td><td class="cell">2026-10-22T09:15:00Z</td><td class="cell">script</td><td class="cell">20261022_091500_step04_persist.sh</td></tr>
 <tr class="detail"><td colspan="4"><div class="under">
 <div class="pair"><span class="label">tools</span><span class="value">crontab, cp, systemctl, useradd</span></div>
 <div class="pair"><span class="label">tactics</span><span class="value">Persistence, Execution, PrivilegeEscalation</span></div>
 <div class="pair"><span class="label">activities</span><span class="value">ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence</span></div>
 </div></td></tr>
-<tr class="entry"><td class="cell">5</td><td class="cell">20261022_092000</td><td class="cell">script</td><td class="cell">20261022_092000_step05_evade.sh</td></tr>
+<tr class="entry"><td class="cell">5</td><td class="cell">2026-10-22T09:20:00Z</td><td class="cell">script</td><td class="cell">20261022_092000_step05_evade.sh</td></tr>
 <tr class="detail"><td colspan="4"><div class="under">
 <div class="pair"><span class="label">tools</span><span class="value">systemctl, iptables, rm, history, touch</span></div>
 <div class="pair"><span class="label">tactics</span><span class="value">DefenseImpairment, Stealth</span></div>
 <div class="pair"><span class="label">activities</span><span class="value">LogDeletion, HistoryClearing, HistoryDisabling, SecurityToolDisabling, FirewallDisabling, Timestomp</span></div>
 </div></td></tr>
-<tr class="entry"><td class="cell">6</td><td class="cell">20261022_092500</td><td class="cell">script</td><td class="cell">20261022_092500_step06_stage.sh</td></tr>
+<tr class="entry"><td class="cell">6</td><td class="cell">2026-10-22T09:25:00Z</td><td class="cell">script</td><td class="cell">20261022_092500_step06_stage.sh</td></tr>
 <tr class="detail"><td colspan="4"><div class="under">
 <div class="pair"><span class="label">tools</span><span class="value">tar, bash, curl, base64, sh, ssh, cat, find, gzip, id, uname</span></div>
 <div class="pair"><span class="label">tactics</span><span class="value">Execution, LateralMovement, Discovery, Collection, Exfiltration, CommandAndControl</span></div>
@@ -142,14 +142,14 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <div class="pair"><span class="label">transforms</span><span class="value">Base64</span></div>
 <div class="pair"><span class="label">indicators</span><span class="value">5</span></div>
 </div></td></tr>
-<tr class="entry"><td class="cell">7</td><td class="cell">20261022_093000</td><td class="cell">script</td><td class="cell">20261022_093000_step07_channel.py</td></tr>
+<tr class="entry"><td class="cell">7</td><td class="cell">2026-10-22T09:30:00Z</td><td class="cell">script</td><td class="cell">20261022_093000_step07_channel.py</td></tr>
 <tr class="detail"><td colspan="4"><div class="under">
 <div class="pair"><span class="label">tools</span><span class="value">subprocess.run, sh, nc, os.system</span></div>
 <div class="pair"><span class="label">tactics</span><span class="value">Execution, Exfiltration, CommandAndControl</span></div>
 <div class="pair"><span class="label">activities</span><span class="value">ReverseShell</span></div>
 <div class="pair"><span class="label">indicators</span><span class="value">1</span></div>
 </div></td></tr>
-<tr class="entry"><td class="cell">7</td><td class="cell">20261022_093500</td><td class="cell">output</td><td class="cell">audit_20261022_093500.jsonl</td></tr>
+<tr class="entry"><td class="cell">7</td><td class="cell">2026-10-22T09:35:00Z</td><td class="cell">output</td><td class="cell">audit_20261022_093500.jsonl</td></tr>
 <tr class="detail"><td colspan="4"><div class="under">
 <div class="pair"><span class="label">tools</span><span class="value">crontab, bash, useradd, systemctl, iptables</span></div>
 <div class="pair"><span class="label">tactics</span><span class="value">Execution, Persistence, DefenseImpairment</span></div>
@@ -523,7 +523,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <div class="pair"><span class="label"></span><span class="value">SystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)</span></div>
 <div class="pair"><span class="label"></span><span class="value">AccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)</span></div>
 <div class="pair"><span class="label"></span><span class="value">AccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)</span></div>
-<div class="pair"><span class="label"></span><span class="value">and 3 more in the saved report</span></div>
+<div class="pair"><span class="label"></span><span class="value">and 3 more in report.json</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, Persistence tools</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Data collected</td></tr>
@@ -566,7 +566,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <div class="pair"><span class="label"></span><span class="value">SecurityToolDisabling: systemctl stop auditd (audit_20261022_093500.jsonl)</span></div>
 <div class="pair"><span class="label"></span><span class="value">FirewallDisabling: iptables -F (20261022_092000_step05_evade.sh:5)</span></div>
 <div class="pair"><span class="label"></span><span class="value">FirewallDisabling: iptables -F (audit_20261022_093500.jsonl)</span></div>
-<div class="pair"><span class="label"></span><span class="value">and 1 more in the saved report</span></div>
+<div class="pair"><span class="label"></span><span class="value">and 1 more in report.json</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">LogDeletion, HistoryDisabling, SecurityToolDisabling, FirewallDisabling, DefenseImpairment tools</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">Code run outside normal controls</td></tr>
@@ -599,7 +599,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <div class="pair"><span class="label"></span><span class="value">uname: uname -a (20261022_090000_step01_recon.sh:3)</span></div>
 <div class="pair"><span class="label"></span><span class="value">kubectl: kubectl get secrets -A -o yaml (20261022_090500_step02_creds.sh:7)</span></div>
 <div class="pair"><span class="label"></span><span class="value">docker: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)</span></div>
-<div class="pair"><span class="label"></span><span class="value">and 3 more in the saved report</span></div>
+<div class="pair"><span class="label"></span><span class="value">and 3 more in report.json</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">SetuidFileSearch, ServiceDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip</span></div>
 </div></td></tr>
 </tbody>
@@ -641,7 +641,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <div class="pair"><span class="label"></span><span class="value">SystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)</span></div>
 <div class="pair"><span class="label"></span><span class="value">AccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)</span></div>
 <div class="pair"><span class="label"></span><span class="value">AccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)</span></div>
-<div class="pair"><span class="label"></span><span class="value">and 3 more in the saved report</span></div>
+<div class="pair"><span class="label"></span><span class="value">and 3 more in report.json</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, Persistence tools</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Undo privilege changes on hosts</td></tr>
@@ -711,7 +711,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <div class="pair"><span class="label"></span><span class="value">uname: uname -a (20261022_090000_step01_recon.sh:3)</span></div>
 <div class="pair"><span class="label"></span><span class="value">kubectl: kubectl get secrets -A -o yaml (20261022_090500_step02_creds.sh:7)</span></div>
 <div class="pair"><span class="label"></span><span class="value">docker: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)</span></div>
-<div class="pair"><span class="label"></span><span class="value">and 3 more in the saved report</span></div>
+<div class="pair"><span class="label"></span><span class="value">and 3 more in report.json</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">SetuidFileSearch, ServiceDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip</span></div>
 </div></td></tr>
 </tbody>
@@ -747,7 +747,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <div class="pair"><span class="label"></span><span class="value">ShellProfilePersistence: file ~/.bashrc</span></div>
 <div class="pair"><span class="label"></span><span class="value">SudoersModification: file /etc/sudoers.d/svc</span></div>
 <div class="pair"><span class="label"></span><span class="value">CredentialFileRead: file ~/.aws/credentials</span></div>
-<div class="pair"><span class="label"></span><span class="value">and 3 more in the saved report</span></div>
+<div class="pair"><span class="label"></span><span class="value">and 3 more in report.json</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1024 Restrict Registry Permissions</td><td class="cell">T1685, T1686</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">

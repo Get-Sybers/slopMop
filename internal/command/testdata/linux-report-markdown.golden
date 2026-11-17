@@ -19,49 +19,49 @@
 
 _step, time, role, file_
 
-- `1` · `20261022_090000` · `script` · `20261022_090000_step01_recon.sh`
+- `1` · `2026-10-22T09:00:00Z` · `script` · `20261022_090000_step01_recon.sh`
   - **tools:** `id, uname, cat, cut, systemctl, find, curl`
   - **tactics:** `Discovery, CredentialAccess`
   - **activities:** `SetuidFileSearch, CloudMetadataAccess, ServiceDiscovery`
   - **wrote:** `passwd_20261022_090020.txt, hosts_20261022_090025.txt, suid_20261022_090030.txt, meta_20261022_090040.txt`
   - **indicators:** `2`
-- `1` · `20261022_090020` · `output` · `passwd_20261022_090020.txt`
-- `1` · `20261022_090025` · `output` · `hosts_20261022_090025.txt`
+- `1` · `2026-10-22T09:00:20Z` · `output` · `passwd_20261022_090020.txt`
+- `1` · `2026-10-22T09:00:25Z` · `output` · `hosts_20261022_090025.txt`
   - **indicators:** `5`
-- `1` · `20261022_090030` · `output` · `suid_20261022_090030.txt`
-- `1` · `20261022_090040` · `output` · `meta_20261022_090040.txt`
-- `2` · `20261022_090500` · `script` · `20261022_090500_step02_creds.sh`
+- `1` · `2026-10-22T09:00:30Z` · `output` · `suid_20261022_090030.txt`
+- `1` · `2026-10-22T09:00:40Z` · `output` · `meta_20261022_090040.txt`
+- `2` · `2026-10-22T09:05:00Z` · `script` · `20261022_090500_step02_creds.sh`
   - **tools:** `cat, grep, kubectl`
   - **tactics:** `Discovery, CredentialAccess`
   - **activities:** `ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, ClusterSecretRead`
   - **wrote:** `shadow_20261022_090530.txt, env_20261022_090540.txt`
-- `2` · `20261022_090530` · `output` · `shadow_20261022_090530.txt`
-- `2` · `20261022_090540` · `output` · `env_20261022_090540.txt`
+- `2` · `2026-10-22T09:05:30Z` · `output` · `shadow_20261022_090530.txt`
+- `2` · `2026-10-22T09:05:40Z` · `output` · `env_20261022_090540.txt`
   - **indicators:** `3`
-- `3` · `20261022_091000` · `script` · `20261022_091000_step03_privesc.sh`
+- `3` · `2026-10-22T09:10:00Z` · `script` · `20261022_091000_step03_privesc.sh`
   - **tools:** `chmod, docker`
   - **tactics:** `Discovery, PrivilegeEscalation`
   - **activities:** `SudoersModification, SetuidBit, ContainerEscape`
-- `4` · `20261022_091500` · `script` · `20261022_091500_step04_persist.sh`
+- `4` · `2026-10-22T09:15:00Z` · `script` · `20261022_091500_step04_persist.sh`
   - **tools:** `crontab, cp, systemctl, useradd`
   - **tactics:** `Persistence, Execution, PrivilegeEscalation`
   - **activities:** `ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence`
-- `5` · `20261022_092000` · `script` · `20261022_092000_step05_evade.sh`
+- `5` · `2026-10-22T09:20:00Z` · `script` · `20261022_092000_step05_evade.sh`
   - **tools:** `systemctl, iptables, rm, history, touch`
   - **tactics:** `DefenseImpairment, Stealth`
   - **activities:** `LogDeletion, HistoryClearing, HistoryDisabling, SecurityToolDisabling, FirewallDisabling, Timestomp`
-- `6` · `20261022_092500` · `script` · `20261022_092500_step06_stage.sh`
+- `6` · `2026-10-22T09:25:00Z` · `script` · `20261022_092500_step06_stage.sh`
   - **tools:** `tar, bash, curl, base64, sh, ssh, cat, find, gzip, id, uname`
   - **tactics:** `Execution, LateralMovement, Discovery, Collection, Exfiltration, CommandAndControl`
   - **activities:** `FileUpload, ArchiveCreation, ShellDownloadAndExecute`
   - **transforms:** `Base64`
   - **indicators:** `5`
-- `7` · `20261022_093000` · `script` · `20261022_093000_step07_channel.py`
+- `7` · `2026-10-22T09:30:00Z` · `script` · `20261022_093000_step07_channel.py`
   - **tools:** `subprocess.run, sh, nc, os.system`
   - **tactics:** `Execution, Exfiltration, CommandAndControl`
   - **activities:** `ReverseShell`
   - **indicators:** `1`
-- `7` · `20261022_093500` · `output` · `audit_20261022_093500.jsonl`
+- `7` · `2026-10-22T09:35:00Z` · `output` · `audit_20261022_093500.jsonl`
   - **tools:** `crontab, bash, useradd, systemctl, iptables`
   - **tactics:** `Execution, Persistence, DefenseImpairment`
   - **activities:** `ScheduledJobCreation, AccountCreation, SecurityToolDisabling, FirewallDisabling`
@@ -294,7 +294,7 @@ _collected: first seen in an output; used: first seen in a script; a secret is m
   - **what:** `SystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)`
   - **what:** `AccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)`
   - **what:** `AccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)`
-  - **what:** `and 3 more in the saved report`
+  - **what:** `and 3 more in report.json`
   - **basis:** `ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, Persistence tools`
 - **\[x\] high** · `Data collected`
   - Mail, chat, documents or files were gathered in bulk. Treat their content as disclosed.
@@ -327,7 +327,7 @@ _collected: first seen in an output; used: first seen in a script; a secret is m
   - **what:** `SecurityToolDisabling: systemctl stop auditd (audit_20261022_093500.jsonl)`
   - **what:** `FirewallDisabling: iptables -F (20261022_092000_step05_evade.sh:5)`
   - **what:** `FirewallDisabling: iptables -F (audit_20261022_093500.jsonl)`
-  - **what:** `and 1 more in the saved report`
+  - **what:** `and 1 more in report.json`
   - **basis:** `LogDeletion, HistoryDisabling, SecurityToolDisabling, FirewallDisabling, DefenseImpairment tools`
 - **\[!\] medium** · `Code run outside normal controls`
   - Code was run in ways that avoid application control and leave little on disk.
@@ -352,7 +352,7 @@ _collected: first seen in an output; used: first seen in a script; a secret is m
   - **what:** `uname: uname -a (20261022_090000_step01_recon.sh:3)`
   - **what:** `kubectl: kubectl get secrets -A -o yaml (20261022_090500_step02_creds.sh:7)`
   - **what:** `docker: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)`
-  - **what:** `and 3 more in the saved report`
+  - **what:** `and 3 more in report.json`
   - **basis:** `SetuidFileSearch, ServiceDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip`
 
 ## Remediation
@@ -382,7 +382,7 @@ _most urgent first_
   - **what:** `SystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)`
   - **what:** `AccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)`
   - **what:** `AccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)`
-  - **what:** `and 3 more in the saved report`
+  - **what:** `and 3 more in report.json`
   - **basis:** `ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, Persistence tools`
 - **\[x\] high** · `Undo privilege changes on hosts`
   - Put sudo rules, file modes and container settings back to their approved state, and treat the host as held at root until rebuilt.
@@ -438,7 +438,7 @@ _most urgent first_
   - **what:** `uname: uname -a (20261022_090000_step01_recon.sh:3)`
   - **what:** `kubectl: kubectl get secrets -A -o yaml (20261022_090500_step02_creds.sh:7)`
   - **what:** `docker: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)`
-  - **what:** `and 3 more in the saved report`
+  - **what:** `and 3 more in report.json`
   - **basis:** `SetuidFileSearch, ServiceDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip`
 
 ## Mitigation
@@ -462,7 +462,7 @@ _MITRE ATT&amp;CK and ATLAS, for the techniques found_
   - **for:** `ShellProfilePersistence: file ~/.bashrc`
   - **for:** `SudoersModification: file /etc/sudoers.d/svc`
   - **for:** `CredentialFileRead: file ~/.aws/credentials`
-  - **for:** `and 3 more in the saved report`
+  - **for:** `and 3 more in report.json`
 - **\[x\] high** · `M1024 Restrict Registry Permissions` · `T1685, T1686`
   - Restricting registry permissions involves configuring access control settings for sensitive registry keys and hives to ensure that only authorized users or processes can make modifications.
   - **for:** `SecurityToolDisabling: service auditd`

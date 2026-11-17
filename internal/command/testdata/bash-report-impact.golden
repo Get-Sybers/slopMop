@@ -12,7 +12,7 @@ Impact
                adconnectdump.py: adconnectdump.py corp.example/svc_backup:'Wi********! (11 chars)'@$AADC >> adsync_dump.log (20250301_102300_step03_adsync.sh:8)
                certipy: certipy find -u "$MSOL_USER@corp.example" -p "$MSOL_PASS" -dc-ip 10.20.1.5 -vulnerable -stdout (20250301_103200_step05_certs.sh:5)
                certipy: certipy auth -pfx "$PFX" -dc-ip 10.20.1.5 -username administrator -domain corp.example > 20250301_104010_step06_auth.txt (20250301_104000_step06_auth.sh:3)
-               and 2 more in the saved report
+               and 2 more in report.json
       basis    CertificateExport, CredentialAccess tools, exposed password
   [x] Data may have left the environment
       A transfer out was run. Confirm what was sent and where.
@@ -40,7 +40,7 @@ Remediation   (most urgent first)
                adconnectdump.py: adconnectdump.py corp.example/svc_backup:'Wi********! (11 chars)'@$AADC >> adsync_dump.log (20250301_102300_step03_adsync.sh:8)
                certipy: certipy find -u "$MSOL_USER@corp.example" -p "$MSOL_PASS" -dc-ip 10.20.1.5 -vulnerable -stdout (20250301_103200_step05_certs.sh:5)
                certipy: certipy auth -pfx "$PFX" -dc-ip 10.20.1.5 -username administrator -domain corp.example > 20250301_104010_step06_auth.txt (20250301_104000_step06_auth.sh:3)
-               and 2 more in the saved report
+               and 2 more in report.json
       basis    CertificateExport, CredentialAccess tools, exposed password
   [x] Block and hunt the infrastructure
       Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.

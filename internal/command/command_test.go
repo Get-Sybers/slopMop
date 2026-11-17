@@ -227,8 +227,8 @@ func TestReportIntents(t *testing.T) {
 		t.Errorf("intents = %q, want %q: in the order they began", order, want)
 	}
 	row := find(t, table, map[string]string{"intent": "i1041", "task": "7"})
-	if row["first"] != "20261022_090000" || row["last"] != "20261022_090040" || row["seconds"] != float64(40) {
-		t.Errorf("i1041 runs from %v to %v, %v seconds, want 090000 to 090040, 40", row["first"], row["last"], row["seconds"])
+	if row["first"] != "2026-10-22T09:00:00Z" || row["last"] != "2026-10-22T09:00:40Z" || row["seconds"] != float64(40) {
+		t.Errorf("i1041 runs from %v to %v, %v seconds, want 2026-10-22T09:00:00Z to 2026-10-22T09:00:40Z, 40", row["first"], row["last"], row["seconds"])
 	}
 	if row["attack"] != "T1083, T1552.005, T1007" || row["atlas"] != "AML.T0055" {
 		t.Errorf("i1041 has ATT&CK %v and ATLAS %v", row["attack"], row["atlas"])
@@ -612,7 +612,7 @@ func TestReportNamesWhat(t *testing.T) {
 	for _, want := range []string{
 		"      targets  unit sync.service; account svc;",
 		"      what     ScheduledJobCreation: (crontab -l; echo \"$JOB\") | crontab - (20261022_091500_step04_persist.sh:3)\n",
-		" more in the saved report\n",
+		" more in report.json\n",
 		"      for  AccountCreation: account svc\n",
 	} {
 		if !strings.Contains(readout, want) {

@@ -50,7 +50,7 @@ Impact
                GraphDirectoryEnumeration: Get-MgApplication -All (20261015_090500_step02_recon.ps1:5)
                AzureResourceEnumeration: az keyvault list --query "[].name" -o tsv > vaults_20261015_093010.txt (20261015_093000_step05_vault.sh:2)
                KeyVaultKeyEnumeration: az keyvault key list --vault-name "$v" -o tsv (20261015_093000_step05_vault.sh:5)
-               and 3 more in the saved report
+               and 3 more in report.json
       basis    GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, Discovery tools, exposed username, exposed email, exposed ip
 
 Remediation   (most urgent first)
@@ -97,7 +97,7 @@ Remediation   (most urgent first)
                GraphDirectoryEnumeration: Get-MgApplication -All (20261015_090500_step02_recon.ps1:5)
                AzureResourceEnumeration: az keyvault list --query "[].name" -o tsv > vaults_20261015_093010.txt (20261015_093000_step05_vault.sh:2)
                KeyVaultKeyEnumeration: az keyvault key list --vault-name "$v" -o tsv (20261015_093000_step05_vault.sh:5)
-               and 3 more in the saved report
+               and 3 more in report.json
       basis    GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, Discovery tools, exposed username, exposed email, exposed ip
 
 [x] HIGH - 7 impacts: 5 high, 1 medium, 1 low

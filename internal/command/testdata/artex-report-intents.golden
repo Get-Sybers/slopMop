@@ -12,7 +12,7 @@ Summary
   intents     4
 
 Intents   (an ARTEX run folder i<number>: the first and last time of its files, and the techniques found in them)
-  [x] i1041  20261022_090000       20261022_090040       40s   5 files
+  [x] i1041  2026-10-22T09:00:00Z  2026-10-22T09:00:40Z  40s   5 files
       task     7
       tactics  Discovery, CredentialAccess
       attack   T1083, T1552.005, T1007
@@ -21,7 +21,7 @@ Intents   (an ARTEX run folder i<number>: the first and last time of its files, 
                CloudMetadataAccess: T1552.005 with AML.T0055
                ServiceDiscovery: T1007 with no ATLAS technique
       files    data/tasks/7/i1041/20261022_090000_step01_recon.sh, data/tasks/7/i1041/cmd-output/passwd_20261022_090020.txt, data/tasks/7/i1041/cmd-output/hosts_20261022_090025.txt and 2 more
-  [x] i1042  20261022_090500       20261022_090540       40s   3 files
+  [x] i1042  2026-10-22T09:05:00Z  2026-10-22T09:05:40Z  40s   3 files
       task     7
       tactics  Discovery, CredentialAccess
       attack   T1003.008, T1552.004, T1552.001, T1552.003, T1552.007
@@ -32,7 +32,7 @@ Intents   (an ARTEX run folder i<number>: the first and last time of its files, 
                ShellHistoryRead: T1552.003 with AML.T0055
                ClusterSecretRead: T1552.007 with AML.T0055
       files    data/tasks/7/i1042/20261022_090500_step02_creds.sh, data/tasks/7/i1042/cmd-output/shadow_20261022_090530.txt, data/tasks/7/i1042/cmd-output/env_20261022_090540.txt
-  [x] i998   20261022_091000       20261022_091500       5m0s  2 files
+  [x] i998   2026-10-22T09:10:00Z  2026-10-22T09:15:00Z  5m0s  2 files
       task     7
       tactics  Discovery, PrivilegeEscalation, Persistence, Execution
       attack   T1548.003, T1548.001, T1611, T1053.003, T1053.002, T1053.006, T1543.002, T1136.001, T1098.004, T1546.004

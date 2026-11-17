@@ -248,15 +248,14 @@ func (w reportRun) timeline() []render.Group {
 	return []render.Group{g}
 }
 
+// stepTime is the time the timeline shows for a file: the same instant it is
+// ordered by, written as one ISO-8601 UTC stamp whether it came from the file
+// name or the modified time.
 func stepTime(s trace.Step) string {
-	switch {
-	case s.File.Stamped:
-		return s.File.Stamp.Text
-	case !s.File.Modified.IsZero():
-		return render.Stamp(s.File.Modified, nil)
-	default:
-		return "-"
+	if t := fileTime(s.File); !t.IsZero() {
+		return render.Stamp(t, nil)
 	}
+	return "-"
 }
 
 func stepDetail(s trace.Step) []render.Detail {
@@ -320,7 +319,7 @@ func (w reportRun) findings() []render.Group {
 		switch f.kind {
 		case kindActivity:
 			e.Cells = []string{f.label, plural(lines[f.label], "line"), strings.Join(f.tactics, ", "), mitre}
-			e.Detail = lined("what", f.evidence, fewFindingLines)
+			e.Detail = lined("what", f.evidence, fewFindingLines, "the saved findings")
 		case kindIndicator:
 			at = 1
 			e.Cells = []string{f.label, f.indicator, few(f.files)}
@@ -366,7 +365,7 @@ func (w reportRun) assessed(section string) []render.Group {
 			continue
 		}
 		detail := []render.Detail{{Text: r.detail}, {Label: "targets", Text: fewOf(r.targets, fewTargets, "; ")}}
-		detail = append(detail, lined("what", r.evidence, fewLines)...)
+		detail = append(detail, lined("what", r.evidence, fewLines, "report.json")...)
 		detail = append(detail, render.Detail{Label: "basis", Text: strings.Join(r.basis, ", ")})
 		if len(r.evidence) == 0 {
 			detail = append(detail, render.Detail{Label: "files", Text: few(r.files)})
@@ -385,7 +384,7 @@ func (w reportRun) mitigation() []render.Group {
 			continue
 		}
 		detail := []render.Detail{{Text: r.detail}}
-		detail = append(detail, lined("for", r.targets, fewLines)...)
+		detail = append(detail, lined("for", r.targets, fewLines, "report.json")...)
 		if len(r.targets) == 0 {
 			detail = append(detail, render.Detail{Label: "for", Text: strings.Join(r.basis, ", ")})
 		}
@@ -430,7 +429,7 @@ func (w reportRun) targeted() []render.Group {
 		if t.origin == originDiscovered {
 			detail = append(detail, render.Detail{Label: "from", Text: t.from.String()})
 		}
-		detail = append(detail, lined("what", t.lines, fewFindingLines)...)
+		detail = append(detail, lined("what", t.lines, fewFindingLines, "the saved targeted file")...)
 		groups[i].Entries = append(groups[i].Entries, render.Entry{Level: string(t.level()), Cells: cells, Detail: detail})
 	}
 	for name, i := range at {
@@ -486,13 +485,14 @@ func (w reportRun) exposure() []render.Group {
 	return groups
 }
 
-// lined gives each of the first lines a detail of its own under one label,
-// and counts the rest.
-func lined(label string, lines []string, limit int) []render.Detail {
+// lined gives each of the first lines a detail of its own under one label, and
+// counts the rest, naming the saved file that holds every one of them: the
+// screen and the saved report share this limit, so the overflow is only in JSON.
+func lined(label string, lines []string, limit int, where string) []render.Detail {
 	var out []render.Detail
 	for i, line := range lines {
 		if i == limit {
-			out = append(out, render.Detail{Label: label, Text: "and " + strconv.Itoa(len(lines)-limit) + " more in the saved report"})
+			out = append(out, render.Detail{Label: label, Text: "and " + strconv.Itoa(len(lines)-limit) + " more in " + where})
 			break
 		}
 		out = append(out, render.Detail{Label: label, Text: line})
