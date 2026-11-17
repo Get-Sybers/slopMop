@@ -6,6 +6,13 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Changed
+
+- The saved tables are written one row at a time instead of being built whole in memory, and
+  each saved file is written as `<name>.part` and renamed when every file is complete. The bytes
+  of every saved file are unchanged, and a run on a large folder holds less than half the memory
+  it did.
+
 ## [0.5.3] - 2026-11-17
 
 ### Changed

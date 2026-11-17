@@ -834,6 +834,40 @@ func TestReportSaveFailure(t *testing.T) {
 	}
 }
 
+// A save that fails part of the way leaves no file, whole or half written.
+func TestReportSaveLeavesNoPart(t *testing.T) {
+	folder := evidencetest.Copy(t, "linux")
+	saved := filepath.Join(t.TempDir(), "out")
+	// A folder stands where one of the files is written, so that file cannot be made.
+	if err := os.MkdirAll(filepath.Join(saved, "findings.json.part"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	out, failure := run(t, "-inputdir", folder, "report", "summary", "-outdir", saved)
+	if failure == nil || !strings.Contains(failure.Error(), "output folder:") {
+		t.Errorf("error = %v, want the file that could not be made", failure)
+	}
+	if strings.Contains(out, "saved to") {
+		t.Errorf("readout = %q, want no claim that it was saved", out)
+	}
+	left, err := os.ReadDir(saved)
+	if err != nil || len(left) != 0 {
+		t.Errorf("the output folder holds %d entries (%v), want none", len(left), err)
+	}
+	// The next run finds nothing in its way and saves every file under its own name.
+	if _, err = run(t, "-inputdir", folder, "report", "summary", "-outdir", saved); err != nil {
+		t.Fatal(err)
+	}
+	entries, err := os.ReadDir(saved)
+	if err != nil || len(entries) != 10 {
+		t.Fatalf("the output folder holds %d entries (%v), want 10", len(entries), err)
+	}
+	for _, e := range entries {
+		if strings.HasSuffix(e.Name(), ".part") {
+			t.Errorf("%s was left in the output folder", e.Name())
+		}
+	}
+}
+
 func TestReportOfNothing(t *testing.T) {
 	readout, saved := report(t, t.TempDir(), "summary", "impact")
 	if want := "[ok] NOTHING FOUND in 0 files"; !strings.Contains(readout, want) {

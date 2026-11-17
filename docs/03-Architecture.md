@@ -45,11 +45,10 @@ assess      -> tactic
 intel       -> indicator
 indicator   -> parallel
 parse       -> parallel
-render      -> parallel
 ```
 
-`cli`, `structured`, `tactic`, `intent`, `mitre`, `nametime`, `parallel`, `device` and `vars` import
-no other internal package. `evidencetest` and `golden` are imported by tests only.
+`cli`, `render`, `structured`, `tactic`, `intent`, `mitre`, `nametime`, `parallel`, `device` and
+`vars` import no other internal package. `evidencetest` and `golden` are imported by tests only.
 
 ## 2. Data files
 
@@ -88,8 +87,10 @@ work writes only its own result, and the results are taken in a fixed order.
   line break; `indicator` reads that from the pattern itself and searches the whole text otherwise.
 - A pattern whose every match holds a fixed text, such as `://` or `@`, is tried only on the lines
   that hold it, when fewer than half of the lines do. The text is read from the pattern's literals.
-- The saved files are made apart from one another, and a table of more than 2,000 rows is encoded
-  in batches.
+- The saved files are made apart from one another. A table is written one row at a time, so its
+  size does not add to the memory a run holds.
+- A saved file is written as `<name>.part` and takes its name when every file is complete. A run
+  that fails removes the parts, so the output folder holds no file half written.
 - `-cores` sets how many processors a run uses, as a percentage of those of the machine, and
   `-memory` a limit on its memory, as a percentage of that of the machine. Without `-memory` the
   limit is 75 percent.
