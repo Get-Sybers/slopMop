@@ -6,8 +6,21 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-11-17
+
+### Added
+
+- `report` saves the report as Markdown and as HTML beside the plain text: `report.md` and
+  `report.html`, each with every section. A run saves nine files.
+- `report.md` writes a group of entries as a table or as a list, and every value and line of
+  evidence as a code span, so a viewer shows it as written and makes no link of it.
+- `report.html` is one page that needs no other file. It follows the light or dark setting of the
+  browser, holds no script and no link out, and its content security policy loads nothing.
+- The tables of the Markdown and HTML reports name their columns.
+
 ### Changed
 
+- `commands.json` declares the saved report as a list of formats, each with its file name.
 - The README states the one command, the nine sections and the seven saved files in tables, and
   leaves the packages to the architecture document.
 - The architecture document follows the order of the pipeline, gives the watchlist a section of

@@ -56,10 +56,11 @@ The sections print in the order of the table, whatever order they are named in.
 - It reads every file in the input folder and in its sub-folders, 16 levels down, and analyses them
   once. Nothing in the folder is run and nothing is written to it.
 - It prints the sections named, as the [output schema](02-Output-Schema.md) describes.
-- It saves the report with every section, whichever were named, and each class of the output
-  schema as JSON: `report.txt`, `files.json`, `trace.json`, `findings.json`, `targeted.json`,
-  `exposure.json` and `report.json`. A file of an earlier run is replaced. The last lines of the output name the
-  folder.
+- It saves the report with every section, whichever were named, as plain text, Markdown and
+  HTML: `report.txt`, `report.md` and `report.html`.
+- It saves each class of the output schema as JSON: `files.json`, `trace.json`, `findings.json`,
+  `targeted.json`, `exposure.json` and `report.json`.
+- A file of an earlier run is replaced. The last lines of the output name the folder.
 - A secret is masked in everything it prints and saves: in the exposure, in a command quoted as
   evidence and among the indicators. `-secrets shown` writes each as it stands in the evidence.
 - The output folder is `slopmop-<name of the input folder>` in the current directory. When the

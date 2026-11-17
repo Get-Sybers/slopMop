@@ -6,6 +6,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strings"
 	"testing"
@@ -105,11 +106,12 @@ func TestReportViews(t *testing.T) {
 	}
 }
 
-// What is saved is every section, whichever were asked for, and each class as JSON.
+// What is saved is every section, whichever were asked for, in each format,
+// and each class as JSON.
 func TestReportSaves(t *testing.T) {
 	folder := evidencetest.Copy(t, "linux")
 	shown, saved := report(t, folder, "impact")
-	if want := "-> saved to <out>: report.txt, files.json, trace.json, findings.json, targeted.json, exposure.json, report.json\n"; !strings.Contains(shown, want) {
+	if want := "-> saved to <out>: report.txt, report.md, report.html, files.json, trace.json, findings.json, targeted.json, exposure.json, report.json\n"; !strings.Contains(shown, want) {
 		t.Errorf("the readout does not say where it was saved:\n%s", shown)
 	}
 	if strings.Contains(shown, "\nTimeline") {
@@ -121,8 +123,36 @@ func TestReportSaves(t *testing.T) {
 	if text != strings.Join(lines, "\n") {
 		t.Errorf("report.txt is not the full readout:\n%s", text)
 	}
-	if entries, err := os.ReadDir(saved); err != nil || len(entries) != 7 {
-		t.Errorf("the output folder holds %d entries (%v), want 7", len(entries), err)
+	if entries, err := os.ReadDir(saved); err != nil || len(entries) != 9 {
+		t.Errorf("the output folder holds %d entries (%v), want 9", len(entries), err)
+	}
+	// Each format holds every section, and the evidence the text holds.
+	markdown, page := readFile(t, filepath.Join(saved, "report.md")), readFile(t, filepath.Join(saved, "report.html"))
+	for _, title := range []string{"Summary", "Timeline", "Findings", "Notable files", "Targeted", "Exposure", "Impact", "Remediation", "Mitigation"} {
+		if !strings.Contains(markdown, "\n## "+title+"\n") {
+			t.Errorf("report.md lacks the section %s", title)
+		}
+		if !strings.Contains(page, "<h2>"+title+"</h2>") {
+			t.Errorf("report.html lacks the section %s", title)
+		}
+	}
+	// The title names the folder as each format escapes it, which differs with the path.
+	title, rest, _ := strings.Cut(markdown, "\n")
+	if !strings.HasPrefix(title, "# slopmop report   ") {
+		t.Errorf("report.md begins %q, want the title", title)
+	}
+	golden.Check(t, "linux-report-markdown", []byte("# slopmop report   <folder>\n"+rest))
+	named := regexp.MustCompile(`(<(title|h1)>slopmop report   )[^<]*(</(title|h1)>)`)
+	if got := len(named.FindAllString(page, -1)); got != 2 {
+		t.Errorf("report.html names the folder in %d titles, want 2", got)
+	}
+	golden.Check(t, "linux-report-html", []byte(named.ReplaceAllString(page, "${1}&lt;folder&gt;${3}")))
+	for _, held := range []string{"useradd -m -s /bin/bash svc", "20261022_091500_step04_persist.sh:7", "T1136.001", "password of app_rw"} {
+		for name, body := range map[string]string{"report.txt": text, "report.md": markdown, "report.html": page} {
+			if !strings.Contains(body, held) {
+				t.Errorf("%s does not hold %q", name, held)
+			}
+		}
 	}
 	for name, least := range map[string]int{"files.json": 14, "trace.json": 14, "findings.json": 30, "targeted.json": 6, "exposure.json": 15, "report.json": 60} {
 		if got := len(rows(t, filepath.Join(saved, name))); got < least {
@@ -778,7 +808,12 @@ func TestReportVerbRejects(t *testing.T) {
 		{"no tables", func(v *verbSpec, _ *commandsDoc) { v.Saved.Tables = nil }, "needs a prefix"},
 		{"an unknown class", func(v *verbSpec, _ *commandsDoc) { v.Saved.Tables[0].Class = "bogus" }, "which has no table"},
 		{"a path for a name", func(v *verbSpec, _ *commandsDoc) { v.Saved.Tables[0].File = "../f.json" }, "not a file name of its own"},
-		{"a name twice", func(v *verbSpec, _ *commandsDoc) { v.Saved.Readout = "trace.json" }, "not a file name of its own"},
+		{"a name twice", func(v *verbSpec, _ *commandsDoc) { v.Saved.Readouts[0].File = "trace.json" }, "not a file name of its own"},
+		{"no readouts", func(v *verbSpec, _ *commandsDoc) { v.Saved.Readouts = nil }, "needs a prefix"},
+		{"an unknown format", func(v *verbSpec, _ *commandsDoc) { v.Saved.Readouts[1].Format = "pdf" }, `"pdf" is not a format of its own`},
+		{"a format twice", func(v *verbSpec, _ *commandsDoc) { v.Saved.Readouts[2].Format = "text" }, `"text" is not a format of its own`},
+		{"a readout under a table's name", func(v *verbSpec, _ *commandsDoc) { v.Saved.Readouts[2].File = v.Saved.Readouts[0].File }, "not a file name of its own"},
+		{"a readout in a folder", func(v *verbSpec, _ *commandsDoc) { v.Saved.Readouts[1].File = "sub/report.md" }, "not a file name of its own"},
 		{"a class without columns", func(_ *verbSpec, doc *commandsDoc) { doc.Classes = doc.Classes[1:] }, "which declares no columns"},
 		{"a column the row lacks", func(_ *verbSpec, doc *commandsDoc) { doc.Classes[0].Columns[0].Key = "bogus" }, `the class file declares the column "bogus"`},
 		{"a column left out", func(_ *verbSpec, doc *commandsDoc) { doc.Classes[1].Columns = doc.Classes[1].Columns[1:] }, "the class trace declares 11 columns and fills 12"},
