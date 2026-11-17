@@ -342,6 +342,11 @@ The rules are those of `exposures.json`, and the classes are described in the
 - A secret seen without an account is the same secret seen with one, so the two are one row.
 - A line number is a line of the file. An indicator or an activity found in a decoded report or
   in a decoded payload has none.
+- The same pass gathers what the scripts name outright. A username, an email address, a device
+  or an address read from a script is a target; so is a domain, which is of no kind in an output.
+  `exposures.json` says which kinds are listed and under what title. A target is `discovered`
+  when a file that is not a script and stands earlier in the timeline holds the same value, and
+  `prior` otherwise. Its script lines are quoted after every secret is known, so each is masked.
 
 ## 13. MITRE ATT&CK and MITRE ATLAS
 

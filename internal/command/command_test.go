@@ -89,7 +89,7 @@ func TestReportViews(t *testing.T) {
 		t.Run(fixture, func(t *testing.T) {
 			readout, saved := report(t, folder)
 			golden.Check(t, fixture+"-report", []byte(readout))
-			for _, name := range []string{"files", "trace", "findings", "exposure", "report"} {
+			for _, name := range []string{"files", "trace", "findings", "targeted", "exposure", "report"} {
 				golden.Check(t, fixture+"-"+name+"-json", []byte(readFile(t, filepath.Join(saved, name+".json"))))
 			}
 		})
@@ -109,7 +109,7 @@ func TestReportViews(t *testing.T) {
 func TestReportSaves(t *testing.T) {
 	folder := evidencetest.Copy(t, "linux")
 	shown, saved := report(t, folder, "impact")
-	if want := "-> saved to <out>: report.txt, files.json, trace.json, findings.json, exposure.json, report.json\n"; !strings.Contains(shown, want) {
+	if want := "-> saved to <out>: report.txt, files.json, trace.json, findings.json, targeted.json, exposure.json, report.json\n"; !strings.Contains(shown, want) {
 		t.Errorf("the readout does not say where it was saved:\n%s", shown)
 	}
 	if strings.Contains(shown, "\nTimeline") {
@@ -121,10 +121,10 @@ func TestReportSaves(t *testing.T) {
 	if text != strings.Join(lines, "\n") {
 		t.Errorf("report.txt is not the full readout:\n%s", text)
 	}
-	if entries, err := os.ReadDir(saved); err != nil || len(entries) != 6 {
-		t.Errorf("the output folder holds %d entries (%v), want 6", len(entries), err)
+	if entries, err := os.ReadDir(saved); err != nil || len(entries) != 7 {
+		t.Errorf("the output folder holds %d entries (%v), want 7", len(entries), err)
 	}
-	for name, least := range map[string]int{"files.json": 14, "trace.json": 14, "findings.json": 30, "exposure.json": 15, "report.json": 60} {
+	for name, least := range map[string]int{"files.json": 14, "trace.json": 14, "findings.json": 30, "targeted.json": 6, "exposure.json": 15, "report.json": 60} {
 		if got := len(rows(t, filepath.Join(saved, name))); got < least {
 			t.Errorf("%s holds %d rows, want at least %d", name, got, least)
 		}
@@ -141,7 +141,7 @@ func TestReportSections(t *testing.T) {
 			titles = append(titles, strings.TrimSpace(strings.SplitN(line, "   ", 2)[0]))
 		}
 	}
-	want := []string{"Summary", "Timeline", "Findings", "Notable files", "Exposure", "Impact", "Remediation", "Mitigation"}
+	want := []string{"Summary", "Timeline", "Findings", "Notable files", "Targeted", "Exposure", "Impact", "Remediation", "Mitigation"}
 	if !slices.Equal(titles, want) {
 		t.Errorf("sections = %q, want %q", titles, want)
 	}
@@ -305,7 +305,7 @@ func TestReportExposure(t *testing.T) {
 // quoted as evidence and among the indicators. -secrets shown writes it out.
 func TestReportMasksSecrets(t *testing.T) {
 	folder := evidencetest.Copy(t, "bash")
-	secret := []string{"Winter2025!", "Qw7#fakeMsolSecretValue99", "Zx9!fakeCloudSyncPass", "8846f7eaee8fb117ad06bdd830b7586c"}
+	secret := []string{"Winter2025!", "Qw7#fakeMsolSecretValue99", "Zx9!fakeCloudSyncPass", "8846f7eaee8fb117ad06bdd830b7586c", "Export1!"}
 	readout, saved := report(t, folder)
 	holds := func(text string) []string {
 		var found []string
@@ -407,6 +407,90 @@ func TestReportNamesWhat(t *testing.T) {
 	finding := find(t, rows(t, filepath.Join(saved, "findings.json")), map[string]string{"finding": "AccountCreation"})
 	if want := "useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)\nuseradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)"; finding["evidence"] != want {
 		t.Errorf("the evidence of the finding = %q, want %q", finding["evidence"], want)
+	}
+}
+
+// What a script names outright is a target: prior when no earlier output
+// holds it, discovered when one does, with the script lines that name it.
+func TestReportTargeted(t *testing.T) {
+	readout, saved := report(t, evidencetest.Copy(t, "bash"), "summary", "targeted")
+	table := rows(t, filepath.Join(saved, "targeted.json"))
+	tests := []struct {
+		row  map[string]string
+		want map[string]any
+	}{
+		{map[string]string{"kind": "username", "value": "svc_backup"},
+			map[string]any{"origin": "prior", "from": nil, "scope": nil, "scripts": "20250301_101800_step02_enum.sh:4, 20250301_101800_step02_enum.sh:8, 20250301_102300_step03_adsync.sh:7"}},
+		{map[string]string{"kind": "username", "value": "MSOL_0a1b2c3d4e5f"},
+			map[string]any{"origin": "discovered", "from": "20250301_101910_step02_users.tsv:2", "evidence": `MSOL_USER="MSOL_0a1b2c3d4e5f" (20250301_103200_step05_certs.sh:3)`}},
+		{map[string]string{"kind": "ip", "value": "10.20.1.0/24"},
+			map[string]any{"origin": "prior", "scope": "private", "evidence": `TARGET_NET="10.20.1.0/24" (20250301_101500_step01_recon.sh:3)`}},
+		{map[string]string{"kind": "ip", "value": "10.20.1.5"},
+			map[string]any{"origin": "discovered", "scope": "private", "from": "20250301_101530_step01_recon.txt:2"}},
+		{map[string]string{"kind": "device", "value": "transfer.example.net"},
+			map[string]any{"origin": "prior", "scripts": "20250301_104500_step07_exfil.sh:4"}},
+		{map[string]string{"kind": "device", "value": "ca01.corp.example"},
+			map[string]any{"origin": "discovered", "from": "20250301_101530_step01_recon.txt:6"}},
+		{map[string]string{"kind": "email", "value": "administrator@corp.example"},
+			map[string]any{"origin": "prior"}},
+	}
+	for _, tt := range tests {
+		row := find(t, table, tt.row)
+		for key, want := range tt.want {
+			if row[key] != want {
+				t.Errorf("%v: %s = %v, want %v", tt.row, key, row[key], want)
+			}
+		}
+	}
+	for _, row := range table {
+		if row["kind"] == "password" {
+			t.Errorf("a secret is listed as a target: %v", row)
+		}
+		// Every row is a value a script holds: its places are scripts.
+		for _, place := range strings.Split(row["scripts"].(string), ", ") {
+			if !strings.Contains(place, ".sh") {
+				t.Errorf("%v names %s, which is no script", row["value"], place)
+			}
+		}
+	}
+	for _, want := range []string{
+		"targeted    13  Usernames 4, Email addresses 1, Hostnames 4, IP addresses 4",
+		"\n  Hostnames (4)\n",
+		"    [!] 10.20.1.0/24  private  prior       20250301_101500_step01_recon.sh:3\n",
+		"        from  20250301_101530_step01_recon.txt:2\n",
+		"-u svc_backup -p 'Wi********! (11 chars)' -M msol",
+	} {
+		if !strings.Contains(readout, want) {
+			t.Errorf("the readout lacks %q:\n%s", want, readout)
+		}
+	}
+	// An address the attacker brought is public; nothing in an output makes it a discovery.
+	_, saved = report(t, evidencetest.Copy(t, "lolbin"))
+	row := find(t, rows(t, filepath.Join(saved, "targeted.json")), map[string]string{"kind": "ip", "value": "203.0.113.10"})
+	if row["origin"] != "prior" || row["scope"] != "public" {
+		t.Errorf("the download address: %v, want prior and public", row)
+	}
+	report := find(t, rows(t, filepath.Join(saved, "report.json")), map[string]string{"section": "targeted", "item": "203.0.113.10"})
+	if report["value"] != "medium" || report["detail"] != "ip: prior, public" {
+		t.Errorf("the row of the report: %v", report)
+	}
+}
+
+func TestScopeOf(t *testing.T) {
+	ip := exposure.Kind{Name: ipKind}
+	for value, want := range map[string]string{
+		"10.20.1.5": scopePrivate, "192.168.0.0/16": scopePrivate, "172.16.4.4": scopePrivate, "169.254.169.254": scopePrivate,
+		"127.0.0.1": scopePrivate, "203.0.113.10": scopePublic, "8.8.8.8": scopePublic, "not an address": "",
+	} {
+		if got := scopeOf(ip, value); got != want {
+			t.Errorf("scopeOf(%s) = %q, want %q", value, got, want)
+		}
+	}
+	if got := scopeOf(exposure.Kind{Name: "device"}, "10.20.1.5"); got != "" {
+		t.Errorf("a kind that is no address has the scope %q", got)
+	}
+	if long := shorten(strings.Repeat("é", maxQuoted)); len(long) > maxQuoted || !strings.HasSuffix(long, "...") || !strings.HasPrefix(long, "é") {
+		t.Errorf("shorten gave %d bytes ending %q", len(long), long[len(long)-5:])
 	}
 }
 
@@ -668,7 +752,8 @@ func TestReportVerbRejects(t *testing.T) {
 		{"an unknown section", func(v *verbSpec, _ *commandsDoc) { v.Sections[0].Name = "bogus" }, "which has no implementation"},
 		{"a section left out", func(v *verbSpec, _ *commandsDoc) { v.Sections = v.Sections[1:] }, "does not declare the section"},
 		{"an option it reads and does not name", func(v *verbSpec, _ *commandsDoc) { v.Takes = v.Takes[:1] }, `reads the option "outdir"`},
-		{"a row that fills a column the class lacks", func(_ *verbSpec, doc *commandsDoc) { doc.Classes[3].Columns = doc.Classes[3].Columns[1:] }, "the class exposure declares 7 columns and fills 8"},
+		{"a row that fills a column the class lacks", func(_ *verbSpec, doc *commandsDoc) { doc.Classes[4].Columns = doc.Classes[4].Columns[1:] }, "the class exposure declares 7 columns and fills 8"},
+		{"a column the targeted row lacks", func(_ *verbSpec, doc *commandsDoc) { doc.Classes[3].Columns[2].Key = "bogus" }, `the class targeted declares the column "bogus"`},
 		{"no prefix", func(v *verbSpec, _ *commandsDoc) { v.Saved.Prefix = "" }, "needs a prefix"},
 		{"no tables", func(v *verbSpec, _ *commandsDoc) { v.Saved.Tables = nil }, "needs a prefix"},
 		{"an unknown class", func(v *verbSpec, _ *commandsDoc) { v.Saved.Tables[0].Class = "bogus" }, "which has no table"},

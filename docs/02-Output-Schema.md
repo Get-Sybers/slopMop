@@ -17,6 +17,7 @@ Summary
   indicators  13  1 Base64Blob, 4 Domain, 1 EncodedCommand, 1 GUID, 3 IPv4, 3 SHA1
   activities  1
   tactics     4
+  targeted    7   Usernames 1, Hostnames 3, IP addresses 3
   exposed     8   Usernames 2, Devices 3, IP addresses 3
 
 Exposure   (collected: first seen in an output; used: first seen in a script; a secret is masked)
@@ -42,7 +43,7 @@ Impact
       basis    CertificateExport, CredentialAccess tools
 
 [x] HIGH - 4 impacts: 2 high, 1 medium, 1 low
--> saved to slopmop-ai_workdir: report.txt, files.json, trace.json, findings.json, exposure.json, report.json
+-> saved to slopmop-ai_workdir: report.txt, files.json, trace.json, findings.json, targeted.json, exposure.json, report.json
 -> one section: slopmop -inputdir <folder> report impact
 ```
 
@@ -60,7 +61,7 @@ Impact
   its values, and in a payload that was decoded out of a file.
 - Detail lines that share a label stand under it, and the label is written once.
 - A long list is cut and says how much more the saved files hold: the indicators and each kind of
-  exposure after 40 entries, the lines of evidence of an impact or an action after 6, those of a
+  exposure and of target after 40 entries, the lines of evidence of an impact or an action after 6, those of a
   finding after 3, and the targets after 12.
 - Times are UTC.
 - Colour is used only when standard output is a terminal, `NO_COLOR` is unset and `TERM` is not
@@ -74,14 +75,15 @@ Impact
 | Findings, indicators | type, value, files | `watchlist`: the attributions |
 | Findings, tactics | tactic, its ATT&CK and ATLAS identifiers, files | none |
 | Notable files | role, file | `found`, `linked` |
+| Targeted, a group per kind | the value, for an address whether it is private or public, whether it is prior or discovered, the places in the scripts | `from`: the output that held a discovered value first; `what`: the script lines that name it |
 | Exposure, a group per kind | the value, whether it was collected or used, the places; a secret also says what it is and whose | none |
 | Impact | the impact | its statement; `targets`: what it concerns; `what`: the lines that show it; `basis`; `files` when no line is quoted |
 | Remediation | the action | its text; `targets`: what to act on; `what`; `basis`; `files` when no line is quoted |
 | Mitigation | the mitigation, the techniques found that it addresses | the framework's own sentence; `for`: each activity it answers and what that activity acted on |
 
 The values are those of the classes of section 6: a timeline entry is a `trace` row, a finding
-entry is a `finding` row, an exposure entry is an `exposure` row and the other sections are
-`report` rows. An activity's `lines` is its count in the summary of the `report` class.
+entry is a `finding` row, a targeted entry is a `targeted` row, an exposure entry is an `exposure`
+row and the other sections are `report` rows. An activity's `lines` is its count in the summary of the `report` class.
 
 - A target is what a line acts on, with its kind: `account svc`, `unit sync.service`,
   `file /etc/sudoers.d/svc`, `url http://203.0.113.40/s.sh`. A variable the script sets is given
@@ -123,7 +125,7 @@ secret of four characters or fewer is all stars.
 
 ## 4. The saved files
 
-Every run saves six files to its output folder.
+Every run saves seven files to its output folder.
 
 | File | Holds |
 | --- | --- |
@@ -131,6 +133,7 @@ Every run saves six files to its output folder.
 | `files.json` | the `file` class |
 | `trace.json` | the `trace` class |
 | `findings.json` | the `finding` class |
+| `targeted.json` | the `targeted` class |
 | `exposure.json` | the `exposure` class |
 | `report.json` | the `report` class |
 
@@ -217,6 +220,30 @@ One row per activity, per distinct indicator and per tactic.
 
 Sort: severity from `high` to `low`, then activities, indicators and tactics, each by name.
 
+### targeted
+
+One row per username, IP address, hostname or email address that a script names outright: a value
+written in a script, or the plain value of a variable a script sets. A secret is never a row.
+
+| JSON key | Value |
+| --- | --- |
+| `kind` | `username`, `email`, `device` for a hostname, or `ip` |
+| `value` | the value as the script holds it |
+| `origin` | `prior` when no earlier file of the timeline that is not a script holds the value: the scripts were written knowing it. `discovered` when one does: the run learnt it first |
+| `from` | the place in the output that held a discovered value first; `null` on a prior one |
+| `scope` | on an address, `private` for a private, loopback or link-local address and `public` for any other; a range is judged by its first address; `null` on the other kinds |
+| `count` | the script lines that name the value |
+| `scripts` | the first five places that name it |
+| `evidence` | the script lines at those places, each with its place, with every secret masked |
+
+Sort: usernames, email addresses, hostnames, then addresses; `prior` before `discovered`; then by
+value. Two values that differ only in case are one row.
+
+- The usernames, email addresses and addresses are found as for the `exposure` class. A hostname
+  is a device of that class or a domain name: a domain a script names is a host it reaches for.
+- A `prior` value is `medium` in the report and a `discovered` one is `low`.
+- A value the scripts read from an output at run time is in no script, so it is not a row.
+
 ### exposure
 
 One row per distinct value. A secret is one row per value and account.
@@ -253,12 +280,13 @@ Sort: the kinds in the order above, `collected` before `used`, then by value.
 
 ### report
 
-One row per line of the report, in six sections.
+One row per line of the report, in seven sections.
 
 | Section | A row is |
 | --- | --- |
-| `summary` | a count: `files`, `scripts`, `outputs`, `indicators` and one per type, `activities` and one per activity, `tactics`, `exposed` and one per kind, and `intel hits` with `-intelfile` |
+| `summary` | a count: `files`, `scripts`, `outputs`, `indicators` and one per type, `activities` and one per activity, `tactics`, `targeted` and one per kind, `exposed` and one per kind, and `intel hits` with `-intelfile` |
 | `script`, `output`, `other` | a notable file, under its role: one that holds a finding of high severity |
+| `targeted` | a value a script names outright, as the `targeted` class holds it: `item` is the value, `value` is `medium` for a prior one and `low` for a discovered one, `detail` the kind, the origin, the scope and the place that held it first, `files` the places in the scripts and `evidence` the lines |
 | `exposure` | an exposed value, as the `exposure` class holds it: `item` is the value, `value` the severity, `detail` the kind, whose a secret is and whether it was collected or used, and `files` its places |
 | `impact` | a consequence the evidence shows |
 | `remediation` | an action that undoes what was done |

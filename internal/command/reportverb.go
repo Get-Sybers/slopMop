@@ -76,6 +76,7 @@ func sectionBuilders() map[string]sectionBuilder {
 		"timeline":         reportRun.timeline,
 		"findings":         reportRun.findings,
 		sectionFiles:       reportRun.files,
+		sectionTargeted:    reportRun.targeted,
 		sectionExposure:    reportRun.exposure,
 		sectionImpact:      func(w reportRun) []render.Group { return w.assessed(sectionImpact) },
 		sectionRemediation: func(w reportRun) []render.Group { return w.assessed(sectionRemediation) },
@@ -127,7 +128,7 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 			return err
 		}
 		every := map[string]bool{
-			sectionSummary: true, sectionFiles: true, sectionExposure: true, sectionImpact: true,
+			sectionSummary: true, sectionFiles: true, sectionTargeted: true, sectionExposure: true, sectionImpact: true,
 			sectionRemediation: true, sectionMitigation: true,
 		}
 		run := reportRun{pipe: pipe, result: result, rows: pipe.report(result, tactic.High, every)}
@@ -186,7 +187,7 @@ func (w reportRun) banner() render.Banner {
 // their breakdown, and each activity carries its own count in the findings.
 func (w reportRun) summary() []render.Group {
 	var g render.Group
-	var roles, types, kinds []string
+	var roles, types, kinds, aims []string
 	for _, r := range w.rows {
 		if r.section != sectionSummary {
 			continue
@@ -198,7 +199,9 @@ func (w reportRun) summary() []render.Group {
 		case nested && parent == "indicators":
 			types = append(types, strconv.Itoa(r.count)+" "+part)
 		case nested && parent == "exposed":
-			kinds = append(kinds, w.kindTitle(part)+" "+strconv.Itoa(r.count))
+			kinds = append(kinds, w.kindTitle(part, false)+" "+strconv.Itoa(r.count))
+		case nested && parent == "targeted":
+			aims = append(aims, w.kindTitle(part, true)+" "+strconv.Itoa(r.count))
 		case nested && parent == "activities":
 		default:
 			g.Entries = append(g.Entries, render.Entry{Cells: []string{r.item, strconv.Itoa(r.count)}})
@@ -213,6 +216,8 @@ func (w reportRun) summary() []render.Group {
 			*cells = append(*cells, strings.Join(types, ", "))
 		case "exposed":
 			*cells = append(*cells, strings.Join(kinds, ", "))
+		case "targeted":
+			*cells = append(*cells, strings.Join(aims, ", "))
 		}
 	}
 	return []render.Group{g}
@@ -265,10 +270,15 @@ func stepDetail(s trace.Step) []render.Detail {
 	return detail
 }
 
-// kindTitle gives the title of a kind of exposure, or its name when it has none.
-func (w reportRun) kindTitle(name string) string {
+// kindTitle gives the title of a kind of exposure, or its title among the
+// targets of the scripts; the name stands in when the kind has none.
+func (w reportRun) kindTitle(name string, targeted bool) string {
 	for _, k := range w.pipe.exposures.Kinds() {
-		if k.Name == name {
+		switch {
+		case k.Name != name:
+		case targeted && k.Targeted != "":
+			return k.Targeted
+		case !targeted:
 			return k.Title
 		}
 	}
@@ -368,6 +378,45 @@ func (w reportRun) mitigation() []render.Group {
 		})
 	}
 	return []render.Group{g}
+}
+
+// targeted lists what the scripts name outright, a group per kind: the
+// value, whether the attacker knew it beforehand, the script lines that name
+// it and, for a value the run learnt, the output that held it first.
+func (w reportRun) targeted() []render.Group {
+	var groups []render.Group
+	at := map[string]int{}
+	total := map[string]int{}
+	for _, t := range w.result.targeted {
+		total[t.kind.Name]++
+	}
+	for _, t := range w.result.targeted {
+		i, ok := at[t.kind.Name]
+		if !ok {
+			i = len(groups)
+			at[t.kind.Name] = i
+			groups = append(groups, render.Group{Title: t.kind.Targeted + " (" + strconv.Itoa(total[t.kind.Name]) + ")"})
+		}
+		if len(groups[i].Entries) == fewExposed {
+			continue
+		}
+		cells := []string{t.value, t.origin, few(t.places())}
+		if t.scope != "" {
+			cells = []string{t.value, t.scope, t.origin, few(t.places())}
+		}
+		var detail []render.Detail
+		if t.origin == originDiscovered {
+			detail = append(detail, render.Detail{Label: "from", Text: t.from.String()})
+		}
+		detail = append(detail, lined("what", t.lines, fewFindingLines)...)
+		groups[i].Entries = append(groups[i].Entries, render.Entry{Level: string(t.level()), Cells: cells, Detail: detail})
+	}
+	for name, i := range at {
+		if more := total[name] - len(groups[i].Entries); more > 0 {
+			groups[i].Entries = append(groups[i].Entries, render.Entry{Cells: []string{"and " + strconv.Itoa(more) + " more in the saved targeted file"}})
+		}
+	}
+	return groups
 }
 
 // exposure lists what the evidence holds, a group per kind. A long list is

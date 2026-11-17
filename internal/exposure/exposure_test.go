@@ -1,6 +1,7 @@
 package exposure
 
 import (
+	"maps"
 	"slices"
 	"strings"
 	"testing"
@@ -70,6 +71,7 @@ func TestExtractLines(t *testing.T) {
 		{"a registry path", `reg query HKLM\Software\Microsoft`, nil},
 		{"a host and a certificate authority", `certutil.exe -config "CA01.corp.example\corp-CA01-CA" -ping`, nil},
 		{"a host and what it serves", `Connecting to CA01.corp.example\corp-CA01-CA ...`, nil},
+		{"a password for an exported key", `certutil -exportPFX -p Export1! My $T ca.p12`, []string{"password=Export1!"}},
 		{"a secure string", `$p = ConvertTo-SecureString "Autumn2026!" -AsPlainText -Force`, []string{"password=Autumn2026!"}},
 		{"a bearer token", `Authorization: Bearer abcdefghijklmnopqrstuvwxyz012345`, []string{"password=abcdefghijklmnopqrstuvwxyz012345 (token)"}},
 		{"a placeholder", "password=$PASS\nsecret: <redacted>\npwd=***\ntoken_type=Bearer\npassword: null", nil},
@@ -164,8 +166,32 @@ func TestFromIndicator(t *testing.T) {
 			t.Errorf("FromIndicator(%s) = %+v, %t; want %+v, %t", tt.typ, got, ok, tt.want, tt.ok)
 		}
 	}
-	if got, want := table.IndicatorTypes(), []string{"AWSKey", "Email", "IPv4", "JWT", "PrivateKey"}; !slices.Equal(got, want) {
+	if got, want := table.IndicatorTypes(), []string{"AWSKey", "Domain", "Email", "IPv4", "JWT", "PrivateKey"}; !slices.Equal(got, want) {
 		t.Errorf("IndicatorTypes = %q, want %q", got, want)
+	}
+}
+
+// A domain is a hostname where a script names it, and of no kind elsewhere.
+func TestFromHardcoded(t *testing.T) {
+	table := load(t)
+	if got, ok := table.FromHardcoded("Domain", "files.example.net", 4); !ok || got != (Item{Kind: "device", Value: "files.example.net", Line: 4}) {
+		t.Errorf("FromHardcoded(Domain) = %+v, %t", got, ok)
+	}
+	if _, ok := table.FromIndicator("Domain", "files.example.net", 4); ok {
+		t.Error("a domain is of a kind outside a script")
+	}
+	for typ, value := range map[string]string{"Email": "a@corp.example", "Domain": "localhost", "URL": "http://x"} {
+		if got, ok := table.FromHardcoded(typ, value, 1); ok {
+			t.Errorf("FromHardcoded(%s, %s) = %+v, want none", typ, value, got)
+		}
+	}
+	titles := map[string]string{}
+	for _, k := range table.Kinds() {
+		titles[k.Name] = k.Targeted
+	}
+	want := map[string]string{"password": "", "username": "Usernames", "email": "Email addresses", "device": "Hostnames", "ip": "IP addresses"}
+	if !maps.Equal(titles, want) {
+		t.Errorf("targeted titles = %v, want %v", titles, want)
 	}
 }
 
@@ -229,6 +255,10 @@ func TestDecodeRejects(t *testing.T) {
 		"a pattern that needs nothing": one(`,"patterns":[{"needs":[],"pattern":"(?P<value>a)"}]`),
 		"a needed text in upper case":  one(`,"patterns":[{"needs":["A"],"pattern":"(?P<value>a)"}]`),
 		"a bad unless":                 one(`,"patterns":[{"needs":["a"],"unless":"(","pattern":"(?P<value>a)"}]`),
+		"targeted without a title":     one(`,"targeted":{}`),
+		"a secret that is targeted":    one(`,"secret":true,"targeted":{"title":"T"}`),
+		"a targeted type twice":        one(`,"targeted":{"title":"T","indicators":[{"type":"Domain"},{"type":"Domain"}]}`),
+		"a targeted type of the kind":  one(`,"indicators":[{"type":"Email"}],"targeted":{"title":"T","indicators":[{"type":"Email"}]}`),
 	}
 	for name, data := range tests {
 		t.Run(name, func(t *testing.T) {

