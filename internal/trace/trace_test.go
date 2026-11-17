@@ -3,7 +3,9 @@ package trace
 import (
 	"encoding/base64"
 	"encoding/binary"
+	"reflect"
 	"slices"
+	"sync"
 	"testing"
 	"unicode/utf16"
 
@@ -474,5 +476,44 @@ func TestBuildNumbersLines(t *testing.T) {
 		if c.Line != 0 {
 			t.Errorf("a command of a decoded report has line %d", c.Line)
 		}
+	}
+}
+
+// BuildWatched tells of each file as many times as Passes says, calls what
+// it is handed back each time, and builds what Build builds.
+func TestBuildWatchedTellsOfEveryPass(t *testing.T) {
+	res, err := inventory.ReadAll(evidencetest.Copy(t, "linux"), 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tables := loadTables(t)
+	var mu sync.Mutex
+	begun, done := map[string]int{}, 0
+	watched := BuildWatched(res.Files, res.Texts, tables, func(path string) func() {
+		mu.Lock()
+		defer mu.Unlock()
+		begun[path]++
+		return func() {
+			mu.Lock()
+			defer mu.Unlock()
+			done++
+		}
+	})
+	total := 0
+	for _, f := range res.Files {
+		want := 2
+		if f.Role == evidence.Script {
+			want = 3
+		}
+		if begun[f.Path] != want {
+			t.Errorf("%s is told of %d times, want %d", f.Path, begun[f.Path], want)
+		}
+		total += want
+	}
+	if got := Passes(res.Files); got != total || done != total {
+		t.Errorf("Passes = %d and %d passes were done, want %d of each", got, done, total)
+	}
+	if !reflect.DeepEqual(watched, Build(res.Files, res.Texts, tables)) {
+		t.Error("the timeline differs from the one Build gives")
 	}
 }

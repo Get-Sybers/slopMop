@@ -6,6 +6,36 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Changed
+
+- The Timeline section tells what was done, not what files there are. An entry is a period: the
+  files, one after another, that show no tactic the first of them does not, with its first and
+  last time, the number of its files, its tactics, activities, tools, watchlist matches and
+  intents. A file that shows no tactic and no watchlist match is counted in the last line and
+  not listed, whatever its role. Of more than 40 periods the first 20 and the last 20 are shown.
+  A folder of 2,198 files whose timeline was 6,836 lines is told in 14 periods. `trace.json`
+  holds every file, as it did.
+
+### Added
+
+- A run says what it is doing. On a terminal one line on standard error names the stage, of
+  five, how many of the files or of the saved files are done, how long the stage has lasted and
+  the file the run has been at for longest, and is taken off before the report is printed.
+- `-progress shown|hidden`. `hidden` says nothing on a terminal; `shown` writes a line when a
+  stage begins and every ten seconds while it lasts where standard error is not a terminal,
+  such as a log file. Without it nothing is written there, and standard output is unchanged.
+- `internal/progress`, which writes the line.
+
+### Fixed
+
+- A run writes nothing outside its output folder. When the folder already held a symbolic or a
+  hard link named as a saved file is while it is written, such as `findings.json.part`, the
+  file was written through the link, into whatever it led to: a file elsewhere, or one of the
+  evidence. The output folder is opened as a root and each file is made new in it, so the link
+  is replaced and what it led to is left alone. Before 0.5.4 the same held of a link named as
+  the saved file itself, such as `findings.json`.
+- A save that fails while the files are given their names removes the parts that are left.
+
 ## [0.5.4] - 2026-11-17
 
 ### Changed

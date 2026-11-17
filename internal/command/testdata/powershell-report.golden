@@ -10,54 +10,21 @@ Summary
   targeted    7   Usernames 1, Hostnames 3, IP addresses 3
   exposed     8   Usernames 2, Devices 3, IP addresses 3
 
-Timeline   (step, time, role, file)
-  1  2025-03-02T09:00:00Z  script  20250302_090000_step01_inventory.ps1
+Timeline   (from, until, files, tactics)
+  2025-03-02T09:00:00Z  -                     1  Discovery
       tools       get-date, join-path, get-adcomputer, select-object, export-csv
-      tactics     Discovery
-      indicators  1
-  1  2025-03-02T09:00:30Z  output  hosts_20250302_090030.csv
-      indicators  3
-  2  2025-03-02T09:05:00Z  script  20250302_090500_step02_sync.ps1
+      files       20250302_090000_step01_inventory.ps1
+  2025-03-02T09:05:00Z  -                     1  Discovery, LateralMovement
       tools       import-csv, where-object, get-date, invoke-command, get-adsyncconnector, select-object, get-adsyncscheduler, out-file
-      tactics     LateralMovement, Discovery
-  2  2025-03-02T09:05:30Z  output  sync_10.20.1.17_20250302_090530.txt
-      indicators  1
-  3  2025-03-02T09:09:00Z  script  20250302_090900_step03_sync_retry.ps1
-      tools       get-credential, get-date, invoke-command, get-adsyncconnector, select-object, get-adsyncscheduler, out-file
-      tactics     CredentialAccess, LateralMovement, Discovery
-      indicators  1
-  3  2025-03-02T09:09:30Z  output  sync_10.20.1.17_retry_20250302_090930.txt
-      indicators  3
-  4  2025-03-02T09:15:00Z  script  20250302_091500_step04_certs.ps1
-      tools       invoke-command, get-childitem, certutil.exe
-      tactics     LateralMovement, Discovery
-      wrote       cert_store_20250302_091530.txt, ca_ping_20250302_091540.log
-      indicators  4
-  4  2025-03-02T09:15:30Z  output  cert_store_20250302_091530.txt
-      indicators  3
-  4  2025-03-02T09:15:40Z  output  ca_ping_20250302_091540.log
-      indicators  1
-  5  2025-03-02T09:22:00Z  script  20250302_092200_step05_export.ps1
-      tools       export-certificate, new-selfsignedcertificate, get-date, set-content, [system.io.file]::writealltext
-      tactics     CredentialAccess
+      files       20250302_090500_step02_sync.ps1
+  2025-03-02T09:09:00Z  2025-03-02T09:22:00Z  3  Discovery, CredentialAccess, LateralMovement
       activities  CertificateExport
-      wrote       ca01_20250302_092210.cer, export_summary_20250302_092215.txt
-      indicators  3
-  5  2025-03-02T09:22:10Z  other   ca01_20250302_092210.cer
-      note        binary
-  5  2025-03-02T09:22:15Z  output  export_summary_20250302_092215.txt
-      indicators  2
-  6  2025-03-02T09:30:00Z  script  20250302_093000_step06_stage.ps1
-      tools       [system.io.file]::writealltext, new-object, [system.io.file]::writeallbytes, foreach-object, set-content
-      transforms  Base64Encode, Stream, GZip, TextEncoding, Crypto:Aes, EncodedCommand, XOR, StringManip, HexEncode
-      wrote       staged_20250302_093010.b64, staged_20250302_093050.ses, staged_20250302_093100.cmd
-  6  2025-03-02T09:30:10Z  output  staged_20250302_093010.b64
-      indicators  1
-  6  2025-03-02T09:30:50Z  output  staged_20250302_093050.ses
-  6  2025-03-02T09:31:00Z  output  staged_20250302_093100.cmd
+      tools       get-credential, get-date, invoke-command, get-adsyncconnector, select-object, get-adsyncscheduler, out-file, get-childitem, and 5 more
+      files       20250302_090900_step03_sync_retry.ps1, 20250302_091500_step04_certs.ps1, 20250302_092200_step05_export.ps1
+  2025-03-02T09:31:00Z  -                     1  Execution
       tools       powershell
-      tactics     Execution
-      indicators  1
+      files       staged_20250302_093100.cmd
+  and 10 files that show no tactic, in the saved trace
 
 Findings
   activities

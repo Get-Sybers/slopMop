@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -14,6 +15,7 @@ import (
 	"github.com/get-sybers/slopmop/internal/cli"
 	"github.com/get-sybers/slopmop/internal/evidence"
 	"github.com/get-sybers/slopmop/internal/parallel"
+	"github.com/get-sybers/slopmop/internal/progress"
 	"github.com/get-sybers/slopmop/internal/render"
 	"github.com/get-sybers/slopmop/internal/trace"
 )
@@ -288,10 +290,17 @@ const partSuffix = ".part"
 // save writes the readout in each format, and each table, into dir, and
 // returns the names written. A file takes its name only when all are made,
 // so a run that fails leaves no saved file half written.
-func (w reportRun) save(dir string, s savedSpec, columns map[string][]render.Column, readout render.Readout) ([]string, error) {
+func (w reportRun) save(dir string, s savedSpec, columns map[string][]render.Column, readout render.Readout, meter *progress.Meter) ([]string, error) {
 	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return nil, fmt.Errorf("output folder: %w", err)
 	}
+	// The folder is opened as a root and every file is made through it, so
+	// no name in the folder leads a write to a place outside it.
+	out, opened := os.OpenRoot(dir)
+	if opened != nil {
+		return nil, fmt.Errorf("output folder: %w", opened)
+	}
+	defer out.Close()
 	var names []string
 	var makers []func(io.Writer) error
 	writers := readoutWriters()
@@ -316,24 +325,34 @@ func (w reportRun) save(dir string, s savedSpec, columns map[string][]render.Col
 	// Each file is made apart from the others, on every processor, and
 	// written as it is made, so none is held whole in memory.
 	failed := make([]error, len(makers))
-	parallel.Each(len(makers), func(i int) { failed[i] = writePart(filepath.Join(dir, names[i]+partSuffix), makers[i]) })
-	if err := errors.Join(failed...); err != nil {
-		for _, name := range names {
-			os.Remove(filepath.Join(dir, name+partSuffix))
+	parallel.Each(len(makers), func(i int) {
+		defer meter.Begin(names[i])()
+		failed[i] = writePart(out, names[i]+partSuffix, makers[i])
+	})
+	failure := errors.Join(failed...)
+	for i := 0; failure == nil && i < len(names); i++ {
+		if err := out.Rename(names[i]+partSuffix, names[i]); err != nil {
+			failure = fmt.Errorf("output folder: %w", err)
 		}
-		return nil, err
 	}
-	for _, name := range names {
-		if err := os.Rename(filepath.Join(dir, name+partSuffix), filepath.Join(dir, name)); err != nil {
-			return nil, fmt.Errorf("output folder: %w", err)
+	if failure != nil {
+		// What was not given its name is taken away again.
+		for _, name := range names {
+			_ = out.Remove(name + partSuffix)
 		}
+		return nil, failure
 	}
 	return names, nil
 }
 
-// writePart makes one file at path with what fill writes to it.
-func writePart(path string, fill func(io.Writer) error) error {
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+// writePart makes one new file in the folder with what fill writes to it.
+// What stands under the name is taken away first, so the file written is
+// never one that a link, in the folder or elsewhere, also leads to.
+func writePart(out *os.Root, name string, fill func(io.Writer) error) error {
+	if err := out.Remove(name); err != nil && !errors.Is(err, fs.ErrNotExist) {
+		return fmt.Errorf("output folder: %w", err)
+	}
+	f, err := out.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
 	if err != nil {
 		return fmt.Errorf("output folder: %w", err)
 	}

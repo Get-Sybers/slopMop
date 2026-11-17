@@ -250,8 +250,8 @@ func TestReportIntents(t *testing.T) {
 		t.Errorf("the trace names %v, want %v", named, want)
 	}
 	timeline, _ := report(t, folder, "timeline")
-	if !strings.Contains(timeline, "      intent      i1041\n") {
-		t.Errorf("the timeline does not name the intent of a step:\n%s", timeline)
+	if !strings.Contains(timeline, "      intent      i1041, i1042\n") {
+		t.Errorf("the timeline does not name the intents of a period:\n%s", timeline)
 	}
 	for name, body := range map[string]string{"report.md": readFile(t, filepath.Join(saved, "report.md")), "report.html": readFile(t, filepath.Join(saved, "report.html"))} {
 		for _, held := range []string{"Intents", "i1042", "T1003.008", "AML.T0090"} {
@@ -838,8 +838,9 @@ func TestReportSaveFailure(t *testing.T) {
 func TestReportSaveLeavesNoPart(t *testing.T) {
 	folder := evidencetest.Copy(t, "linux")
 	saved := filepath.Join(t.TempDir(), "out")
-	// A folder stands where one of the files is written, so that file cannot be made.
-	if err := os.MkdirAll(filepath.Join(saved, "findings.json.part"), 0o700); err != nil {
+	// A folder that is not empty stands where one of the files is written, so that file cannot be made.
+	inTheWay := filepath.Join(saved, "findings.json.part")
+	if err := os.MkdirAll(filepath.Join(inTheWay, "held"), 0o700); err != nil {
 		t.Fatal(err)
 	}
 	out, failure := run(t, "-inputdir", folder, "report", "summary", "-outdir", saved)
@@ -850,10 +851,13 @@ func TestReportSaveLeavesNoPart(t *testing.T) {
 		t.Errorf("readout = %q, want no claim that it was saved", out)
 	}
 	left, err := os.ReadDir(saved)
-	if err != nil || len(left) != 0 {
-		t.Errorf("the output folder holds %d entries (%v), want none", len(left), err)
+	if err != nil || len(left) != 1 || left[0].Name() != filepath.Base(inTheWay) {
+		t.Errorf("the output folder holds %d entries (%v), want only the folder that was in the way", len(left), err)
 	}
 	// The next run finds nothing in its way and saves every file under its own name.
+	if err = os.RemoveAll(inTheWay); err != nil {
+		t.Fatal(err)
+	}
 	if _, err = run(t, "-inputdir", folder, "report", "summary", "-outdir", saved); err != nil {
 		t.Fatal(err)
 	}
@@ -865,6 +869,62 @@ func TestReportSaveLeavesNoPart(t *testing.T) {
 		if strings.HasSuffix(e.Name(), ".part") {
 			t.Errorf("%s was left in the output folder", e.Name())
 		}
+	}
+}
+
+// A name in the output folder that leads elsewhere takes no write there: the
+// file is made new in the folder, and what the name led to is left as it was.
+func TestReportWritesNothingThroughALink(t *testing.T) {
+	folder := evidencetest.Copy(t, "linux")
+	evidenceFile := filepath.Join(folder, "passwd_20261022_090020.txt")
+	held := readFile(t, evidenceFile)
+	links := []struct {
+		name string
+		make func(target, name string) error
+	}{{"a symbolic link", os.Symlink}, {"a hard link", os.Link}}
+	for _, link := range links {
+		for _, name := range []string{"findings.json", "findings.json.part", "report.txt", "report.txt.part"} {
+			t.Run(link.name+" named "+name, func(t *testing.T) {
+				base := t.TempDir()
+				saved, elsewhere := filepath.Join(base, "out"), filepath.Join(base, "elsewhere.txt")
+				if err := os.Mkdir(saved, 0o700); err != nil {
+					t.Fatal(err)
+				}
+				if err := os.WriteFile(elsewhere, []byte("kept\n"), 0o600); err != nil {
+					t.Fatal(err)
+				}
+				if err := link.make(elsewhere, filepath.Join(saved, name)); err != nil {
+					t.Skipf("this system makes no such link: %v", err)
+				}
+				if _, err := run(t, "-inputdir", folder, "report", "summary", "-outdir", saved); err != nil {
+					t.Fatal(err)
+				}
+				if got := readFile(t, elsewhere); got != "kept\n" {
+					t.Errorf("the file outside the output folder now holds %d bytes: it was written through the link", len(got))
+				}
+				file := filepath.Join(saved, strings.TrimSuffix(name, ".part"))
+				if info, err := os.Lstat(file); err != nil || !info.Mode().IsRegular() || info.Size() < 100 {
+					t.Errorf("%s is not a file of its own that holds the output (%v)", filepath.Base(file), err)
+				}
+				if entries, err := os.ReadDir(saved); err != nil || len(entries) != 10 {
+					t.Errorf("the output folder holds %d entries (%v), want 10", len(entries), err)
+				}
+			})
+		}
+	}
+	// The same holds of a link that leads into the evidence.
+	saved := filepath.Join(t.TempDir(), "out")
+	if err := os.Mkdir(saved, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Link(evidenceFile, filepath.Join(saved, "trace.json.part")); err != nil {
+		t.Skipf("this system makes no hard link: %v", err)
+	}
+	if _, err := run(t, "-inputdir", folder, "report", "summary", "-outdir", saved); err != nil {
+		t.Fatal(err)
+	}
+	if got := readFile(t, evidenceFile); got != held {
+		t.Errorf("the evidence was written through a link in the output folder")
 	}
 }
 

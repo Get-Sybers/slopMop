@@ -35,15 +35,24 @@ type Result struct {
 // of sub-folder. It opens everything read-only through a root, so nothing
 // outside the folder is reachable.
 func Read(folder string, depth int) (Result, error) {
-	return readAll(folder, maxTextBytes, depth, false)
+	return readAll(folder, maxTextBytes, depth, false, nil)
 }
 
 // ReadAll is Read plus the decoded text of every readable file.
 func ReadAll(folder string, depth int) (Result, error) {
-	return readAll(folder, maxTextBytes, depth, true)
+	return readAll(folder, maxTextBytes, depth, true, nil)
 }
 
-func readAll(folder string, limit int64, depth int, keepText bool) (Result, error) {
+// Watch is told the path of a file as its reading begins, and returns what
+// is called when the reading is done.
+type Watch func(path string) (done func())
+
+// ReadAllWatched is ReadAll that tells watch of each file as it is read.
+func ReadAllWatched(folder string, depth int, watch Watch) (Result, error) {
+	return readAll(folder, maxTextBytes, depth, true, watch)
+}
+
+func readAll(folder string, limit int64, depth int, keepText bool, watch Watch) (Result, error) {
 	roles, err := LoadRoles()
 	if err != nil {
 		return Result{}, err
@@ -61,6 +70,9 @@ func readAll(folder string, limit int64, depth int, keepText bool) (Result, erro
 	// the result is that of the path, not of when a read finished.
 	reads := make([]read, len(r.found))
 	parallel.Each(len(r.found), func(i int) {
+		if watch != nil {
+			defer watch(r.found[i].path)()
+		}
 		reads[i].file, reads[i].text = r.fileWithText(r.found[i].path, r.found[i].name)
 	})
 	res := Result{Files: make([]evidence.File, len(reads)), Skipped: r.skipped}

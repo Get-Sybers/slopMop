@@ -11,50 +11,30 @@ Summary
   exposed     7   Usernames 3, Email addresses 2, IP addresses 2
   intel hits  2
 
-Timeline   (step, time, role, file)
-  1  2026-10-15T09:00:00Z  script  20261015_090000_step01_token.sh
-      tools       curl, az
-      tactics     Discovery, InitialAccess
-      activities  TokenRequest
-      wrote       token_20261015_090010.json
+Timeline   (from, until, files, tactics)
+  2026-10-15T09:00:00Z  2026-10-15T09:05:00Z  2  InitialAccess, Discovery
+      activities  TokenRequest, GraphDirectoryEnumeration
+      tools       curl, az, invoke-restmethod, convertto-json, out-file, get-mgapplication
       watchlist   STORM-0940: 144.172.64.128
-      indicators  8
-  1  2026-10-15T09:00:10Z  output  token_20261015_090010.json
-  2  2026-10-15T09:05:00Z  script  20261015_090500_step02_recon.ps1
-      tools       invoke-restmethod, convertto-json, out-file, get-mgapplication
-      tactics     Discovery
-      activities  GraphDirectoryEnumeration
-      wrote       directory_20261015_090530.txt
-      indicators  4
-  2  2026-10-15T09:05:30Z  output  directory_20261015_090530.txt
-      indicators  3
-  3  2026-10-15T09:10:00Z  script  20261015_091000_step03_escalate.ps1
-      tools       invoke-restmethod
-      tactics     PrivilegeEscalation, Persistence
+      files       20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1
+  2026-10-15T09:10:00Z  -                     1  PrivilegeEscalation, Persistence
       activities  GlobalAdministratorAssignment, AppRoleAssignment, AppCredentialAddition
-      indicators  7
-  4  2026-10-15T09:20:00Z  script  20261015_092000_step04_collect.py
-      tools       requests.get
-      tactics     Collection
+      tools       invoke-restmethod
+      files       20261015_091000_step03_escalate.ps1
+  2026-10-15T09:20:00Z  -                     1  Collection
       activities  MailboxAccess, TeamsMessageAccess, SharePointEnumeration
-      wrote       collect_20261015_092040.txt
-      indicators  8
-  4  2026-10-15T09:20:40Z  output  collect_20261015_092040.txt
-      indicators  2
-  5  2026-10-15T09:30:00Z  script  20261015_093000_step05_vault.sh
-      tools       az, cat, curl
-      tactics     Discovery, CredentialAccess
+      tools       requests.get
+      files       20261015_092000_step04_collect.py
+  2026-10-15T09:30:00Z  -                     1  Discovery, CredentialAccess
       activities  KeyVaultSecretRead, KeyVaultKeyUnwrap, KeyVaultKeyEnumeration, AzureResourceEnumeration
-      wrote       vaults_20261015_093010.txt, secrets_20261015_093030.txt
-      indicators  3
-  5  2026-10-15T09:30:10Z  output  vaults_20261015_093010.txt
-  5  2026-10-15T09:30:30Z  output  secrets_20261015_093030.txt
-  5  2026-10-15T09:35:00Z  output  agent_20261015_093500.jsonl
-      tools       az
-      tactics     Discovery, Persistence, PrivilegeEscalation, CredentialAccess
+      tools       az, cat, curl
+      files       20261015_093000_step05_vault.sh
+  2026-10-15T09:35:00Z  -                     1  Discovery, CredentialAccess, PrivilegeEscalation, Persistence
       activities  AppRoleAssignment, KeyVaultSecretRead, KeyVaultKeyEnumeration
+      tools       az
       watchlist   STORM-0940: 144.172.64.128, STORM-0940: 144.172.64.60
-      indicators  7
+      files       agent_20261015_093500.jsonl
+  and 5 files that show no tactic, in the saved trace
 
 Findings
   activities

@@ -11,58 +11,42 @@ Summary
   exposed     4   Usernames 1, IP addresses 3
   intel hits  0
 
-Timeline   (step, time, role, file)
-  1  2026-10-20T10:00:00Z  script  20261020_100000_step01_recon.ps1
+Timeline   (from, until, files, tactics)
+  2026-10-20T10:00:00Z  -                     1  Discovery
       tools       out-file, whoami, nltest, net.exe, wmic.exe
-      tactics     Discovery
-      wrote       recon_20261020_100030.txt
-      indicators  1
-  1  2026-10-20T10:00:30Z  output  recon_20261020_100030.txt
-  2  2026-10-20T10:05:00Z  script  20261020_100500_step02_download.ps1
+      files       20261020_100000_step01_recon.ps1
+  2026-10-20T10:05:00Z  -                     1  CommandAndControl
+      activities  FileDownload
       tools       certutil.exe, certutil, bitsadmin.exe, start-bitstransfer
-      tactics     CommandAndControl
-      activities  FileDownload
-      transforms  Base64Decode
-      indicators  4
-  3  2026-10-20T10:10:00Z  script  20261020_101000_step03_exec.ps1
-      tools       rundll32.exe, regsvr32.exe, mshta, msbuild.exe, cmd.exe, installutil.exe
-      tactics     Execution, Stealth
+      files       20261020_100500_step02_download.ps1
+  2026-10-20T10:10:00Z  -                     1  Execution, Stealth
       activities  SignedBinaryProxyExecution
-      indicators  4
-  3  2026-10-20T10:12:00Z  output  build_20261020_101200.xml
-      tactics     CommandAndControl
+      tools       rundll32.exe, regsvr32.exe, mshta, msbuild.exe, cmd.exe, installutil.exe
+      files       20261020_101000_step03_exec.ps1
+  2026-10-20T10:12:00Z  -                     1  CommandAndControl
       activities  FileDownload
-      indicators  6
-  4  2026-10-20T10:15:00Z  script  20261020_101500_step04_persist.ps1
-      tools       schtasks.exe, rundll32.exe, reg.exe, wevtutil
-      tactics     Persistence, Execution, DefenseImpairment, Stealth
+      files       build_20261020_101200.xml
+  2026-10-20T10:15:00Z  -                     1  Execution, Persistence, Stealth, DefenseImpairment
       activities  SignedBinaryProxyExecution, RunKeyPersistence, ScheduledTaskCreation, EventLogClearing
-  5  2026-10-20T10:20:00Z  script  20261020_102000_step05_dotnet.ps1
+      tools       schtasks.exe, rundll32.exe, reg.exe, wevtutil
+      files       20261020_101500_step04_persist.ps1
+  2026-10-20T10:20:00Z  -                     1  Stealth, CommandAndControl
+      activities  FileDownload, ReflectiveCodeLoading
       tools       new-object, [system.io.file]::writeallbytes
-      tactics     CommandAndControl, Stealth
-      activities  FileDownload, ReflectiveCodeLoading
-      transforms  Base64Decode, Crypto:Aes, TextEncoding, Stream, GZip
-      indicators  2
-  6  2026-10-20T10:25:00Z  script  20261020_102500_step06_pinvoke.ps1
+      files       20261020_102000_step05_dotnet.ps1
+  2026-10-20T10:25:00Z  2026-10-20T10:26:00Z  2  Discovery, Execution, Stealth, CommandAndControl
+      activities  FileDownload, DownloadAndExecute, NativeApiCall, RuntimeCompilation, ProcessStart, NetworkSocket, ReflectiveCodeLoading
       tools       add-type, new-object, cmd.exe, whoami, iex, powershell.exe
-      tactics     Execution, Discovery, CommandAndControl, Stealth
-      activities  FileDownload, DownloadAndExecute, NativeApiCall, RuntimeCompilation, ProcessStart, NetworkSocket
-      transforms  EncodedCommand
-      indicators  4
-  6  2026-10-20T10:26:00Z  other   loader_20261020_102600.cs
-      tactics     CommandAndControl, Stealth
-      activities  FileDownload, ReflectiveCodeLoading
-      indicators  3
-  7  2026-10-20T10:30:00Z  script  20261020_103000_step07_cleanup.bat
-      tools       certutil, wevtutil, del
-      tactics     DefenseImpairment, CommandAndControl
+      files       20261020_102500_step06_pinvoke.ps1, loader_20261020_102600.cs
+  2026-10-20T10:30:00Z  -                     1  DefenseImpairment, CommandAndControl
       activities  FileDownload, EventLogClearing
-      indicators  2
-  7  2026-10-20T10:35:00Z  output  proc_20261020_103500.jsonl
-      tools       certutil, powershell.exe, regsvr32, schtasks, rundll32.exe, wevtutil
-      tactics     Execution, Persistence, DefenseImpairment, CommandAndControl, Stealth
+      tools       certutil, wevtutil, del
+      files       20261020_103000_step07_cleanup.bat
+  2026-10-20T10:35:00Z  -                     1  Execution, Persistence, Stealth, DefenseImpairment, CommandAndControl
       activities  FileDownload, SignedBinaryProxyExecution, ScheduledTaskCreation, EventLogClearing
-      indicators  3
+      tools       certutil, powershell.exe, regsvr32, schtasks, rundll32.exe, wevtutil
+      files       proc_20261020_103500.jsonl
+  and 1 file that shows no tactic, in the saved trace
 
 Findings
   activities

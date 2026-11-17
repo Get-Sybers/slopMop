@@ -9,6 +9,7 @@ import (
 
 	"github.com/get-sybers/slopmop/internal/cli"
 	"github.com/get-sybers/slopmop/internal/inventory"
+	"github.com/get-sybers/slopmop/internal/progress"
 	"github.com/get-sybers/slopmop/internal/render"
 	"github.com/get-sybers/slopmop/internal/tactic"
 	"github.com/get-sybers/slopmop/internal/trace"
@@ -86,6 +87,29 @@ func sectionBuilders() map[string]sectionBuilder {
 	}
 }
 
+// The stages of a run, as the meter names them, in the order they come.
+const (
+	stageRead    = "reading the folder"
+	stageAnalyse = "analysing the files"
+	stageGather  = "gathering what the files hold"
+	stageReport  = "assembling the report"
+	stageSave    = "saving the report"
+	stages       = 5
+)
+
+// meter returns what says how far the run is: on a terminal unless the
+// option hides it, elsewhere only when the option asks for it.
+func (e Env) meter(a *cli.Args) (*progress.Meter, error) {
+	given, ok := a.Options[progressOption]
+	switch {
+	case ok && given != progressShown && given != progressHidden:
+		return nil, cli.Usagef("-%s takes %s or %s, not %q", progressOption, progressShown, progressHidden, given)
+	case e.Progress == nil, given == progressHidden, !ok && !e.Terminal:
+		return nil, nil
+	}
+	return progress.New(e.Progress, e.Terminal, stages), nil
+}
+
 // reportVerb reads the folder and everything below it once, saves every
 // section and every table, and prints every section or those named.
 func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
@@ -98,7 +122,7 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 		return nil, err
 	}
 	options := doc.options(v)
-	for _, name := range []string{inputDir, intelFile, outDir, secrets, coresOption, memoryOption} {
+	for _, name := range []string{inputDir, intelFile, outDir, secrets, coresOption, memoryOption, progressOption} {
 		if !slices.ContainsFunc(options, func(o cli.Option) bool { return o.Name == name }) {
 			return nil, fmt.Errorf("commands.json: it reads the option %q, which it does not name", name)
 		}
@@ -138,10 +162,17 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 			return err
 		}
 		defer restore()
-		result, err := pipe.read(folder, inventory.MaxDepth, a.Options[intelFile], plain)
+		meter, err := e.meter(a)
 		if err != nil {
 			return err
 		}
+		// The line of the meter is taken off before anything else is written.
+		defer meter.Stop()
+		result, err := pipe.read(folder, inventory.MaxDepth, a.Options[intelFile], plain, meter)
+		if err != nil {
+			return err
+		}
+		meter.Stage(stageReport, 0, 0)
 		every := map[string]bool{
 			sectionSummary: true, sectionFiles: true, sectionTargeted: true, sectionExposure: true, sectionImpact: true,
 			sectionRemediation: true, sectionMitigation: true,
@@ -162,7 +193,9 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 			}
 		}
 		// A failed save does not withhold the readout; it fails the command after it.
-		names, saveErr := run.save(dir, v.Saved, columns, full)
+		meter.Stage(stageSave, len(v.Saved.Readouts)+len(v.Saved.Tables), len(v.Saved.Readouts)+len(v.Saved.Tables))
+		names, saveErr := run.save(dir, v.Saved, columns, full, meter)
+		meter.Stop()
 		if saveErr == nil {
 			screen.Hints = append([]string{"saved to " + dir + ": " + strings.Join(names, ", ")}, v.Hints...)
 		}
@@ -251,17 +284,6 @@ func (w reportRun) summary() []render.Group {
 	return []render.Group{g}
 }
 
-func (w reportRun) timeline() []render.Group {
-	g := render.Group{Columns: []string{"step", "time", "role", "file"}}
-	for _, s := range w.result.timeline.Steps {
-		g.Entries = append(g.Entries, render.Entry{
-			Cells:  []string{strconv.Itoa(s.Turn), stepTime(s), string(s.File.Role), s.File.Path},
-			Detail: append([]render.Detail{{Label: "intent", Text: w.result.intentOf[s.File.Path]}}, stepDetail(s)...),
-		})
-	}
-	return []render.Group{g}
-}
-
 // stepTime is the time the timeline shows for a file: the same instant it is
 // ordered by, written as one ISO-8601 UTC stamp whether it came from the file
 // name or the modified time.
@@ -270,31 +292,6 @@ func stepTime(s trace.Step) string {
 		return render.Stamp(t, nil)
 	}
 	return "-"
-}
-
-func stepDetail(s trace.Step) []render.Detail {
-	list := func(items []string) string { return strings.Join(items, ", ") }
-	activities := make([]string, len(s.Activities))
-	for i, a := range s.Activities {
-		activities[i] = a.Name
-	}
-	hits := make([]string, len(s.IntelHits))
-	for i, h := range s.IntelHits {
-		hits[i] = h.Attribution + ": " + h.Value
-	}
-	detail := []render.Detail{
-		{Label: "tools", Text: list(s.Tools)},
-		{Label: "tactics", Text: list(s.Tactics)},
-		{Label: "activities", Text: list(activities)},
-		{Label: "transforms", Text: list(s.Transforms)},
-		{Label: "wrote", Text: list(s.Outputs)},
-		{Label: "watchlist", Text: list(hits)},
-		{Label: "note", Text: string(s.File.Note)},
-	}
-	if s.Indicators > 0 {
-		detail = append(detail, render.Detail{Label: "indicators", Text: strconv.Itoa(s.Indicators)})
-	}
-	return detail
 }
 
 // kindTitle gives the title of a kind of exposure, or its title among the

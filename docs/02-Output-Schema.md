@@ -68,7 +68,7 @@ Impact
 | Section | Entry | Detail lines |
 | --- | --- | --- |
 | Summary | a count and its breakdown | none |
-| Timeline | step, time, role, file | `intent`, `tools`, `tactics`, `activities`, `transforms`, `wrote`, `watchlist`, `note`, `indicators` |
+| Timeline | a period: its first time, its last, the number of its files, its tactics | `intent`, `activities`, `tools`, `watchlist`, `files` |
 | Intents | the intent, the first and the last time of its files, the span between them, the number of files | `task`; `tactics`; `attack`: the ATT&CK techniques; `atlas`: the ATLAS techniques; `found`: each activity with its ATT&CK techniques and the ATLAS techniques that go with them; `files` |
 | Findings, activities | activity, lines, tactics, techniques | `what`: the lines that show it, each with its place |
 | Findings, indicators | type, value, files | `watchlist`: the attributions |
@@ -80,10 +80,29 @@ Impact
 | Remediation | the action | its text; `targets`: what to act on; `what`; `basis`; `files` when no line is quoted |
 | Mitigation | the mitigation, the techniques found that it addresses | the framework's own sentence; `for`: each activity it answers and what that activity acted on |
 
-The values are those of the classes of section 6: a timeline entry is a `trace` row, an intent entry is an `intent` row, a finding
+The values are those of the classes of section 6: a period of the timeline is drawn from the
+`trace` rows of its files, an intent entry is an `intent` row, a finding
 entry is a `finding` row, a targeted entry is a `targeted` row, an exposure entry is an `exposure`
 row and the other sections are `report` rows. An activity's `lines` is its count in the summary of
 the `report` class.
+
+### Timeline
+
+The timeline tells what was done, in the order of time. An entry is a period, not a file: a
+folder of a thousand files is read in the periods it falls into.
+
+- A file is in a period when it shows a tactic, of a tool that ran in it or of an activity, or a
+  watchlist match. A file that shows neither is in none, whatever its role, and ends none. The
+  last line of the section counts those files.
+- A period begins with a file that shows a tactic the first file of the period before did not,
+  and holds the files after it for as long as each shows no other tactic. A run that turns from
+  discovery to credential access begins a period there, and a file of discovery alone inside it
+  does not end it.
+- `until` is `-` when the period is one instant. The tactics are those of the first file, in the
+  order of `tactics.json`. `activities`, `tools`, `watchlist` and `intent` name what the files
+  of the period show, each once, in the order it is first shown.
+- The saved `trace.json` holds every file with what it shows; the timeline leaves none of that
+  out of it.
 
 ### Places, targets and evidence
 
@@ -107,6 +126,8 @@ that holds every line it omits, because the screen and the saved report share on
 | List | Shown |
 | --- | --- |
 | the files of an entry | the first 3: `a.sh, b.sh, c.sh and 4 more` |
+| the periods of the timeline | the first 20 and the last 20, with the number left out between them |
+| the activities, the tools and the intents of a period | the first 8 |
 | the indicators among the findings | the first 40 |
 | each kind of target and of exposure | the first 40 |
 | the lines of evidence of a finding or a target | the first 3 |

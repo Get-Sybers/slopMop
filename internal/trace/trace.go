@@ -52,12 +52,37 @@ type Tables struct {
 // Build reads the inventory result and produces a trace timeline. Each file
 // is read apart from the others, on every processor; the order is that of time.
 func Build(files []evidence.File, texts map[string]string, tables Tables) Timeline {
+	return BuildWatched(files, texts, tables, nil)
+}
+
+// Passes returns how many times BuildWatched tells of a file: twice for
+// each, and once more for each script.
+func Passes(files []evidence.File) int {
+	n := 2 * len(files)
+	for _, f := range files {
+		if f.Role == evidence.Script {
+			n++
+		}
+	}
+	return n
+}
+
+// BuildWatched is Build that tells watch of a file as each pass over it
+// begins; what watch returns is called when the pass is done.
+func BuildWatched(files []evidence.File, texts map[string]string, tables Tables, watch func(path string) (done func())) Timeline {
+	if watch == nil {
+		watch = func(string) func() { return func() {} }
+	}
 	ordered := sortByTime(files)
 	// Each script is parsed once; the result serves both the step and the linking.
 	scripts := make([]*parse.Script, len(ordered))
 	parallel.Each(len(ordered), func(i int) {
 		f := ordered[i]
-		if text := texts[f.Path]; f.Role == evidence.Script && text != "" {
+		if f.Role != evidence.Script {
+			return
+		}
+		defer watch(f.Path)()
+		if text := texts[f.Path]; text != "" {
 			p := parseScript(f, text)
 			scripts[i] = &p
 		}
@@ -72,6 +97,7 @@ func Build(files []evidence.File, texts map[string]string, tables Tables) Timeli
 	// A report is not a turn and links no output, so it stays out of the linking.
 	read := make([]reading, len(ordered))
 	parallel.Each(len(ordered), func(i int) {
+		defer watch(ordered[i].Path)()
 		read[i] = readFile(ordered[i], texts[ordered[i].Path], scripts[i], tables.Formats)
 	})
 	steps := make([]Step, len(ordered))
@@ -83,6 +109,7 @@ func Build(files []evidence.File, texts map[string]string, tables Tables) Timeli
 		steps[i] = Step{File: f, Turn: turn, Outputs: linked[f.Path]}
 	}
 	parallel.Each(len(ordered), func(i int) {
+		defer watch(ordered[i].Path)()
 		steps[i].fill(read[i], tables)
 	})
 	return Timeline{Steps: steps}

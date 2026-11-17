@@ -4,7 +4,10 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"errors"
+	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -16,8 +19,9 @@ import (
 	"github.com/get-sybers/slopmop/internal/golden"
 )
 
-// TestBinary builds the command once and drives it as a user would.
-func TestBinary(t *testing.T) {
+// build builds the command and returns where it stands.
+func build(t *testing.T) string {
+	t.Helper()
 	bin := filepath.Join(t.TempDir(), "slopmop")
 	if runtime.GOOS == "windows" {
 		bin += ".exe"
@@ -25,6 +29,98 @@ func TestBinary(t *testing.T) {
 	if out, err := exec.Command("go", "build", "-o", bin, ".").CombinedOutput(); err != nil {
 		t.Fatalf("go build: %v\n%s", err, out)
 	}
+	return bin
+}
+
+// held lists what a folder holds, each file with the digest of its bytes
+// and each folder by its name alone, so two listings show what was written.
+func held(t *testing.T, folder string) map[string]string {
+	t.Helper()
+	found := map[string]string{}
+	root, err := os.OpenRoot(folder)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer root.Close()
+	err = fs.WalkDir(root.FS(), ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil || path == "." {
+			return err
+		}
+		if d.IsDir() {
+			found[path] = "folder"
+			return nil
+		}
+		data, err := fs.ReadFile(root.FS(), path)
+		found[path] = fmt.Sprintf("%x", sha256.Sum256(data))
+		return err
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return found
+}
+
+// TestBinaryWritesOnlyToTheOutputFolder runs the command where every folder
+// it could write to is watched: the evidence, the folder it runs in, the
+// home folder and the folder for temporary files.
+func TestBinaryWritesOnlyToTheOutputFolder(t *testing.T) {
+	bin := build(t)
+	for _, tt := range []struct {
+		name string
+		// args follow the input folder, and all that is written is below under, in base.
+		args  func(base string) []string
+		under string
+	}{
+		{"a folder named with -outdir", func(base string) []string {
+			return []string{"report", "-outdir", filepath.Join(base, "reports", "case 42")}
+		}, "reports"},
+		{"a folder named from where the command runs", func(string) []string { return []string{"report", "-outdir", filepath.Join("..", "beside")} }, "beside"},
+		{"no folder named", func(string) []string { return []string{"report"} }, "work/slopmop-evidence"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			base := t.TempDir()
+			for _, name := range []string{"evidence", "work", "home", "temp"} {
+				if err := os.Mkdir(filepath.Join(base, name), 0o700); err != nil {
+					t.Fatal(err)
+				}
+			}
+			input := filepath.Join(base, "evidence")
+			if err := os.CopyFS(input, os.DirFS(evidencetest.Copy(t, "linux"))); err != nil {
+				t.Fatal(err)
+			}
+			before := held(t, base)
+			cmd := exec.Command(bin, append([]string{"-inputdir", input}, tt.args(base)...)...)
+			cmd.Dir = filepath.Join(base, "work")
+			home, temp := filepath.Join(base, "home"), filepath.Join(base, "temp")
+			cmd.Env = append(os.Environ(), "HOME="+home, "USERPROFILE="+home, "TMPDIR="+temp, "TMP="+temp, "TEMP="+temp)
+			if out, err := cmd.CombinedOutput(); err != nil {
+				t.Fatalf("%v\n%s", err, out)
+			}
+			after, saved := held(t, base), 0
+			for path, digest := range after {
+				inside := path == tt.under || strings.HasPrefix(path, tt.under+"/")
+				switch {
+				case inside && digest != "folder":
+					saved++
+				case !inside && before[path] != digest:
+					t.Errorf("%s was written, and is not in the output folder %s", path, tt.under)
+				}
+			}
+			for path := range before {
+				if _, kept := after[path]; !kept {
+					t.Errorf("%s was taken away", path)
+				}
+			}
+			if saved != 10 {
+				t.Errorf("the output folder holds %d files, want 10", saved)
+			}
+		})
+	}
+}
+
+// TestBinary builds the command once and drives it as a user would.
+func TestBinary(t *testing.T) {
+	bin := build(t)
 	folder := evidencetest.Copy(t, "bash")
 	nested := evidencetest.Copy(t, "powershell")
 	if err := os.Mkdir(filepath.Join(nested, "stage"), 0o700); err != nil {

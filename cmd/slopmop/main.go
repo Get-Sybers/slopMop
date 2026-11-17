@@ -18,7 +18,9 @@ func main() {
 
 // run maps the result to an exit code: 0 success, 1 failure, 2 usage error.
 func run(args []string, stdout, stderr io.Writer) int {
-	app, err := command.NewApp("slopmop", command.Env{Stdout: stdout, Colour: render.TakesColour(stdout)})
+	app, err := command.NewApp("slopmop", command.Env{
+		Stdout: stdout, Colour: render.TakesColour(stdout), Progress: stderr, Terminal: render.IsTerminal(stderr),
+	})
 	if err == nil {
 		err = app.Run(args)
 	}
