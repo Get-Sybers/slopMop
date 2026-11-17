@@ -6,6 +6,8 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+## [0.5.5] - 2026-11-17
+
 ### Changed
 
 - The Timeline section tells what was done, not what files there are. An entry is a period: the
