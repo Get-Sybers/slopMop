@@ -13,6 +13,7 @@ import (
 
 	"github.com/get-sybers/slopmop/internal/evidence"
 	"github.com/get-sybers/slopmop/internal/nametime"
+	"github.com/get-sybers/slopmop/internal/parallel"
 )
 
 var ErrNotFolder = errors.New("not a folder")
@@ -53,28 +54,51 @@ func readAll(folder string, limit int64, depth int, keepText bool) (Result, erro
 	}
 	defer root.Close()
 	r := reader{root: root, limit: limit, depth: depth, roles: newClassifier(roles)}
-	r.res.Files = []evidence.File{}
-	if keepText {
-		r.res.Texts = map[string]string{}
-	}
 	if err := r.walk(".", 0); err != nil {
 		return Result{}, fmt.Errorf("%w: %w", ErrNotFolder, err)
 	}
-	sort.Slice(r.res.Files, func(i, j int) bool { return r.res.Files[i].Path < r.res.Files[j].Path })
-	sort.Strings(r.res.Skipped)
-	return r.res, nil
+	// Each file is read on its own goroutine, into its own slot; the order of
+	// the result is that of the path, not of when a read finished.
+	reads := make([]read, len(r.found))
+	parallel.Each(len(r.found), func(i int) {
+		reads[i].file, reads[i].text = r.fileWithText(r.found[i].path, r.found[i].name)
+	})
+	res := Result{Files: make([]evidence.File, len(reads)), Skipped: r.skipped}
+	if keepText {
+		res.Texts = make(map[string]string, len(reads))
+	}
+	for i := range reads {
+		res.Files[i] = reads[i].file
+		if res.Texts != nil && reads[i].text != "" {
+			res.Texts[reads[i].file.Path] = reads[i].text
+		}
+	}
+	sort.Slice(res.Files, func(i, j int) bool { return res.Files[i].Path < res.Files[j].Path })
+	sort.Strings(res.Skipped)
+	return res, nil
 }
 
 type reader struct {
-	root  *os.Root
-	limit int64
-	depth int
-	roles classifier
-	res   Result
+	root    *os.Root
+	limit   int64
+	depth   int
+	roles   classifier
+	found   []found
+	skipped []string
 }
 
-// walk reads one folder, level folders below the root. A symbolic link is
-// never a folder here, so the walk cannot loop or follow one.
+// found is a regular file the walk listed, read in the second pass.
+type found struct{ path, name string }
+
+// read is one file's record and its text.
+type read struct {
+	file evidence.File
+	text string
+}
+
+// walk lists one folder, level folders below the root, collecting the regular
+// files to read. A symbolic link is never a folder here, so the walk cannot
+// loop or follow one.
 func (r *reader) walk(dir string, level int) error {
 	entries, err := r.list(dir)
 	if err != nil {
@@ -84,14 +108,10 @@ func (r *reader) walk(dir string, level int) error {
 		p := path.Join(dir, e.Name())
 		switch {
 		case e.Type().IsRegular():
-			f, text := r.fileWithText(p, e.Name())
-			r.res.Files = append(r.res.Files, f)
-			if r.res.Texts != nil && text != "" {
-				r.res.Texts[f.Path] = text
-			}
+			r.found = append(r.found, found{p, e.Name()})
 		case e.IsDir() && r.depth > 0:
 			if level == r.depth || r.walk(p, level+1) != nil {
-				r.res.Skipped = append(r.res.Skipped, p)
+				r.skipped = append(r.skipped, p)
 			}
 		}
 	}

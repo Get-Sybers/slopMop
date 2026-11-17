@@ -50,6 +50,7 @@ func (p pipeline) listFindings(a analysis) []finding {
 	byIndicator := map[string]*finding{}
 	byTactic := map[string]*finding{}
 	var order []*finding
+	files := seenFiles{}
 	for _, s := range a.timeline.Steps {
 		path := s.File.Path
 		for _, hit := range s.Activities {
@@ -62,7 +63,9 @@ func (p pipeline) listFindings(a analysis) []finding {
 				byActivity[hit.Name] = f
 				order = append(order, f)
 			}
-			f.files = appendUnique(f.files, path)
+			if files.fresh("a\x00"+hit.Name, path) {
+				f.files = append(f.files, path)
+			}
 			for _, e := range hit.Evidence {
 				if len(f.evidence) < maxCited {
 					f.evidence = append(f.evidence, a.cited(path, e).String())
@@ -80,7 +83,9 @@ func (p pipeline) listFindings(a analysis) []finding {
 					byTactic[name] = f
 					order = append(order, f)
 				}
-				f.files = appendUnique(f.files, path)
+				if files.fresh("t\x00"+name, path) {
+					f.files = append(f.files, path)
+				}
 			}
 		}
 		for _, m := range s.Matches {
@@ -97,7 +102,9 @@ func (p pipeline) listFindings(a analysis) []finding {
 				byIndicator[key] = f
 				order = append(order, f)
 			}
-			f.files = appendUnique(f.files, path)
+			if files.fresh("i\x00"+key, path) {
+				f.files = append(f.files, path)
+			}
 			f.tactics = appendUnique(f.tactics, s.Tactics...)
 			f.tactics = appendUnique(f.tactics, inherited[path]...)
 		}
@@ -158,6 +165,24 @@ func appendUnique(list []string, items ...string) []string {
 		}
 	}
 	return list
+}
+
+// seenFiles remembers which files already name each key, so a list that grows
+// with the timeline is not scanned on every file: over thousands of files that
+// scan is quadratic. The caller keeps the order by appending only when fresh.
+type seenFiles map[string]map[string]bool
+
+func (s seenFiles) fresh(key, file string) bool {
+	paths := s[key]
+	if paths == nil {
+		paths = map[string]bool{}
+		s[key] = paths
+	}
+	if paths[file] {
+		return false
+	}
+	paths[file] = true
+	return true
 }
 
 func findingRow(f finding, columns []render.Column) ([]render.Value, error) {

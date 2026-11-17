@@ -13,6 +13,17 @@ All notable changes to this project are recorded in this file. The format follow
   so a time column no longer mixes a bare token or a Unix epoch with an ISO instant. The intent
   `first` and `last` fields follow; the file name's own token stays in the `file` class `name_time`.
 
+### Added
+
+- The Targeted section lists every entity an activity acted on, grouped by label: accounts,
+  hosts, files, services, URLs and others. Each entry names the value, the activities that
+  touched it and the evidence lines, so a responder sees at a glance which entities were
+  affected and what happened to each.
+- `docs/artex/records.md`, recording the files ARTEX writes about its own work: where the intent
+  number comes from, the data folder, the formats of its transcripts, spilled output and context
+  archives, its session names, the vocabulary of its graph and the tools that write results back,
+  from reading twelve checkouts of ARTEX and its forks.
+
 ### Fixed
 
 - The overflow line under an impact, a remediation, a mitigation, a finding activity or a targeted
@@ -28,15 +39,11 @@ All notable changes to this project are recorded in this file. The format follow
 - An unresolved shell variable in a subject pattern (such as `$JOB` or `$PORT`) is kept as a
   target instead of being silently dropped. Remediation evidence now shows what a command acted on
   even when the script never sets the variable.
+- `docs/artex/findings.md` states that `task-%d-exp-%d-worker-i%d` is the key of the side
+  questions an operator asks about a worker, and that `noa` is the folder where the SDK archives
+  the context of a conversation.
 
-### Added
-
-- The Targeted section lists every entity an activity acted on, grouped by label: accounts,
-  hosts, files, services, URLs and others. Each entry names the value, the activities that
-  touched it and the evidence lines, so a responder sees at a glance which entities were
-  affected and what happened to each.
-
-## [0.6.0] - 2026-11-17
+## [0.5.2] - 2026-11-17
 
 ### Added
 
@@ -46,6 +53,8 @@ All notable changes to this project are recorded in this file. The format follow
 - A run tries to stay within 75 percent of the memory of the machine when `-memory` is not given.
 - `internal/device`, which reads the processors and the memory of the machine on Linux, Windows
   and macOS.
+- `docs/artex/report.md` and `docs/artex/findings.md`, recording which markers survive a fork of
+  ARTEX and which are specific to one build, from reading twelve checkouts of ARTEX and its forks.
 
 ### Changed
 
@@ -55,6 +64,11 @@ All notable changes to this project are recorded in this file. The format follow
   output is byte for byte what one processor gives.
 - An indicator pattern whose every match holds a fixed text, such as `://` or `@`, is tried only
   on the lines that hold it.
+- The input directory is read on every processor, not one file after another.
+- The report is assembled in time that grows with the evidence, not with its square. The files
+  behind an impact, an action, a finding and an output are gathered through a set, and the affected
+  values of an impact are deduplicated through one. A folder of 24,000 files that did not finish in
+  two minutes is reported in about forty seconds, and one of 6,000 files in half the time it took.
 - A 50 MB log that took 59 seconds takes 15 on four processors and 49 on one. The peak of memory
   for that log rises from about 610 MB to about 810 MB.
 
