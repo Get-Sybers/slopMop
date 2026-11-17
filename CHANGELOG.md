@@ -6,6 +6,13 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Added
+
+- `internal/store`, which keeps a run's extracted records in a throwaway SQLite database and reads
+  them back in the order of the timeline, so the counts and the files behind each activity are a
+  query and not a list held and scanned for the whole run. It depends on `modernc.org/sqlite`, the
+  pure-Go driver, which the cross build and `CGO_ENABLED=0` keep.
+
 ## [0.6.0] - 2026-11-17
 
 ### Added
