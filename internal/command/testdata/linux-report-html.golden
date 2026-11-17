@@ -523,7 +523,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <div class="pair"><span class="label"></span><span class="value">SystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)</span></div>
 <div class="pair"><span class="label"></span><span class="value">AccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)</span></div>
 <div class="pair"><span class="label"></span><span class="value">AccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)</span></div>
-<div class="pair"><span class="label"></span><span class="value">and 3 more in report.json</span></div>
+<div class="pair"><span class="label"></span><span class="value">and 2 more in report.json</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, Persistence tools</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Data collected</td></tr>
@@ -566,7 +566,6 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <div class="pair"><span class="label"></span><span class="value">SecurityToolDisabling: systemctl stop auditd (audit_20261022_093500.jsonl)</span></div>
 <div class="pair"><span class="label"></span><span class="value">FirewallDisabling: iptables -F (20261022_092000_step05_evade.sh:5)</span></div>
 <div class="pair"><span class="label"></span><span class="value">FirewallDisabling: iptables -F (audit_20261022_093500.jsonl)</span></div>
-<div class="pair"><span class="label"></span><span class="value">and 1 more in report.json</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">LogDeletion, HistoryDisabling, SecurityToolDisabling, FirewallDisabling, DefenseImpairment tools</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">Code run outside normal controls</td></tr>
@@ -641,7 +640,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <div class="pair"><span class="label"></span><span class="value">SystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)</span></div>
 <div class="pair"><span class="label"></span><span class="value">AccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)</span></div>
 <div class="pair"><span class="label"></span><span class="value">AccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)</span></div>
-<div class="pair"><span class="label"></span><span class="value">and 3 more in report.json</span></div>
+<div class="pair"><span class="label"></span><span class="value">and 2 more in report.json</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, Persistence tools</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Undo privilege changes on hosts</td></tr>

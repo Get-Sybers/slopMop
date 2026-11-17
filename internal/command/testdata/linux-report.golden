@@ -239,7 +239,7 @@ Impact
                SystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)
                AccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)
                AccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)
-               and 3 more in report.json
+               and 2 more in report.json
       basis    ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, Persistence tools
   [x] Data collected
       Mail, chat, documents or files were gathered in bulk. Treat their content as disclosed.
@@ -272,7 +272,6 @@ Impact
                SecurityToolDisabling: systemctl stop auditd (audit_20261022_093500.jsonl)
                FirewallDisabling: iptables -F (20261022_092000_step05_evade.sh:5)
                FirewallDisabling: iptables -F (audit_20261022_093500.jsonl)
-               and 1 more in report.json
       basis    LogDeletion, HistoryDisabling, SecurityToolDisabling, FirewallDisabling, DefenseImpairment tools
   [!] Code run outside normal controls
       Code was run in ways that avoid application control and leave little on disk.
@@ -324,7 +323,7 @@ Remediation   (most urgent first)
                SystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)
                AccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)
                AccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)
-               and 3 more in report.json
+               and 2 more in report.json
       basis    ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, Persistence tools
   [x] Undo privilege changes on hosts
       Put sudo rules, file modes and container settings back to their approved state, and treat the host as held at root until rebuilt.

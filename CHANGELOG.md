@@ -18,6 +18,9 @@ All notable changes to this project are recorded in this file. The format follow
 - The overflow line under an impact, a remediation, a mitigation, a finding activity or a targeted
   value names the saved file that holds the lines it omits, such as `report.json` or the saved
   findings, not "the saved report", which keeps the same limit and never held them.
+- An activity and a tool citation for the same command on the same line no longer both appear in
+  impact and remediation evidence. The duplicate is suppressed by keying on the file, line and
+  bare command text.
 
 ## [0.6.0] - 2026-11-17
 

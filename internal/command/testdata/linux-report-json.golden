@@ -981,7 +981,7 @@
     "attack": "T1053.003, T1053.002, T1053.006, T1543.002, T1136.001, T1098.004, T1546.004",
     "atlas": "AML.T0125, AML.T0142",
     "targets": "unit sync.service; account svc; file ~/.ssh/authorized_keys; file ~/.bashrc",
-    "evidence": "ScheduledJobCreation: (crontab -l; echo \"$JOB\") | crontab - (20261022_091500_step04_persist.sh:3)\nScheduledJobCreation: crontab - (audit_20261022_093500.jsonl)\nSystemdUnitCreation: cp sync.service /etc/systemd/system/sync.service (20261022_091500_step04_persist.sh:5)\nSystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)\nAccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)\nAccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)\nSshKeyPersistence: echo \"$KEY\" >> ~/.ssh/authorized_keys (20261022_091500_step04_persist.sh:4)\nShellProfilePersistence: echo \"$LINE\" >> ~/.bashrc (20261022_091500_step04_persist.sh:8)\nuseradd: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)"
+    "evidence": "ScheduledJobCreation: (crontab -l; echo \"$JOB\") | crontab - (20261022_091500_step04_persist.sh:3)\nScheduledJobCreation: crontab - (audit_20261022_093500.jsonl)\nSystemdUnitCreation: cp sync.service /etc/systemd/system/sync.service (20261022_091500_step04_persist.sh:5)\nSystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)\nAccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)\nAccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)\nSshKeyPersistence: echo \"$KEY\" >> ~/.ssh/authorized_keys (20261022_091500_step04_persist.sh:4)\nShellProfilePersistence: echo \"$LINE\" >> ~/.bashrc (20261022_091500_step04_persist.sh:8)"
   },
   {
     "item": "Data collected",
@@ -1041,7 +1041,7 @@
     "attack": "T1685.006, T1690, T1685, T1685.004, T1686",
     "atlas": null,
     "targets": "log /var/log/auth.log; setting HISTFILE; service auditd",
-    "evidence": "LogDeletion: rm -f /var/log/auth.log (20261022_092000_step05_evade.sh:6)\nHistoryDisabling: unset HISTFILE (20261022_092000_step05_evade.sh:3)\nSecurityToolDisabling: systemctl stop auditd (20261022_092000_step05_evade.sh:4)\nSecurityToolDisabling: systemctl stop auditd (audit_20261022_093500.jsonl)\nFirewallDisabling: iptables -F (20261022_092000_step05_evade.sh:5)\nFirewallDisabling: iptables -F (audit_20261022_093500.jsonl)\niptables: iptables -F (audit_20261022_093500.jsonl)"
+    "evidence": "LogDeletion: rm -f /var/log/auth.log (20261022_092000_step05_evade.sh:6)\nHistoryDisabling: unset HISTFILE (20261022_092000_step05_evade.sh:3)\nSecurityToolDisabling: systemctl stop auditd (20261022_092000_step05_evade.sh:4)\nSecurityToolDisabling: systemctl stop auditd (audit_20261022_093500.jsonl)\nFirewallDisabling: iptables -F (20261022_092000_step05_evade.sh:5)\nFirewallDisabling: iptables -F (audit_20261022_093500.jsonl)"
   },
   {
     "item": "Code run outside normal controls",
@@ -1125,7 +1125,7 @@
     "attack": null,
     "atlas": null,
     "targets": "unit sync.service; account svc; file ~/.ssh/authorized_keys; file ~/.bashrc",
-    "evidence": "ScheduledJobCreation: (crontab -l; echo \"$JOB\") | crontab - (20261022_091500_step04_persist.sh:3)\nScheduledJobCreation: crontab - (audit_20261022_093500.jsonl)\nSystemdUnitCreation: cp sync.service /etc/systemd/system/sync.service (20261022_091500_step04_persist.sh:5)\nSystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)\nAccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)\nAccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)\nSshKeyPersistence: echo \"$KEY\" >> ~/.ssh/authorized_keys (20261022_091500_step04_persist.sh:4)\nShellProfilePersistence: echo \"$LINE\" >> ~/.bashrc (20261022_091500_step04_persist.sh:8)\nuseradd: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)"
+    "evidence": "ScheduledJobCreation: (crontab -l; echo \"$JOB\") | crontab - (20261022_091500_step04_persist.sh:3)\nScheduledJobCreation: crontab - (audit_20261022_093500.jsonl)\nSystemdUnitCreation: cp sync.service /etc/systemd/system/sync.service (20261022_091500_step04_persist.sh:5)\nSystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)\nAccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)\nAccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)\nSshKeyPersistence: echo \"$KEY\" >> ~/.ssh/authorized_keys (20261022_091500_step04_persist.sh:4)\nShellProfilePersistence: echo \"$LINE\" >> ~/.bashrc (20261022_091500_step04_persist.sh:8)"
   },
   {
     "item": "Undo privilege changes on hosts",
