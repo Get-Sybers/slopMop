@@ -16,6 +16,16 @@ All notable changes to this project are recorded in this file. The format follow
   such as a log file. Without it nothing is written there, and standard output is unchanged.
 - `internal/progress`, which writes the line.
 
+### Fixed
+
+- A run writes nothing outside its output folder. When the folder already held a symbolic or a
+  hard link named as a saved file is while it is written, such as `findings.json.part`, the
+  file was written through the link, into whatever it led to: a file elsewhere, or one of the
+  evidence. The output folder is opened as a root and each file is made new in it, so the link
+  is replaced and what it led to is left alone. Before 0.5.4 the same held of a link named as
+  the saved file itself, such as `findings.json`.
+- A save that fails while the files are given their names removes the parts that are left.
+
 ## [0.5.4] - 2026-11-17
 
 ### Changed

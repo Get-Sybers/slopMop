@@ -93,6 +93,12 @@ work writes only its own result, and the results are taken in a fixed order.
   size does not add to the memory a run holds.
 - A saved file is written as `<name>.part` and takes its name when every file is complete. A run
   that fails removes the parts, so the output folder holds no file half written.
+- The output folder is opened as a root (`os.OpenRoot`), as the input directory is, and every
+  saved file is made, named and removed through it, so no path leads a write outside the folder.
+  What stands under the name of a part is removed before the part is made, and the part is made
+  only if nothing stands there: a symbolic or a hard link under that name is never written
+  through. A test runs the built command with the evidence, the folder it runs in, the home
+  folder and the folder for temporary files watched, and fails when any of them changes.
 - `-cores` sets how many processors a run uses, as a percentage of those of the machine, and
   `-memory` a limit on its memory, as a percentage of that of the machine. Without `-memory` the
   limit is 75 percent.

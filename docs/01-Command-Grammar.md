@@ -65,6 +65,10 @@ The sections print in the order of the table, whatever order they are named in.
 - It saves each class of the output schema as JSON: `files.json`, `trace.json`, `intents.json`,
   `findings.json`, `targeted.json`, `exposure.json` and `report.json`.
 - A file of an earlier run is replaced. The last lines of the output name the folder.
+- Nothing is written outside the output folder, apart from the folders above it that are
+  missing and are made. Each saved file is made new in the folder: a link that stands under one
+  of the names is replaced by the file, and what it led to, in the evidence or anywhere else, is
+  left as it was.
 - A secret is masked in everything it prints and saves: in the exposure, in a command quoted as
   evidence and among the indicators. `-secrets shown` writes each as it stands in the evidence.
 - `-cores` and `-memory` take a percentage of the machine the run is on, with or without the
