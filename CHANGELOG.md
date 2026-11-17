@@ -6,8 +6,18 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Changed
+
+- The README states the one command, the nine sections and the seven saved files in tables, and
+  leaves the packages to the architecture document.
+- The architecture document follows the order of the pipeline, gives the watchlist a section of
+  its own, separates the targets from the exposure and shows the import graph as it is.
+- The output schema groups the rules of the report under layout, sections, places and limits.
+
 ### Fixed
 
+- A folder of a Windows path that reads as a domain, such as `Microsoft.NET` in
+  `C:\Windows\Microsoft.NET\Framework64`, is no targeted hostname.
 - The release workflow runs the binary it publishes with the grammar of 0.4.0: `--help`, then
   `report`, and checks the saved `trace.json` and `report.txt`.
 

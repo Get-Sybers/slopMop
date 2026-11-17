@@ -126,6 +126,9 @@ func (p pipeline) collectExposed(steps []trace.Step, texts map[string]string, pl
 				add(it, s)
 			}
 			// A domain is a host only where a script names it; it is no exposure.
+			if inPath(text, m.Start, m.Line) {
+				continue
+			}
 			if it, ok := p.exposures.FromHardcoded(m.Type, m.Value, m.Line); ok {
 				if s.File.Role == evidence.Script {
 					named.script(it, p.exposures.Kinds()[kinds[it.Kind]], s.File.Path)
@@ -150,6 +153,16 @@ func (p pipeline) collectExposed(steps []trace.Step, texts map[string]string, pl
 		return x.account < y.account
 	})
 	return all, named
+}
+
+// inPath reports whether the match at start is one element of a Windows
+// path, as Microsoft.NET is in C:\Windows\Microsoft.NET\Framework: a single
+// backslash stands before it. Two backslashes begin a share, whose host it is.
+func inPath(text string, start, line int) bool {
+	if line == 0 || start < 1 || start > len(text) || text[start-1] != '\\' {
+		return false
+	}
+	return start < 2 || text[start-2] != '\\'
 }
 
 func containsCite(cites []cite, c cite) bool {

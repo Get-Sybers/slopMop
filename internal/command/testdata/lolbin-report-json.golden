@@ -254,7 +254,7 @@
   {
     "item": "targeted",
     "section": "summary",
-    "value": 5,
+    "value": 4,
     "detail": null,
     "basis": null,
     "files": null,
@@ -266,7 +266,7 @@
   {
     "item": "targeted device",
     "section": "summary",
-    "value": 2,
+    "value": 1,
     "detail": null,
     "basis": null,
     "files": null,
@@ -418,18 +418,6 @@
     "atlas": "AML.T0072, AML.T0138",
     "targets": null,
     "evidence": null
-  },
-  {
-    "item": "Microsoft.NET",
-    "section": "targeted",
-    "value": "medium",
-    "detail": "device: prior",
-    "basis": null,
-    "files": "20261020_101000_step03_exec.ps1:4",
-    "attack": null,
-    "atlas": null,
-    "targets": null,
-    "evidence": "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\MSBuild.exe C:\\Users\\Public\\build_20261020_101200.xml (20261020_101000_step03_exec.ps1:4)"
   },
   {
     "item": "corp.example",

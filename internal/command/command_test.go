@@ -476,6 +476,26 @@ func TestReportTargeted(t *testing.T) {
 	}
 }
 
+// A folder of a Windows path that reads as a domain is no hostname; the
+// host of a share is.
+func TestInPath(t *testing.T) {
+	text := `C:\Windows\Microsoft.NET\Framework64\MSBuild.exe \\files01.corp.local\share http://corp.example/x`
+	for value, want := range map[string]bool{"Microsoft.NET": true, "files01.corp.local": false, "corp.example": false} {
+		if got := inPath(text, strings.Index(text, value), 1); got != want {
+			t.Errorf("inPath(%s) = %t, want %t", value, got, want)
+		}
+	}
+	if inPath(text, strings.Index(text, "Microsoft.NET"), 0) || inPath(text, 0, 1) || inPath(text, len(text)+5, 1) {
+		t.Error("a match without a line, at the start or past the end is in a path")
+	}
+	_, saved := report(t, evidencetest.Copy(t, "lolbin"))
+	for _, row := range rows(t, filepath.Join(saved, "targeted.json")) {
+		if row["value"] == "Microsoft.NET" {
+			t.Errorf("a folder of a path is listed as a hostname: %v", row)
+		}
+	}
+}
+
 func TestScopeOf(t *testing.T) {
 	ip := exposure.Kind{Name: ipKind}
 	for value, want := range map[string]string{

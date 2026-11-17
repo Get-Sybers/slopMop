@@ -18,17 +18,12 @@ SHA-256. The binary is not code-signed.
 
 ## Use
 
-`slopmop -inputdir <folder> report` reads every file in the folder and below it, analyses them once
-and prints the report: the counts, the timeline, the findings, the notable files, the exposure, the
-impact, the remediation and the mitigation. The targeted section lists the usernames, IP addresses,
-hostnames and email addresses the scripts name outright, and whether the attacker knew each
-beforehand. The exposure lists the usernames, email addresses, passwords and other secrets,
-devices and IP addresses the files hold. An impact, an action and a
-mitigation each name what they concern and quote the lines that show it. It saves the same
-analysis to `slopmop-<folder name>` in the current directory: `report.txt` to read, and
-`files.json`, `trace.json`, `findings.json`, `targeted.json`, `exposure.json` and `report.json` for
-a program.
-Nothing is written into the folder that is read, and a secret is written masked.
+```sh
+slopmop -inputdir <folder> report
+```
+
+That one command reads every file in the folder and below it, analyses them once, prints the
+report and saves it. Nothing is remembered between runs.
 
 ```text
 $ slopmop -inputdir case42/ai_workdir report
@@ -51,6 +46,21 @@ Timeline   (step, time, role, file)
       indicators  1
 ```
 
+The report has nine sections. Name any after `report` to print only those; the saved files always
+hold all of them.
+
+| Section | Holds |
+| --- | --- |
+| `summary` | the counts |
+| `timeline` | each file in order, with its tools, tactics and activities |
+| `findings` | each activity, indicator and tactic, most severe first, with the lines that show it |
+| `files` | the files that hold a finding of high severity |
+| `targeted` | the usernames, IP addresses, hostnames and email addresses the scripts name outright, and whether the attacker knew each beforehand |
+| `exposure` | the usernames, email addresses, passwords and other secrets, devices and IP addresses the files hold |
+| `impact` | what the findings mean, what each concerns and the lines that show it |
+| `remediation` | what to do and to what, most urgent first |
+| `mitigation` | what MITRE ATT&CK and MITRE ATLAS say prevents the techniques found |
+
 | Command | What it does |
 | --- | --- |
 | `slopmop -inputdir <folder> report` | prints and saves every section |
@@ -58,24 +68,28 @@ Timeline   (step, time, role, file)
 | `slopmop -inputdir <folder> report -intelfile <file>` | attributes the indicators a watchlist matches |
 | `slopmop -inputdir <folder> report -outdir <folder>` | saves the output to the folder named |
 | `slopmop -inputdir <folder> report -secrets shown` | writes each password, hash, token and key as it stands |
-| `slopmop -inputdir <folder> --help` | prints what the line holds so far and what can follow it; `--help` works at every point |
+| `slopmop -inputdir <folder> --help` | says what the line holds so far and what can follow it; `--help` works at every point |
 
-The sections are `summary`, `timeline`, `findings`, `files`, `targeted`, `exposure`, `impact`,
-`remediation` and `mitigation`. `report` is the one verb, and nothing is remembered between runs.
+The output is saved to `slopmop-<folder name>` in the current directory, never into the folder
+that is read. A password, a hash, a token and a key are written masked.
+
+| File | Holds |
+| --- | --- |
+| `report.txt` | the report, every section |
+| `files.json` | every file with its role, size, line count, times and SHA-256 |
+| `trace.json` | the timeline |
+| `findings.json` | the activities, indicators and tactics |
+| `targeted.json` | what the scripts name outright |
+| `exposure.json` | what the files hold |
+| `report.json` | every row of the report |
 
 ## Layout
 
 | Path | Holds |
 | --- | --- |
 | `cmd/slopmop/` | the command: wiring and exit codes |
-| `internal/cli/` | the command grammar: parser, registry, dispatch, help |
-| `internal/command/` | the verbs, declared in `commands.json` and bound to the packages that do the work |
-| `internal/render/` | the report as plain lines and a table as JSON; escapes evidence text |
-| `internal/inventory/` | reads the input directory into file records; roles declared in `roles.json` |
-| `internal/evidence/` | the record of one file |
-| `internal/nametime/` | the timestamp written into a file name |
-| `internal/evidencetest/`, `internal/golden/` | fixtures and golden-file comparison for tests |
-| `scripts/` | the structural lint, the pinned-linter build and the upgrade |
+| `internal/` | the packages, each described in the [architecture](docs/03-Architecture.md) |
+| `scripts/` | the structural lint, the pinned-linter build, the upgrade and the MITRE catalogue builder |
 | `docs/` | command grammar, output schema, architecture, conformance |
 
 ## Documents

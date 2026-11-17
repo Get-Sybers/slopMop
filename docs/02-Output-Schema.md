@@ -47,25 +47,23 @@ Impact
 -> one section: slopmop -inputdir <folder> report impact
 ```
 
+### Layout
+
 - Line 1 names the verb and the folder. Line 2 is the verdict: the highest severity among the
   impacts and the count at each, or `[ok] NOTHING FOUND in <n> files`. The verdict is repeated at
   the end when more than one section prints, where a terminal leaves the reader.
 - A mark gives a severity or a priority: `[x]` high, `[!]` medium, `[i]` low. The marks are ASCII.
-- A section is its title, then its entries indented two spaces. An entry is one line of cells,
-  aligned with the entries around it, and detail lines indented under it, each with a label. A
-  column is padded to at most 60 characters; a longer cell runs past it. A section with no entry
-  prints `none`.
-- A list of files gives the first three and counts the rest: `a.sh, b.sh, c.sh and 4 more`.
-- A place in the evidence is written `file:line`, the line counted from 1 in the file as it
-  stands. The line is left out where there is none: in a JSON, XML or HTML output, which is read by
-  its values, and in a payload that was decoded out of a file.
-- Detail lines that share a label stand under it, and the label is written once.
-- A long list is cut and says how much more the saved files hold: the indicators and each kind of
-  exposure and of target after 40 entries, the lines of evidence of an impact or an action after 6, those of a
-  finding after 3, and the targets after 12.
+- A section is its title, then its entries indented two spaces. A section with no entry prints
+  `none`.
+- An entry is one line of cells, aligned with the entries around it. A column is padded to at
+  most 60 characters; a longer cell runs past it.
+- Detail lines stand indented under an entry, each with a label. Lines that share a label stand
+  under it, and the label is written once.
 - Times are UTC.
 - Colour is used only when standard output is a terminal, `NO_COLOR` is unset and `TERM` is not
   `dumb`; on Windows, only inside Windows Terminal. A file or a pipe receives no colour code.
+
+### Sections
 
 | Section | Entry | Detail lines |
 | --- | --- | --- |
@@ -83,8 +81,14 @@ Impact
 
 The values are those of the classes of section 6: a timeline entry is a `trace` row, a finding
 entry is a `finding` row, a targeted entry is a `targeted` row, an exposure entry is an `exposure`
-row and the other sections are `report` rows. An activity's `lines` is its count in the summary of the `report` class.
+row and the other sections are `report` rows. An activity's `lines` is its count in the summary of
+the `report` class.
 
+### Places, targets and evidence
+
+- A place in the evidence is written `file:line`, the line counted from 1 in the file as it
+  stands. The line is left out where there is none: in a JSON, XML or HTML output, which is read
+  by its values, and in a payload that was decoded out of a file.
 - A target is what a line acts on, with its kind: `account svc`, `unit sync.service`,
   `file /etc/sudoers.d/svc`, `url http://203.0.113.40/s.sh`. A variable the script sets is given
   its value and keeps its name: `file /tmp/tool ($F)`. A variable the script never sets is no
@@ -93,6 +97,20 @@ row and the other sections are `report` rows. An activity's `lines` is its count
 - A line of evidence is the command as the file holds it, cut to 200 bytes, with its place. Under
   an impact or an action it begins with the activity or the tool it is evidence of:
   `AccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)`.
+
+### Limits
+
+A long list is cut on the screen and in `report.txt`, and says how much more the JSON files hold.
+
+| List | Shown |
+| --- | --- |
+| the files of an entry | the first 3: `a.sh, b.sh, c.sh and 4 more` |
+| the indicators among the findings | the first 40 |
+| each kind of target and of exposure | the first 40 |
+| the lines of evidence of a finding or a target | the first 3 |
+| the lines of evidence of an impact or an action | the first 6 |
+| the targets of an impact or an action | the first 12 |
+| what a mitigation is for | the first 6 activities |
 
 ## 2. Evidence text
 
