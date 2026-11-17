@@ -11,53 +11,32 @@ Summary
   exposed     19  Passwords and secrets 3, Usernames 7, Email addresses 1, Devices 2, IP addresses 6
   intel hits  0
 
-Timeline   (step, time, role, file)
-  1  2026-10-22T09:00:00Z  script  20261022_090000_step01_recon.sh
-      tools       id, uname, cat, cut, systemctl, find, curl
-      tactics     Discovery, CredentialAccess
-      activities  SetuidFileSearch, CloudMetadataAccess, ServiceDiscovery
-      wrote       passwd_20261022_090020.txt, hosts_20261022_090025.txt, suid_20261022_090030.txt, meta_20261022_090040.txt
-      indicators  2
-  1  2026-10-22T09:00:20Z  output  passwd_20261022_090020.txt
-  1  2026-10-22T09:00:25Z  output  hosts_20261022_090025.txt
-      indicators  5
-  1  2026-10-22T09:00:30Z  output  suid_20261022_090030.txt
-  1  2026-10-22T09:00:40Z  output  meta_20261022_090040.txt
-  2  2026-10-22T09:05:00Z  script  20261022_090500_step02_creds.sh
-      tools       cat, grep, kubectl
-      tactics     Discovery, CredentialAccess
-      activities  ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, ClusterSecretRead
-      wrote       shadow_20261022_090530.txt, env_20261022_090540.txt
-  2  2026-10-22T09:05:30Z  output  shadow_20261022_090530.txt
-  2  2026-10-22T09:05:40Z  output  env_20261022_090540.txt
-      indicators  3
-  3  2026-10-22T09:10:00Z  script  20261022_091000_step03_privesc.sh
-      tools       chmod, docker
-      tactics     Discovery, PrivilegeEscalation
+Timeline   (from, until, files, tactics)
+  2026-10-22T09:00:00Z  2026-10-22T09:05:00Z  2  Discovery, CredentialAccess
+      activities  SetuidFileSearch, CloudMetadataAccess, ServiceDiscovery, ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, ClusterSecretRead
+      tools       id, uname, cat, cut, systemctl, find, curl, grep, and 1 more
+      files       20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh
+  2026-10-22T09:10:00Z  -                     1  Discovery, PrivilegeEscalation
       activities  SudoersModification, SetuidBit, ContainerEscape
-  4  2026-10-22T09:15:00Z  script  20261022_091500_step04_persist.sh
-      tools       crontab, cp, systemctl, useradd
-      tactics     Persistence, Execution, PrivilegeEscalation
+      tools       chmod, docker
+      files       20261022_091000_step03_privesc.sh
+  2026-10-22T09:15:00Z  -                     1  Execution, PrivilegeEscalation, Persistence
       activities  ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence
-  5  2026-10-22T09:20:00Z  script  20261022_092000_step05_evade.sh
-      tools       systemctl, iptables, rm, history, touch
-      tactics     DefenseImpairment, Stealth
+      tools       crontab, cp, systemctl, useradd
+      files       20261022_091500_step04_persist.sh
+  2026-10-22T09:20:00Z  -                     1  Stealth, DefenseImpairment
       activities  LogDeletion, HistoryClearing, HistoryDisabling, SecurityToolDisabling, FirewallDisabling, Timestomp
-  6  2026-10-22T09:25:00Z  script  20261022_092500_step06_stage.sh
-      tools       tar, bash, curl, base64, sh, ssh, cat, find, gzip, id, uname
-      tactics     Execution, LateralMovement, Discovery, Collection, Exfiltration, CommandAndControl
-      activities  FileUpload, ArchiveCreation, ShellDownloadAndExecute
-      transforms  Base64
-      indicators  5
-  7  2026-10-22T09:30:00Z  script  20261022_093000_step07_channel.py
-      tools       subprocess.run, sh, nc, os.system
-      tactics     Execution, Exfiltration, CommandAndControl
-      activities  ReverseShell
-      indicators  1
-  7  2026-10-22T09:35:00Z  output  audit_20261022_093500.jsonl
-      tools       crontab, bash, useradd, systemctl, iptables
-      tactics     Execution, Persistence, DefenseImpairment
+      tools       systemctl, iptables, rm, history, touch
+      files       20261022_092000_step05_evade.sh
+  2026-10-22T09:25:00Z  2026-10-22T09:30:00Z  2  Discovery, LateralMovement, Execution, Collection, CommandAndControl, Exfiltration
+      activities  FileUpload, ArchiveCreation, ShellDownloadAndExecute, ReverseShell
+      tools       tar, bash, curl, base64, sh, ssh, cat, find, and 6 more
+      files       20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py
+  2026-10-22T09:35:00Z  -                     1  Execution, Persistence, DefenseImpairment
       activities  ScheduledJobCreation, AccountCreation, SecurityToolDisabling, FirewallDisabling
+      tools       crontab, bash, useradd, systemctl, iptables
+      files       audit_20261022_093500.jsonl
+  and 6 files that show no tactic, in the saved trace
 
 Findings
   activities

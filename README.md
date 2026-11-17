@@ -39,11 +39,10 @@ Summary
   targeted    7   Usernames 1, Hostnames 3, IP addresses 3
   exposed     8   Usernames 2, Devices 3, IP addresses 3
 
-Timeline   (step, time, role, file)
-  1  2025-03-02T09:00:00Z  script  20250302_090000_step01_inventory.ps1
+Timeline   (from, until, files, tactics)
+  2025-03-02T09:00:00Z  -                     1  Discovery
       tools       get-date, join-path, get-adcomputer, select-object, export-csv
-      tactics     Discovery
-      indicators  1
+      files       20250302_090000_step01_inventory.ps1
 ```
 
 The report has ten sections. Name any after `report` to print only those; the saved files always
@@ -52,7 +51,7 @@ hold all of them.
 | Section | Holds |
 | --- | --- |
 | `summary` | the counts |
-| `timeline` | each file in order, with its tools, tactics and activities |
+| `timeline` | what was done, in order of time: each period of files that show the same tactics, and how many files show none |
 | `intents` | each ARTEX intent, by its run folder `i<number>`: the period of its files and the ATT&CK and ATLAS techniques found in them |
 | `findings` | each activity, indicator and tactic, most severe first, with the lines that show it |
 | `files` | the files that hold a finding of high severity |

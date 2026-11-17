@@ -284,17 +284,6 @@ func (w reportRun) summary() []render.Group {
 	return []render.Group{g}
 }
 
-func (w reportRun) timeline() []render.Group {
-	g := render.Group{Columns: []string{"step", "time", "role", "file"}}
-	for _, s := range w.result.timeline.Steps {
-		g.Entries = append(g.Entries, render.Entry{
-			Cells:  []string{strconv.Itoa(s.Turn), stepTime(s), string(s.File.Role), s.File.Path},
-			Detail: append([]render.Detail{{Label: "intent", Text: w.result.intentOf[s.File.Path]}}, stepDetail(s)...),
-		})
-	}
-	return []render.Group{g}
-}
-
 // stepTime is the time the timeline shows for a file: the same instant it is
 // ordered by, written as one ISO-8601 UTC stamp whether it came from the file
 // name or the modified time.
@@ -303,31 +292,6 @@ func stepTime(s trace.Step) string {
 		return render.Stamp(t, nil)
 	}
 	return "-"
-}
-
-func stepDetail(s trace.Step) []render.Detail {
-	list := func(items []string) string { return strings.Join(items, ", ") }
-	activities := make([]string, len(s.Activities))
-	for i, a := range s.Activities {
-		activities[i] = a.Name
-	}
-	hits := make([]string, len(s.IntelHits))
-	for i, h := range s.IntelHits {
-		hits[i] = h.Attribution + ": " + h.Value
-	}
-	detail := []render.Detail{
-		{Label: "tools", Text: list(s.Tools)},
-		{Label: "tactics", Text: list(s.Tactics)},
-		{Label: "activities", Text: list(activities)},
-		{Label: "transforms", Text: list(s.Transforms)},
-		{Label: "wrote", Text: list(s.Outputs)},
-		{Label: "watchlist", Text: list(hits)},
-		{Label: "note", Text: string(s.File.Note)},
-	}
-	if s.Indicators > 0 {
-		detail = append(detail, render.Detail{Label: "indicators", Text: strconv.Itoa(s.Indicators)})
-	}
-	return detail
 }
 
 // kindTitle gives the title of a kind of exposure, or its title among the

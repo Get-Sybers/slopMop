@@ -10,57 +10,24 @@ Summary
   targeted    13  Usernames 4, Email addresses 1, Hostnames 4, IP addresses 4
   exposed     26  Passwords and secrets 7, Usernames 7, Email addresses 2, Devices 6, IP addresses 4
 
-Timeline   (step, time, role, file)
-  1  2025-03-01T10:15:00Z  script  20250301_101500_step01_recon.sh
+Timeline   (from, until, files, tactics)
+  2025-03-01T10:15:00Z  -                     1  Discovery
       tools       nmap
-      tactics     Discovery
-      indicators  1
-  1  2025-03-01T10:15:30Z  output  20250301_101530_step01_recon.txt
-      indicators  8
-  2  2025-03-01T10:18:00Z  script  20250301_101800_step02_enum.sh
-      tools       nxc, tee, ldapsearch
-      tactics     CredentialAccess, Discovery
-      wrote       20250301_101845_step02_enum.log, 20250301_101910_step02_users.tsv
-      indicators  5
-  2  2025-03-01T10:18:45Z  output  20250301_101845_step02_enum.log
-      indicators  4
-  2  2025-03-01T10:19:10Z  output  20250301_101910_step02_users.tsv
-  3  2025-03-01T10:23:00Z  script  20250301_102300_step03_adsync.sh
-      tools       awk, head, date, nxc, adconnectdump.py
-      tactics     CredentialAccess
-      indicators  2
-  3  2025-03-01T10:23:45Z  output  adsync_1740824625.txt
-      indicators  1
-  4  2025-03-01T10:27:00Z  script  20250301_102700_step03_adsync_v2.sh
+      files       20250301_101500_step01_recon.sh
+  2025-03-01T10:18:00Z  2025-03-01T10:23:00Z  2  Discovery, CredentialAccess
+      tools       nxc, tee, ldapsearch, awk, head, date, adconnectdump.py
+      files       20250301_101800_step02_enum.sh, 20250301_102300_step03_adsync.sh
+  2025-03-01T10:27:00Z  -                     1  Execution
       tools       awk, head, date, python3
-      tactics     Execution
-      indicators  2
-  4  2025-03-01T10:27:45Z  output  adsync_1740824865.txt
-      indicators  3
-  5  2025-03-01T10:32:00Z  script  20250301_103200_step05_certs.sh
-      tools       certipy, tee, openssl, cat
-      tactics     CredentialAccess
-      wrote       20250301_103240_certipy_find.txt, 20250301_103300_notes.txt
-      indicators  6
-  5  2025-03-01T10:32:40Z  output  20250301_103240_certipy_find.txt
-      indicators  3
-  5  2025-03-01T10:33:00Z  output  20250301_103300_notes.txt
-  6  2025-03-01T10:40:00Z  script  20250301_104000_step06_auth.sh
-      tools       certipy, secretsdump.py, nxc
-      tactics     CredentialAccess
-      wrote       20250301_104010_step06_auth.txt, 20250301_104030_ca_store.txt
-      indicators  4
-  6  2025-03-01T10:40:10Z  output  20250301_104010_step06_auth.txt
-      indicators  4
-  6  2025-03-01T10:40:30Z  output  20250301_104030_ca_store.txt
-      indicators  1
-  6  2025-03-01T10:41:00Z  other   20250301_104100_ca_backup.p12
-      note        binary
-  7  2025-03-01T10:45:00Z  script  20250301_104500_step07_exfil.sh
-      tools       nxc, curl
-      tactics     CredentialAccess, Exfiltration
+      files       20250301_102700_step03_adsync_v2.sh
+  2025-03-01T10:32:00Z  2025-03-01T10:40:00Z  2  CredentialAccess
+      tools       certipy, tee, openssl, cat, secretsdump.py, nxc
+      files       20250301_103200_step05_certs.sh, 20250301_104000_step06_auth.sh
+  2025-03-01T10:45:00Z  -                     1  CredentialAccess, Exfiltration
       activities  FileUpload, CertificateExport
-      indicators  5
+      tools       nxc, curl
+      files       20250301_104500_step07_exfil.sh
+  and 10 files that show no tactic, in the saved trace
 
 Findings
   activities

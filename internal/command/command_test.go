@@ -250,8 +250,8 @@ func TestReportIntents(t *testing.T) {
 		t.Errorf("the trace names %v, want %v", named, want)
 	}
 	timeline, _ := report(t, folder, "timeline")
-	if !strings.Contains(timeline, "      intent      i1041\n") {
-		t.Errorf("the timeline does not name the intent of a step:\n%s", timeline)
+	if !strings.Contains(timeline, "      intent      i1041, i1042\n") {
+		t.Errorf("the timeline does not name the intents of a period:\n%s", timeline)
 	}
 	for name, body := range map[string]string{"report.md": readFile(t, filepath.Join(saved, "report.md")), "report.html": readFile(t, filepath.Join(saved, "report.html"))} {
 		for _, held := range []string{"Intents", "i1042", "T1003.008", "AML.T0090"} {

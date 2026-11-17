@@ -43,7 +43,7 @@ The bare words after `report` name sections of the report. No word means every s
 | Section | Holds |
 | --- | --- |
 | `summary` | the counts |
-| `timeline` | each file in order, with what it shows |
+| `timeline` | what was done, in order of time: each period of files that show the same tactics |
 | `intents` | each ARTEX intent, by its run folder i\<number\>: its period and its ATT&CK and ATLAS techniques |
 | `findings` | each activity, indicator and tactic, most severe first |
 | `files` | the files that hold a finding of high severity |
@@ -200,7 +200,7 @@ sections chosen:
 
 sections you can add:
   summary                 the counts
-  timeline                each file in order, with what it shows
+  timeline                what was done, in order of time: each period of files that show the same tactics
   intents                 each ARTEX intent, by its run folder i<number>: its period and its ATT&CK and ATLAS techniques
   findings                each activity, indicator and tactic, most severe first
   files                   the files that hold a finding of high severity

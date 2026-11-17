@@ -6,6 +6,16 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Changed
+
+- The Timeline section tells what was done, not what files there are. An entry is a period: the
+  files, one after another, that show no tactic the first of them does not, with its first and
+  last time, the number of its files, its tactics, activities, tools, watchlist matches and
+  intents. A file that shows no tactic and no watchlist match is counted in the last line and
+  not listed, whatever its role. Of more than 40 periods the first 20 and the last 20 are shown.
+  A folder of 2,198 files whose timeline was 6,836 lines is told in 14 periods. `trace.json`
+  holds every file, as it did.
+
 ### Added
 
 - A run says what it is doing. On a terminal one line on standard error names the stage, of
