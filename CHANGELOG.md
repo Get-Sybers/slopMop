@@ -6,6 +6,20 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Added
+
+- `internal/store`, a throwaway SQLite record database that keeps a run's extracted records and
+  reads them back in the order of the timeline. It depends on `modernc.org/sqlite`, the pure-Go
+  driver, which the cross build and `CGO_ENABLED=0` keep.
+
+### Changed
+
+- The input directory is read on every processor, not one file after another.
+- The report is assembled in time that grows with the evidence, not with its square. The files
+  behind an impact, an action, a finding and an output are gathered through a set, and the affected
+  values of an impact are deduplicated through one. A folder of 24,000 files that did not finish in
+  two minutes is reported in about forty seconds, and one of 6,000 files in half the time it took.
+
 ## [0.6.0] - 2026-11-17
 
 ### Added

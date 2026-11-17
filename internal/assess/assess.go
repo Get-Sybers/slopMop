@@ -250,6 +250,9 @@ func byLevel(results []Result) {
 // fired returns what in the evidence triggers the entry, the activities
 // among it and the files that show it; an empty basis means it does not apply.
 func (tr trigger) fired(e Evidence) (basis, activities, files []string) {
+	// The files are gathered through a set: a timeline of thousands would make
+	// a membership scan over the growing list quadratic.
+	held := map[string]bool{}
 	note := func(label string, found []string) bool {
 		if len(found) == 0 {
 			return false
@@ -258,7 +261,8 @@ func (tr trigger) fired(e Evidence) (basis, activities, files []string) {
 			basis = append(basis, label)
 		}
 		for _, f := range found {
-			if !slices.Contains(files, f) {
+			if !held[f] {
+				held[f] = true
 				files = append(files, f)
 			}
 		}
@@ -271,11 +275,6 @@ func (tr trigger) fired(e Evidence) (basis, activities, files []string) {
 	}
 	for _, name := range tr.Tactics {
 		note(name+" tools", e.Tactics[name])
-	}
-	// The files are gathered through a set for the same reason.
-	held := map[string]bool{}
-	for _, f := range files {
-		held[f] = true
 	}
 	for _, kind := range tr.Exposed {
 		if len(e.Exposed[kind]) > 0 {
@@ -346,6 +345,9 @@ func sortedKeys(m map[string][]string) []string {
 // affected lists the values of the named indicator types in the files. An
 // address is cut to its host: the vault matters, not each path read in it.
 func affected(types, files []string, e Evidence) (values []string, more int) {
+	// A set keeps the dedup linear: a run can hold a hundred thousand values,
+	// of which only a few are listed.
+	seen := map[string]bool{}
 	for _, f := range files {
 		for _, typ := range types {
 			for _, v := range e.Indicators[f][typ] {
@@ -353,7 +355,8 @@ func affected(types, files []string, e Evidence) (values []string, more int) {
 					v, _, _ = strings.Cut(rest, "/")
 					v, _, _ = strings.Cut(v, "?")
 				}
-				if !slices.Contains(values, v) {
+				if !seen[v] {
+					seen[v] = true
 					values = append(values, v)
 				}
 			}

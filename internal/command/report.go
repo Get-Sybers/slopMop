@@ -326,9 +326,12 @@ func plural(n int, noun string) string {
 func (p pipeline) notableFiles(a analysis, threshold tactic.Severity) []reportRow {
 	// An output is linked to the scripts that write it.
 	writers := map[string][]string{}
+	writerSeen := seenFiles{}
 	for _, s := range a.timeline.Steps {
 		for _, out := range s.Outputs {
-			writers[out] = appendUnique(writers[out], s.File.Path)
+			if writerSeen.fresh(out, s.File.Path) {
+				writers[out] = append(writers[out], s.File.Path)
+			}
 		}
 	}
 	var rows []reportRow
@@ -400,17 +403,20 @@ func (p pipeline) gather(a analysis) (assess.Evidence, []shownActivity, map[stri
 		Indicators: map[string]map[string][]string{},
 		Exposed:    exposedEvidence(a.exposed),
 	}
+	actFiles, tacFiles, hitFiles := seenFiles{}, seenFiles{}, seenFiles{}
 	for _, s := range a.timeline.Steps {
 		path := s.File.Path
 		for _, hit := range s.Activities {
-			found.Activities[hit.Name] = appendUnique(found.Activities[hit.Name], path)
 			i, ok := index[hit.Name]
 			if !ok {
 				i = len(shown)
 				index[hit.Name] = i
 				shown = append(shown, shownActivity{hit: hit})
 			}
-			shown[i].files = appendUnique(shown[i].files, path)
+			if actFiles.fresh(hit.Name, path) {
+				found.Activities[hit.Name] = append(found.Activities[hit.Name], path)
+				shown[i].files = append(shown[i].files, path)
+			}
 			for _, e := range hit.Evidence {
 				if len(shown[i].cites) < maxCited {
 					shown[i].cites = append(shown[i].cites, a.cited(path, e))
@@ -418,8 +424,8 @@ func (p pipeline) gather(a analysis) (assess.Evidence, []shownActivity, map[stri
 			}
 		}
 		for _, tool := range s.Tools {
-			if name := p.tactics.Classify(tool); name != "" {
-				found.Tactics[name] = appendUnique(found.Tactics[name], path)
+			if name := p.tactics.Classify(tool); name != "" && tacFiles.fresh(name, path) {
+				found.Tactics[name] = append(found.Tactics[name], path)
 			}
 		}
 		for _, c := range s.Commands {
@@ -428,7 +434,9 @@ func (p pipeline) gather(a analysis) (assess.Evidence, []shownActivity, map[stri
 			}
 		}
 		for _, hit := range s.IntelHits {
-			found.Hits[hit.Attribution] = appendUnique(found.Hits[hit.Attribution], path)
+			if hitFiles.fresh(hit.Attribution, path) {
+				found.Hits[hit.Attribution] = append(found.Hits[hit.Attribution], path)
+			}
 		}
 		for _, m := range s.Matches {
 			if found.Indicators[path] == nil {
