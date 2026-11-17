@@ -6,6 +6,8 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+## [0.5.3] - 2026-11-17
+
 ### Changed
 
 - The timeline and the `trace.json` `time` field write every instant as one ISO-8601 UTC stamp,
