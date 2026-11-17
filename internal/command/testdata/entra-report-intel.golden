@@ -192,7 +192,7 @@ Impact
       basis    GlobalAdministratorAssignment, AppRoleAssignment
   [x] Credentials exposed
       Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker. Affected: corpvault.vault.azure.net, finvault.vault.azure.net.
-      targets  vault corpvault; secret db-password; vault finvault; secret api-key; key kek
+      targets  vault $v; vault corpvault; secret db-password; vault finvault; secret api-key; key kek
       what     KeyVaultSecretRead: az keyvault secret list --vault-name "$v" -o tsv >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:4)
                KeyVaultSecretRead: curl -s -H "Authorization: Bearer $KV" "https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4" >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:7)
                KeyVaultSecretRead: az keyvault secret show --vault-name finvault --name api-key (agent_20261015_093500.jsonl)
@@ -223,7 +223,7 @@ Impact
       files    20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_091000_step03_escalate.ps1 and 3 more
   [i] Environment mapped
       Identities, resources or configuration were listed. Later steps were probably aimed with the result.
-      targets  resource /users; resource /servicePrincipals; resource /directoryRoles; command Get-MgApplication; command az keyvault list; vault finvault; username alice@corp.example; username bob@corp.example; email alice@corp.example; email bob@corp.example; ip 144.172.64.60
+      targets  resource /users; resource /servicePrincipals; resource /directoryRoles; command Get-MgApplication; command az keyvault list; vault $v; vault finvault; username alice@corp.example; username bob@corp.example; email alice@corp.example; email bob@corp.example; ip 144.172.64.60
       what     GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/users?`$top=999" | ConvertTo-Json | Out-File directory_20261015_090530.txt (20261015_090500_step02_recon.ps1:2)
                GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/servicePrincipals?`$top=999" (20261015_090500_step02_recon.ps1:3)
                GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/directoryRoles" (20261015_090500_step02_recon.ps1:4)
@@ -254,7 +254,7 @@ Remediation   (most urgent first)
       basis    GlobalAdministratorAssignment, AppRoleAssignment
   [x] Rotate what was read
       Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.
-      targets  vault corpvault; secret db-password; vault finvault; secret api-key; key kek
+      targets  vault $v; vault corpvault; secret db-password; vault finvault; secret api-key; key kek
       what     KeyVaultSecretRead: az keyvault secret list --vault-name "$v" -o tsv >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:4)
                KeyVaultSecretRead: curl -s -H "Authorization: Bearer $KV" "https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4" >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:7)
                KeyVaultSecretRead: az keyvault secret show --vault-name finvault --name api-key (agent_20261015_093500.jsonl)
@@ -270,7 +270,7 @@ Remediation   (most urgent first)
       basis    MailboxAccess, TeamsMessageAccess, SharePointEnumeration
   [i] Follow what was enumerated
       Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
-      targets  resource /users; resource /servicePrincipals; resource /directoryRoles; command Get-MgApplication; command az keyvault list; vault finvault; username alice@corp.example; username bob@corp.example; email alice@corp.example; email bob@corp.example; ip 144.172.64.60
+      targets  resource /users; resource /servicePrincipals; resource /directoryRoles; command Get-MgApplication; command az keyvault list; vault $v; vault finvault; username alice@corp.example; username bob@corp.example; email alice@corp.example; email bob@corp.example; ip 144.172.64.60
       what     GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/users?`$top=999" | ConvertTo-Json | Out-File directory_20261015_090530.txt (20261015_090500_step02_recon.ps1:2)
                GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/servicePrincipals?`$top=999" (20261015_090500_step02_recon.ps1:3)
                GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/directoryRoles" (20261015_090500_step02_recon.ps1:4)
@@ -303,7 +303,7 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
            AppCredentialAddition: application 66666666-7777-4888-9999-000000000000
            GlobalAdministratorAssignment: role roleTemplateId=62e90394-69f5-4237-9190-012177145e10
            AppRoleAssignment: principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d ($sp), principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d
-           KeyVaultSecretRead: vault corpvault, secret db-password, vault finvault, secret api-key
+           KeyVaultSecretRead: vault $v, vault corpvault, secret db-password, vault finvault, secret api-key
            KeyVaultKeyUnwrap: vault corpvault, key kek
   [x] M1027 Password Policies                                       T1078.004
       Set and enforce secure password policies for accounts to reduce the likelihood of unauthorized access.

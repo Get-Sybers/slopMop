@@ -402,8 +402,7 @@ func (a compiled) evidence(text, joined string, lines map[int]bool, variables va
 			if m == nil {
 				continue
 			}
-			// A variable the text never sets names nothing, so it is no subject.
-			if value := resolve(strings.Trim(m[1], "\"'`;,()"), variables); value != "" && !rxUnset.MatchString(value) {
+			if value := resolve(strings.Trim(m[1], "\"'`;,()"), variables); value != "" {
 				e.Subjects = append(e.Subjects, Subject{Label: sub.label, Value: cut(value)})
 			}
 		}
@@ -423,9 +422,6 @@ func cut(s string) string {
 	}
 	return s[:end] + ellipsis
 }
-
-// rxUnset is a value that is one variable and nothing else.
-var rxUnset = regexp.MustCompile(`^(?:\$\{?[A-Za-z_]\w*\}?|%[A-Za-z_]\w*%)$`)
 
 // resolve gives a subject that is one variable the value the text sets it
 // to, and keeps the name beside it; anything else is returned as it is.

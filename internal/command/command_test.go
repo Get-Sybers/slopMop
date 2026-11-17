@@ -608,12 +608,12 @@ func TestReportNamesWhat(t *testing.T) {
 			}
 		}
 	}
-	// A variable the script never sets names nothing, so it is no target.
-	if row := find(t, table, map[string]string{"section": "impact", "item": "Persistence established"}); strings.Contains(row["targets"].(string), "$JOB") {
-		t.Errorf("targets = %q, want no variable that is never set", row["targets"])
+	// An unresolved variable is kept so responders see what was targeted.
+	if row := find(t, table, map[string]string{"section": "impact", "item": "Persistence established"}); !strings.Contains(row["targets"].(string), "$JOB") {
+		t.Errorf("targets = %q, want $JOB among them", row["targets"])
 	}
 	for _, want := range []string{
-		"      targets  unit sync.service; account svc;",
+		"      targets  runs $JOB; unit sync.service; account svc;",
 		"      what     ScheduledJobCreation: (crontab -l; echo \"$JOB\") | crontab - (20261022_091500_step04_persist.sh:3)\n",
 		" more in report.json\n",
 		"      for  AccountCreation: account svc\n",

