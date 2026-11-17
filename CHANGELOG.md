@@ -29,6 +29,13 @@ All notable changes to this project are recorded in this file. The format follow
   target instead of being silently dropped. Remediation evidence now shows what a command acted on
   even when the script never sets the variable.
 
+### Added
+
+- The Targeted section lists every entity an activity acted on, grouped by label: accounts,
+  hosts, files, services, URLs and others. Each entry names the value, the activities that
+  touched it and the evidence lines, so a responder sees at a glance which entities were
+  affected and what happened to each.
+
 ## [0.6.0] - 2026-11-17
 
 ### Added

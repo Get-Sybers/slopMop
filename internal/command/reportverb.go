@@ -39,6 +39,7 @@ type reportRun struct {
 	pipe   pipeline
 	result analysis
 	rows   []reportRow
+	shown  []shownActivity
 }
 
 type sectionBuilder func(w reportRun) []render.Group
@@ -145,10 +146,11 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 			sectionSummary: true, sectionFiles: true, sectionTargeted: true, sectionExposure: true, sectionImpact: true,
 			sectionRemediation: true, sectionMitigation: true,
 		}
-		run := reportRun{pipe: pipe, result: result, rows: pipe.report(result, tactic.High, every)}
+		rows, shown := pipe.report(result, tactic.High, every)
+		run := reportRun{pipe: pipe, result: result, rows: rows, shown: shown}
 		// The disk holds every section; the screen holds those asked for.
 		full := render.Readout{Title: "slopmop report   " + folder, Banner: run.banner(), Hints: v.Hints}
-		shown := full
+		screen := full
 		for _, s := range v.Sections {
 			section := render.Section{Title: s.Title, Note: s.Note, Groups: builders[s.Name](run)}
 			if sectionEmpty(section) {
@@ -156,15 +158,15 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 			}
 			full.Sections = append(full.Sections, section)
 			if slices.Contains(a.Words, s.Name) {
-				shown.Sections = append(shown.Sections, section)
+				screen.Sections = append(screen.Sections, section)
 			}
 		}
 		// A failed save does not withhold the readout; it fails the command after it.
 		names, saveErr := run.save(dir, v.Saved, columns, full)
 		if saveErr == nil {
-			shown.Hints = append([]string{"saved to " + dir + ": " + strings.Join(names, ", ")}, v.Hints...)
+			screen.Hints = append([]string{"saved to " + dir + ": " + strings.Join(names, ", ")}, v.Hints...)
 		}
-		if err := render.WriteReadout(e.Stdout, shown, e.Colour); err != nil {
+		if err := render.WriteReadout(e.Stdout, screen, e.Colour); err != nil {
 			return err
 		}
 		return errors.Join(saveErr, skippedError(result.skipped, inventory.MaxDepth))
@@ -448,6 +450,75 @@ func (w reportRun) targeted() []render.Group {
 		if more := total[name] - len(groups[i].Entries); more > 0 {
 			groups[i].Entries = append(groups[i].Entries, render.Entry{Cells: []string{"and " + strconv.Itoa(more) + " more in the saved targeted file"}})
 		}
+	}
+	groups = append(groups, w.subjectGroups()...)
+	return groups
+}
+
+// subjectGroups builds one group per subject label from the shown activities.
+func (w reportRun) subjectGroups() []render.Group {
+	type entity struct {
+		value      string
+		activities []string
+		level      tactic.Severity
+		evidence   []string
+	}
+	labels := map[string][]entity{}
+	keys := map[string]int{}
+	var labelOrder []string
+	for _, s := range w.shown {
+		top := tactic.Low
+		for _, name := range s.hit.Tactics {
+			if sev := w.pipe.tactics.Severity(name); sev.Rank() > top.Rank() {
+				top = sev
+			}
+		}
+		for _, c := range s.cites {
+			for _, sub := range c.subjects {
+				k := sub.Label + "\x00" + sub.Value
+				i, ok := keys[k]
+				if !ok {
+					if _, started := labels[sub.Label]; !started {
+						labelOrder = append(labelOrder, sub.Label)
+					}
+					i = len(labels[sub.Label])
+					keys[k] = i
+					labels[sub.Label] = append(labels[sub.Label], entity{value: sub.Value, level: top})
+				}
+				ent := &labels[sub.Label][i]
+				if top.Rank() > ent.level.Rank() {
+					ent.level = top
+				}
+				if !slices.Contains(ent.activities, s.hit.Name) {
+					ent.activities = append(ent.activities, s.hit.Name)
+				}
+				line := s.hit.Name + ": " + c.String()
+				if len(ent.evidence) < fewFindingLines && !slices.Contains(ent.evidence, line) {
+					ent.evidence = append(ent.evidence, line)
+				}
+			}
+		}
+	}
+	var groups []render.Group
+	for _, label := range labelOrder {
+		entities := labels[label]
+		g := render.Group{
+			Title:   strings.ToUpper(label[:1]) + label[1:] + " (" + strconv.Itoa(len(entities)) + ")",
+			Columns: []string{"value", "acted on by"},
+		}
+		for i, ent := range entities {
+			if i == fewExposed {
+				g.Entries = append(g.Entries, render.Entry{Cells: []string{"and " + strconv.Itoa(len(entities)-fewExposed) + " more in report.json"}})
+				break
+			}
+			detail := lined("what", ent.evidence, fewFindingLines, "report.json")
+			g.Entries = append(g.Entries, render.Entry{
+				Level:  string(ent.level),
+				Cells:  []string{ent.value, strings.Join(ent.activities, ", ")},
+				Detail: detail,
+			})
+		}
+		groups = append(groups, g)
 	}
 	return groups
 }
