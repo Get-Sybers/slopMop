@@ -1,7 +1,6 @@
 package command
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -50,7 +49,8 @@ type savedFile struct {
 	File  string `json:"file"`
 }
 
-type tableBuilder func(w reportRun, columns []render.Column) (render.Table, error)
+// tableBuilder hands add each row of a class in turn, so no table is held whole.
+type tableBuilder func(w reportRun, columns []render.Column, add func([]render.Value) error) error
 
 func tableBuilders() map[string]tableBuilder {
 	return map[string]tableBuilder{
@@ -112,78 +112,84 @@ func checkSaved(s savedSpec, doc commandsDoc) (map[string][]render.Column, error
 	return columns, nil
 }
 
-func (w reportRun) fileTable(columns []render.Column) (render.Table, error) {
+func (w reportRun) fileTable(columns []render.Column, add func([]render.Value) error) error {
 	steps := append([]trace.Step(nil), w.result.timeline.Steps...)
 	sort.SliceStable(steps, func(i, j int) bool { return steps[i].File.Path < steps[j].File.Path })
-	table := render.Table{Columns: columns}
 	for _, s := range steps {
 		row, err := fileRow(s.File, columns)
 		if err != nil {
-			return table, err
+			return err
 		}
-		table.Rows = append(table.Rows, row)
+		if err := add(row); err != nil {
+			return err
+		}
 	}
-	return table, nil
+	return nil
 }
 
-func (w reportRun) traceTable(columns []render.Column) (render.Table, error) {
-	table := render.Table{Columns: columns}
+func (w reportRun) traceTable(columns []render.Column, add func([]render.Value) error) error {
 	for _, s := range w.result.timeline.Steps {
 		row, err := traceRow(s, w.result.intentOf[s.File.Path], columns)
 		if err != nil {
-			return table, err
+			return err
 		}
-		table.Rows = append(table.Rows, row)
+		if err := add(row); err != nil {
+			return err
+		}
 	}
-	return table, nil
+	return nil
 }
 
-func (w reportRun) findingTable(columns []render.Column) (render.Table, error) {
-	table := render.Table{Columns: columns}
+func (w reportRun) findingTable(columns []render.Column, add func([]render.Value) error) error {
 	for _, f := range w.pipe.listFindings(w.result) {
 		row, err := findingRow(f, columns)
 		if err != nil {
-			return table, err
+			return err
 		}
-		table.Rows = append(table.Rows, row)
+		if err := add(row); err != nil {
+			return err
+		}
 	}
-	return table, nil
+	return nil
 }
 
-func (w reportRun) targetedTable(columns []render.Column) (render.Table, error) {
-	table := render.Table{Columns: columns}
+func (w reportRun) targetedTable(columns []render.Column, add func([]render.Value) error) error {
 	for _, t := range w.result.targeted {
 		row, err := targetedRow(t, columns)
 		if err != nil {
-			return table, err
+			return err
 		}
-		table.Rows = append(table.Rows, row)
+		if err := add(row); err != nil {
+			return err
+		}
 	}
-	return table, nil
+	return nil
 }
 
-func (w reportRun) exposureTable(columns []render.Column) (render.Table, error) {
-	table := render.Table{Columns: columns}
+func (w reportRun) exposureTable(columns []render.Column, add func([]render.Value) error) error {
 	for _, e := range w.result.exposed {
 		row, err := exposedRow(e, columns)
 		if err != nil {
-			return table, err
+			return err
 		}
-		table.Rows = append(table.Rows, row)
+		if err := add(row); err != nil {
+			return err
+		}
 	}
-	return table, nil
+	return nil
 }
 
-func (w reportRun) reportTable(columns []render.Column) (render.Table, error) {
-	table := render.Table{Columns: columns}
+func (w reportRun) reportTable(columns []render.Column, add func([]render.Value) error) error {
 	for _, r := range w.rows {
 		row, err := reportCells(r, columns)
 		if err != nil {
-			return table, err
+			return err
 		}
-		table.Rows = append(table.Rows, row)
+		if err := add(row); err != nil {
+			return err
+		}
 	}
-	return table, nil
+	return nil
 }
 
 // outputDir chooses the folder to write to: the one given, or the prefix and
@@ -276,47 +282,67 @@ func folderName(whole string) string {
 	return letters
 }
 
-// save writes the readout in each format, and each table, into dir. It
-// returns the names written.
+// partSuffix ends the name a saved file is written under until all are made.
+const partSuffix = ".part"
+
+// save writes the readout in each format, and each table, into dir, and
+// returns the names written. A file takes its name only when all are made,
+// so a run that fails leaves no saved file half written.
 func (w reportRun) save(dir string, s savedSpec, columns map[string][]render.Column, readout render.Readout) ([]string, error) {
 	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return nil, fmt.Errorf("output folder: %w", err)
 	}
-	// Each file is made apart from the others, on every processor, and
-	// none is written unless all were made.
 	var names []string
-	var makers []func() ([]byte, error)
+	var makers []func(io.Writer) error
 	writers := readoutWriters()
 	for _, r := range s.Readouts {
 		names = append(names, r.File)
-		makers = append(makers, func() ([]byte, error) {
-			var written bytes.Buffer
-			err := writers[r.Format](&written, readout)
-			return written.Bytes(), err
-		})
+		makers = append(makers, func(out io.Writer) error { return writers[r.Format](out, readout) })
 	}
 	builders := tableBuilders()
 	for _, t := range s.Tables {
 		names = append(names, t.File)
-		makers = append(makers, func() ([]byte, error) {
-			table, err := builders[t.Class](w, columns[t.Class])
+		makers = append(makers, func(out io.Writer) error {
+			rows, err := render.NewRows(out, columns[t.Class])
 			if err != nil {
-				return nil, err
+				return err
 			}
-			var encoded bytes.Buffer
-			err = render.Write(&encoded, table, render.Options{View: render.JSON})
-			return encoded.Bytes(), err
+			if err := builders[t.Class](w, columns[t.Class], rows.Write); err != nil {
+				return err
+			}
+			return rows.Close()
 		})
 	}
-	contents, failed := make([][]byte, len(makers)), make([]error, len(makers))
-	parallel.Each(len(makers), func(i int) { contents[i], failed[i] = makers[i]() })
+	// Each file is made apart from the others, on every processor, and
+	// written as it is made, so none is held whole in memory.
+	failed := make([]error, len(makers))
+	parallel.Each(len(makers), func(i int) { failed[i] = writePart(filepath.Join(dir, names[i]+partSuffix), makers[i]) })
 	if err := errors.Join(failed...); err != nil {
+		for _, name := range names {
+			os.Remove(filepath.Join(dir, name+partSuffix))
+		}
 		return nil, err
 	}
-	for i, name := range names {
-		if err := os.WriteFile(filepath.Join(dir, name), contents[i], 0o600); err != nil {
+	for _, name := range names {
+		if err := os.Rename(filepath.Join(dir, name+partSuffix), filepath.Join(dir, name)); err != nil {
 			return nil, fmt.Errorf("output folder: %w", err)
 		}
 	}
 	return names, nil
+}
+
+// writePart makes one file at path with what fill writes to it.
+func writePart(path string, fill func(io.Writer) error) error {
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	if err != nil {
+		return fmt.Errorf("output folder: %w", err)
+	}
+	if err := fill(f); err != nil {
+		f.Close()
+		return err
+	}
+	if err := f.Close(); err != nil {
+		return fmt.Errorf("output folder: %w", err)
+	}
+	return nil
 }

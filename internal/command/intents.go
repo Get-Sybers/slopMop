@@ -234,16 +234,17 @@ func timeCell(f evidence.File) render.Value {
 	return render.NotApplicable()
 }
 
-func (w reportRun) intentTable(columns []render.Column) (render.Table, error) {
-	table := render.Table{Columns: columns}
+func (w reportRun) intentTable(columns []render.Column, add func([]render.Value) error) error {
 	for _, r := range w.result.intents {
 		row, err := intentRow(r, columns)
 		if err != nil {
-			return table, err
+			return err
 		}
-		table.Rows = append(table.Rows, row)
+		if err := add(row); err != nil {
+			return err
+		}
 	}
-	return table, nil
+	return nil
 }
 
 // intentCount is the count the summary gives, with no line when there is none.

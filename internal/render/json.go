@@ -1,102 +1,119 @@
 package render
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
+	"io"
 	"strconv"
 	"unicode/utf16"
 	"unicode/utf8"
-
-	"github.com/get-sybers/slopmop/internal/parallel"
 )
 
-// batch is how many rows are encoded at once; a large table is encoded in
-// batches on every processor and joined in order.
-const batch = 2000
+// held is how many bytes of a table wait in memory before they are written.
+const held = 1 << 20
 
-func encodeJSON(t Table) ([]byte, error) {
-	rows := make([]jsonRow, len(t.Rows))
-	for i, values := range t.Rows {
-		rows[i] = jsonRow{columns: t.Columns, values: values}
-	}
-	if len(rows) <= batch {
-		return encodeRows(rows)
-	}
-	parts := make([][]byte, (len(rows)+batch-1)/batch)
-	failed := make([]error, len(parts))
-	parallel.Each(len(parts), func(i int) {
-		part, err := encodeRows(rows[i*batch : min(len(rows), (i+1)*batch)])
-		// An array of rows is "[\n", the rows, "\n]\n": the rows alone are kept.
-		if err == nil {
-			part = part[2 : len(part)-3]
-		}
-		parts[i], failed[i] = part, err
-	})
-	if err := errors.Join(failed...); err != nil {
+// Rows writes a table as JSON one row at a time, so a table of any size is
+// never held whole. Close ends the table.
+type Rows struct {
+	out     *bufio.Writer
+	columns []Column
+	keys    [][]byte
+	row     bytes.Buffer
+	enc     *json.Encoder
+	clean   []byte
+	written int
+}
+
+// NewRows checks the columns and begins a table on w.
+func NewRows(w io.Writer, columns []Column) (*Rows, error) {
+	if err := (Table{Columns: columns}).Check(); err != nil {
 		return nil, err
 	}
-	size := len("[\n") + len("\n]\n") + (len(parts)-1)*len(",\n")
-	for _, part := range parts {
-		size += len(part)
-	}
-	out := append(make([]byte, 0, size), "[\n"...)
-	for i, part := range parts {
-		if i > 0 {
-			out = append(out, ",\n"...)
-		}
-		out = append(out, part...)
-		// A batch is let go as soon as it is joined, so the table is not held twice for long.
-		parts[i] = nil
-	}
-	return append(out, "\n]\n"...), nil
-}
-
-func encodeRows(rows []jsonRow) ([]byte, error) {
-	var buf bytes.Buffer
-	enc := json.NewEncoder(&buf)
-	enc.SetEscapeHTML(false)
-	enc.SetIndent("", "  ")
-	if err := enc.Encode(rows); err != nil {
-		return nil, fmt.Errorf("render: encode json: %w", err)
-	}
-	return escapeUnprintable(buf.Bytes()), nil
-}
-
-// jsonRow keeps the keys in column order; a map would sort them.
-type jsonRow struct {
-	columns []Column
-	values  []Value
-}
-
-func (r jsonRow) MarshalJSON() ([]byte, error) {
-	var buf bytes.Buffer
-	buf.WriteByte('{')
-	for i, v := range r.values {
-		if i > 0 {
-			buf.WriteByte(',')
-		}
-		if err := marshal(&buf, r.columns[i].Key); err != nil {
+	r := &Rows{out: bufio.NewWriterSize(w, held), columns: columns, keys: make([][]byte, len(columns))}
+	r.enc = json.NewEncoder(&r.row)
+	r.enc.SetEscapeHTML(false)
+	for i, c := range columns {
+		r.row.Reset()
+		if err := r.value(c.Key); err != nil {
 			return nil, err
 		}
-		buf.WriteByte(':')
-		if err := marshal(&buf, v.raw()); err != nil {
-			return nil, err
-		}
+		r.keys[i] = bytes.Clone(r.row.Bytes())
 	}
-	buf.WriteByte('}')
-	return buf.Bytes(), nil
+	return r, nil
 }
 
-func marshal(buf *bytes.Buffer, v any) error {
-	enc := json.NewEncoder(buf)
-	enc.SetEscapeHTML(false)
-	if err := enc.Encode(v); err != nil {
-		return err
+// value adds v to the row. The encoder ends a value with a line break, which is dropped.
+func (r *Rows) value(v any) error {
+	if err := r.enc.Encode(v); err != nil {
+		return fmt.Errorf("render: encode json: %w", err)
 	}
-	buf.Truncate(buf.Len() - 1)
+	r.row.Truncate(r.row.Len() - 1)
 	return nil
+}
+
+// Write adds one row, which fills every column in order.
+func (r *Rows) Write(values []Value) error {
+	if len(values) != len(r.columns) {
+		return fmt.Errorf("render: row %d has %d values, want %d", r.written+1, len(values), len(r.columns))
+	}
+	r.row.Reset()
+	if r.written == 0 {
+		r.row.WriteString("[\n  {\n")
+	} else {
+		r.row.WriteString(",\n  {\n")
+	}
+	for i, v := range values {
+		if i > 0 {
+			r.row.WriteString(",\n")
+		}
+		r.row.WriteString("    ")
+		r.row.Write(r.keys[i])
+		r.row.WriteString(": ")
+		if err := r.value(v.raw()); err != nil {
+			return err
+		}
+	}
+	r.row.WriteString("\n  }")
+	r.written++
+	r.clean = escapeUnprintable(r.clean[:0], r.row.Bytes())
+	if _, err := r.out.Write(r.clean); err != nil {
+		return fmt.Errorf("render: write table: %w", err)
+	}
+	return nil
+}
+
+// Close ends the table and writes what is still held.
+func (r *Rows) Close() error {
+	end := "\n]\n"
+	if r.written == 0 {
+		end = "[]\n"
+	}
+	if _, err := r.out.WriteString(end); err != nil {
+		return fmt.Errorf("render: write table: %w", err)
+	}
+	if err := r.out.Flush(); err != nil {
+		return fmt.Errorf("render: write table: %w", err)
+	}
+	return nil
+}
+
+func encodeJSON(t Table) ([]byte, error) {
+	var buf bytes.Buffer
+	rows, err := NewRows(&buf, t.Columns)
+	if err != nil {
+		return nil, err
+	}
+	for _, values := range t.Rows {
+		if err := rows.Write(values); err != nil {
+			return nil, err
+		}
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
 }
 
 func (v Value) raw() any {
@@ -113,14 +130,19 @@ func (v Value) raw() any {
 	}
 }
 
-// escapeUnprintable escapes the runes encoding/json leaves as they are, so
-// JSON is as safe on a terminal as a table. Such runes occur only in strings.
-func escapeUnprintable(encoded []byte) []byte {
-	out := make([]byte, 0, len(encoded))
+// escapeUnprintable adds encoded to out with the runes encoding/json leaves
+// as they are escaped, so JSON is as safe on a terminal as a table. Such
+// runes occur only in strings.
+func escapeUnprintable(out, encoded []byte) []byte {
 	for len(encoded) > 0 {
+		if b := encoded[0]; b < 0x7f {
+			out = append(out, b)
+			encoded = encoded[1:]
+			continue
+		}
 		r, size := utf8.DecodeRune(encoded)
 		switch {
-		case r < 0x7f, r > 0x7f && strconv.IsPrint(r):
+		case r > 0x7f && strconv.IsPrint(r):
 			out = append(out, encoded[:size]...)
 		case r > 0xFFFF:
 			hi, lo := utf16.EncodeRune(r)

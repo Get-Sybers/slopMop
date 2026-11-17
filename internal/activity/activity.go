@@ -9,12 +9,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
-	"regexp/syntax"
 	"slices"
 	"strings"
 	"unicode/utf8"
 
 	"github.com/get-sybers/slopmop/internal/parallel"
+	"github.com/get-sybers/slopmop/internal/sift"
 	"github.com/get-sybers/slopmop/internal/vars"
 )
 
@@ -97,6 +97,8 @@ type Subject struct {
 type Table struct {
 	contexts   map[string]pattern
 	activities []compiled
+	// finder looks for the literals of every pattern in one pass over a text.
+	finder *sift.Finder
 }
 
 type compiled struct {
@@ -122,6 +124,11 @@ type subject struct {
 type pattern struct {
 	rx       *regexp.Regexp
 	literals [][]byte
+	// found numbers the literals among those of the whole table, as the finder answers.
+	found []int
+	// sets hold every text the expression promises: a line that matches
+	// holds one of each, so a line that lacks one is not tried.
+	sets [][]string
 }
 
 // LoadActivities decodes activities.json and compiles each pattern.
@@ -195,7 +202,43 @@ func decode(data []byte) (Table, error) {
 		}
 		t.activities = append(t.activities, c)
 	}
+	if err := t.number(); err != nil {
+		return Table{}, fmt.Errorf("activities.json: %w", err)
+	}
 	return t, nil
+}
+
+// number gives each literal of the table one number, and each pattern the
+// numbers of its own, so one pass over a text serves every pattern.
+func (t *Table) number() error {
+	var texts []string
+	numbers := map[string]int{}
+	number := func(p pattern) pattern {
+		for _, lit := range p.literals {
+			n, known := numbers[string(lit)]
+			if !known {
+				n = len(texts)
+				numbers[string(lit)] = n
+				texts = append(texts, string(lit))
+			}
+			p.found = append(p.found, n)
+		}
+		return p
+	}
+	for name, p := range t.contexts {
+		t.contexts[name] = number(p)
+	}
+	for _, a := range t.activities {
+		for i := range a.patterns {
+			a.patterns[i] = number(a.patterns[i])
+		}
+		for i := range a.paths {
+			a.paths[i] = number(a.paths[i])
+		}
+	}
+	var err error
+	t.finder, err = sift.NewFinder(texts)
+	return err
 }
 
 func compileAll(exprs []string) ([]pattern, error) {
@@ -215,72 +258,15 @@ func compile(expr string) (pattern, error) {
 	if err != nil {
 		return pattern{}, err
 	}
-	p := pattern{rx: rx}
-	if tree, err := syntax.Parse(expr, syntax.Perl); err == nil {
-		for _, lit := range required(tree) {
-			p.literals = append(p.literals, []byte(lit))
-		}
+	plan, err := sift.Read(expr)
+	if err != nil {
+		return pattern{}, err
+	}
+	p := pattern{rx: rx, sets: plan.Needs}
+	for _, lit := range plan.Rare() {
+		p.literals = append(p.literals, []byte(lit))
 	}
 	return p, nil
-}
-
-// minLiteral is the shortest literal worth looking for; a shorter one is in
-// nearly every line.
-const minLiteral = 3
-
-// required returns lower-case literals of which every match of re holds at
-// least one, or nil when the expression promises none.
-func required(re *syntax.Regexp) []string {
-	switch re.Op {
-	case syntax.OpLiteral:
-		lit := strings.ToLower(string(re.Rune))
-		for _, r := range lit {
-			if r >= utf8.RuneSelf {
-				return nil
-			}
-		}
-		if len(lit) < minLiteral {
-			return nil
-		}
-		return []string{lit}
-	case syntax.OpCapture, syntax.OpPlus:
-		return required(re.Sub[0])
-	case syntax.OpRepeat:
-		if re.Min > 0 {
-			return required(re.Sub[0])
-		}
-	case syntax.OpConcat:
-		// Every part must match, so any part's literals serve; the longest are the rarest.
-		var best []string
-		for _, sub := range re.Sub {
-			if lits := required(sub); shortest(lits) > shortest(best) {
-				best = lits
-			}
-		}
-		return best
-	case syntax.OpAlternate:
-		var all []string
-		for _, sub := range re.Sub {
-			lits := required(sub)
-			if lits == nil {
-				return nil
-			}
-			all = append(all, lits...)
-		}
-		return all
-	}
-	return nil
-}
-
-func shortest(lits []string) int {
-	if len(lits) == 0 {
-		return 0
-	}
-	n := len(lits[0])
-	for _, lit := range lits[1:] {
-		n = min(n, len(lit))
-	}
-	return n
 }
 
 // Names lists the activities, in the order of the data file.
@@ -333,9 +319,18 @@ func (t Table) Detect(text string) []Hit {
 			lower[i] = c + ('a' - 'A')
 		}
 	}
+	// A text that folds a letter outside ASCII shows it in no literal, so every line is tried.
+	if sift.Folds(joined) || t.finder == nil {
+		lower = nil
+	}
+	// One pass finds the lines of every literal; each pattern then reads its own.
+	var held [][]int
+	if lower != nil {
+		held = t.finder.Lines(lower)
+	}
 	inContext := map[string]bool{}
 	for name, p := range t.contexts {
-		inContext[name] = len(p.lines(joined, lower, nil, 1)) > 0
+		inContext[name] = len(p.lines(joined, lower, held, nil, 1)) > 0
 	}
 	// The lines of each activity are found apart from the others, on every
 	// processor when the text is large; the hits are then made in order.
@@ -348,7 +343,7 @@ func (t Table) Detect(text string) []Hit {
 		}
 		lines := map[int]bool{}
 		for _, p := range patterns {
-			for _, start := range p.lines(joined, lower, a.unless, -1) {
+			for _, start := range p.lines(joined, lower, held, a.unless, -1) {
 				lines[start] = true
 			}
 		}
@@ -433,8 +428,9 @@ func resolve(value string, variables vars.Set) string {
 }
 
 // lines returns the start of each line the pattern matches and unless does
-// not, stopping after limit lines when limit is positive.
-func (p pattern) lines(text string, lower []byte, unless *regexp.Regexp, limit int) []int {
+// not, stopping after limit lines when limit is positive. held gives the
+// lines of each literal of the table; lower is nil when every line is tried.
+func (p pattern) lines(text string, lower []byte, held [][]int, unless *regexp.Regexp, limit int) []int {
 	var found []int
 	tried := map[int]bool{}
 	try := func(pos int) (next int) {
@@ -442,25 +438,25 @@ func (p pattern) lines(text string, lower []byte, unless *regexp.Regexp, limit i
 		if !tried[start] {
 			tried[start] = true
 			line := text[start:end]
-			if p.rx.MatchString(line) && (unless == nil || !unless.MatchString(line)) {
+			promised := lower == nil || sift.Holds(lower[start:end], p.sets)
+			if promised && p.rx.MatchString(line) && (unless == nil || !unless.MatchString(line)) {
 				found = append(found, start)
 			}
 		}
 		return end
 	}
-	if len(p.literals) == 0 {
+	if len(p.found) == 0 || lower == nil {
 		for pos := 0; pos < len(text) && len(found) != limit; pos++ {
 			pos = try(pos)
 		}
 		return found
 	}
-	for _, lit := range p.literals {
-		for pos := 0; len(found) != limit; {
-			i := bytes.Index(lower[pos:], lit)
-			if i < 0 {
-				break
+	for _, n := range p.found {
+		for _, start := range held[n] {
+			if len(found) == limit {
+				return found
 			}
-			pos = try(pos + i)
+			try(start)
 		}
 	}
 	return found

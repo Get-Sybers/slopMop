@@ -6,6 +6,27 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Changed
+
+- The saved tables are written one row at a time instead of being built whole in memory, and
+  each saved file is written as `<name>.part` and renamed when every file is complete. The bytes
+  of every saved file are unchanged, and a run on a large folder holds less than half the memory
+  it did.
+- An expression is run only where a match can be. `internal/sift` reads each expression once, when
+  its table is loaded, for the texts every match holds and the bytes a match is made of, and a
+  text, a line or a run of bytes that cannot hold a match is left alone. The indicators, the
+  activities, the exposure patterns and pairs, the variables and the encoded payloads are all
+  searched this way. What a run finds is unchanged, and a run on a large folder takes less than
+  half the time it did.
+- The literals of all the activity patterns are looked for in one pass over a text, and each
+  pattern then reads the lines of its own. A pattern whose literal holds a line break is refused
+  when `activities.json` is loaded: it matches no line.
+
+### Fixed
+
+- An activity whose line writes `s` as the long s or `k` as the Kelvin sign is found. The
+  expressions always matched such a line, and the search for their literals passed it over.
+
 ## [0.5.3] - 2026-11-17
 
 ### Changed

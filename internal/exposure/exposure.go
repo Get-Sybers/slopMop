@@ -17,6 +17,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/get-sybers/slopmop/internal/sift"
 	"github.com/get-sybers/slopmop/internal/vars"
 )
 
@@ -119,9 +120,12 @@ type rule struct {
 }
 
 type pattern struct {
-	kind    int
-	form    string
-	needs   []string
+	kind  int
+	form  string
+	needs []string
+	// sets hold the texts the expression itself promises: a line that
+	// matches holds one of each, in a text that folds no letter.
+	sets    [][]string
 	unless  *regexp.Regexp
 	rx      *regexp.Regexp
 	value   int
@@ -142,6 +146,11 @@ type Table struct {
 	// hardcoded maps the indicator types that are of a kind only in a script.
 	hardcoded map[string]rule
 	patterns  []pattern
+	// names holds every key and ending: a field of a kind holds one of them.
+	names [][]byte
+	// ascii says every needed text is ASCII, so a text put in lower case
+	// byte by byte holds what a line put in lower case holds.
+	ascii bool
 }
 
 type suffix struct {
@@ -208,6 +217,18 @@ func decode(data []byte) (Table, error) {
 	}
 	// The longest ending decides, so "accesstoken" is a token and not a "token" of another kind.
 	sort.SliceStable(t.suffixes, func(i, j int) bool { return len(t.suffixes[i].text) > len(t.suffixes[j].text) })
+	for key := range t.exact {
+		t.names = append(t.names, []byte(key))
+	}
+	for _, s := range t.suffixes {
+		t.names = append(t.names, []byte(s.text))
+	}
+	slices.SortFunc(t.names, bytes.Compare)
+	t.ascii = !slices.ContainsFunc(t.patterns, func(p pattern) bool {
+		return slices.ContainsFunc(p.needs, func(need string) bool {
+			return strings.ContainsFunc(need, func(r rune) bool { return r >= utf8.RuneSelf })
+		})
+	})
 	return t, nil
 }
 
@@ -252,7 +273,11 @@ func (t *Table) add(i int, e kindEntry) error {
 		if err != nil {
 			return err
 		}
-		c := pattern{kind: i, form: p.Form, needs: p.Needs, rx: rx, value: rx.SubexpIndex("value"), account: rx.SubexpIndex("account")}
+		plan, err := sift.Read(p.Pattern)
+		if err != nil {
+			return err
+		}
+		c := pattern{kind: i, form: p.Form, needs: p.Needs, sets: plan.Needs, rx: rx, value: rx.SubexpIndex("value"), account: rx.SubexpIndex("account")}
 		if c.value < 0 || len(p.Needs) == 0 {
 			return fmt.Errorf("the pattern %s lacks a group named value or a needed text", p.Pattern)
 		}
@@ -378,6 +403,11 @@ type scanner struct {
 	account       string
 	accountLine   int
 	accountPrefix string
+	// marks holds, for each pattern, a bit for each line worth trying it on;
+	// nil when each line is searched for the needed texts as it is read.
+	marks [][]uint64
+	// flat is a line as a field name is compared: its letters and digits, in lower case.
+	flat []byte
 }
 
 // Extract returns what a text holds, in the order it is found. A text that
@@ -393,6 +423,7 @@ func (t Table) Extract(text string) []Item {
 	}
 	lines := strings.Split(text, "\n")
 	s.columns(lines)
+	s.marks = s.t.mark(text, lines)
 	for i, line := range lines {
 		s.line(line, i+1)
 	}
@@ -461,12 +492,19 @@ func (s *scanner) line(line string, number int) {
 	if len(line) > maxLine {
 		line = line[:maxLine]
 	}
-	if strings.ContainsAny(line, ":=") {
+	if strings.ContainsAny(line, ":=") && s.named(line) {
 		s.pairs(line, number)
 	}
-	lower := strings.ToLower(line)
-	for _, p := range s.t.patterns {
-		if !slices.ContainsFunc(p.needs, func(need string) bool { return strings.Contains(lower, need) }) {
+	lower := ""
+	if s.marks == nil {
+		lower = strings.ToLower(line)
+	}
+	for i, p := range s.t.patterns {
+		if s.marks != nil {
+			if m := s.marks[i]; m == nil || m[(number-1)/64]&(1<<((number-1)%64)) == 0 {
+				continue
+			}
+		} else if !slices.ContainsFunc(p.needs, func(need string) bool { return strings.Contains(lower, need) }) {
 			continue
 		}
 		if p.unless != nil && p.unless.MatchString(line) {
@@ -480,6 +518,64 @@ func (s *scanner) line(line string, number int) {
 			s.emit(p.kind, m[p.value], account, p.form, number)
 		}
 	}
+}
+
+// named reports whether a line holds a key or an ending of some kind. A field
+// name is compared by its letters and digits alone, so a line without one
+// has no pair of any kind and is not read for pairs.
+func (s *scanner) named(line string) bool {
+	s.flat = s.flat[:0]
+	for i := range len(line) {
+		switch c := line[i]; {
+		case c >= 'A' && c <= 'Z':
+			s.flat = append(s.flat, c+('a'-'A'))
+		case c >= 'a' && c <= 'z', c >= '0' && c <= '9':
+			s.flat = append(s.flat, c)
+		}
+	}
+	return slices.ContainsFunc(s.t.names, func(name []byte) bool { return bytes.Contains(s.flat, name) })
+}
+
+// mark finds the lines worth trying each pattern on by one search of the
+// whole text for each needed text, which is far quicker than a search of
+// every line. It returns nil for a text that must be read line by line.
+func (t Table) mark(text string, lines []string) [][]uint64 {
+	// The lower case of these runes is, or is matched as, a letter of ASCII.
+	if !t.ascii || sift.Folds(text) || strings.Contains(text, "\u0130") {
+		return nil
+	}
+	lower := sift.Lower(text)
+	starts := make([]int, len(lines))
+	at := 0
+	for i, line := range lines {
+		starts[i] = at
+		at += len(line) + 1
+	}
+	marks := make([][]uint64, len(t.patterns))
+	for n, p := range t.patterns {
+		for _, need := range p.needs {
+			i := 0
+			for at := 0; at < len(lower); at = starts[i] + len(lines[i]) + 1 {
+				found := bytes.Index(lower[at:], []byte(need))
+				if found < 0 {
+					break
+				}
+				for i+1 < len(starts) && starts[i+1] <= at+found {
+					i++
+				}
+				// A line is read to maxLine bytes, and one of fewer than four not at all.
+				read := starts[i] + min(len(lines[i]), maxLine)
+				if len(lines[i]) < 4 || at+found+len(need) > read || !sift.Holds(lower[starts[i]:read], p.sets) {
+					continue
+				}
+				if marks[n] == nil {
+					marks[n] = make([]uint64, (len(lines)+63)/64)
+				}
+				marks[n][i/64] |= 1 << (i % 64)
+			}
+		}
+	}
+	return marks
 }
 
 // pairs reads every KEY: value and KEY = value of a line. A secret takes the

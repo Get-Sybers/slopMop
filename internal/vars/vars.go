@@ -24,7 +24,26 @@ type Set map[string]string
 // as it would when the script ran.
 func Read(text string) Set {
 	set := Set{}
-	for _, m := range rxAssign.FindAllStringSubmatch(text, -1) {
+	// An assignment is one line with nothing but its name before the first
+	// equals sign, so only such lines are read, each alone.
+	for at := 0; at < len(text); {
+		i := strings.IndexByte(text[at:], '=')
+		if i < 0 {
+			break
+		}
+		sign := at + i
+		start, end := strings.LastIndexByte(text[:sign], '\n')+1, len(text)
+		if j := strings.IndexByte(text[sign:], '\n'); j >= 0 {
+			end = sign + j
+		}
+		at = end + 1
+		if !named(text[start:sign]) {
+			continue
+		}
+		m := rxAssign.FindStringSubmatch(text[start:end])
+		if m == nil {
+			continue
+		}
 		value := m[2]
 		if d := rxDefault.FindStringSubmatch(value); d != nil {
 			value = d[1]
@@ -34,6 +53,19 @@ func Read(text string) Set {
 		}
 	}
 	return set
+}
+
+// named reports whether what stands before an equals sign can be the name
+// of an assignment: letters, digits, an underscore, a dollar, spaces and tabs.
+func named(before string) bool {
+	for i := range len(before) {
+		switch c := before[i]; {
+		case c >= 'a' && c <= 'z', c >= 'A' && c <= 'Z', c >= '0' && c <= '9', c == '_', c == '$', c == ' ', c == '\t':
+		default:
+			return false
+		}
+	}
+	return before != ""
 }
 
 // Value returns what a reference stands for: the value of the variable when
