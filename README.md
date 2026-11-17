@@ -46,13 +46,14 @@ Timeline   (step, time, role, file)
       indicators  1
 ```
 
-The report has nine sections. Name any after `report` to print only those; the saved files always
+The report has ten sections. Name any after `report` to print only those; the saved files always
 hold all of them.
 
 | Section | Holds |
 | --- | --- |
 | `summary` | the counts |
 | `timeline` | each file in order, with its tools, tactics and activities |
+| `intents` | each ARTEX intent, by its run folder `i<number>`: the period of its files and the ATT&CK and ATLAS techniques found in them |
 | `findings` | each activity, indicator and tactic, most severe first, with the lines that show it |
 | `files` | the files that hold a finding of high severity |
 | `targeted` | the usernames, IP addresses, hostnames and email addresses the scripts name outright, and whether the attacker knew each beforehand |
@@ -80,6 +81,7 @@ that is read. A password, a hash, a token and a key are written masked.
 | `report.txt` | the report, every section, as plain text |
 | `files.json` | every file with its role, size, line count, times and SHA-256 |
 | `trace.json` | the timeline |
+| `intents.json` | the ARTEX intents |
 | `findings.json` | the activities, indicators and tactics |
 | `targeted.json` | what the scripts name outright |
 | `exposure.json` | what the files hold |

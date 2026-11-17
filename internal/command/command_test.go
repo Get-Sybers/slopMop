@@ -4,18 +4,22 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"maps"
 	"os"
 	"path/filepath"
 	"regexp"
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/get-sybers/slopmop/internal/cli"
+	"github.com/get-sybers/slopmop/internal/evidence"
 	"github.com/get-sybers/slopmop/internal/evidencetest"
 	"github.com/get-sybers/slopmop/internal/exposure"
 	"github.com/get-sybers/slopmop/internal/golden"
 	"github.com/get-sybers/slopmop/internal/inventory"
+	"github.com/get-sybers/slopmop/internal/trace"
 )
 
 const watchlist = "testdata/watchlist.json"
@@ -111,7 +115,7 @@ func TestReportViews(t *testing.T) {
 func TestReportSaves(t *testing.T) {
 	folder := evidencetest.Copy(t, "linux")
 	shown, saved := report(t, folder, "impact")
-	if want := "-> saved to <out>: report.txt, report.md, report.html, files.json, trace.json, findings.json, targeted.json, exposure.json, report.json\n"; !strings.Contains(shown, want) {
+	if want := "-> saved to <out>: report.txt, report.md, report.html, files.json, trace.json, intents.json, findings.json, targeted.json, exposure.json, report.json\n"; !strings.Contains(shown, want) {
 		t.Errorf("the readout does not say where it was saved:\n%s", shown)
 	}
 	if strings.Contains(shown, "\nTimeline") {
@@ -123,12 +127,12 @@ func TestReportSaves(t *testing.T) {
 	if text != strings.Join(lines, "\n") {
 		t.Errorf("report.txt is not the full readout:\n%s", text)
 	}
-	if entries, err := os.ReadDir(saved); err != nil || len(entries) != 9 {
-		t.Errorf("the output folder holds %d entries (%v), want 9", len(entries), err)
+	if entries, err := os.ReadDir(saved); err != nil || len(entries) != 10 {
+		t.Errorf("the output folder holds %d entries (%v), want 10", len(entries), err)
 	}
 	// Each format holds every section, and the evidence the text holds.
 	markdown, page := readFile(t, filepath.Join(saved, "report.md")), readFile(t, filepath.Join(saved, "report.html"))
-	for _, title := range []string{"Summary", "Timeline", "Findings", "Notable files", "Targeted", "Exposure", "Impact", "Remediation", "Mitigation"} {
+	for _, title := range []string{"Summary", "Timeline", "Intents", "Findings", "Notable files", "Targeted", "Exposure", "Impact", "Remediation", "Mitigation"} {
 		if !strings.Contains(markdown, "\n## "+title+"\n") {
 			t.Errorf("report.md lacks the section %s", title)
 		}
@@ -171,7 +175,7 @@ func TestReportSections(t *testing.T) {
 			titles = append(titles, strings.TrimSpace(strings.SplitN(line, "   ", 2)[0]))
 		}
 	}
-	want := []string{"Summary", "Timeline", "Findings", "Notable files", "Targeted", "Exposure", "Impact", "Remediation", "Mitigation"}
+	want := []string{"Summary", "Timeline", "Intents", "Findings", "Notable files", "Targeted", "Exposure", "Impact", "Remediation", "Mitigation"}
 	if !slices.Equal(titles, want) {
 		t.Errorf("sections = %q, want %q", titles, want)
 	}
@@ -181,6 +185,142 @@ func TestReportSections(t *testing.T) {
 	}
 	if !strings.Contains(two, "20261020_101500_step04_persist.ps1") || strings.Contains(two, "recon_20261020_100030.txt") {
 		t.Errorf("notable files: want the persistence script and not the recon output:\n%s", two)
+	}
+}
+
+// artex lays a copy of the linux fixture out as ARTEX does: a run folder for
+// each intent, a session file, and files that belong to no intent.
+func artex(t *testing.T) string {
+	t.Helper()
+	folder := evidencetest.Copy(t, "linux")
+	nest(t, folder, "step01", "data/tasks/7/i1041")
+	nest(t, folder, "_0900", "data/tasks/7/i1041/cmd-output")
+	nest(t, folder, "step02", "data/tasks/7/i1042")
+	nest(t, folder, "_0905", "data/tasks/7/i1042/cmd-output")
+	nest(t, folder, "step03", "data/tasks/7/i998")
+	nest(t, folder, "step04", "data/tasks/7/i998")
+	nest(t, folder, "step05", "data/lib/i386")
+	if err := os.MkdirAll(filepath.Join(folder, "data", "noa"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Rename(filepath.Join(folder, "20261022_092500_step06_stage.sh"), filepath.Join(folder, "data", "noa", "exp3-worker-i1051.sh")); err != nil {
+		t.Fatal(err)
+	}
+	return folder
+}
+
+// Each ARTEX intent is a row: its period, and the ATT&CK and ATLAS techniques
+// of what its files do. A file outside a run folder belongs to none.
+func TestReportIntents(t *testing.T) {
+	folder := artex(t)
+	readout, saved := report(t, folder, "summary", "intents")
+	golden.Check(t, "artex-report-intents", []byte(readout))
+	golden.Check(t, "artex-intents-json", []byte(readFile(t, filepath.Join(saved, "intents.json"))))
+	table := rows(t, filepath.Join(saved, "intents.json"))
+	var order []string
+	for _, row := range table {
+		order = append(order, row["intent"].(string))
+	}
+	if want := []string{"i1041", "i1042", "i998", "i1051"}; !slices.Equal(order, want) {
+		t.Errorf("intents = %q, want %q: in the order they began", order, want)
+	}
+	row := find(t, table, map[string]string{"intent": "i1041", "task": "7"})
+	if row["first"] != "20261022_090000" || row["last"] != "20261022_090040" || row["seconds"] != float64(40) {
+		t.Errorf("i1041 runs from %v to %v, %v seconds, want 090000 to 090040, 40", row["first"], row["last"], row["seconds"])
+	}
+	if row["attack"] != "T1083, T1552.005, T1007" || row["atlas"] != "AML.T0055" {
+		t.Errorf("i1041 has ATT&CK %v and ATLAS %v", row["attack"], row["atlas"])
+	}
+	if session := find(t, table, map[string]string{"intent": "i1051"}); session["task"] != nil || session["files"] != "data/noa/exp3-worker-i1051.sh" {
+		t.Errorf("the session file gives %v, want i1051 with no task", session)
+	}
+	// The trace names the intent of each file, and leaves the others without one.
+	trace := rows(t, filepath.Join(saved, "trace.json"))
+	named := map[string]int{}
+	for _, step := range trace {
+		id, _ := step["intent"].(string)
+		named[id]++
+	}
+	if want := map[string]int{"i1041": 5, "i1042": 3, "i998": 2, "i1051": 1, "": 3}; !maps.Equal(named, want) {
+		t.Errorf("the trace names %v, want %v", named, want)
+	}
+	timeline, _ := report(t, folder, "timeline")
+	if !strings.Contains(timeline, "      intent      i1041\n") {
+		t.Errorf("the timeline does not name the intent of a step:\n%s", timeline)
+	}
+	for name, body := range map[string]string{"report.md": readFile(t, filepath.Join(saved, "report.md")), "report.html": readFile(t, filepath.Join(saved, "report.html"))} {
+		for _, held := range []string{"Intents", "i1042", "T1003.008", "AML.T0090"} {
+			if !strings.Contains(body, held) {
+				t.Errorf("%s does not hold %q", name, held)
+			}
+		}
+	}
+}
+
+// A run folder that is read itself is one intent, and keeps its task.
+func TestReportReadsOneIntent(t *testing.T) {
+	folder := artex(t)
+	_, saved := report(t, filepath.Join(folder, "data", "tasks", "7", "i1042"))
+	table := rows(t, filepath.Join(saved, "intents.json"))
+	if len(table) != 1 || table[0]["intent"] != "i1042" || table[0]["task"] != "7" {
+		t.Errorf("intents = %v, want i1042 of task 7 alone", table)
+	}
+}
+
+// Evidence that no ARTEX run wrote has no intent, and its summary no count of them.
+func TestReportWithoutIntents(t *testing.T) {
+	readout, saved := report(t, evidencetest.Copy(t, "bash"), "summary", "intents")
+	if !strings.Contains(readout, "\nIntents   (") || !strings.Contains(readout, ")\n  none\n") {
+		t.Errorf("the section does not say there is none:\n%s", readout)
+	}
+	if strings.Contains(readout, "\n  intents") {
+		t.Errorf("the summary counts intents where there are none:\n%s", readout)
+	}
+	if got := len(rows(t, filepath.Join(saved, "intents.json"))); got != 0 {
+		t.Errorf("intents.json holds %d rows, want none", got)
+	}
+}
+
+// An intent whose files have no time comes last and has no period.
+func TestIntentsWithoutATime(t *testing.T) {
+	pipe, err := loadPipeline()
+	if err != nil {
+		t.Fatal(err)
+	}
+	when := time.Date(2026, 10, 22, 9, 0, 0, 0, time.UTC)
+	steps := []trace.Step{
+		{File: evidence.File{Path: "i30/a.sh"}},
+		{File: evidence.File{Path: "i200/a.sh", Modified: when.Add(time.Minute)}},
+		{File: evidence.File{Path: "i7/a.sh"}},
+		{File: evidence.File{Path: "i31/a.sh", Modified: when}},
+		{File: evidence.File{Path: "i31/b.sh", Modified: when.Add(-90 * time.Second)}},
+		{File: evidence.File{Path: "i31/c.sh"}},
+		{File: evidence.File{Path: "i9/a.sh", Modified: when.Add(time.Minute)}},
+	}
+	runs, of := pipe.collectIntents(t.TempDir(), steps)
+	var order []string
+	for _, r := range runs {
+		order = append(order, r.ref.ID)
+	}
+	if want := []string{"i31", "i9", "i200", "i7", "i30"}; !slices.Equal(order, want) {
+		t.Errorf("intents = %q, want %q", order, want)
+	}
+	if d, ok := runs[0].span(); !ok || d != 90*time.Second || runs[0].first.Path != "i31/b.sh" || runs[0].last.Path != "i31/a.sh" {
+		t.Errorf("i31 spans %v from %s to %s, want 1m30s from b.sh to a.sh", d, runs[0].first.Path, runs[0].last.Path)
+	}
+	if _, ok := runs[4].span(); ok || runs[4].level != "" || len(of) != len(steps) {
+		t.Errorf("i30 has a period or a level, or a path has no intent: %+v, %v", runs[4], of)
+	}
+	doc, err := decodeCommands(commandsJSON)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := intentRow(runs[4], doc.columns("intent")); err != nil {
+		t.Errorf("an intent without a time has no row: %v", err)
+	}
+	groups := reportRun{result: analysis{intents: runs}}.intents()
+	if got := groups[0].Entries[4].Cells; !slices.Equal(got, []string{"i30", "-", "-", "-", "1 file"}) {
+		t.Errorf("i30 is written %q", got)
 	}
 }
 
@@ -816,7 +956,7 @@ func TestReportVerbRejects(t *testing.T) {
 		{"a readout in a folder", func(v *verbSpec, _ *commandsDoc) { v.Saved.Readouts[1].File = "sub/report.md" }, "not a file name of its own"},
 		{"a class without columns", func(_ *verbSpec, doc *commandsDoc) { doc.Classes = doc.Classes[1:] }, "which declares no columns"},
 		{"a column the row lacks", func(_ *verbSpec, doc *commandsDoc) { doc.Classes[0].Columns[0].Key = "bogus" }, `the class file declares the column "bogus"`},
-		{"a column left out", func(_ *verbSpec, doc *commandsDoc) { doc.Classes[1].Columns = doc.Classes[1].Columns[1:] }, "the class trace declares 11 columns and fills 12"},
+		{"a column left out", func(_ *verbSpec, doc *commandsDoc) { doc.Classes[1].Columns = doc.Classes[1].Columns[1:] }, "the class trace declares 12 columns and fills 13"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

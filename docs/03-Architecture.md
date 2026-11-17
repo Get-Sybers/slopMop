@@ -21,6 +21,7 @@ about evidence touch no file, and every static table is a data file validated at
 | `internal/indicator` | extracts security indicators (IPs, URLs, hashes, CVEs, GUIDs, Microsoft cloud endpoints, OAuth scopes) using `indicators.json` |
 | `internal/assess` | turns what a run found into its impacts and the remediation they call for, using `impacts.json` and `actions.json` |
 | `internal/exposure` | names what the evidence holds that an attacker can use: usernames, email addresses, passwords and other secrets, devices and IP addresses; masks a secret; no I/O |
+| `internal/intent` | names the ARTEX intent a path lies in, by its run folder or its session name; no I/O |
 | `internal/vars` | reads the variables a script sets to a plain value, so a command that names one is shown with what it holds; no I/O |
 | `internal/mitre` | holds the identifiers, names and mitigation links of MITRE ATT&CK and MITRE ATLAS in `catalogue.json` |
 | `internal/intel` | matches extracted indicators against an operator-supplied watchlist: a JSON array or a STIX 2.1 bundle; an entry that is an address range matches every address inside it |
@@ -33,7 +34,7 @@ Imports run one way:
 ```text
 cmd/slopmop -> cli, command, render
 command     -> cli, render, inventory, trace, assess, exposure, mitre,
-               activity, indicator, intel, structured, tactic, evidence
+               activity, indicator, intel, intent, structured, tactic, evidence
 trace       -> parse, structured, tactic, activity, indicator, intel, evidence
 inventory   -> evidence -> nametime
 activity    -> vars
@@ -42,7 +43,7 @@ assess      -> tactic
 intel       -> indicator
 ```
 
-`cli`, `render`, `parse`, `structured`, `tactic`, `indicator`, `mitre`, `nametime` and `vars` import
+`cli`, `render`, `parse`, `structured`, `tactic`, `indicator`, `intent`, `mitre`, `nametime` and `vars` import
 no other internal package. `evidencetest` and `golden` are imported by tests only.
 
 ## 2. Data files
@@ -56,6 +57,7 @@ no other internal package. `evidencetest` and `golden` are imported by tests onl
 | `internal/assess/impacts.json` | each impact's name, severity and statement, what triggers it, the indicator types to list as affected and the kinds of exposure it concerns | names are present and unique; a statement and a severity of `low`, `medium` or `high`; something triggers each; `command` rejects an activity, a tactic, an indicator type or a kind of exposure the other tables lack |
 | `internal/assess/actions.json` | each remediation's name, priority and text, and what triggers it | as for an impact |
 | `internal/exposure/exposures.json` | each kind of exposure: its title, its severity, whether it is a secret, the field names and endings that hold it, the indicator types that are of it, what a value must and must not look like, and its patterns | names, titles and severities present and unique; a field name is lower-case letters and digits and in one kind; an ending has three characters or more; an indicator type is in one kind and `command` rejects one that `indicators.json` lacks; every expression compiles; a pattern has a group named `value` and a lower-case text a line must hold; `command` rejects a severity that is not `low`, `medium` or `high` |
+| `internal/intent/paths.json` | the rules that find an ARTEX intent in a path, in the order they are tried, and the folder names that are none | a rule has a name of its own and a pattern that compiles with a group named `id` and no group but `id` and `task`; a rejected name is present once |
 | `internal/mitre/catalogue.json` | for ATT&CK and for ATLAS: the version, the tactics, the mitigations with a one-sentence summary, and each technique's name, tactics and mitigations | a version, tactics, techniques and mitigations are present; a technique names only tactics and mitigations that are listed |
 | `internal/indicator/indicators.json` | indicator types and their regex patterns | every entry has a type and a pattern; every pattern compiles |
 | `internal/structured/formats.json` | the extensions of each structured format, the field names that hold a command, and the HTML elements that hold a command, are kept verbatim or are dropped | the formats are `json`, `xml`, `html` in that order; extensions are lower-case, dotted and in one format; names are lower-case letters and digits, listed once, and an element is in one list |
@@ -321,7 +323,24 @@ The same pass gathers the targets: what the scripts name outright.
   holds the same value, and `prior` otherwise.
 - Its script lines are quoted after every secret is known, so each is masked.
 
-## 12. Assessment
+## 12. ARTEX intents
+
+ARTEX runs each intent of its plan in a folder of its own, `tasks/<task>/i<number>`, with the
+output of its commands in `cmd-output` below it, and names the worker's session
+`exp<number>-worker-i<number>`. `intent.Table.Of` reads the intent from a path by the rules of
+`paths.json`.
+
+- The rules are tried in order: the run folder under `tasks`, then the session name, then any
+  folder named `i` and a number. Within a rule the last match decides, the folder nearest the file.
+- The last three folders of the path to the input folder count as part of each path, so a run
+  folder that is read itself still names its intent and its task.
+- `command` groups the steps of the timeline by intent. The period of an intent runs from its
+  earliest file to its latest, by the time the timeline orders them with.
+- The techniques of an intent are those of the activities its files show: the ATT&CK techniques
+  of `activities.json` and the ATLAS techniques section 14 gives them.
+- The intents are ordered by when they began; one without a time comes last.
+
+## 13. Assessment
 
 The report ends with what the findings mean and what to do about them. Impacts and remediation
 come from data files, and `assess` holds no knowledge of its own. Mitigation comes from the
@@ -347,7 +366,7 @@ catalogue of section 13.
 - A notable file is one whose activities, tool tactics or watchlist matches are of high severity.
   A watchlist match is `high`.
 
-## 13. MITRE ATT&CK and MITRE ATLAS
+## 14. MITRE ATT&CK and MITRE ATLAS
 
 `internal/mitre/catalogue.json` is written by `scripts/mitre.py` from the ATT&CK enterprise bundle
 of `mitre-attack/attack-stix-data` and a v6 file of `mitre-atlas/atlas-data`. It holds ATT&CK 20.1
@@ -365,7 +384,7 @@ one-sentence summary of each mitigation, not the full text of either framework.
   catalogue gives the mitigations each framework links to them; a row is one mitigation, the
   techniques found that it addresses, and the activities and files that showed them.
 
-## 14. Fixtures
+## 15. Fixtures
 
 `internal/evidencetest/testdata/bash` and `powershell` are the evidence folders of the
 AgentScriptTrace golden test in the VelociSacci repository (`tests/golden/fixtures/`), copied byte

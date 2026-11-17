@@ -505,6 +505,7 @@ func listMetrics(a analysis) []metric {
 		held[i] = e.kind.Name
 	}
 	metrics = append(metrics, perKind("exposed", held)...)
+	metrics = append(metrics, intentCount(a)...)
 	if a.watchlist != nil {
 		metrics = append(metrics, metric{"intel hits", len(hits)})
 	}

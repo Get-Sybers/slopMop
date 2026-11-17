@@ -1,0 +1,17 @@
+{
+  "rules": [
+    {
+      "name": "run folder",
+      "pattern": "(?:^|/)tasks/(?P<task>[^/]+)/(?P<id>i[0-9]{1,19})(?:/|$)"
+    },
+    {
+      "name": "session",
+      "pattern": "(?:^|[^0-9A-Za-z])exp[0-9]{1,19}-worker-(?P<id>i[0-9]{1,19})(?:[^0-9]|$)"
+    },
+    {
+      "name": "folder",
+      "pattern": "(?:^|/)(?P<id>i[0-9]{1,19})(?:/|$)"
+    }
+  ],
+  "reject": ["i386", "i486", "i586", "i686"]
+}

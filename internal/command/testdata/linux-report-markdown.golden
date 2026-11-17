@@ -66,6 +66,12 @@ _step, time, role, file_
   - **tactics:** `Execution, Persistence, DefenseImpairment`
   - **activities:** `ScheduledJobCreation, AccountCreation, SecurityToolDisabling, FirewallDisabling`
 
+## Intents
+
+_an ARTEX run folder i\<number\>: the first and last time of its files, and the techniques found in them_
+
+None.
+
 ## Findings
 
 ### activities

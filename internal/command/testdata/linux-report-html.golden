@@ -56,13 +56,14 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <nav>
 <a href="#section-1">Summary</a>
 <a href="#section-2">Timeline</a>
-<a href="#section-3">Findings</a>
-<a href="#section-4">Notable files</a>
-<a href="#section-5">Targeted</a>
-<a href="#section-6">Exposure</a>
-<a href="#section-7">Impact</a>
-<a href="#section-8">Remediation</a>
-<a href="#section-9">Mitigation</a>
+<a href="#section-3">Intents</a>
+<a href="#section-4">Findings</a>
+<a href="#section-5">Notable files</a>
+<a href="#section-6">Targeted</a>
+<a href="#section-7">Exposure</a>
+<a href="#section-8">Impact</a>
+<a href="#section-9">Remediation</a>
+<a href="#section-10">Mitigation</a>
 </nav>
 <main>
 <section id="section-1">
@@ -159,6 +160,11 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 </div>
 </section>
 <section id="section-3">
+<h2>Intents</h2>
+<p class="note">an ARTEX run folder i&lt;number&gt;: the first and last time of its files, and the techniques found in them</p>
+<p class="none">none</p>
+</section>
+<section id="section-4">
 <h2>Findings</h2>
 <h3>activities</h3>
 <div class="wrap">
@@ -320,7 +326,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 </table>
 </div>
 </section>
-<section id="section-4">
+<section id="section-5">
 <h2>Notable files</h2>
 <p class="note">a finding of high severity</p>
 <div class="wrap">
@@ -365,7 +371,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 </table>
 </div>
 </section>
-<section id="section-5">
+<section id="section-6">
 <h2>Targeted</h2>
 <p class="note">hardcoded in a script; prior: no earlier output holds it; discovered: an earlier output does</p>
 <h3>Usernames (1)</h3>
@@ -417,7 +423,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 </table>
 </div>
 </section>
-<section id="section-6">
+<section id="section-7">
 <h2>Exposure</h2>
 <p class="note">collected: first seen in an output; used: first seen in a script; a secret is masked</p>
 <h3>Passwords and secrets (3)</h3>
@@ -480,7 +486,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 </table>
 </div>
 </section>
-<section id="section-7">
+<section id="section-8">
 <h2>Impact</h2>
 <div class="wrap">
 <table>
@@ -600,7 +606,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 </table>
 </div>
 </section>
-<section id="section-8">
+<section id="section-9">
 <h2>Remediation</h2>
 <p class="note">most urgent first</p>
 <div class="wrap">
@@ -712,7 +718,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 </table>
 </div>
 </section>
-<section id="section-9">
+<section id="section-10">
 <h2>Mitigation</h2>
 <p class="note">MITRE ATT&amp;CK and ATLAS, for the techniques found</p>
 <div class="wrap">

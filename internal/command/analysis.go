@@ -9,6 +9,7 @@ import (
 	"github.com/get-sybers/slopmop/internal/exposure"
 	"github.com/get-sybers/slopmop/internal/indicator"
 	"github.com/get-sybers/slopmop/internal/intel"
+	"github.com/get-sybers/slopmop/internal/intent"
 	"github.com/get-sybers/slopmop/internal/inventory"
 	"github.com/get-sybers/slopmop/internal/mitre"
 	"github.com/get-sybers/slopmop/internal/render"
@@ -29,6 +30,9 @@ type analysis struct {
 	redact func(string) string
 	// targeted is what the scripts name outright: the accounts, addresses and hosts they aim at.
 	targeted []targeted
+	// intents are the ARTEX intents the files lie in, and intentOf names the one of each path.
+	intents  []intentRun
+	intentOf map[string]string
 }
 
 type pipeline struct {
@@ -39,6 +43,7 @@ type pipeline struct {
 	assessment assess.Table
 	catalogue  mitre.Catalogue
 	exposures  exposure.Table
+	intents    intent.Table
 }
 
 func loadPipeline() (pipeline, error) {
@@ -72,13 +77,17 @@ func loadPipeline() (pipeline, error) {
 	if err != nil {
 		return pipeline{}, err
 	}
+	intents, err := intent.Load()
+	if err != nil {
+		return pipeline{}, err
+	}
 	assessment, err := loadAssessment(tactics, activities, patterns, catalogue, exposures)
 	if err != nil {
 		return pipeline{}, err
 	}
 	return pipeline{
 		tactics: tactics, activities: activities, patterns: patterns, formats: formats,
-		assessment: assessment, catalogue: catalogue, exposures: exposures,
+		assessment: assessment, catalogue: catalogue, exposures: exposures, intents: intents,
 	}, nil
 }
 
@@ -196,7 +205,10 @@ func (p pipeline) read(folder string, levels int, path string, plain bool) (anal
 	timeline := trace.Build(res.Files, res.Texts, tables)
 	found, named := p.collectExposed(timeline.Steps, res.Texts, plain)
 	redact := redactor(found)
+	intents, intentOf := p.collectIntents(folder, timeline.Steps)
 	return analysis{
+		intents:   intents,
+		intentOf:  intentOf,
 		timeline:  timeline,
 		watchlist: watchlist,
 		skipped:   res.Skipped,

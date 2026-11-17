@@ -15,6 +15,7 @@
       "sections": [
         {"name": "summary", "title": "Summary", "summary": "the counts"},
         {"name": "timeline", "title": "Timeline", "summary": "each file in order, with what it shows", "note": "step, time, role, file"},
+        {"name": "intents", "title": "Intents", "summary": "each ARTEX intent, by its run folder i<number>: its period and its ATT&CK and ATLAS techniques", "note": "an ARTEX run folder i<number>: the first and last time of its files, and the techniques found in them"},
         {"name": "findings", "title": "Findings", "summary": "each activity, indicator and tactic, most severe first"},
         {"name": "files", "title": "Notable files", "summary": "the files that hold a finding of high severity", "note": "a finding of high severity"},
         {"name": "targeted", "title": "Targeted", "summary": "the usernames, addresses, hostnames and emails the scripts name outright", "note": "hardcoded in a script; prior: no earlier output holds it; discovered: an earlier output does"},
@@ -36,6 +37,7 @@
         "tables": [
           {"class": "file", "file": "files.json"},
           {"class": "trace", "file": "trace.json"},
+          {"class": "intent", "file": "intents.json"},
           {"class": "finding", "file": "findings.json"},
           {"class": "targeted", "file": "targeted.json"},
           {"class": "exposure", "file": "exposure.json"},
@@ -65,6 +67,7 @@
         {"header": "NAME", "key": "name"},
         {"header": "ROLE", "key": "role"},
         {"header": "TIME", "key": "time"},
+        {"header": "INTENT", "key": "intent", "wide": true},
         {"header": "TOOLS", "key": "tools"},
         {"header": "TACTICS", "key": "tactics"},
         {"header": "TRANSFORMS", "key": "transforms"},
@@ -128,6 +131,22 @@
         {"header": "ATLAS", "key": "atlas", "wide": true},
         {"header": "TARGETS", "key": "targets", "wide": true},
         {"header": "EVIDENCE", "key": "evidence", "wide": true}
+      ]
+    },
+    {
+      "name": "intent",
+      "columns": [
+        {"header": "INTENT", "key": "intent"},
+        {"header": "TASK", "key": "task"},
+        {"header": "FIRST", "key": "first"},
+        {"header": "LAST", "key": "last"},
+        {"header": "SECONDS", "key": "seconds"},
+        {"header": "SEVERITY", "key": "severity"},
+        {"header": "TACTICS", "key": "tactics"},
+        {"header": "ATTACK", "key": "attack"},
+        {"header": "ATLAS", "key": "atlas"},
+        {"header": "ACTIVITIES", "key": "activities", "wide": true},
+        {"header": "FILES", "key": "files", "wide": true}
       ]
     }
   ]

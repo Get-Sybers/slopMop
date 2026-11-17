@@ -20,7 +20,7 @@ func loadIntelFile(path string) (intel.Watchlist, error) {
 
 // traceRow fills one row. render has no list value, so a list is one text
 // cell joined with ", ".
-func traceRow(s trace.Step, columns []render.Column) ([]render.Value, error) {
+func traceRow(s trace.Step, intent string, columns []render.Column) ([]render.Value, error) {
 	list := func(items []string) render.Value {
 		return render.Text(strings.Join(items, ", "))
 	}
@@ -28,7 +28,8 @@ func traceRow(s trace.Step, columns []render.Column) ([]render.Value, error) {
 		"step":       render.Int(int64(s.Turn)),
 		"name":       render.Text(s.File.Path),
 		"role":       render.Text(string(s.File.Role)),
-		"time":       render.NotApplicable(),
+		"time":       timeCell(s.File),
+		"intent":     render.NotApplicable(),
 		"tools":      render.NotApplicable(),
 		"tactics":    render.NotApplicable(),
 		"transforms": render.NotApplicable(),
@@ -38,11 +39,8 @@ func traceRow(s trace.Step, columns []render.Column) ([]render.Value, error) {
 		"intel":      render.NotApplicable(),
 		"note":       render.NotApplicable(),
 	}
-	if !s.File.Modified.IsZero() {
-		cells["time"] = render.Time(s.File.Modified)
-	}
-	if s.File.Stamped {
-		cells["time"] = render.Text(s.File.Stamp.Text)
+	if intent != "" {
+		cells["intent"] = render.Text(intent)
 	}
 	if len(s.Tools) > 0 {
 		cells["tools"] = list(s.Tools)
