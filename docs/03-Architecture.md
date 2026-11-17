@@ -311,7 +311,8 @@ The rules are those of `exposures.json`, and the classes are described in the
 The same pass gathers the targets: what the scripts name outright.
 
 - A username, an email address, a device or an address read from a script is a target; so is a
-  domain, which is of no kind in an output. `exposures.json` says which kinds are listed and
+  domain, which is of no kind in an output. A name that is one folder of a Windows path, after a
+  single backslash, is not a domain; after two it is the host of a share. `exposures.json` says which kinds are listed and
   under what title.
 - A target is `discovered` when a file that is not a script and stands earlier in the timeline
   holds the same value, and `prior` otherwise.

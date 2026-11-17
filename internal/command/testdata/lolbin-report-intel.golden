@@ -7,7 +7,7 @@ Summary
   indicators  20  5 Domain, 1 EncodedCommand, 3 IPv4, 11 URL
   activities  11
   tactics     6
-  targeted    5   Hostnames 2, IP addresses 3
+  targeted    4   Hostnames 1, IP addresses 3
   exposed     4   Usernames 1, IP addresses 3
   intel hits  0
 
@@ -148,10 +148,8 @@ Notable files   (a finding of high severity)
       found  FileDownload, ScheduledTaskCreation, EventLogClearing, schtasks (Persistence), wevtutil (DefenseImpairment)
 
 Targeted   (hardcoded in a script; prior: no earlier output holds it; discovered: an earlier output does)
-  Hostnames (2)
-    [!] Microsoft.NET  prior  20261020_101000_step03_exec.ps1:4
-        what  C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe C:\Users\Public\build_20261020_101200.xml (20261020_101000_step03_exec.ps1:4)
-    [!] corp.example   prior  20261020_100000_step01_recon.ps1:2
+  Hostnames (1)
+    [!] corp.example  prior  20261020_100000_step01_recon.ps1:2
         what  nltest /dclist:corp.example >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:2)
   IP addresses (3)
     [!] 203.0.113.10  public  prior  20261020_100500_step02_download.ps1:1, 20261020_101000_step03_exec.ps1:2, 20261020_103000_step07_cleanup.bat:2

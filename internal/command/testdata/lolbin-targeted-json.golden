@@ -1,16 +1,6 @@
 [
   {
     "kind": "device",
-    "value": "Microsoft.NET",
-    "origin": "prior",
-    "from": null,
-    "scope": null,
-    "count": 1,
-    "scripts": "20261020_101000_step03_exec.ps1:4",
-    "evidence": "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\MSBuild.exe C:\\Users\\Public\\build_20261020_101200.xml (20261020_101000_step03_exec.ps1:4)"
-  },
-  {
-    "kind": "device",
     "value": "corp.example",
     "origin": "prior",
     "from": null,
