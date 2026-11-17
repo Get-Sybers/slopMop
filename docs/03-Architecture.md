@@ -25,6 +25,7 @@ about evidence touch no file, and every static table is a data file validated at
 | `internal/device` | reads how many processors and how much memory the machine has, on Linux, Windows and macOS; changes nothing |
 | `internal/parallel` | runs independent pieces of work on every processor; no I/O |
 | `internal/vars` | reads the variables a script sets to a plain value, so a command that names one is shown with what it holds; no I/O |
+| `internal/sift` | reads an expression when it is loaded and says where in a text it is worth running: the texts every match holds and the bytes a match is made of; no I/O |
 | `internal/mitre` | holds the identifiers, names and mitigation links of MITRE ATT&CK and MITRE ATLAS in `catalogue.json` |
 | `internal/intel` | matches extracted indicators against an operator-supplied watchlist: a JSON array or a STIX 2.1 bundle; an entry that is an address range matches every address inside it |
 | `internal/trace` | reconstructs the timeline from scripts and outputs: ordering, tool extraction, tactic classification, activity detection, indicator counting, output linking |
@@ -39,16 +40,16 @@ command     -> cli, render, inventory, trace, assess, exposure, mitre, activity,
                indicator, intel, intent, structured, tactic, evidence, parallel, device
 trace       -> parse, structured, tactic, activity, indicator, intel, evidence, parallel
 inventory   -> evidence -> nametime
-activity    -> vars, parallel
-exposure    -> vars
+activity    -> vars, parallel, sift
+exposure    -> vars, sift
 assess      -> tactic
 intel       -> indicator
-indicator   -> parallel
-parse       -> parallel
+indicator   -> parallel, sift
+parse       -> parallel, sift
 ```
 
-`cli`, `render`, `structured`, `tactic`, `intent`, `mitre`, `nametime`, `parallel`, `device` and
-`vars` import no other internal package. `evidencetest` and `golden` are imported by tests only.
+`cli`, `render`, `structured`, `tactic`, `intent`, `mitre`, `nametime`, `parallel`, `device`,
+`vars` and `sift` import no other internal package. `evidencetest` and `golden` are imported by tests only.
 
 ## 2. Data files
 
@@ -84,9 +85,7 @@ work writes only its own result, and the results are taken in a fixed order.
   built.
 - A text of 16 KB or more is searched for each indicator pattern and each activity apart. A
   pattern whose matches cannot cross a line is searched in pieces of about 256 KB that end on a
-  line break; `indicator` reads that from the pattern itself and searches the whole text otherwise.
-- A pattern whose every match holds a fixed text, such as `://` or `@`, is tried only on the lines
-  that hold it, when fewer than half of the lines do. The text is read from the pattern's literals.
+  line break; `sift` reads that from the pattern itself, and the whole text is searched otherwise.
 - The saved files are made apart from one another. A table is written one row at a time, so its
   size does not add to the memory a run holds.
 - A saved file is written as `<name>.part` and takes its name when every file is complete. A run
@@ -125,14 +124,43 @@ work writes only its own result, and the results are taken in a fixed order.
 - `Read` discards text after a record is built, so memory is bounded by one file. `ReadAll` retains
   the decoded text, which the trace and the exposure need; `report` uses it.
 
-## 4. File-name timestamps
+## 4. Where an expression is run
+
+Running an expression over a text is the dearest thing a run does, and looking for a fixed text or
+for a run of bytes is far cheaper. `sift.Read` reads each expression once, when its table is
+loaded, and says what every match of it promises. The search then runs the expression only where
+a match can be, and finds what a search of the whole text finds.
+
+- The needed texts are read from the literals of the expression, in lower case: every match holds
+  one text of each set. A sequence gives a set for each literal, and literals side by side are one
+  text. A choice gives one set, the longest of each branch together.
+- The shape is the bytes a match is made of and the fewest bytes it has, when the expression takes
+  no byte at all: a match then lies inside one run of such bytes.
+- A text that holds none of the texts an expression needs is not searched for it at all.
+- An indicator whose needed text has three bytes or more is run on the places that hold it: the
+  run of bytes around the text, or its line. An indicator with no such text is run on each run of
+  the bytes it is made of that is long enough. A run is handed over with one byte either side, so
+  a word boundary reads as it does in the text. No indicator is run on every line, and a test
+  fails when one would be.
+- An activity is run on the lines that hold one of its literals and a text of every other set.
+- A pattern of `exposures.json` is run on the lines that hold one of the texts the table names for
+  it and a text of every set the expression itself promises. The lines are found by one search of
+  the whole text for each text. A line is read for `KEY: value` pairs only when its letters and
+  digits hold a key or an ending of some kind.
+- A variable is read only from a line that holds an equals sign after nothing but a name.
+- An encoded payload is searched for only in a text that holds what its form needs. The option
+  `-EncodedCommand` is found by its hyphen, and what stands before the hyphen is checked apart.
+- An expression that ignores case reads the long s and the Kelvin sign as `s` and `k`, which a
+  text in lower case does not show. A text that holds either is searched without the needed texts.
+
+## 5. File-name timestamps
 
 `nametime.Detect` tries a date and time, then a 10-digit Unix epoch between 1500000000 and
 1999999999 (three more digits are read as milliseconds and dropped), then a date. Each rule looks
 at its first match only, a stamp never touches another digit, and an impossible calendar date
 abandons its rule. A date and time without `Z` is marked local: the name does not state its zone.
 
-## 5. Structured outputs
+## 6. Structured outputs
 
 The trace decodes an output whose extension `formats.json` claims before it looks for indicators
 and commands. A script is never decoded this way.
@@ -157,7 +185,7 @@ and commands. A script is never decoded this way.
   the trace. A structured output is not a turn and links no output.
 - A JSON or XML file that is not well formed is read as plain text. HTML is decoded whatever its form.
 
-## 6. Windows command lines
+## 7. Windows command lines
 
 `parse.ExtractBatch` reads a `.bat` or `.cmd` file, and the PowerShell parser hands it every
 native command it meets: a bare name at the start of a statement, after the call operator, on the
@@ -175,7 +203,7 @@ of `Process.Start`. A cmdlet is recognised by its Verb-Noun shape instead.
 - A `.bat` file is a script. A `.cmd` file keeps the output role of `roles.json` and is parsed as
   a batch file all the same.
 
-## 7. Shell command lines
+## 8. Shell command lines
 
 `parse.ExtractBash` reads a shell script one statement at a time. The tool of a statement is its
 first word that is not an assignment, an option or a wrapper such as `sudo`, `nohup`, `timeout`,
@@ -191,7 +219,7 @@ first word that is not an assignment, an option or a wrapper such as `sudo`, `no
   the outer command, so an address in it is not taken for a tool. `$(( ... ))` is arithmetic, and
   single quotes hold text.
 
-## 8. Encoded payloads
+## 9. Encoded payloads
 
 `parse.Decoded` reads what a file carries encoded, and nothing is run: the argument of a
 PowerShell `-EncodedCommand`, in any of its abbreviations, a Base64 literal handed to
@@ -204,7 +232,7 @@ feeds to `base64 -d`. A payload is kept when nearly all of it is printable text.
 - Two layers are read: a payload that carries an encoded command is decoded once more.
 - A payload over 1 MiB of Base64 is left alone, and a file yields at most 32 payloads.
 
-## 9. Activities
+## 10. Activities
 
 A tactic table names the command that ran. `curl`, `Invoke-RestMethod` and `az` say nothing about
 what a call does, so `activity.Detect` reads the text of every file, script or output, and names
@@ -217,8 +245,8 @@ the operations it shows.
   `context` somewhere, such as the Microsoft Graph host. Graph resource names in a path are matched
   in their documented case, so `/Users/bob` is not `/users`.
 - `unless` drops a line: a read is not counted as a write, and the most specific activity wins.
-- A pattern is tried only on the lines that hold a literal every match of it must hold. The
-  literals are derived from the pattern at load, and a test fails when a pattern has none.
+- A pattern is tried only on the lines that hold a literal every match of it must hold, as
+  section 4 describes. A test fails when a pattern has none.
 - A step's tactics are those of its tools plus those of its activities.
 - The report counts, for each activity, the lines that show it. A loop counts once: the tool
   does not run the script.
@@ -302,7 +330,7 @@ the operations it shows.
 | `ServiceDiscovery` | Discovery | T1007 |
 | `ShellDownloadAndExecute` | Execution, CommandAndControl | T1059.004, T1105 |
 
-## 10. Watchlist
+## 11. Watchlist
 
 `-intelfile` names a watchlist of known attacker infrastructure, and `intel` matches the
 indicators of every file against it.
@@ -314,7 +342,7 @@ indicators of every file against it.
 - A match gives the finding its attribution and the severity `high`, and counts under
   `intel hits` in the summary.
 
-## 11. Exposure and targets
+## 12. Exposure and targets
 
 `exposure.Extract` reads the text of every file and names what it holds that an attacker can use.
 The rules are those of `exposures.json`, and the classes are described in the
@@ -351,7 +379,7 @@ The same pass gathers the targets: what the scripts name outright.
   holds the same value, and `prior` otherwise.
 - Its script lines are quoted after every secret is known, so each is masked.
 
-## 12. ARTEX intents
+## 13. ARTEX intents
 
 ARTEX runs each intent of its plan in a folder of its own, `tasks/<task>/i<number>`, with the
 output of its commands in `cmd-output` below it, and names the worker's session
@@ -365,14 +393,14 @@ output of its commands in `cmd-output` below it, and names the worker's session
 - `command` groups the steps of the timeline by intent. The period of an intent runs from its
   earliest file to its latest, by the time the timeline orders them with.
 - The techniques of an intent are those of the activities its files show: the ATT&CK techniques
-  of `activities.json` and the ATLAS techniques section 14 gives them.
+  of `activities.json` and the ATLAS techniques section 15 gives them.
 - The intents are ordered by when they began; one without a time comes last.
 
-## 13. Assessment
+## 14. Assessment
 
 The report ends with what the findings mean and what to do about them. Impacts and remediation
 come from data files, and `assess` holds no knowledge of its own. Mitigation comes from the
-catalogue of section 14.
+catalogue of section 15.
 
 - An impact or an action applies when one of its triggers is in the evidence: an activity, the
   tactic of a tool that ran, a watchlist match, or an exposed value of a kind it names. The
@@ -394,7 +422,7 @@ catalogue of section 14.
 - A notable file is one whose activities, tool tactics or watchlist matches are of high severity.
   A watchlist match is `high`.
 
-## 14. MITRE ATT&CK and MITRE ATLAS
+## 15. MITRE ATT&CK and MITRE ATLAS
 
 `internal/mitre/catalogue.json` is written by `scripts/mitre.py` from the ATT&CK enterprise bundle
 of `mitre-attack/attack-stix-data` and a v6 file of `mitre-atlas/atlas-data`. It holds ATT&CK 20.1
@@ -412,7 +440,7 @@ one-sentence summary of each mitigation, not the full text of either framework.
   catalogue gives the mitigations each framework links to them; a row is one mitigation, the
   techniques found that it addresses, and the activities and files that showed them.
 
-## 15. Fixtures
+## 16. Fixtures
 
 `internal/evidencetest/testdata/bash` and `powershell` are the evidence folders of the
 AgentScriptTrace golden test in the VelociSacci repository (`tests/golden/fixtures/`), copied byte

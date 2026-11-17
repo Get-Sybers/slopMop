@@ -9,12 +9,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
-	"regexp/syntax"
 	"slices"
 	"strings"
 	"unicode/utf8"
 
 	"github.com/get-sybers/slopmop/internal/parallel"
+	"github.com/get-sybers/slopmop/internal/sift"
 	"github.com/get-sybers/slopmop/internal/vars"
 )
 
@@ -122,6 +122,9 @@ type subject struct {
 type pattern struct {
 	rx       *regexp.Regexp
 	literals [][]byte
+	// sets hold every text the expression promises: a line that matches
+	// holds one of each, so a line that lacks one is not tried.
+	sets [][]string
 }
 
 // LoadActivities decodes activities.json and compiles each pattern.
@@ -215,72 +218,15 @@ func compile(expr string) (pattern, error) {
 	if err != nil {
 		return pattern{}, err
 	}
-	p := pattern{rx: rx}
-	if tree, err := syntax.Parse(expr, syntax.Perl); err == nil {
-		for _, lit := range required(tree) {
-			p.literals = append(p.literals, []byte(lit))
-		}
+	plan, err := sift.Read(expr)
+	if err != nil {
+		return pattern{}, err
+	}
+	p := pattern{rx: rx, sets: plan.Needs}
+	for _, lit := range plan.Rare() {
+		p.literals = append(p.literals, []byte(lit))
 	}
 	return p, nil
-}
-
-// minLiteral is the shortest literal worth looking for; a shorter one is in
-// nearly every line.
-const minLiteral = 3
-
-// required returns lower-case literals of which every match of re holds at
-// least one, or nil when the expression promises none.
-func required(re *syntax.Regexp) []string {
-	switch re.Op {
-	case syntax.OpLiteral:
-		lit := strings.ToLower(string(re.Rune))
-		for _, r := range lit {
-			if r >= utf8.RuneSelf {
-				return nil
-			}
-		}
-		if len(lit) < minLiteral {
-			return nil
-		}
-		return []string{lit}
-	case syntax.OpCapture, syntax.OpPlus:
-		return required(re.Sub[0])
-	case syntax.OpRepeat:
-		if re.Min > 0 {
-			return required(re.Sub[0])
-		}
-	case syntax.OpConcat:
-		// Every part must match, so any part's literals serve; the longest are the rarest.
-		var best []string
-		for _, sub := range re.Sub {
-			if lits := required(sub); shortest(lits) > shortest(best) {
-				best = lits
-			}
-		}
-		return best
-	case syntax.OpAlternate:
-		var all []string
-		for _, sub := range re.Sub {
-			lits := required(sub)
-			if lits == nil {
-				return nil
-			}
-			all = append(all, lits...)
-		}
-		return all
-	}
-	return nil
-}
-
-func shortest(lits []string) int {
-	if len(lits) == 0 {
-		return 0
-	}
-	n := len(lits[0])
-	for _, lit := range lits[1:] {
-		n = min(n, len(lit))
-	}
-	return n
 }
 
 // Names lists the activities, in the order of the data file.
@@ -332,6 +278,10 @@ func (t Table) Detect(text string) []Hit {
 		if c >= 'A' && c <= 'Z' {
 			lower[i] = c + ('a' - 'A')
 		}
+	}
+	// A text that folds a letter outside ASCII shows it in no literal, so every line is tried.
+	if sift.Folds(joined) {
+		lower = nil
 	}
 	inContext := map[string]bool{}
 	for name, p := range t.contexts {
@@ -433,7 +383,8 @@ func resolve(value string, variables vars.Set) string {
 }
 
 // lines returns the start of each line the pattern matches and unless does
-// not, stopping after limit lines when limit is positive.
+// not, stopping after limit lines when limit is positive. lower is the text
+// in lower case, or nil when its literals say nothing of the text.
 func (p pattern) lines(text string, lower []byte, unless *regexp.Regexp, limit int) []int {
 	var found []int
 	tried := map[int]bool{}
@@ -442,13 +393,14 @@ func (p pattern) lines(text string, lower []byte, unless *regexp.Regexp, limit i
 		if !tried[start] {
 			tried[start] = true
 			line := text[start:end]
-			if p.rx.MatchString(line) && (unless == nil || !unless.MatchString(line)) {
+			held := lower == nil || sift.Holds(lower[start:end], p.sets)
+			if held && p.rx.MatchString(line) && (unless == nil || !unless.MatchString(line)) {
 				found = append(found, start)
 			}
 		}
 		return end
 	}
-	if len(p.literals) == 0 {
+	if len(p.literals) == 0 || lower == nil {
 		for pos := 0; pos < len(text) && len(found) != limit; pos++ {
 			pos = try(pos)
 		}

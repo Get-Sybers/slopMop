@@ -8,6 +8,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/get-sybers/slopmop/internal/parallel"
+	"github.com/get-sybers/slopmop/internal/sift"
 )
 
 const (
@@ -20,7 +21,9 @@ const (
 )
 
 var (
-	rxEncodedArg = regexp.MustCompile(`(?i)(?:^|[\s"'])-(e[a-z]*)\s+['"]?([A-Za-z0-9+/]{16,}={0,2})`)
+	// rxEncodedArg begins with its hyphen, a text the engine can look for;
+	// encodedArgs checks what stands before the hyphen.
+	rxEncodedArg = regexp.MustCompile(`(?i)-(e[a-z]*)\s+['"]?([A-Za-z0-9+/]{16,}={0,2})`)
 	rxB64Literal = regexp.MustCompile(`(?i)(?:FromBase64String|b64decode)\(\s*b?['"]([A-Za-z0-9+/]{24,}={0,2})['"]`)
 	// rxB64Piped is Base64 text handed to "base64 -d", and the shell it is piped on to, if any.
 	rxB64Piped = regexp.MustCompile(`(?:echo|printf)\s+(?:-[neE]+\s+)?['"]?([A-Za-z0-9+/]{16,}={0,2})['"]?\s*\|\s*base64\s+(?:-d|-D|--decode)\b(\s*\|\s*(?:sudo\s+)?(?:ba|z|da|k)?sh\b)?`)
@@ -58,7 +61,23 @@ func Decoded(text string) []Payload {
 	// text is large, and their payloads are taken in the order of the forms.
 	forms := []*regexp.Regexp{rxEncodedArg, rxB64Piped, rxB64Here, rxB64Literal}
 	found := make([][][]string, len(forms))
-	search := func(i int) { found[i] = forms[i].FindAllStringSubmatch(text, -1) }
+	// A form is searched for only in a text that holds what each of its matches holds.
+	var lower []byte
+	if len(text) >= small && !sift.Folds(text) {
+		lower = sift.Lower(text)
+	}
+	search := func(i int) {
+		if lower != nil {
+			if plan, err := sift.Read(forms[i].String()); err == nil && !sift.Holds(lower, plan.Needs) {
+				return
+			}
+		}
+		if i == 0 {
+			found[i] = encodedArgs(text)
+			return
+		}
+		found[i] = forms[i].FindAllStringSubmatch(text, -1)
+	}
 	if len(text) < small {
 		for i := range forms {
 			search(i)
@@ -87,6 +106,18 @@ func Decoded(text string) []Payload {
 		add(m[1], "")
 	}
 	return payloads
+}
+
+// encodedArgs returns each option that begins with -e and the Base64 after
+// it: an option stands at the start of the text or after white space or a quote.
+func encodedArgs(text string) [][]string {
+	var found [][]string
+	for _, loc := range rxEncodedArg.FindAllStringSubmatchIndex(text, -1) {
+		if at := loc[0]; at == 0 || strings.IndexByte(" \t\n\f\r\"'", text[at-1]) >= 0 {
+			found = append(found, []string{text[loc[0]:loc[1]], text[loc[2]:loc[3]], text[loc[4]:loc[5]]})
+		}
+	}
+	return found
 }
 
 // decodeText decodes Base64 to text. An encoded command is UTF-16; a

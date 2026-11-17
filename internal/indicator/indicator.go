@@ -7,12 +7,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
-	"regexp/syntax"
+	"slices"
 	"sort"
 	"strings"
-	"unicode"
 
 	"github.com/get-sybers/slopmop/internal/parallel"
+	"github.com/get-sybers/slopmop/internal/sift"
 )
 
 //go:embed indicators.json
@@ -48,12 +48,10 @@ type compiled struct {
 	// notAfter, when non-nil, is anchored at the start of the text that
 	// follows a match and rejects the match if it matches there.
 	notAfter *regexp.Regexp
-	// inLine says no match holds a line break or leans on an end of the
-	// text, so a text cut at line breaks gives the matches of the whole.
-	inLine bool
-	// needs is a text every match holds, or empty when none is known. A line
-	// without it has no match, so it need not be searched.
-	needs string
+	// plan says where in a text the pattern is worth running, and rare holds
+	// the texts its places are found by; with none, its shape finds them.
+	plan sift.Plan
+	rare []string
 }
 
 // LoadPatterns decodes indicators.json and compiles each pattern.
@@ -82,7 +80,11 @@ func LoadPatterns() (Table, error) {
 		if err != nil {
 			return Table{}, fmt.Errorf("indicators.json[%d] %s: %w", i, e.Type, err)
 		}
-		patterns[i] = compiled{typ: e.Type, rx: rx, inLine: staysInLine(e.Pattern, rx), needs: needed(e.Pattern)}
+		plan, err := sift.Read(e.Pattern)
+		if err != nil {
+			return Table{}, fmt.Errorf("indicators.json[%d] %s: %w", i, e.Type, err)
+		}
+		patterns[i] = compiled{typ: e.Type, rx: rx, plan: plan, rare: plan.Rare()}
 		if e.NotFollowedBy != "" {
 			na, err := regexp.Compile(`^(?:` + e.NotFollowedBy + `)`)
 			if err != nil {
@@ -104,153 +106,93 @@ func (t Table) Has(typ string) bool {
 	return false
 }
 
-// staysInLine reports whether no match of the pattern can hold a line break,
-// be empty, or depend on where the text begins and ends.
-func staysInLine(pattern string, rx *regexp.Regexp) bool {
-	tree, err := syntax.Parse(pattern, syntax.Perl)
-	return err == nil && !rx.MatchString("") && inLine(tree)
-}
-
-func inLine(re *syntax.Regexp) bool {
-	switch re.Op {
-	case syntax.OpBeginText, syntax.OpEndText, syntax.OpAnyChar:
-		return false
-	case syntax.OpLiteral:
-		for _, r := range re.Rune {
-			if r == '\n' {
-				return false
-			}
-		}
-	case syntax.OpCharClass:
-		for i := 0; i+1 < len(re.Rune); i += 2 {
-			if re.Rune[i] <= '\n' && '\n' <= re.Rune[i+1] {
-				return false
-			}
-		}
+// find returns where the pattern matches between from and to. It is run
+// only on the places that can hold a match, and over the whole stretch when
+// the pattern names no place or the text may fold a letter the places miss.
+func (p compiled) find(text string, lower []byte, from, to int) [][]int {
+	if lower != nil && !sift.Holds(lower[from:to], p.plan.Needs) {
+		return nil
 	}
-	for _, sub := range re.Sub {
-		if !inLine(sub) {
-			return false
-		}
-	}
-	return true
-}
-
-// needed returns the longest text that every match of the pattern holds,
-// as far as its literals show: a stretch that is written one way only.
-func needed(pattern string) string {
-	tree, err := syntax.Parse(pattern, syntax.Perl)
-	if err != nil {
-		return ""
-	}
-	longest := ""
-	for _, text := range required(tree) {
-		if len(text) > len(longest) {
-			longest = text
-		}
-	}
-	return longest
-}
-
-// required returns texts that every match of re holds.
-func required(re *syntax.Regexp) []string {
-	switch re.Op {
-	case syntax.OpLiteral:
-		return fixed(re.Rune, re.Flags&syntax.FoldCase != 0)
-	case syntax.OpCapture, syntax.OpPlus:
-		return required(re.Sub[0])
-	case syntax.OpRepeat:
-		if re.Min > 0 {
-			return required(re.Sub[0])
-		}
-	case syntax.OpConcat:
-		var all []string
-		for _, sub := range re.Sub {
-			all = append(all, required(sub)...)
-		}
-		return all
-	case syntax.OpAlternate:
-		// What every branch holds: a text of the first that is in a text of each other.
-		var all []string
-		for _, text := range required(re.Sub[0]) {
-			inEach := true
-			for _, sub := range re.Sub[1:] {
-				inOne := false
-				for _, other := range required(sub) {
-					inOne = inOne || strings.Contains(other, text)
-				}
-				inEach = inEach && inOne
-			}
-			if inEach {
-				all = append(all, text)
-			}
-		}
-		return all
-	}
-	return nil
-}
-
-// fixed cuts a literal into the stretches that are written one way only:
-// all of it, or with letters folded the stretches between the letters.
-func fixed(runes []rune, folded bool) []string {
-	var all []string
-	var b strings.Builder
-	flush := func() {
-		if b.Len() > 0 {
-			all = append(all, b.String())
-			b.Reset()
-		}
-	}
-	for _, r := range runes {
-		if folded && unicode.SimpleFold(r) != r {
-			flush()
-			continue
-		}
-		b.WriteRune(r)
-	}
-	flush()
-	return all
-}
-
-// find returns where the pattern matches between from and to. A pattern
-// whose matches need a text is tried only on the lines that hold it, when
-// fewer than half of the lines do.
-func (p compiled) find(text string, from, to int) [][]int {
-	part := text[from:to]
-	whole := func() [][]int {
-		found := p.rx.FindAllStringIndex(part, -1)
+	if lower == nil || !p.plan.InLine || (p.rare == nil && !p.plan.Shaped) {
+		found := p.rx.FindAllStringIndex(text[from:to], -1)
 		for _, loc := range found {
 			loc[0], loc[1] = loc[0]+from, loc[1]+from
 		}
 		return found
 	}
-	if !p.inLine || p.needs == "" {
-		return whole()
-	}
-	holding := strings.Count(part, p.needs)
-	if holding == 0 {
-		return nil
-	}
-	if 2*holding > strings.Count(part, "\n")+1 {
-		return whole()
-	}
 	var found [][]int
-	for at := 0; at < len(part); {
-		i := strings.Index(part[at:], p.needs)
-		if i < 0 {
-			break
+	try := func(start, end int) {
+		if end-start < p.plan.Least || !sift.Holds(lower[start:end], p.plan.Needs) {
+			return
 		}
-		start := strings.LastIndexByte(part[:at+i], '\n') + 1
-		end := len(part)
-		if j := strings.IndexByte(part[at+i:], '\n'); j >= 0 {
-			end = at + i + j
+		// A byte either side is kept, so a word boundary reads as it does in the text.
+		if p.plan.Shaped {
+			start, end = max(start-1, 0), min(end+1, len(text))
 		}
-		for _, loc := range p.rx.FindAllStringIndex(part[start:end], -1) {
-			found = append(found, []int{from + start + loc[0], from + start + loc[1]})
+		for _, loc := range p.rx.FindAllStringIndex(text[start:end], -1) {
+			found = append(found, []int{start + loc[0], start + loc[1]})
 		}
-		at = end + 1
+	}
+	if p.rare != nil {
+		for _, place := range p.places(text, lower, from, to) {
+			try(place[0], place[1])
+		}
+		return found
+	}
+	// With no text to find it by, every run of the bytes a match is made of is a place.
+	for at := from; at < to; {
+		for at < to && !p.plan.Made[text[at]] {
+			at++
+		}
+		start := at
+		for at < to && p.plan.Made[text[at]] {
+			at++
+		}
+		try(start, at)
 	}
 	return found
+}
+
+// places returns the stretches between from and to that hold a text the
+// pattern is found by, in the order of the text and each once: the run of
+// the bytes a match is made of around the text, or its line.
+func (p compiled) places(text string, lower []byte, from, to int) [][2]int {
+	var places [][2]int
+	for _, need := range p.rare {
+		for at := from; at < to; {
+			i := bytes.Index(lower[at:to], []byte(need))
+			if i < 0 {
+				break
+			}
+			start, end := p.around(text, at+i, at+i+len(need), from, to)
+			places = append(places, [2]int{start, end})
+			at = end
+		}
+	}
+	if len(p.rare) > 1 {
+		sort.Slice(places, func(i, j int) bool { return places[i][0] < places[j][0] })
+		places = slices.CompactFunc(places, func(a, b [2]int) bool { return a[0] == b[0] })
+	}
+	return places
+}
+
+// around widens a stretch to the place that holds it: the run of the bytes a
+// match is made of, or the line.
+func (p compiled) around(text string, start, end, from, to int) (first, last int) {
+	if p.plan.Shaped {
+		for start > from && p.plan.Made[text[start-1]] {
+			start--
+		}
+		for end < to && p.plan.Made[text[end]] {
+			end++
+		}
+		return start, end
+	}
+	start = from + strings.LastIndexByte(text[from:start], '\n') + 1
+	if i := strings.IndexByte(text[end:to], '\n'); i >= 0 {
+		return start, end + i
+	}
+	return start, to
 }
 
 const (
@@ -291,9 +233,15 @@ func (t Table) Extract(text string) []Match {
 	if len(text) >= small {
 		bounds = cut(text)
 	}
+	// The places of a pattern are looked for in lower case, unless the text
+	// folds a letter that lower case does not show.
+	var lower []byte
+	if !sift.Folds(text) {
+		lower = sift.Lower(text)
+	}
 	var searches []search
 	for i, p := range t.patterns {
-		if !p.inLine {
+		if !p.plan.InLine {
 			searches = append(searches, search{pattern: i, to: len(text)})
 			continue
 		}
@@ -304,7 +252,7 @@ func (t Table) Extract(text string) []Match {
 	found := make([][][]int, len(searches))
 	run := func(n int) {
 		s := searches[n]
-		found[n] = t.patterns[s.pattern].find(text, s.from, s.to)
+		found[n] = t.patterns[s.pattern].find(text, lower, s.from, s.to)
 	}
 	if len(text) < small {
 		for n := range searches {

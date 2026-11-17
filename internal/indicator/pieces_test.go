@@ -2,7 +2,7 @@ package indicator
 
 import (
 	"fmt"
-	"regexp"
+	"math/rand/v2"
 	"slices"
 	"sort"
 	"strings"
@@ -37,7 +37,7 @@ func TestStaysInLine(t *testing.T) {
 	}
 	var whole []string
 	for _, p := range table.patterns {
-		if !p.inLine {
+		if !p.plan.InLine {
 			whole = append(whole, p.typ)
 		}
 	}
@@ -45,66 +45,34 @@ func TestStaysInLine(t *testing.T) {
 	if want := []string{"EncodedCommand"}; !slices.Equal(whole, want) {
 		t.Errorf("searched over the whole text: %q, want %q", whole, want)
 	}
-	for _, tt := range []struct {
-		pattern string
-		want    bool
-	}{
-		{`\b[a-f0-9]{32}\b`, true},
-		{`(?i)https?://[^\s'"]+`, true},
-		{`(?m)^key=\w+$`, true},
-		{`a.b`, true},
-		{`a\sb`, false},
-		{`a[^x]b`, false},
-		{`(?s)a.b`, false},
-		{`a\nb`, false},
-		{`^key`, false},
-		{`key$`, false},
-		{`\Akey`, false},
-		{`x*`, false},
-	} {
-		if got := staysInLine(tt.pattern, mustCompile(t, tt.pattern)); got != tt.want {
-			t.Errorf("staysInLine(%q) = %t, want %t", tt.pattern, got, tt.want)
-		}
-	}
 }
 
-// The text a pattern needs is one every match holds: it is read from the
-// literals of the pattern, and a letter that may be either case is left out.
-func TestNeeded(t *testing.T) {
-	for _, tt := range []struct{ pattern, want string }{
-		{`(?i)(?:https?|ftps?)://[^\s]+`, "://"},
-		{`(?i)[a-z0-9]+@(?:[a-z0-9\-]+\.)+[a-z]{2,24}`, "@"},
-		{`eyJ[A-Za-z0-9_\-]{8,}\.eyJ[A-Za-z0-9_\-]{8,}`, ".eyJ"},
-		{`-----BEGIN [A-Z ]*PRIVATE KEY-----`, "PRIVATE KEY-----"},
-		{`(?i)\bCVE-\d{4}-\d{4,7}\b`, "-"},
-		{`(?i)https://login\.(?:a\.com|b\.net)(?:/x)?`, "://"},
-		{`(?:AKIA|ASIA)[A-Z0-9]{16}`, "A"},
-		{`a=1|b=2`, ""},
-		{`x=1|yx=1z`, "x=1"},
-		{`key=(?:x|y)?value`, "value"},
-		{`(?:ab){2,}c`, "ab"},
-		{`(?:ab){0,2}c`, "c"},
-		{`(?:ab)*c+`, "c"},
-		{`(?i)\b[a-f0-9]{64}\b`, ""},
-		{`(?i)abc`, ""},
-		{`a|[0-9]`, ""},
-		{`(?:[A-Za-z0-9+/]{4}){16,}`, ""},
-	} {
-		if got := needed(tt.pattern); got != tt.want {
-			t.Errorf("needed(%q) = %q, want %q", tt.pattern, got, tt.want)
-		}
-	}
+// Every pattern says where it is worth running: it is found by a text its
+// matches hold or by the bytes they are made of, so none is run on every line.
+func TestEveryPatternNamesItsPlaces(t *testing.T) {
 	table, err := LoadPatterns()
 	if err != nil {
 		t.Fatal(err)
 	}
 	got := map[string]string{}
 	for _, p := range table.patterns {
-		got[p.typ] = p.needs
+		switch {
+		case p.rare != nil:
+			got[p.typ] = strings.Join(p.rare, " ")
+		case p.plan.Shaped && p.plan.InLine:
+			got[p.typ] = "shape"
+		default:
+			t.Errorf("%s names no place: it is run on the whole of every text", p.typ)
+		}
 	}
-	for typ, want := range map[string]string{"URL": "://", "GraphEndpoint": "://", "Email": "@", "IPv4": ".", "Domain": ".", "GUID": "-", "SHA256": "", "Base64Blob": "", "OAuthScope": ""} {
+	for typ, want := range map[string]string{
+		"URL": "://", "CVE": "cve-", "JWT": ".eyj",
+		"AWSKey": "kia sia", "PrivateKey": "private key-----", "EncodedCommand": "-enc",
+		"Email": "shape", "IPv4": "shape", "Domain": "shape", "GUID": "shape", "MD5": "shape",
+		"SHA1": "shape", "SHA256": "shape", "Base64Blob": "shape",
+	} {
 		if got[typ] != want {
-			t.Errorf("%s needs %q, want %q", typ, got[typ], want)
+			t.Errorf("%s is found by %q, want %q", typ, got[typ], want)
 		}
 	}
 }
@@ -153,6 +121,10 @@ func TestExtractByPieceEqualsOnePass(t *testing.T) {
 		"scope User.Read.All Mail.Send https://vault%d.vault.azure.net/secrets/s%d",
 		"",
 		strings.Repeat("QUJDREVGR0hJSktMTU5PUA==", 3) + " %d %d",
+		"\u00e910.1.%d.%d\u00e9 x\u00e9d41d8cd98f00b204e9800998ecf8427e\u00e9 caf\u00e9.example.com \u65e5\u672c@example.org",
+		"1.2.3.%d.5 9.9.9.%d, (8.8.4.4) [7.7.7.7]\t6.6.6.6/33 Mail.Send( User.Read.All.x",
+		"AKIAIOSFODNN7EXAMPL%d ASIAIOSFODNN7EXAMPL%d -----BEGIN RSA PRIVATE KEY-----",
+		"0123456789abcdef0123456789abcdef0123456%d 6F9619FF-8B86-D011-B42D-00C04FC964F%d",
 	}
 	var b strings.Builder
 	for i := 0; b.Len() < 2*piece+piece/3; i++ {
@@ -164,6 +136,9 @@ func TestExtractByPieceEqualsOnePass(t *testing.T) {
 		{"no line break at the end", strings.TrimSuffix(b.String(), "\n")},
 		{"a long line among them", b.String()[:piece] + strings.Repeat("10.9.8.7 ", piece/4) + b.String()[piece:]},
 		{"small", b.String()[:small-1]},
+		{"an indicator at each end", "10.0.0.1 " + b.String()[:small] + "\nops@corp.example"},
+		{"a letter that folds", b.String() + "https://login.micro\u017foftonline.com/x \u212aeys.example.com CVE-2026-9999\n"},
+		{"a small text that folds", "see HTTP\u017f://198.51.100.7/a and ops@\u212a.example\n" + b.String()[:small/2]},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			got, want := table.Extract(tt.text), table.onePass(tt.text)
@@ -177,11 +152,33 @@ func TestExtractByPieceEqualsOnePass(t *testing.T) {
 	}
 }
 
-func mustCompile(t *testing.T, pattern string) *regexp.Regexp {
-	t.Helper()
-	rx, err := regexp.Compile(pattern)
+// Whatever a text is made of, the search by place finds what one pass finds.
+func TestExtractEqualsOnePassOnRandomText(t *testing.T) {
+	table, err := LoadPatterns()
 	if err != nil {
 		t.Fatal(err)
 	}
-	return rx
+	parts := []string{
+		" ", " ", "\n", "\t", ".", ".", "-", "/", ":", "@", "://", "=", "\"", "'", "(", ")", ",", ";", "\r\n",
+		"10", "255", "1.2.3.4", "0", "com", "example", "corp", "io", "a", "Z", "f", "9", "CVE-", "2026", "cve-2024-12345",
+		"https", "HTTP", "ftp", "graph.microsoft.com", "login.microsoftonline.com", "vault.azure.net", "/.default",
+		"User.Read", "Mail.Send", "offline_access", "eyJhbGciOiJIUzI1NiJ9", "AKIA", "IOSFODNN7EXAMPLE", "-enc", "-EncodedCommand",
+		"d41d8cd98f00b204e9800998ecf8427e", "DEADBEEF", "6f9619ff-8b86-d011-b42d-00c04fc964ff", "QUJDREVGR0hJSktMTU5PUA==",
+		"-----BEGIN PRIVATE KEY-----", "\u00e9", "\u65e5", "\u017f", "\u212a", "\x7f",
+	}
+	rng := rand.New(rand.NewPCG(1, 2))
+	for n := range 400 {
+		var b strings.Builder
+		size := 200 + rng.IntN(3000)
+		if n%200 == 0 {
+			size = small + piece
+		}
+		for b.Len() < size {
+			b.WriteString(parts[rng.IntN(len(parts))])
+		}
+		text := b.String()
+		if got, want := table.Extract(text), table.onePass(text); !slices.Equal(got, want) {
+			t.Fatalf("text %d of %d bytes: by place %d indicators, one pass %d; the two differ", n, len(text), len(got), len(want))
+		}
+	}
 }
