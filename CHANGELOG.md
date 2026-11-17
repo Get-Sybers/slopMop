@@ -6,6 +6,11 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Added
+
+- `docs/artex/report.md` and `docs/artex/findings.md`, recording which markers survive a fork of
+  ARTEX and which are specific to one build, from reading twelve checkouts of ARTEX and its forks.
+
 ### Changed
 
 - The input directory is read on every processor, not one file after another.
