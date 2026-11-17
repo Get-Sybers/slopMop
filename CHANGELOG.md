@@ -6,12 +6,6 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
-### Added
-
-- `internal/store`, a throwaway SQLite record database that keeps a run's extracted records and
-  reads them back in the order of the timeline. It depends on `modernc.org/sqlite`, the pure-Go
-  driver, which the cross build and `CGO_ENABLED=0` keep.
-
 ### Changed
 
 - The input directory is read on every processor, not one file after another.
