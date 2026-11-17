@@ -6,13 +6,16 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-17
+
 ### Added
 
 - The readout of `report`: plain lines for reading, with a verdict line, `[x]`, `[!]` and `[i]`
   marks for high, medium and low, entries aligned in columns and detail lines under them. Colour
   is used only on a terminal, never with `NO_COLOR`, and on Windows only inside Windows Terminal.
 - `report` saves every run to an output folder: `report.txt` with every section, and
-  `files.json`, `trace.json`, `findings.json` and `report.json`, one per class. The folder is
+  `files.json`, `trace.json`, `findings.json`, `targeted.json`, `exposure.json` and `report.json`,
+  one per class. The folder is
   `slopmop-<name>` in the current directory, beside the input folder when the current directory
   is inside it, or the one `-outdir <folder>` names. An output folder inside the input folder is
   refused.
@@ -37,38 +40,8 @@ All notable changes to this project are recorded in this file. The format follow
 - An exposed secret brings in `Credentials exposed` and `Rotate what was read` by itself, and a
   collected username, email address, device or address brings in `Environment mapped`.
 - Packages `internal/exposure` and `internal/vars`.
-- The `linux` fixture holds outputs with accounts, a hash, a password, a token and hosts.
 - `internal/command/commands.json` declares the usage line, the options, the verbs with their
   sections and saved files, and the columns of each class.
-
-### Changed
-
-- The grammar is `slopmop -inputdir <folder> VERB [section ...] [options]`, and `report` is the
-  one verb: `slopmop -inputdir <folder> report impact remediation`. It reads the folder and its
-  sub-folders once. A bare word after the verb names a section, and no word means every section.
-- An option is written with one dash or two and always takes a value: `-inputdir`, `-intelfile`
-  and `-outdir`.
-- Help follows the command line. Asked for at any point, it prints what the line holds so far,
-  what is still needed, what can be added, a `next:` line for the help of the next point and,
-  once nothing is missing, the `run:` line. `slopmop -inputdir --help` explains the option,
-  `slopmop -inputdir <folder> --help` lists the verbs, `slopmop -inputdir <folder> report --help`
-  lists the sections, and with a section named it lists those chosen and those left.
-- A notable file is one with a finding of high severity.
-- The readout lists the first 40 indicators and says how many more the saved findings hold.
-
-### Removed
-
-- The grammar `slopmop NOUN VERB`, the nouns `file`, `trace`, `finding`, `report` and `campaign`,
-  the verb `list`, and their aliases. The saved JSON files carry what `file list`, `trace list`,
-  `finding list` and `report list` printed.
-- Selectors, the output flags `-o`, `-q`, `--no-headers` and `--tz`, the switch `--recursive` and
-  the param `--severity`.
-- `nouns.json`.
-
-## [0.3.1] - 2026-11-16
-
-### Added
-
 - Linux activities, each with its ATT&CK techniques, an impact and a remediation:
   `ScheduledJobCreation`, `SystemdUnitCreation`, `AccountCreation`, `SshKeyPersistence`,
   `ShellProfilePersistence`, `KernelModuleLoad`, `DynamicLinkerHijack`, `SudoersModification`,
@@ -89,10 +62,23 @@ All notable changes to this project are recorded in this file. The format follow
   `proc.pcmdline` and `proctitle`.
 - Wrappers `doas`, `setsid`, `watch` and `ionice`: the command behind one is the tool.
 - Remediations `Undo privilege changes on hosts` and `Restore security tooling`.
-- Fixture `linux`: a run on a Linux host in shell and Python with an audit log.
+- Fixture `linux`: a run on a Linux host in shell and Python, with an audit log and outputs that
+  hold accounts, a hash, a password, a token and hosts.
 
 ### Changed
 
+- The grammar is `slopmop -inputdir <folder> VERB [section ...] [options]`, and `report` is the
+  one verb: `slopmop -inputdir <folder> report impact remediation`. It reads the folder and its
+  sub-folders once. A bare word after the verb names a section, and no word means every section.
+- An option is written with one dash or two and always takes a value: `-inputdir`, `-intelfile`,
+  `-outdir` and `-secrets`.
+- Help follows the command line. Asked for at any point, it prints what the line holds so far,
+  what is still needed, what can be added, a `next:` line for the help of the next point and,
+  once nothing is missing, the `run:` line. `slopmop -inputdir --help` explains the option,
+  `slopmop -inputdir <folder> --help` lists the verbs, `slopmop -inputdir <folder> report --help`
+  lists the sections, and with a section named it lists those chosen and those left.
+- A notable file is one with a finding of high severity.
+- The readout lists the first 40 indicators and says how many more the saved findings hold.
 - `systemctl`, `chmod`, `crontab`, `history` and `tar` have no tactic by name. The activity on the
   line gives one, so `systemctl status`, `crontab -l` and `tar x` no longer claim Persistence,
   Stealth or Collection.
@@ -102,6 +88,15 @@ All notable changes to this project are recorded in this file. The format follow
   remediation `Remove persistence` are worded to cover a host as well as a tenant.
 - The activity table of `docs/03-Architecture.md` states the ATT&CK techniques of each activity
   and the tactics of ATT&CK 20.
+
+### Removed
+
+- The grammar `slopmop NOUN VERB`, the nouns `file`, `trace`, `finding`, `report` and `campaign`,
+  the verb `list`, and their aliases. The saved JSON files carry what `file list`, `trace list`,
+  `finding list` and `report list` printed.
+- Selectors, the output flags `-o`, `-q`, `--no-headers` and `--tz`, the switch `--recursive` and
+  the param `--severity`.
+- `nouns.json`.
 
 ### Fixed
 
