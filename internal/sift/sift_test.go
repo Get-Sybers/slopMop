@@ -1,6 +1,7 @@
 package sift_test
 
 import (
+	"math/rand/v2"
 	"regexp"
 	"slices"
 	"strings"
@@ -222,5 +223,55 @@ func TestFoldsKnowsEveryRune(t *testing.T) {
 	// The expression matches the Kelvin sign as k, and the text in lower case holds no k.
 	if text := "\u212aubectl"; !regexp.MustCompile(`(?i)kubectl`).MatchString(text) || !sift.Folds(text) {
 		t.Errorf("%q: the expression and Folds must both take the Kelvin sign for k", text)
+	}
+}
+
+func TestNewFinderRejects(t *testing.T) {
+	for _, texts := range [][]string{{"curl", "ab"}, {"a\nbc"}, {""}} {
+		if _, err := sift.NewFinder(texts); err == nil {
+			t.Errorf("NewFinder(%q) gives no error, want one for a text that is short or holds a line break", texts)
+		}
+	}
+}
+
+// One pass for every text finds the lines a search for each text finds.
+func TestFinderEqualsASearchForEach(t *testing.T) {
+	texts := []string{
+		"curl", "cur", "url", "wget", "systemctl", "://", "aaa", "aa a", `\currentversion\run`, "-enc", "café", "é x", "xyz",
+	}
+	finder, err := sift.NewFinder(texts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	parts := []string{
+		"curl", "cur", "url", "wget", "system", "ctl", "://", "a", "aa", " ", " ", "\n", "\n", "\r\n", `\currentversion`, `\run`, "-en", "c",
+		"caf", "é", "x", "y", "z", "CURL", "\t",
+	}
+	rng := rand.New(rand.NewPCG(11, 12))
+	held := 0
+	for n := range 600 {
+		var b strings.Builder
+		for size := rng.IntN(60 + n); size > 0; size-- {
+			b.WriteString(parts[rng.IntN(len(parts))])
+		}
+		text := b.String()
+		lower := sift.Lower(text)
+		want := make([][]int, len(texts))
+		at := 0
+		for line := range strings.SplitSeq(string(lower), "\n") {
+			for i, need := range texts {
+				if strings.Contains(line, need) {
+					want[i] = append(want[i], at)
+					held++
+				}
+			}
+			at += len(line) + 1
+		}
+		if got := finder.Lines(lower); !slices.EqualFunc(got, want, slices.Equal[[]int]) {
+			t.Fatalf("Lines(%q) = %v, a search for each text gives %v", text, got, want)
+		}
+	}
+	if held < 2000 {
+		t.Errorf("the texts are held %d times: the texts do not try the finder", held)
 	}
 }

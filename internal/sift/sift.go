@@ -274,3 +274,62 @@ func texts(runes []rune) [][]string {
 	}
 	return all
 }
+
+// Finder looks for many texts in one pass over a text, where a search for
+// each apart reads the text once for every one of them.
+type Finder struct {
+	texts [][]byte
+	// maybe has a bit for each start of three bytes that may begin a text,
+	// and begun lists the texts that begin so.
+	maybe [1 << 10]uint64
+	begun map[uint16][]int
+}
+
+// NewFinder returns a finder of texts, each of three bytes or more and with
+// no line break. Lines gives its answers in the order of texts.
+func NewFinder(texts []string) (*Finder, error) {
+	f := &Finder{texts: make([][]byte, len(texts)), begun: map[uint16][]int{}}
+	for i, text := range texts {
+		if len(text) < rare || strings.Contains(text, "\n") {
+			return nil, fmt.Errorf("sift: the text %q is shorter than %d bytes or holds a line break", text, rare)
+		}
+		f.texts[i] = []byte(text)
+		h := slot(uint32(text[0])<<16 | uint32(text[1])<<8 | uint32(text[2]))
+		f.maybe[h>>6] |= 1 << (h & 63)
+		f.begun[h] = append(f.begun[h], i)
+	}
+	return f, nil
+}
+
+// slot spreads three bytes over the bits of maybe.
+func slot(three uint32) uint16 {
+	return uint16((three * 0x9E3779B1) >> 16)
+}
+
+// Lines returns, for each text, where each line that holds it begins, in
+// the order of lower, which is what Lower returned.
+func (f *Finder) Lines(lower []byte) [][]int {
+	lines := make([][]int, len(f.texts))
+	// noted is the line last added for each text, from 1, so a line is added once.
+	noted := make([]int, len(f.texts))
+	var three uint32
+	begins := 0
+	for i, c := range lower {
+		three = (three<<8 | uint32(c)) & 0xFFFFFF
+		if c == '\n' {
+			begins = i + 1
+			continue
+		}
+		h := slot(three)
+		if i < rare-1 || f.maybe[h>>6]&(1<<(h&63)) == 0 {
+			continue
+		}
+		for _, n := range f.begun[h] {
+			if noted[n] != begins+1 && bytes.HasPrefix(lower[i-(rare-1):], f.texts[n]) {
+				noted[n] = begins + 1
+				lines[n] = append(lines[n], begins)
+			}
+		}
+	}
+	return lines
+}

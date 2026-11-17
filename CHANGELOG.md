@@ -18,6 +18,9 @@ All notable changes to this project are recorded in this file. The format follow
   activities, the exposure patterns and pairs, the variables and the encoded payloads are all
   searched this way. What a run finds is unchanged, and a run on a large folder takes less than
   half the time it did.
+- The literals of all the activity patterns are looked for in one pass over a text, and each
+  pattern then reads the lines of its own. A pattern whose literal holds a line break is refused
+  when `activities.json` is loaded: it matches no line.
 
 ### Fixed
 

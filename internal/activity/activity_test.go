@@ -456,6 +456,7 @@ func TestDecodeRejects(t *testing.T) {
 		"a subject without a group":       one(`"patterns":["a"],"subjects":[{"label":"l","pattern":"a"}]`),
 		"a subject with two groups":       one(`"patterns":["a"],"subjects":[{"label":"l","pattern":"(a)(b)"}]`),
 		"a subject that does not compile": one(`"patterns":["a"],"subjects":[{"label":"l","pattern":"("}]`),
+		"a literal with a line break":     one(`"patterns":["first\\nsecond"]`),
 	}
 	for name, data := range tests {
 		t.Run(name, func(t *testing.T) {
