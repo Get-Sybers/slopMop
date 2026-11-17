@@ -51,9 +51,19 @@ type kindEntry struct {
 	With map[string][]string `json:"with,omitempty"`
 	// Indicators are indicator types whose values are of the kind.
 	Indicators []indicatorEntry `json:"indicators,omitempty"`
-	Valid      string           `json:"valid,omitempty"`
-	Reject     string           `json:"reject,omitempty"`
-	Patterns   []patternEntry   `json:"patterns,omitempty"`
+	// Targeted puts the kind among what a script names outright.
+	Targeted *targetedEntry `json:"targeted,omitempty"`
+	Valid    string         `json:"valid,omitempty"`
+	Reject   string         `json:"reject,omitempty"`
+	Patterns []patternEntry `json:"patterns,omitempty"`
+}
+
+// targetedEntry is the title of a kind among the targets of the scripts and
+// the indicator types that are of the kind only there: a domain a script
+// names is a host it reaches for, and a domain in an output is not a device.
+type targetedEntry struct {
+	Title      string           `json:"title"`
+	Indicators []indicatorEntry `json:"indicators,omitempty"`
 }
 
 type suffixEntry struct {
@@ -80,6 +90,9 @@ type patternEntry struct {
 type Kind struct {
 	Name, Title, Severity string
 	Secret                bool
+	// Targeted is the title of the kind among what a script names outright;
+	// empty when the kind is not listed there.
+	Targeted string
 }
 
 // Item is one value found on one line.
@@ -126,7 +139,9 @@ type Table struct {
 	exact      map[string]rule
 	suffixes   []suffix
 	indicators map[string]rule
-	patterns   []pattern
+	// hardcoded maps the indicator types that are of a kind only in a script.
+	hardcoded map[string]rule
+	patterns  []pattern
 }
 
 type suffix struct {
@@ -155,7 +170,7 @@ func decode(data []byte) (Table, error) {
 	if len(doc.Kinds) == 0 {
 		return Table{}, errors.New("exposures.json: no kinds")
 	}
-	t := Table{exact: map[string]rule{}, indicators: map[string]rule{}}
+	t := Table{exact: map[string]rule{}, indicators: map[string]rule{}, hardcoded: map[string]rule{}}
 	seen := map[string]bool{}
 	for i, e := range doc.Kinds {
 		if e.Name == "" || e.Title == "" || e.Severity == "" || seen[e.Name] {
@@ -163,6 +178,12 @@ func decode(data []byte) (Table, error) {
 		}
 		seen[e.Name] = true
 		k := compiledKind{Kind: Kind{Name: e.Name, Title: e.Title, Severity: e.Severity, Secret: e.Secret}}
+		if e.Targeted != nil {
+			if e.Targeted.Title == "" || e.Secret {
+				return Table{}, fmt.Errorf("exposures.json %s: targeted needs a title and a kind that is no secret", e.Name)
+			}
+			k.Targeted = e.Targeted.Title
+		}
 		var err error
 		if k.valid, err = optional(e.Valid); err != nil {
 			return Table{}, fmt.Errorf("exposures.json %s valid: %w", e.Name, err)
@@ -173,6 +194,16 @@ func decode(data []byte) (Table, error) {
 		t.kinds = append(t.kinds, k)
 		if err := t.add(i, e); err != nil {
 			return Table{}, fmt.Errorf("exposures.json %s: %w", e.Name, err)
+		}
+		if e.Targeted == nil {
+			continue
+		}
+		for _, ind := range e.Targeted.Indicators {
+			_, taken := t.hardcoded[ind.Type]
+			if _, both := t.indicators[ind.Type]; taken || both || ind.Type == "" {
+				return Table{}, fmt.Errorf("exposures.json %s: the indicator type %q is named twice or has no name", e.Name, ind.Type)
+			}
+			t.hardcoded[ind.Type] = rule{kind: i}
 		}
 	}
 	// The longest ending decides, so "accesstoken" is a token and not a "token" of another kind.
@@ -250,12 +281,29 @@ func (t Table) Kinds() []Kind {
 // IndicatorTypes lists the indicator types the table refers to, so a caller
 // that holds the indicator table can check that each one exists.
 func (t Table) IndicatorTypes() []string {
-	types := make([]string, 0, len(t.indicators))
+	types := make([]string, 0, len(t.indicators)+len(t.hardcoded))
 	for typ := range t.indicators {
+		types = append(types, typ)
+	}
+	for typ := range t.hardcoded {
 		types = append(types, typ)
 	}
 	sort.Strings(types)
 	return types
+}
+
+// FromHardcoded turns an indicator match into an item of a kind that the
+// type is of only in a script; a type that is of a kind anywhere is not one.
+func (t Table) FromHardcoded(typ, value string, line int) (Item, bool) {
+	r, ok := t.hardcoded[typ]
+	if !ok {
+		return Item{}, false
+	}
+	k := t.kinds[r.kind]
+	if (k.valid != nil && !k.valid.MatchString(value)) || (k.reject != nil && k.reject.MatchString(value)) {
+		return Item{}, false
+	}
+	return Item{Kind: k.Name, Value: value, Line: line}, true
 }
 
 // FromIndicator turns an indicator match into an item, when its type is of a kind.

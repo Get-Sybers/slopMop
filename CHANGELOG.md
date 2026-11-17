@@ -20,6 +20,10 @@ All notable changes to this project are recorded in this file. The format follow
   passwords and other secrets, devices and IP addresses the files hold. Each value says whether
   the scripts collected it or the attacker brought it, where it stands by file and line, and, for
   a secret, what it is and whose. `exposures.json` declares every rule.
+- The targeted section: the usernames, IP addresses, hostnames and email addresses that the
+  scripts name outright, saved as `targeted.json`. Each says whether the attacker knew it
+  beforehand (`prior`) or an earlier output of the run held it (`discovered`, with that output),
+  whether an address is private or public, and quotes the script lines that name it.
 - A secret is masked wherever it would stand: in the exposure, in a command quoted as evidence,
   in a target and among the indicators. `-secrets shown` writes each as it stands.
 - An impact and an action name their targets and quote their evidence: the account, file, unit,

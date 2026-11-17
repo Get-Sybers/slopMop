@@ -33,6 +33,7 @@
         {"form": "password", "needs": ["[+]"], "pattern": "\\[\\+\\]\\s+(?:[\\w.-]+\\\\)?(?P<account>[^\\s:\\\\]+):(?P<value>\\S+)"},
         {"form": "password", "needs": [" -p "], "pattern": "\\s-u\\s+(?P<account>\\\"[^\\\"]+\\\"|'[^']+'|\\S+)\\s+-p\\s+(?P<value>\\\"[^\\\"]+\\\"|'[^']+'|\\S+)"},
         {"form": "password", "needs": ["--password"], "pattern": "--password[= ]\\s*(?P<value>\\\"[^\\\"]+\\\"|'[^']+'|\\S+)"},
+        {"form": "password", "needs": ["exportpfx"], "pattern": "(?i)-exportpfx\\s+-p\\s+(?P<value>\"[^\"]+\"|'[^']+'|\\S+)"},
         {"form": "password", "needs": ["sshpass"], "pattern": "\\bsshpass\\s+-p\\s+(?P<value>\\\"[^\\\"]+\\\"|'[^']+'|\\S+)"},
         {"form": "password", "needs": ["://"], "pattern": "://(?P<account>[^:/\\s@\\\"']+):(?P<value>[^@/\\s\\\"']+)@[\\w.-]"},
         {"form": "password", "needs": ["/user:"], "pattern": "(?i)/user:(?:[\\w.-]+\\\\)?(?P<account>\\S+)\\s+(?P<value>[^/\\s]\\S*)"},
@@ -44,6 +45,7 @@
       "name": "username",
       "title": "Usernames",
       "severity": "medium",
+      "targeted": {"title": "Usernames"},
       "keys": [
         "user", "username", "login", "account", "accountname", "samaccountname",
         "userprincipalname", "upn", "uid", "owner", "principal", "logonname",
@@ -78,6 +80,7 @@
       "name": "email",
       "title": "Email addresses",
       "severity": "medium",
+      "targeted": {"title": "Email addresses"},
       "keys": [
         "mail", "email", "emailaddress", "proxyaddresses", "othermails"
       ],
@@ -88,6 +91,7 @@
       "name": "device",
       "title": "Devices",
       "severity": "low",
+      "targeted": {"title": "Hostnames", "indicators": [{"type": "Domain"}]},
       "keys": [
         "hostname", "computername", "dnshostname", "host", "machine", "machinename",
         "devicename", "netbiosname", "server", "servername", "workstation", "nodename",
@@ -114,6 +118,7 @@
       "name": "ip",
       "title": "IP addresses",
       "severity": "low",
+      "targeted": {"title": "IP addresses"},
       "indicators": [{"type": "IPv4"}],
       "reject": "^(?:127\\.|0\\.0\\.0\\.0$|255\\.255\\.255\\.255$)"
     }

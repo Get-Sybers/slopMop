@@ -36,6 +36,7 @@ func tableBuilders() map[string]tableBuilder {
 		"file":     reportRun.fileTable,
 		"trace":    reportRun.traceTable,
 		"finding":  reportRun.findingTable,
+		"targeted": reportRun.targetedTable,
 		"exposure": reportRun.exposureTable,
 		"report":   reportRun.reportTable,
 	}
@@ -66,6 +67,7 @@ func checkSaved(s savedSpec, doc commandsDoc) (map[string][]render.Column, error
 		"file":     func(c []render.Column) ([]render.Value, error) { return fileRow(evidence.File{}, c) },
 		"trace":    func(c []render.Column) ([]render.Value, error) { return traceRow(trace.Step{}, c) },
 		"finding":  func(c []render.Column) ([]render.Value, error) { return findingRow(finding{}, c) },
+		"targeted": func(c []render.Column) ([]render.Value, error) { return targetedRow(targeted{}, c) },
 		"exposure": func(c []render.Column) ([]render.Value, error) { return exposedRow(exposed{}, c) },
 		"report":   func(c []render.Column) ([]render.Value, error) { return reportCells(reportRow{}, c) },
 	}
@@ -107,6 +109,18 @@ func (w reportRun) findingTable(columns []render.Column) (render.Table, error) {
 	table := render.Table{Columns: columns}
 	for _, f := range w.pipe.listFindings(w.result) {
 		row, err := findingRow(f, columns)
+		if err != nil {
+			return table, err
+		}
+		table.Rows = append(table.Rows, row)
+	}
+	return table, nil
+}
+
+func (w reportRun) targetedTable(columns []render.Column) (render.Table, error) {
+	table := render.Table{Columns: columns}
+	for _, t := range w.result.targeted {
+		row, err := targetedRow(t, columns)
 		if err != nil {
 			return table, err
 		}

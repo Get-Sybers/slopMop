@@ -27,6 +27,8 @@ type analysis struct {
 	exposed []exposed
 	// redact masks every secret among them in a text that quotes the evidence.
 	redact func(string) string
+	// targeted is what the scripts name outright: the accounts, addresses and hosts they aim at.
+	targeted []targeted
 }
 
 type pipeline struct {
@@ -192,13 +194,15 @@ func (p pipeline) read(folder string, levels int, path string, plain bool) (anal
 		Tactics: p.tactics, Activities: p.activities, Patterns: p.patterns, Formats: p.formats, Watchlist: watchlist,
 	}
 	timeline := trace.Build(res.Files, res.Texts, tables)
-	found := p.collectExposed(timeline.Steps, res.Texts, plain)
+	found, named := p.collectExposed(timeline.Steps, res.Texts, plain)
+	redact := redactor(found)
 	return analysis{
 		timeline:  timeline,
 		watchlist: watchlist,
 		skipped:   res.Skipped,
 		exposed:   found,
-		redact:    redactor(found),
+		redact:    redact,
+		targeted:  named.finish(res.Texts, redact),
 	}, nil
 }
 

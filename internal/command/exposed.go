@@ -80,15 +80,22 @@ func (e exposed) files() []string {
 }
 
 // collectExposed reads every file in the order of the timeline, so a value
-// is collected or used by where it is seen first.
-func (p pipeline) collectExposed(steps []trace.Step, texts map[string]string, plain bool) []exposed {
+// is collected or used by where it is seen first. It also gathers what the
+// scripts name outright, which it returns for finish to quote.
+func (p pipeline) collectExposed(steps []trace.Step, texts map[string]string, plain bool) ([]exposed, *targets) {
 	kinds := map[string]int{}
 	for i, k := range p.exposures.Kinds() {
 		kinds[k.Name] = i
 	}
 	index := map[string]int{}
 	var all []exposed
+	named := newTargets(p.exposures.Kinds())
 	add := func(it exposure.Item, s trace.Step) {
+		if s.File.Role == evidence.Script {
+			named.script(it, p.exposures.Kinds()[kinds[it.Kind]], s.File.Path)
+		} else {
+			named.output(it, s.File.Path)
+		}
 		key := strings.Join([]string{it.Kind, it.Value, it.Account, it.Form}, "\x00")
 		i, ok := index[key]
 		if !ok {
@@ -118,6 +125,14 @@ func (p pipeline) collectExposed(steps []trace.Step, texts map[string]string, pl
 			if it, ok := p.exposures.FromIndicator(m.Type, m.Value, m.Line); ok {
 				add(it, s)
 			}
+			// A domain is a host only where a script names it; it is no exposure.
+			if it, ok := p.exposures.FromHardcoded(m.Type, m.Value, m.Line); ok {
+				if s.File.Role == evidence.Script {
+					named.script(it, p.exposures.Kinds()[kinds[it.Kind]], s.File.Path)
+				} else {
+					named.output(it, s.File.Path)
+				}
+			}
 		}
 	}
 	all = mergeOwned(all)
@@ -134,7 +149,7 @@ func (p pipeline) collectExposed(steps []trace.Step, texts map[string]string, pl
 		}
 		return x.account < y.account
 	})
-	return all
+	return all, named
 }
 
 func containsCite(cites []cite, c cite) bool {

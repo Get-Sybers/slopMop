@@ -19,6 +19,7 @@ import (
 const (
 	sectionSummary     = "summary"
 	sectionFiles       = "files"
+	sectionTargeted    = "targeted"
 	sectionExposure    = "exposure"
 	sectionImpact      = "impact"
 	sectionRemediation = "remediation"
@@ -68,6 +69,20 @@ func (p pipeline) report(a analysis, threshold tactic.Severity, wanted map[strin
 	}
 	if wanted[sectionFiles] {
 		rows = append(rows, p.notableFiles(a, threshold)...)
+	}
+	if wanted[sectionTargeted] {
+		for _, t := range a.targeted {
+			detail := t.kind.Name + ": " + t.origin
+			if t.scope != "" {
+				detail += ", " + t.scope
+			}
+			if t.origin == originDiscovered {
+				detail += ", first held by " + t.from.String()
+			}
+			rows = append(rows, reportRow{
+				item: t.value, section: sectionTargeted, level: t.level(), detail: detail, files: t.places(), evidence: t.lines,
+			})
+		}
 	}
 	if wanted[sectionExposure] {
 		for _, e := range a.exposed {
@@ -480,20 +495,32 @@ func listMetrics(a analysis) []metric {
 		metrics = append(metrics, metric{"activities " + name, activities[name]})
 	}
 	metrics = append(metrics, metric{"tactics", len(tactics)})
-	metrics = append(metrics, metric{"exposed", len(a.exposed)})
-	kinds := map[string]int{}
-	var order []string
-	for _, e := range a.exposed {
-		if kinds[e.kind.Name] == 0 {
-			order = append(order, e.kind.Name)
-		}
-		kinds[e.kind.Name]++
+	aimed := make([]string, len(a.targeted))
+	for i, t := range a.targeted {
+		aimed[i] = t.kind.Name
 	}
-	for _, name := range order {
-		metrics = append(metrics, metric{"exposed " + name, kinds[name]})
+	metrics = append(metrics, perKind("targeted", aimed)...)
+	held := make([]string, len(a.exposed))
+	for i, e := range a.exposed {
+		held[i] = e.kind.Name
 	}
+	metrics = append(metrics, perKind("exposed", held)...)
 	if a.watchlist != nil {
 		metrics = append(metrics, metric{"intel hits", len(hits)})
+	}
+	return metrics
+}
+
+// perKind counts the kinds of a list that is sorted by kind: the total
+// under name, then one count for each kind in the order it comes.
+func perKind(name string, kinds []string) []metric {
+	metrics := []metric{{name, len(kinds)}}
+	for _, kind := range kinds {
+		if last := &metrics[len(metrics)-1]; last.name == name+" "+kind {
+			last.value++
+		} else {
+			metrics = append(metrics, metric{name + " " + kind, 1})
+		}
 	}
 	return metrics
 }
