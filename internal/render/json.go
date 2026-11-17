@@ -3,17 +3,57 @@ package render
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"unicode/utf16"
 	"unicode/utf8"
+
+	"github.com/get-sybers/slopmop/internal/parallel"
 )
+
+// batch is how many rows are encoded at once; a large table is encoded in
+// batches on every processor and joined in order.
+const batch = 2000
 
 func encodeJSON(t Table) ([]byte, error) {
 	rows := make([]jsonRow, len(t.Rows))
 	for i, values := range t.Rows {
 		rows[i] = jsonRow{columns: t.Columns, values: values}
 	}
+	if len(rows) <= batch {
+		return encodeRows(rows)
+	}
+	parts := make([][]byte, (len(rows)+batch-1)/batch)
+	failed := make([]error, len(parts))
+	parallel.Each(len(parts), func(i int) {
+		part, err := encodeRows(rows[i*batch : min(len(rows), (i+1)*batch)])
+		// An array of rows is "[\n", the rows, "\n]\n": the rows alone are kept.
+		if err == nil {
+			part = part[2 : len(part)-3]
+		}
+		parts[i], failed[i] = part, err
+	})
+	if err := errors.Join(failed...); err != nil {
+		return nil, err
+	}
+	size := len("[\n") + len("\n]\n") + (len(parts)-1)*len(",\n")
+	for _, part := range parts {
+		size += len(part)
+	}
+	out := append(make([]byte, 0, size), "[\n"...)
+	for i, part := range parts {
+		if i > 0 {
+			out = append(out, ",\n"...)
+		}
+		out = append(out, part...)
+		// A batch is let go as soon as it is joined, so the table is not held twice for long.
+		parts[i] = nil
+	}
+	return append(out, "\n]\n"...), nil
+}
+
+func encodeRows(rows []jsonRow) ([]byte, error) {
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
 	enc.SetEscapeHTML(false)

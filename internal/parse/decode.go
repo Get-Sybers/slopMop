@@ -6,6 +6,8 @@ import (
 	"strings"
 	"unicode/utf16"
 	"unicode/utf8"
+
+	"github.com/get-sybers/slopmop/internal/parallel"
 )
 
 const (
@@ -13,6 +15,8 @@ const (
 	// many a text may yield: evidence is hostile and may be built to exhaust.
 	maxPayload  = 1 << 20
 	maxPayloads = 32
+	// small is the size below which a text is searched on the caller's goroutine.
+	small = 16 << 10
 )
 
 var (
@@ -50,24 +54,36 @@ func Decoded(text string) []Payload {
 			payloads = append(payloads, Payload{Text: decoded, Shell: shell})
 		}
 	}
-	for _, m := range rxEncodedArg.FindAllStringSubmatch(text, -1) {
+	// The four forms are searched for apart, on every processor when the
+	// text is large, and their payloads are taken in the order of the forms.
+	forms := []*regexp.Regexp{rxEncodedArg, rxB64Piped, rxB64Here, rxB64Literal}
+	found := make([][][]string, len(forms))
+	search := func(i int) { found[i] = forms[i].FindAllStringSubmatch(text, -1) }
+	if len(text) < small {
+		for i := range forms {
+			search(i)
+		}
+	} else {
+		parallel.Each(len(forms), search)
+	}
+	for _, m := range found[0] {
 		// PowerShell takes any prefix of -EncodedCommand, and -ec.
 		const full = "encodedcommand"
 		if flag := strings.ToLower(m[1]); flag == "ec" || (len(flag) <= len(full) && full[:len(flag)] == flag) {
 			add(m[2], PowerShell)
 		}
 	}
-	for _, m := range rxB64Piped.FindAllStringSubmatch(text, -1) {
+	for _, m := range found[1] {
 		shell := ""
 		if m[2] != "" {
 			shell = POSIX
 		}
 		add(m[1], shell)
 	}
-	for _, m := range rxB64Here.FindAllStringSubmatch(text, -1) {
+	for _, m := range found[2] {
 		add(m[1], "")
 	}
-	for _, m := range rxB64Literal.FindAllStringSubmatch(text, -1) {
+	for _, m := range found[3] {
 		add(m[1], "")
 	}
 	return payloads

@@ -22,6 +22,7 @@ about evidence touch no file, and every static table is a data file validated at
 | `internal/assess` | turns what a run found into its impacts and the remediation they call for, using `impacts.json` and `actions.json` |
 | `internal/exposure` | names what the evidence holds that an attacker can use: usernames, email addresses, passwords and other secrets, devices and IP addresses; masks a secret; no I/O |
 | `internal/intent` | names the ARTEX intent a path lies in, by its run folder or its session name; no I/O |
+| `internal/parallel` | runs independent pieces of work on every processor; no I/O |
 | `internal/vars` | reads the variables a script sets to a plain value, so a command that names one is shown with what it holds; no I/O |
 | `internal/mitre` | holds the identifiers, names and mitigation links of MITRE ATT&CK and MITRE ATLAS in `catalogue.json` |
 | `internal/intel` | matches extracted indicators against an operator-supplied watchlist: a JSON array or a STIX 2.1 bundle; an entry that is an address range matches every address inside it |
@@ -33,18 +34,21 @@ Imports run one way:
 
 ```text
 cmd/slopmop -> cli, command, render
-command     -> cli, render, inventory, trace, assess, exposure, mitre,
-               activity, indicator, intel, intent, structured, tactic, evidence
-trace       -> parse, structured, tactic, activity, indicator, intel, evidence
+command     -> cli, render, inventory, trace, assess, exposure, mitre, activity,
+               indicator, intel, intent, structured, tactic, evidence, parallel
+trace       -> parse, structured, tactic, activity, indicator, intel, evidence, parallel
 inventory   -> evidence -> nametime
-activity    -> vars
+activity    -> vars, parallel
 exposure    -> vars
 assess      -> tactic
 intel       -> indicator
+indicator   -> parallel
+parse       -> parallel
+render      -> parallel
 ```
 
-`cli`, `render`, `parse`, `structured`, `tactic`, `indicator`, `intent`, `mitre`, `nametime` and `vars` import
-no other internal package. `evidencetest` and `golden` are imported by tests only.
+`cli`, `structured`, `tactic`, `intent`, `mitre`, `nametime`, `parallel` and `vars` import no other
+internal package. `evidencetest` and `golden` are imported by tests only.
 
 ## 2. Data files
 
@@ -72,6 +76,20 @@ is embedded too, and `html/template` escapes every text that is written into it.
 
 The tool keeps no state: every run names its input directory with `-inputdir`. It writes to
 standard output, standard error and the output folder, which is never inside the input directory.
+
+A run uses every processor, and its output does not depend on how many there are: each piece of
+work writes only its own result, and the results are taken in a fixed order.
+
+- The files are analysed apart from one another, and what they hold is read while the timeline is
+  built.
+- A text of 16 KB or more is searched for each indicator pattern and each activity apart. A
+  pattern whose matches cannot cross a line is searched in pieces of about 256 KB that end on a
+  line break; `indicator` reads that from the pattern itself and searches the whole text otherwise.
+- A pattern whose every match holds a fixed text, such as `://` or `@`, is tried only on the lines
+  that hold it, when fewer than half of the lines do. The text is read from the pattern's literals.
+- The saved files are made apart from one another, and a table of more than 2,000 rows is encoded
+  in batches.
+- `GOMAXPROCS` in the environment sets how many processors a run uses.
 
 - The input directory is opened as a root (`os.OpenRoot`) and every file is opened through it read-only, so
   no path leads outside the folder.

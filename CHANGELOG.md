@@ -6,6 +6,17 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Changed
+
+- A run uses every processor. The files are analysed apart from one another; a large text is
+  searched for each indicator pattern and each activity apart, and in pieces cut at line breaks
+  where a pattern's matches stay in a line; the saved files are made apart from one another. The
+  output is byte for byte what one processor gives.
+- An indicator pattern whose every match holds a fixed text, such as `://` or `@`, is tried only
+  on the lines that hold it.
+- A 50 MB log that took 59 seconds takes 15 on four processors and 49 on one. The peak of memory
+  for that log rises from about 610 MB to about 810 MB.
+
 ## [0.5.1] - 2026-11-17
 
 ### Fixed

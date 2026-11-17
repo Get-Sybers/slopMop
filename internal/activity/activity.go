@@ -14,6 +14,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/get-sybers/slopmop/internal/parallel"
 	"github.com/get-sybers/slopmop/internal/vars"
 )
 
@@ -315,6 +316,9 @@ func (t Table) Tactics() []string {
 	return names
 }
 
+// small is the size below which a text is searched on the caller's goroutine.
+const small = 16 << 10
+
 // Detect returns the activities a text shows, in the order of the data
 // file. A command continued over several lines counts as one line.
 func (t Table) Detect(text string) []Hit {
@@ -333,9 +337,11 @@ func (t Table) Detect(text string) []Hit {
 	for name, p := range t.contexts {
 		inContext[name] = len(p.lines(joined, lower, nil, 1)) > 0
 	}
-	var hits []Hit
-	var variables vars.Set
-	for _, a := range t.activities {
+	// The lines of each activity are found apart from the others, on every
+	// processor when the text is large; the hits are then made in order.
+	found := make([]map[int]bool, len(t.activities))
+	search := func(i int) {
+		a := t.activities[i]
 		patterns := a.patterns
 		if inContext[a.context] {
 			patterns = append(patterns[:len(patterns):len(patterns)], a.paths...)
@@ -346,6 +352,19 @@ func (t Table) Detect(text string) []Hit {
 				lines[start] = true
 			}
 		}
+		found[i] = lines
+	}
+	if len(text) < small {
+		for i := range t.activities {
+			search(i)
+		}
+	} else {
+		parallel.Each(len(t.activities), search)
+	}
+	var hits []Hit
+	var variables vars.Set
+	for i, a := range t.activities {
+		lines := found[i]
 		if len(lines) == 0 {
 			continue
 		}
