@@ -186,7 +186,7 @@ func (w reportRun) banner() render.Banner {
 // summary gives one line per count; the files and the indicators carry
 // their breakdown, and each activity carries its own count in the findings.
 func (w reportRun) summary() []render.Group {
-	var g render.Group
+	g := render.Group{Columns: []string{"item", "count", "of which"}}
 	var roles, types, kinds, aims []string
 	for _, r := range w.rows {
 		if r.section != sectionSummary {
@@ -224,7 +224,7 @@ func (w reportRun) summary() []render.Group {
 }
 
 func (w reportRun) timeline() []render.Group {
-	var g render.Group
+	g := render.Group{Columns: []string{"step", "time", "role", "file"}}
 	for _, s := range w.result.timeline.Steps {
 		g.Entries = append(g.Entries, render.Entry{
 			Cells:  []string{strconv.Itoa(s.Turn), stepTime(s), string(s.File.Role), s.File.Path},
@@ -293,7 +293,11 @@ func (w reportRun) findings() []render.Group {
 			lines[name] = r.count
 		}
 	}
-	groups := []render.Group{{Title: "activities"}, {Title: "indicators"}, {Title: "tactics"}}
+	groups := []render.Group{
+		{Title: "activities", Columns: []string{"activity", "seen", "tactics", "techniques"}},
+		{Title: "indicators", Columns: []string{"type", "value", "files"}},
+		{Title: "tactics", Columns: []string{"tactic", "identifiers", "files"}},
+	}
 	more := 0
 	for _, f := range w.pipe.listFindings(w.result) {
 		e := render.Entry{Level: string(f.severity)}
@@ -325,7 +329,7 @@ func (w reportRun) findings() []render.Group {
 }
 
 func (w reportRun) files() []render.Group {
-	var g render.Group
+	g := render.Group{Columns: []string{"role", "file"}}
 	for _, r := range w.pipe.notableFiles(w.result, tactic.High) {
 		g.Entries = append(g.Entries, render.Entry{
 			Level: string(r.level),
@@ -342,7 +346,7 @@ func (w reportRun) files() []render.Group {
 // assessed writes the impact or remediation rows of the report: what each
 // says, what it concerns, and the lines of evidence that show it.
 func (w reportRun) assessed(section string) []render.Group {
-	var g render.Group
+	g := render.Group{Columns: []string{section}}
 	for _, r := range w.rows {
 		if r.section != section {
 			continue
@@ -361,7 +365,7 @@ func (w reportRun) assessed(section string) []render.Group {
 // mitigation gives each mitigation with the techniques found that it
 // addresses, the framework's own sentence, and what it is for in this evidence.
 func (w reportRun) mitigation() []render.Group {
-	var g render.Group
+	g := render.Group{Columns: []string{"mitigation", "techniques"}}
 	for _, r := range w.rows {
 		if r.section != sectionMitigation {
 			continue
@@ -395,7 +399,11 @@ func (w reportRun) targeted() []render.Group {
 		if !ok {
 			i = len(groups)
 			at[t.kind.Name] = i
-			groups = append(groups, render.Group{Title: t.kind.Targeted + " (" + strconv.Itoa(total[t.kind.Name]) + ")"})
+			columns := []string{"value", "origin", "named in"}
+			if t.scope != "" {
+				columns = []string{"value", "scope", "origin", "named in"}
+			}
+			groups = append(groups, render.Group{Title: t.kind.Targeted + " (" + strconv.Itoa(total[t.kind.Name]) + ")", Columns: columns})
 		}
 		if len(groups[i].Entries) == fewExposed {
 			continue
@@ -433,7 +441,11 @@ func (w reportRun) exposure() []render.Group {
 		if !ok {
 			i = len(groups)
 			at[e.kind.Name] = i
-			groups = append(groups, render.Group{Title: e.kind.Title + " (" + strconv.Itoa(total[e.kind.Name]) + ")"})
+			columns := []string{"value", "seen", "found in"}
+			if e.kind.Secret {
+				columns = []string{"value", "what", "seen", "found in"}
+			}
+			groups = append(groups, render.Group{Title: e.kind.Title + " (" + strconv.Itoa(total[e.kind.Name]) + ")", Columns: columns})
 		}
 		if len(groups[i].Entries) == fewExposed {
 			continue

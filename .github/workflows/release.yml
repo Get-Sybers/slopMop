@@ -79,6 +79,8 @@ jobs:
           "${exe}" -inputdir internal/evidencetest/testdata/powershell report summary -outdir artefact-check
           grep -q '"tactics"' artefact-check/trace.json
           grep -q 'Summary' artefact-check/report.txt
+          grep -q '^## Summary$' artefact-check/report.md
+          grep -q '<h2>Summary</h2>' artefact-check/report.html
 
       - name: Checksum
         working-directory: dist

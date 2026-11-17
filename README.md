@@ -75,7 +75,9 @@ that is read. A password, a hash, a token and a key are written masked.
 
 | File | Holds |
 | --- | --- |
-| `report.txt` | the report, every section |
+| `report.html` | the report, every section, as one page for a browser |
+| `report.md` | the report, every section, as Markdown |
+| `report.txt` | the report, every section, as plain text |
 | `files.json` | every file with its role, size, line count, times and SHA-256 |
 | `trace.json` | the timeline |
 | `findings.json` | the activities, indicators and tactics |

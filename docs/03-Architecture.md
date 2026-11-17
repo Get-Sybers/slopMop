@@ -10,7 +10,7 @@ about evidence touch no file, and every static table is a data file validated at
 | `cmd/slopmop` | builds the application, runs it, maps the result to an exit code |
 | `internal/cli` | the grammar: options, verbs, the words after a verb, dispatch, generated help; knows no verb |
 | `internal/command` | the verbs: declares them in `commands.json`, binds each to its implementation, and saves the output |
-| `internal/render` | prints the report as plain lines and a table in the default, wide, quiet and JSON views, of which the saved files use JSON; escapes evidence text |
+| `internal/render` | writes the report as plain lines, Markdown and HTML, and a table in the default, wide, quiet and JSON views, of which the saved files use JSON; escapes evidence text |
 | `internal/inventory` | walks the input directory and builds one record per file; owns all evidence I/O |
 | `internal/evidence` | the file record and its vocabularies (role, note); no I/O |
 | `internal/nametime` | detects the timestamp written into a file name; no I/O |
@@ -50,7 +50,7 @@ no other internal package. `evidencetest` and `golden` are imported by tests onl
 | File | Declares | Checked at load |
 | --- | --- | --- |
 | `internal/inventory/roles.json` | each role's summary, extensions and shebang patterns | the roles are `script`, `output`, `other` in that order; extensions are lower-case, dotted and in one role; patterns compile; `other` takes neither |
-| `internal/command/commands.json` | the usage line, the options, the verbs with their sections, hints and saved files, and the columns of each class | names, hints and summaries present and unique; a verb names only declared options; columns pass the table check; a saved file is a file name of its own; every declared verb and section has an implementation and every implementation a declaration; a row fills exactly the declared columns |
+| `internal/command/commands.json` | the usage line, the options, the verbs with their sections, hints and saved files, and the columns of each class | names, hints and summaries present and unique; a verb names only declared options; columns pass the table check; a saved file is a file name of its own; a saved report names a format that has a writer, once; every declared verb and section has an implementation and every implementation a declaration; a row fills exactly the declared columns |
 | `internal/tactic/tactics.json` | the tactics, the severity of each, its ATT&CK and ATLAS identifiers and the commands it claims | every tactic has a name, a severity of `low`, `medium` or `high`, both identifiers and at least one command; no command appears in two tactics; `command` rejects an identifier the catalogue lacks |
 | `internal/activity/activities.json` | each activity's name, tactics, ATT&CK and ATLAS techniques and patterns, the contexts some patterns need, and the subjects a matching line acts on | names are present and unique; every activity has a tactic, an ATT&CK technique and a pattern; `command` rejects a technique the catalogue lacks; paths and a known context go together; every pattern compiles; a subject has a label and a pattern with one group; `command` rejects a tactic that `tactics.json` lacks |
 | `internal/assess/impacts.json` | each impact's name, severity and statement, what triggers it, the indicator types to list as affected and the kinds of exposure it concerns | names are present and unique; a statement and a severity of `low`, `medium` or `high`; something triggers each; `command` rejects an activity, a tactic, an indicator type or a kind of exposure the other tables lack |
@@ -62,6 +62,9 @@ no other internal package. `evidencetest` and `golden` are imported by tests onl
 
 All are embedded with `go:embed` and decoded strictly: an unknown field or trailing data is an
 error.
+
+`internal/render/readout.html.tmpl` is the page of the HTML report, its markup and its style. It
+is embedded too, and `html/template` escapes every text that is written into it.
 
 ## 3. Reading evidence
 

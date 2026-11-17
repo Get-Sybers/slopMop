@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'">
+<title>slopmop   case42</title>
+<style>
+:root { --bg: #ffffff; --fg: #1b1f24; --soft: #5b6470; --line: #d8dde3; --panel: #f5f7f9;
+  --high: #b3261e; --medium: #9a6700; --low: #5b6470; --clear: #1a7f37; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0f1317; --fg: #e4e8ec; --soft: #9aa4af; --line: #2b333b; --panel: #171c22;
+    --high: #ff7b72; --medium: #e3b341; --low: #9aa4af; --clear: #56d364; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding: 24px 16px 48px; background: var(--bg); color: var(--fg);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main, header, nav, footer { max-width: 1100px; margin: 0 auto; }
+h1 { font-size: 22px; margin: 0 0 8px; overflow-wrap: anywhere; white-space: pre-wrap; }
+h2 { font-size: 18px; margin: 36px 0 4px; padding-top: 12px; border-top: 1px solid var(--line); }
+h3 { font-size: 15px; margin: 20px 0 6px; color: var(--soft); }
+.banner { font-weight: 600; margin: 0 0 6px; }
+.legend, .note, .none, footer { color: var(--soft); }
+.legend { white-space: pre-wrap; }
+.note { margin: 0 0 8px; font-size: 13px; }
+nav { margin-top: 14px; font-size: 14px; }
+nav a { color: inherit; margin-right: 14px; white-space: nowrap; }
+.high { color: var(--high); } .medium { color: var(--medium); }
+.low { color: var(--low); } .clear { color: var(--clear); }
+.wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 620px; margin: 4px 0 8px; }
+th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--soft); border-bottom: 1px solid var(--line); padding: 4px 12px 4px 0; }
+td { vertical-align: top; padding: 5px 12px 5px 0; overflow-wrap: anywhere; }
+tr.entry td { border-top: 1px solid var(--line); }
+td.mark { white-space: nowrap; font-weight: 600; width: 1%; }
+td.cell { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+tr.detail td { padding-top: 0; }
+.under { margin: 0 0 6px; padding: 8px 10px; background: var(--panel); border-radius: 6px; }
+.under p { margin: 0 0 6px; }
+.pair { display: grid; grid-template-columns: 76px minmax(0, 1fr); column-gap: 8px; margin-bottom: 3px; }
+.label { color: var(--soft); font-size: 13px; }
+.value { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px;
+  overflow-wrap: anywhere; }
+footer { margin-top: 40px; font-size: 13px; border-top: 1px solid var(--line); padding-top: 10px; }
+footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+@media print { nav { display: none; } body { padding: 0; } table { min-width: 0; } }
+</style>
+</head>
+<body>
+<header>
+<h1>slopmop   case42</h1>
+<p class="banner high">[x] HIGH - 2 impacts: 1 high, 1 low</p>
+<p class="legend">[x] high   [!] medium   [i] low</p>
+</header>
+<nav>
+<a href="#section-1">Summary</a>
+<a href="#section-2">Findings</a>
+<a href="#section-3">Impact</a>
+<a href="#section-4">Mitigation</a>
+</nav>
+<main>
+<section id="section-1">
+<h2>Summary</h2>
+<div class="wrap">
+<table>
+<thead><tr><th>item</th><th>count</th><th>of which</th></tr></thead>
+<tbody>
+<tr class="entry"><td class="cell">files</td><td class="cell">3</td><td class="cell">2 scripts, 1 output</td></tr>
+<tr class="entry"><td class="cell">activities</td><td class="cell">1</td><td class="cell"></td></tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="section-2">
+<h2>Findings</h2>
+<h3>activities</h3>
+<div class="wrap">
+<table>
+<thead><tr><th></th><th>activity</th><th></th></tr></thead>
+<tbody>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">LogDeletion</td><td class="cell">1 line</td></tr>
+<tr class="detail"><td colspan="3"><div class="under">
+<div class="pair"><span class="label">in</span><span class="value">a.sh</span></div>
+</div></td></tr>
+<tr class="entry"><td class="mark low">[i]</td><td class="cell">Scan</td><td class="cell">12 lines</td></tr>
+<tr class="detail"><td colspan="3"><div class="under">
+<div class="pair"><span class="label">in</span><span class="value">b.sh</span></div>
+</div></td></tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="section-3">
+<h2>Impact</h2>
+<p class="note">what it means</p>
+<div class="wrap">
+<table>
+<tbody>
+<tr class="entry"><td class="mark medium">[!]</td><td class="cell">Traces hidden</td></tr>
+<tr class="detail"><td colspan="2"><div class="under">
+<p>Files were removed.</p>
+<div class="pair"><span class="label">basis</span><span class="value">LogDeletion</span></div>
+</div></td></tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="section-4">
+<h2>Mitigation</h2>
+<p class="none">none</p>
+</section>
+</main>
+<footer>
+<div><code>one section: slopmop &lt;folder&gt; impact</code></div>
+</footer>
+</body>
+</html>

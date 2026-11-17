@@ -43,7 +43,7 @@ Impact
       basis    CertificateExport, CredentialAccess tools
 
 [x] HIGH - 4 impacts: 2 high, 1 medium, 1 low
--> saved to slopmop-ai_workdir: report.txt, files.json, trace.json, findings.json, targeted.json, exposure.json, report.json
+-> saved to slopmop-ai_workdir: report.txt, report.md, report.html, files.json, trace.json, findings.json, targeted.json, exposure.json, report.json
 -> one section: slopmop -inputdir <folder> report impact
 ```
 
@@ -100,7 +100,8 @@ the `report` class.
 
 ### Limits
 
-A long list is cut on the screen and in `report.txt`, and says how much more the JSON files hold.
+A long list is cut on the screen and in the saved report, and says how much more the JSON files
+hold.
 
 | List | Shown |
 | --- | --- |
@@ -143,17 +144,41 @@ secret of four characters or fewer is all stars.
 
 ## 4. The saved files
 
-Every run saves seven files to its output folder.
+Every run saves nine files to its output folder.
 
 | File | Holds |
 | --- | --- |
-| `report.txt` | the report with every section, whichever were named, without colour and without the line that names the output folder |
+| `report.txt` | the report as plain text, as the screen shows it without colour |
+| `report.md` | the report as Markdown |
+| `report.html` | the report as one HTML page |
 | `files.json` | the `file` class |
 | `trace.json` | the `trace` class |
 | `findings.json` | the `finding` class |
 | `targeted.json` | the `targeted` class |
 | `exposure.json` | the `exposure` class |
 | `report.json` | the `report` class |
+
+The three report files hold the same report: every section, whichever were named, with the same
+entries, the same limits and the same masking, and without the line that names the output folder.
+
+### Markdown
+
+- The title is the first heading, a section is a second-level heading and a group a third.
+- A group whose entries have no detail lines is a table with a header row. Any other group is a
+  list, each entry one item with its detail lines as items under it.
+- Every value and every line of evidence is a code span, so a viewer shows it as written and
+  makes no link, no formatting and no HTML of it.
+
+### HTML
+
+- `report.html` is one file that needs no other: its style is inside it, and it follows the
+  light or dark setting of the browser.
+- It holds no script, no image, no form and no link out of the page. The links at the top lead
+  to its sections.
+- Its content security policy is `default-src 'none'; style-src 'unsafe-inline'`, so a browser
+  loads nothing when it is opened.
+- A group is a table with a header row, and the detail lines of an entry stand in a panel under
+  its row. Every text of the evidence is escaped.
 
 ## 5. JSON
 

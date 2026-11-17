@@ -41,7 +41,10 @@ type Section struct {
 
 // Group is a run of entries whose cells are aligned with one another.
 type Group struct {
-	Title   string
+	Title string
+	// Columns name the cells, for the formats that draw a table; the plain
+	// text has no header row.
+	Columns []string
 	Entries []Entry
 }
 

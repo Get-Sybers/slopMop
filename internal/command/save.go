@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
@@ -18,9 +19,26 @@ import (
 // savedSpec declares what a verb writes to disk.
 type savedSpec struct {
 	// Prefix and the name of the input folder make the default output folder.
-	Prefix  string      `json:"prefix"`
-	Readout string      `json:"readout"`
-	Tables  []savedFile `json:"tables"`
+	Prefix   string         `json:"prefix"`
+	Readouts []savedReadout `json:"readouts"`
+	Tables   []savedFile    `json:"tables"`
+}
+
+// savedReadout is the whole report written in one format.
+type savedReadout struct {
+	Format string `json:"format"`
+	File   string `json:"file"`
+}
+
+type readoutWriter func(w io.Writer, r render.Readout) error
+
+// readoutWriters are the formats a report is saved in, by name.
+func readoutWriters() map[string]readoutWriter {
+	return map[string]readoutWriter{
+		"text":     func(w io.Writer, r render.Readout) error { return render.WriteReadout(w, r, false) },
+		"markdown": render.WriteMarkdown,
+		"html":     render.WriteHTML,
+	}
 }
 
 // savedFile is one class written as JSON, every column.
@@ -44,12 +62,22 @@ func tableBuilders() map[string]tableBuilder {
 
 // checkSaved returns the columns of each table, by class.
 func checkSaved(s savedSpec, doc commandsDoc) (map[string][]render.Column, error) {
-	if s.Prefix == "" || s.Readout == "" || len(s.Tables) == 0 {
+	if s.Prefix == "" || len(s.Readouts) == 0 || len(s.Tables) == 0 {
 		return nil, errors.New("commands.json: saved needs a prefix, a readout and a table")
+	}
+	writers, formats := readoutWriters(), map[string]bool{}
+	names := map[string]bool{}
+	for _, r := range s.Readouts {
+		switch {
+		case writers[r.Format] == nil || formats[r.Format]:
+			return nil, fmt.Errorf("commands.json: saved: %q is not a format of its own", r.Format)
+		case r.File == "" || r.File != filepath.Base(r.File) || names[r.File]:
+			return nil, fmt.Errorf("commands.json: saved: %q is not a file name of its own", r.File)
+		}
+		formats[r.Format], names[r.File] = true, true
 	}
 	builders := tableBuilders()
 	columns := map[string][]render.Column{}
-	names := map[string]bool{s.Readout: true}
 	for _, t := range s.Tables {
 		switch {
 		case builders[t.Class] == nil:
@@ -212,17 +240,22 @@ func resolved(path string) (string, error) {
 	}
 }
 
-// save writes the readout and each table into dir and returns the names written.
+// save writes the readout in each format, and each table, into dir. It
+// returns the names written.
 func (w reportRun) save(dir string, s savedSpec, columns map[string][]render.Column, readout render.Readout) ([]string, error) {
 	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return nil, fmt.Errorf("output folder: %w", err)
 	}
-	var text bytes.Buffer
-	if err := render.WriteReadout(&text, readout, false); err != nil {
-		return nil, err
+	var names []string
+	var contents [][]byte
+	writers := readoutWriters()
+	for _, r := range s.Readouts {
+		var written bytes.Buffer
+		if err := writers[r.Format](&written, readout); err != nil {
+			return nil, err
+		}
+		names, contents = append(names, r.File), append(contents, written.Bytes())
 	}
-	names := []string{s.Readout}
-	contents := [][]byte{text.Bytes()}
 	builders := tableBuilders()
 	for _, t := range s.Tables {
 		table, err := builders[t.Class](w, columns[t.Class])

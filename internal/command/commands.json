@@ -28,7 +28,11 @@
       ],
       "saved": {
         "prefix": "slopmop-",
-        "readout": "report.txt",
+        "readouts": [
+          {"format": "text", "file": "report.txt"},
+          {"format": "markdown", "file": "report.md"},
+          {"format": "html", "file": "report.html"}
+        ],
         "tables": [
           {"class": "file", "file": "files.json"},
           {"class": "trace", "file": "trace.json"},

@@ -14,12 +14,12 @@ func sampleReadout() Readout {
 		Title:  "slopmop   case42",
 		Banner: Banner{Level: LevelHigh, Text: "HIGH - 2 impacts: 1 high, 1 low"},
 		Sections: []Section{
-			{Title: "Summary", Groups: []Group{{Entries: []Entry{
+			{Title: "Summary", Groups: []Group{{Columns: []string{"item", "count", "of which"}, Entries: []Entry{
 				{Cells: []string{"files", "3", "2 scripts, 1 output"}},
 				{Cells: []string{"activities", "1", ""}},
 			}}}},
 			{Title: "Findings", Groups: []Group{
-				{Title: "activities", Entries: []Entry{
+				{Title: "activities", Columns: []string{"activity"}, Entries: []Entry{
 					{Level: LevelHigh, Cells: []string{"LogDeletion", "1 line"}, Detail: []Detail{{Label: "in", Text: "a.sh"}}},
 					{Level: LevelLow, Cells: []string{"Scan", "12 lines"}, Detail: []Detail{{Label: "in", Text: "b.sh"}, {Label: "watchlist"}}},
 				}},
