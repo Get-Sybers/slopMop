@@ -7,8 +7,10 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strings"
+	"unicode"
 
 	"github.com/get-sybers/slopmop/internal/cli"
 	"github.com/get-sybers/slopmop/internal/evidence"
@@ -197,7 +199,7 @@ func outputDir(input, given, workDir, prefix string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("output folder: %w", err)
 	}
-	name := prefix + filepath.Base(whole)
+	name := prefix + folderName(whole)
 	if dir := filepath.Join(workDir, name); !within(input, dir) {
 		return dir, nil
 	}
@@ -207,39 +209,70 @@ func outputDir(input, given, workDir, prefix string) (string, error) {
 	return "", cli.Usagef("no folder outside %s to write to; name one with -%s <folder>", input, outDir)
 }
 
-// within reports whether dir is the folder or lies in it, with symbolic
-// links resolved. A dir that does not exist yet is judged by its parent.
+// within reports whether dir is the folder or lies in it. Each folder from
+// dir upwards is compared with the folder, by its path and by the file it is,
+// so two volumes are never one place and two names of one folder are.
 func within(folder, dir string) bool {
-	root, err := resolved(folder)
-	if err != nil {
-		return true
+	root := located(folder)
+	held, heldErr := os.Stat(folder)
+	for at := located(dir); ; at = filepath.Dir(at) {
+		if samePath(at, root) {
+			return true
+		}
+		if info, err := os.Stat(at); heldErr == nil && err == nil && os.SameFile(held, info) {
+			return true
+		}
+		if filepath.Dir(at) == at {
+			return false
+		}
 	}
-	target, err := resolved(dir)
-	if err != nil {
-		return true
-	}
-	rel, err := filepath.Rel(root, target)
-	return err != nil || rel == "." || (rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)))
 }
 
-func resolved(path string) (string, error) {
+// located gives a path in full with its symbolic links resolved. A part that
+// does not exist yet, or that its volume cannot resolve, stays as written.
+func located(path string) string {
 	whole, err := filepath.Abs(path)
 	if err != nil {
-		return "", err
+		return filepath.Clean(path)
 	}
 	var rest []string
-	for {
-		target, err := filepath.EvalSymlinks(whole)
-		if err == nil {
-			return filepath.Join(append([]string{target}, rest...)...), nil
+	for at := whole; ; {
+		if target, err := filepath.EvalSymlinks(at); err == nil {
+			return filepath.Join(append([]string{target}, rest...)...)
 		}
-		parent := filepath.Dir(whole)
-		if parent == whole {
-			return "", err
+		parent := filepath.Dir(at)
+		if parent == at {
+			return whole
 		}
-		rest = append([]string{filepath.Base(whole)}, rest...)
-		whole = parent
+		rest = append([]string{filepath.Base(at)}, rest...)
+		at = parent
 	}
+}
+
+// samePath compares two paths as the system does: Windows ignores case.
+func samePath(a, b string) bool {
+	if runtime.GOOS == "windows" {
+		return strings.EqualFold(a, b)
+	}
+	return a == b
+}
+
+// folderName is the name of the input folder. A drive or the root of the
+// file system has none, and lends the letters of its volume, or "root".
+func folderName(whole string) string {
+	if name := filepath.Base(whole); name != string(filepath.Separator) && name != "." {
+		return name
+	}
+	letters := strings.Map(func(r rune) rune {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) {
+			return r
+		}
+		return -1
+	}, filepath.VolumeName(whole))
+	if letters == "" {
+		return "root"
+	}
+	return letters
 }
 
 // save writes the readout in each format, and each table, into dir. It
