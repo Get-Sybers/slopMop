@@ -134,13 +134,16 @@ func TestReportSaves(t *testing.T) {
 	}
 	// Each format holds every section, and the evidence the text holds.
 	markdown, page := readFile(t, filepath.Join(saved, "report.md")), readFile(t, filepath.Join(saved, "report.html"))
-	for _, title := range []string{"Summary", "Timeline", "Intents", "Findings", "Notable files", "Targeted", "Exposure", "Impact", "Remediation", "Mitigation"} {
+	for _, title := range []string{"Summary", "Timeline", "Findings", "Notable files", "Targeted", "Exposure", "Impact", "Remediation", "Mitigation"} {
 		if !strings.Contains(markdown, "\n## "+title+"\n") {
 			t.Errorf("report.md lacks the section %s", title)
 		}
 		if !strings.Contains(page, "<h2>"+title+"</h2>") {
 			t.Errorf("report.html lacks the section %s", title)
 		}
+	}
+	if strings.Contains(markdown, "\n## Intents\n") {
+		t.Errorf("report.md shows the empty Intents section")
 	}
 	// The title names the folder as each format escapes it, which differs with the path.
 	title, rest, _ := strings.Cut(markdown, "\n")
@@ -177,7 +180,7 @@ func TestReportSections(t *testing.T) {
 			titles = append(titles, strings.TrimSpace(strings.SplitN(line, "   ", 2)[0]))
 		}
 	}
-	want := []string{"Summary", "Timeline", "Intents", "Findings", "Notable files", "Targeted", "Exposure", "Impact", "Remediation", "Mitigation"}
+	want := []string{"Summary", "Timeline", "Findings", "Notable files", "Targeted", "Exposure", "Impact", "Remediation", "Mitigation"}
 	if !slices.Equal(titles, want) {
 		t.Errorf("sections = %q, want %q", titles, want)
 	}
@@ -272,8 +275,8 @@ func TestReportReadsOneIntent(t *testing.T) {
 // Evidence that no ARTEX run wrote has no intent, and its summary no count of them.
 func TestReportWithoutIntents(t *testing.T) {
 	readout, saved := report(t, evidencetest.Copy(t, "bash"), "summary", "intents")
-	if !strings.Contains(readout, "\nIntents   (") || !strings.Contains(readout, ")\n  none\n") {
-		t.Errorf("the section does not say there is none:\n%s", readout)
+	if strings.Contains(readout, "Intents") {
+		t.Errorf("the readout shows the empty Intents section:\n%s", readout)
 	}
 	if strings.Contains(readout, "\n  intents") {
 		t.Errorf("the summary counts intents where there are none:\n%s", readout)
@@ -833,10 +836,11 @@ func TestReportSaveFailure(t *testing.T) {
 
 func TestReportOfNothing(t *testing.T) {
 	readout, saved := report(t, t.TempDir(), "summary", "impact")
-	for _, want := range []string{"[ok] NOTHING FOUND in 0 files", "Impact\n  none\n"} {
-		if !strings.Contains(readout, want) {
-			t.Errorf("readout lacks %q:\n%s", want, readout)
-		}
+	if want := "[ok] NOTHING FOUND in 0 files"; !strings.Contains(readout, want) {
+		t.Errorf("readout lacks %q:\n%s", want, readout)
+	}
+	if bad := "Impact"; strings.Contains(readout, bad) {
+		t.Errorf("readout shows the empty Impact section:\n%s", readout)
 	}
 	if got := strings.TrimSpace(readFile(t, filepath.Join(saved, "trace.json"))); got != "[]" {
 		t.Errorf("trace.json of an empty folder = %q, want an empty array", got)

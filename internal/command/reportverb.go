@@ -151,6 +151,9 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 		shown := full
 		for _, s := range v.Sections {
 			section := render.Section{Title: s.Title, Note: s.Note, Groups: builders[s.Name](run)}
+			if sectionEmpty(section) {
+				continue
+			}
 			full.Sections = append(full.Sections, section)
 			if slices.Contains(a.Words, s.Name) {
 				shown.Sections = append(shown.Sections, section)
@@ -195,6 +198,15 @@ func (w reportRun) banner() render.Banner {
 	}
 	text := strings.ToUpper(string(top)) + " - " + plural(total, "impact") + ": " + strings.Join(parts, ", ")
 	return render.Banner{Level: string(top), Text: text}
+}
+
+func sectionEmpty(s render.Section) bool {
+	for _, g := range s.Groups {
+		if len(g.Entries) > 0 {
+			return false
+		}
+	}
+	return true
 }
 
 // summary gives one line per count; the files and the indicators carry

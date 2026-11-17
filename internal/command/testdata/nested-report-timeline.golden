@@ -1,5 +1,5 @@
 slopmop report   <folder>
-[x] HIGH - 4 impacts: 2 high, 1 medium, 1 low
+[x] HIGH - 4 impacts: 2 high, 2 low
 
 Timeline   (step, time, role, file)
   1  2025-03-01T10:15:00Z  script  phase1/20250301_101500_step01_recon.sh

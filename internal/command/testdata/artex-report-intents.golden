@@ -1,5 +1,5 @@
 slopmop report   <folder>
-[x] HIGH - 12 impacts: 8 high, 3 medium, 1 low
+[x] HIGH - 12 impacts: 8 high, 2 medium, 2 low
 [x] high   [!] medium   [i] low
 
 Summary
@@ -55,6 +55,6 @@ Intents   (an ARTEX run folder i<number>: the first and last time of its files, 
                ShellDownloadAndExecute: T1059.004, T1105 with AML.T0072, AML.T0050
       files    data/noa/exp3-worker-i1051.sh
 
-[x] HIGH - 12 impacts: 8 high, 3 medium, 1 low
+[x] HIGH - 12 impacts: 8 high, 2 medium, 2 low
 -> saved to <out>: report.txt, report.md, report.html, files.json, trace.json, intents.json, findings.json, targeted.json, exposure.json, report.json
 -> one section: slopmop -inputdir <folder> report impact
