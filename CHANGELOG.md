@@ -6,6 +6,8 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+## [0.5.4] - 2026-11-17
+
 ### Changed
 
 - The saved tables are written one row at a time instead of being built whole in memory, and
