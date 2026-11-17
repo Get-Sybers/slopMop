@@ -74,6 +74,7 @@ func sectionBuilders() map[string]sectionBuilder {
 	return map[string]sectionBuilder{
 		sectionSummary:     reportRun.summary,
 		"timeline":         reportRun.timeline,
+		"intents":          reportRun.intents,
 		"findings":         reportRun.findings,
 		sectionFiles:       reportRun.files,
 		sectionTargeted:    reportRun.targeted,
@@ -228,7 +229,7 @@ func (w reportRun) timeline() []render.Group {
 	for _, s := range w.result.timeline.Steps {
 		g.Entries = append(g.Entries, render.Entry{
 			Cells:  []string{strconv.Itoa(s.Turn), stepTime(s), string(s.File.Role), s.File.Path},
-			Detail: stepDetail(s),
+			Detail: append([]render.Detail{{Label: "intent", Text: w.result.intentOf[s.File.Path]}}, stepDetail(s)...),
 		})
 	}
 	return []render.Group{g}

@@ -68,7 +68,8 @@ Impact
 | Section | Entry | Detail lines |
 | --- | --- | --- |
 | Summary | a count and its breakdown | none |
-| Timeline | step, time, role, file | `tools`, `tactics`, `activities`, `transforms`, `wrote`, `watchlist`, `note`, `indicators` |
+| Timeline | step, time, role, file | `intent`, `tools`, `tactics`, `activities`, `transforms`, `wrote`, `watchlist`, `note`, `indicators` |
+| Intents | the intent, the first and the last time of its files, the span between them, the number of files | `task`; `tactics`; `attack`: the ATT&CK techniques; `atlas`: the ATLAS techniques; `found`: each activity with its ATT&CK techniques and the ATLAS techniques that go with them; `files` |
 | Findings, activities | activity, lines, tactics, techniques | `what`: the lines that show it, each with its place |
 | Findings, indicators | type, value, files | `watchlist`: the attributions |
 | Findings, tactics | tactic, its ATT&CK and ATLAS identifiers, files | none |
@@ -79,7 +80,7 @@ Impact
 | Remediation | the action | its text; `targets`: what to act on; `what`; `basis`; `files` when no line is quoted |
 | Mitigation | the mitigation, the techniques found that it addresses | the framework's own sentence; `for`: each activity it answers and what that activity acted on |
 
-The values are those of the classes of section 6: a timeline entry is a `trace` row, a finding
+The values are those of the classes of section 6: a timeline entry is a `trace` row, an intent entry is an `intent` row, a finding
 entry is a `finding` row, a targeted entry is a `targeted` row, an exposure entry is an `exposure`
 row and the other sections are `report` rows. An activity's `lines` is its count in the summary of
 the `report` class.
@@ -144,7 +145,7 @@ secret of four characters or fewer is all stars.
 
 ## 4. The saved files
 
-Every run saves nine files to its output folder.
+Every run saves ten files to its output folder.
 
 | File | Holds |
 | --- | --- |
@@ -153,6 +154,7 @@ Every run saves nine files to its output folder.
 | `report.html` | the report as one HTML page |
 | `files.json` | the `file` class |
 | `trace.json` | the `trace` class |
+| `intents.json` | the `intent` class |
 | `findings.json` | the `finding` class |
 | `targeted.json` | the `targeted` class |
 | `exposure.json` | the `exposure` class |
@@ -236,6 +238,7 @@ One row per file, in time order: the time in the file name, or else the modified
 | `name` | the path below the input folder |
 | `role` | `script`, `output` or `other` |
 | `time` | the timestamp in the file name as it stands, or else the modified time |
+| `intent` | the ARTEX intent the file belongs to, such as `i1042`; `null` when its path names none |
 | `tools` | the commands the file runs or records |
 | `tactics` | the tactics of those tools and of the activities |
 | `transforms` | encodings and ciphers applied |
@@ -327,7 +330,7 @@ One row per line of the report, in seven sections.
 
 | Section | A row is |
 | --- | --- |
-| `summary` | a count: `files`, `scripts`, `outputs`, `indicators` and one per type, `activities` and one per activity, `tactics`, `targeted` and one per kind, `exposed` and one per kind, and `intel hits` with `-intelfile` |
+| `summary` | a count: `files`, `scripts`, `outputs`, `indicators` and one per type, `activities` and one per activity, `tactics`, `targeted` and one per kind, `exposed` and one per kind, `intents` when a file belongs to one, and `intel hits` with `-intelfile` |
 | `script`, `output`, `other` | a notable file, under its role: one that holds a finding of high severity |
 | `targeted` | a value a script names outright, as the `targeted` class holds it: `item` is the value, `value` is `medium` for a prior one and `low` for a discovered one, `detail` the kind, the origin, the scope and the place that held it first, `files` the places in the scripts and `evidence` the lines |
 | `exposure` | an exposed value, as the `exposure` class holds it: `item` is the value, `value` the severity, `detail` the kind, whose a secret is and whether it was collected or used, and `files` its places |
@@ -354,3 +357,29 @@ remediation from `high` to `low`; then the ATT&CK mitigations and the ATLAS miti
 
 An impact says what the evidence shows was done. The tool does not run a script, so it cannot say
 whether a step succeeded.
+
+### intent
+
+One row per ARTEX intent, in the order the intents began. ARTEX gives each intent a run folder,
+`tasks/<task>/i<number>`, and names the session of its worker `exp<number>-worker-i<number>`. A
+file belongs to the intent whose folder it lies in, at any depth, or whose session its path names.
+
+| JSON key | Value |
+| --- | --- |
+| `intent` | the identifier, `i` and the number, such as `i1042` |
+| `task` | the task of the run folder; `null` when the path does not give one |
+| `first` | the time of its earliest file, as the `trace` class writes a time; `null` when no file has a time |
+| `last` | the time of its latest file |
+| `seconds` | the seconds from `first` to `last`; `0` for a single file |
+| `severity` | the highest severity among the tactics of its files; `null` when they show none |
+| `tactics` | the tactics of its files |
+| `attack` | the ATT&CK techniques of the activities its files show |
+| `atlas` | the ATLAS techniques of those activities |
+| `activities` | the activities its files show |
+| `files` | its files, in time order |
+
+- The period is that of the files: the timestamp in a file name, or else the modified time. A
+  copy that does not keep modified times moves the period of files that have no timestamp.
+- A folder named `i386`, `i486`, `i586` or `i686` is no intent.
+- When the folder read is a run folder itself, its files belong to that intent.
+- A file outside every run folder belongs to no intent and is in no row.

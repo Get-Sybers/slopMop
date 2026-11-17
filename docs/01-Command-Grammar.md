@@ -41,6 +41,7 @@ The bare words after `report` name sections of the report. No word means every s
 | --- | --- |
 | `summary` | the counts |
 | `timeline` | each file in order, with what it shows |
+| `intents` | each ARTEX intent, by its run folder i\<number\>: its period and its ATT&CK and ATLAS techniques |
 | `findings` | each activity, indicator and tactic, most severe first |
 | `files` | the files that hold a finding of high severity |
 | `targeted` | the usernames, addresses, hostnames and emails the scripts name outright |
@@ -58,8 +59,8 @@ The sections print in the order of the table, whatever order they are named in.
 - It prints the sections named, as the [output schema](02-Output-Schema.md) describes.
 - It saves the report with every section, whichever were named, as plain text, Markdown and
   HTML: `report.txt`, `report.md` and `report.html`.
-- It saves each class of the output schema as JSON: `files.json`, `trace.json`, `findings.json`,
-  `targeted.json`, `exposure.json` and `report.json`.
+- It saves each class of the output schema as JSON: `files.json`, `trace.json`, `intents.json`,
+  `findings.json`, `targeted.json`, `exposure.json` and `report.json`.
 - A file of an earlier run is replaced. The last lines of the output name the folder.
 - A secret is masked in everything it prints and saves: in the exposure, in a command quoted as
   evidence and among the indicators. `-secrets shown` writes each as it stands in the evidence.
@@ -92,7 +93,7 @@ The sections print in the order of the table, whatever order they are named in.
 | `slopmop report` | `report needs -inputdir <folder>` |
 | `slopmop report -inputdir` | `-inputdir needs a value <folder>` |
 | `slopmop -inputdir a -inputdir b report` | `-inputdir given more than once` |
-| `slopmop -inputdir case42 report bogus` | `report has no section "bogus" (sections: summary, timeline, findings, files, targeted, exposure, impact, remediation, mitigation)` |
+| `slopmop -inputdir case42 report bogus` | `report has no section "bogus" (sections: summary, timeline, intents, findings, files, targeted, exposure, impact, remediation, mitigation)` |
 | `slopmop -inputdir case42 report -o json` | `unknown option -o (options: -inputdir <folder>, -intelfile <file>, -outdir <folder>, -secrets masked\|shown)` |
 | `slopmop -inputdir case42 report -secrets plain` | `-secrets takes masked or shown, not "plain"` |
 | `slopmop -inputdir case42/missing report` | `not a folder: open case42/missing: no such file or directory` |
@@ -170,6 +171,7 @@ sections chosen:
 sections you can add:
   summary                the counts
   timeline               each file in order, with what it shows
+  intents                each ARTEX intent, by its run folder i<number>: its period and its ATT&CK and ATLAS techniques
   findings               each activity, indicator and tactic, most severe first
   files                  the files that hold a finding of high severity
   targeted               the usernames, addresses, hostnames and emails the scripts name outright

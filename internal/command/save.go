@@ -53,6 +53,7 @@ func tableBuilders() map[string]tableBuilder {
 	return map[string]tableBuilder{
 		"file":     reportRun.fileTable,
 		"trace":    reportRun.traceTable,
+		"intent":   reportRun.intentTable,
 		"finding":  reportRun.findingTable,
 		"targeted": reportRun.targetedTable,
 		"exposure": reportRun.exposureTable,
@@ -93,7 +94,8 @@ func checkSaved(s savedSpec, doc commandsDoc) (map[string][]render.Column, error
 	// A row fills every declared column, or the table cannot be written.
 	checks := map[string]func([]render.Column) ([]render.Value, error){
 		"file":     func(c []render.Column) ([]render.Value, error) { return fileRow(evidence.File{}, c) },
-		"trace":    func(c []render.Column) ([]render.Value, error) { return traceRow(trace.Step{}, c) },
+		"trace":    func(c []render.Column) ([]render.Value, error) { return traceRow(trace.Step{}, "", c) },
+		"intent":   func(c []render.Column) ([]render.Value, error) { return intentRow(intentRun{}, c) },
 		"finding":  func(c []render.Column) ([]render.Value, error) { return findingRow(finding{}, c) },
 		"targeted": func(c []render.Column) ([]render.Value, error) { return targetedRow(targeted{}, c) },
 		"exposure": func(c []render.Column) ([]render.Value, error) { return exposedRow(exposed{}, c) },
@@ -124,7 +126,7 @@ func (w reportRun) fileTable(columns []render.Column) (render.Table, error) {
 func (w reportRun) traceTable(columns []render.Column) (render.Table, error) {
 	table := render.Table{Columns: columns}
 	for _, s := range w.result.timeline.Steps {
-		row, err := traceRow(s, columns)
+		row, err := traceRow(s, w.result.intentOf[s.File.Path], columns)
 		if err != nil {
 			return table, err
 		}

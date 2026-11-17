@@ -6,6 +6,20 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-17
+
+### Added
+
+- The `intents` section of `report`: a timeline of the ARTEX intents. An intent is read from its
+  run folder, `tasks/<task>/i<number>`, or from the session name `exp<number>-worker-i<number>`.
+  Each row gives the first and last time of its files and the span between them, its tactics, its
+  ATT&CK techniques and its ATLAS techniques, and each activity with the techniques it brings.
+- `intents.json` holds the `intent` class, one row per intent. A run saves ten files.
+- The `trace` class has an `intent` key, and a step of the timeline names its intent.
+- The summary counts the intents when a file belongs to one.
+- `internal/intent` and its data file `paths.json`, which declares the rules that find an intent
+  in a path.
+
 ## [0.4.1] - 2026-11-17
 
 ### Added
