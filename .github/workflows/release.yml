@@ -75,9 +75,10 @@ jobs:
       - name: Run the artefact
         run: |
           exe="dist/slopmop-${VERSION}-windows-amd64.exe"
-          "${exe}" file list --inputdir internal/evidencetest/testdata/powershell
-          "${exe}" trace list --inputdir internal/evidencetest/testdata/powershell -o json > trace.json
-          grep -q '"tactics"' trace.json
+          "${exe}" --help
+          "${exe}" -inputdir internal/evidencetest/testdata/powershell report summary -outdir artefact-check
+          grep -q '"tactics"' artefact-check/trace.json
+          grep -q 'Summary' artefact-check/report.txt
 
       - name: Checksum
         working-directory: dist

@@ -6,6 +6,11 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Fixed
+
+- The release workflow runs the binary it publishes with the grammar of 0.4.0: `--help`, then
+  `report`, and checks the saved `trace.json` and `report.txt`.
+
 ## [0.4.0] - 2026-11-17
 
 ### Added
