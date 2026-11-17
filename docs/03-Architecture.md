@@ -31,14 +31,19 @@ about evidence touch no file, and every static table is a data file validated at
 Imports run one way:
 
 ```text
-cmd/slopmop -> command -> cli, render, trace -> parse, structured, tactic, activity, intel -> indicator
-                       |-> assess -> tactic
-                       |-> mitre
-                                   |-> inventory -> evidence -> nametime
+cmd/slopmop -> cli, command, render
+command     -> cli, render, inventory, trace, assess, exposure, mitre,
+               activity, indicator, intel, structured, tactic, evidence
+trace       -> parse, structured, tactic, activity, indicator, intel, evidence
+inventory   -> evidence -> nametime
+activity    -> vars
+exposure    -> vars
+assess      -> tactic
+intel       -> indicator
 ```
 
-`cli` and `render` import no other internal package. `parse`, `structured`, `tactic`, `activity` and
-`indicator` import no other internal package, and neither does `mitre`. `evidencetest` and `golden` are imported by tests only.
+`cli`, `render`, `parse`, `structured`, `tactic`, `indicator`, `mitre`, `nametime` and `vars` import
+no other internal package. `evidencetest` and `golden` are imported by tests only.
 
 ## 2. Data files
 
@@ -74,7 +79,7 @@ standard output, standard error and the output folder, which is never inside the
 - A file's path is below the input directory and slash separated. Its role and file-name timestamp
   come from the last element only.
 - A sub-folder below the depth, or one that cannot be read, is recorded in `Result.Skipped` and the
-  verb reports it as an error after the rows.
+  verb reports it as an error after its output is written.
 - Each file is read once. That one pass feeds SHA-256, counts the bytes and keeps the bytes the text
   needs. A file over 64 MiB is hashed and noted `oversize`; its text is not kept.
 - A file that cannot be opened or read is listed with the note `unreadable`.
@@ -85,9 +90,16 @@ standard output, standard error and the output folder, which is never inside the
 - Role: by lower-cased extension. A file no extension claims becomes a script when its text opens
   with a shebang pattern.
 - `Read` discards text after a record is built, so memory is bounded by one file. `ReadAll` retains
-  the decoded text for callers that need it (trace reconstruction).
+  the decoded text, which the trace and the exposure need; `report` uses it.
 
-## 4. Structured reports
+## 4. File-name timestamps
+
+`nametime.Detect` tries a date and time, then a 10-digit Unix epoch between 1500000000 and
+1999999999 (three more digits are read as milliseconds and dropped), then a date. Each rule looks
+at its first match only, a stamp never touches another digit, and an impossible calendar date
+abandons its rule. A date and time without `Z` is marked local: the name does not state its zone.
+
+## 5. Structured outputs
 
 The trace decodes an output whose extension `formats.json` claims before it looks for indicators
 and commands. A script is never decoded this way.
@@ -108,45 +120,58 @@ and commands. A script is never decoded this way.
   records on Linux: `proc.cmdline`, `proc.pcmdline` and `proctitle`.
 - A command is parsed as PowerShell when it holds a `Verb-Noun` cmdlet or names `powershell` or
   `pwsh`, as a cmd.exe line when it holds a drive path, a UNC path, an `.exe`, a `%NAME%` or a
-  slash switch, and as bash otherwise. Its tools, tactics and transforms fill the row of the
-  report. A report is not a turn and links no output.
+  slash switch, and as bash otherwise. Its tools, tactics and transforms fill the file's row of
+  the trace. A structured output is not a turn and links no output.
 - A JSON or XML file that is not well formed is read as plain text. HTML is decoded whatever its form.
 
-`-intelfile` takes a JSON array of entries or a STIX 2.1 bundle. From a bundle, every quoted
-literal that an equality compares in the pattern of an `indicator` object is one entry, attributed
-to the name of the indicator, or to its id when it has no name.
+## 6. Windows command lines
 
-## 5. File-name timestamps
+`parse.ExtractBatch` reads a `.bat` or `.cmd` file, and the PowerShell parser hands it every
+native command it meets: a bare name at the start of a statement, after the call operator, on the
+right of an assignment or inside a script block, the target of `Start-Process` and the arguments
+of `Process.Start`. A cmdlet is recognised by its Verb-Noun shape instead.
 
-`nametime.Detect` tries a date and time, then a 10-digit Unix epoch between 1500000000 and
-1999999999 (three more digits are read as milliseconds and dropped), then a date. Each rule looks
-at its first match only, a stamp never touches another digit, and an impossible calendar date
-abandons its rule. A date and time without `Z` is marked local: the name does not state its zone.
+- A command that launches another is followed, four levels deep: `cmd /c`, an inline
+  `powershell -Command`, `schtasks /tr`, `forfiles /c`, `wmic process call create`, `start`,
+  `call`, and the body of `if` and `for`.
+- A here-string and a block comment in a PowerShell script hold data and prose, so no command is
+  read from them.
+- `certutil -decode`, `-encode`, `-decodehex` and `-encodehex` are transforms.
+- A word that ends in `.exe` is a tool unless it is part of an address, the file an output option
+  names, or a path built from a variable that the call operator does not run.
+- A `.bat` file is a script. A `.cmd` file keeps the output role of `roles.json` and is parsed as
+  a batch file all the same.
 
-## 6. Fixtures
+## 7. Shell command lines
 
-`internal/evidencetest/testdata/bash` and `powershell` are the evidence folders of the
-AgentScriptTrace golden test in the VelociSacci repository (`tests/golden/fixtures/`), copied byte
-for byte. They hold CRLF, UTF-16, byte-order-mark and binary files on purpose.
+`parse.ExtractBash` reads a shell script one statement at a time. The tool of a statement is its
+first word that is not an assignment, an option or a wrapper such as `sudo`, `nohup`, `timeout`,
+`doas` or `xargs`.
 
-`entra`, `lolbin` and `linux` belong to this repository. `entra` is an agent's run against Entra ID,
-Microsoft Graph and Azure Key Vault in bash, PowerShell and Python, with a JSON Lines log; it shows
-the cloud activities of `activities.json` except the plain role assignment. `lolbin` is a run on a
-Windows host with living-off-the-land binaries and .NET: six PowerShell scripts, a batch file, C#
-source, an MSBuild project and a process-creation log, on documentation addresses. `linux` is a
-run on a Linux host: six shell scripts and a Python script that survey it, read credentials, raise
-privilege, keep access, reduce the record and stage data, with their outputs and an audit log in
-the field names of Falco, auditd and ECS. Its outputs hold accounts, a hash, a password, a token,
-hosts and addresses, all made up, for the exposure to find. Its lines are fragments on variables
-and documentation addresses, and no script in it works as written.
+- A command that launches another is followed, four levels deep: the string after `-c` of `sh`,
+  `bash`, `zsh`, `dash`, `ksh`, `ash` and `su`, the arguments of `eval`, the remote command of
+  `ssh`, the command of `find -exec`, what follows `--` or the container name of `kubectl exec`,
+  `docker exec` and `podman exec`, and the statements of `python -c`.
+- A subshell `( ... )` and a group `{ ...; }` are read as the commands they hold, with or without
+  a redirection after the closing bracket.
+- The commands inside `$( ... )` and backticks are read. The substitution itself is no word of
+  the outer command, so an address in it is not taken for a tool. `$(( ... ))` is arithmetic, and
+  single quotes hold text.
 
-- `.gitattributes` marks every `testdata` path `-text`, so a checkout never converts them.
-- `.gitignore`, `.editorconfig`, `.yamllint`, `.gitleaks.toml` and the fixer hooks leave `testdata` alone.
-- A checkout does not keep modified times, so `<fixture>.times.json` states one per file and
-  `evidencetest.Copy` applies it. Each is three seconds after the file-name timestamp, so the two
-  never coincide in a golden file.
+## 8. Encoded payloads
 
-## 7. Activities
+`parse.Decoded` reads what a file carries encoded, and nothing is run: the argument of a
+PowerShell `-EncodedCommand`, in any of its abbreviations, a Base64 literal handed to
+`FromBase64String` or `b64decode`, and a Base64 literal that `echo`, `printf` or a here-string
+feeds to `base64 -d`. A payload is kept when nearly all of it is printable text.
+
+- The commands of an encoded command join the file's tools, and the text of every payload is
+  searched for activities and indicators with the rest of the file. A payload piped from
+  `base64 -d` into a shell is parsed as shell commands.
+- Two layers are read: a payload that carries an encoded command is decoded once more.
+- A payload over 1 MiB of Base64 is left alone, and a file yields at most 32 payloads.
+
+## 9. Activities
 
 A tactic table names the command that ran. `curl`, `Invoke-RestMethod` and `az` say nothing about
 what a call does, so `activity.Detect` reads the text of every file, script or output, and names
@@ -244,79 +269,19 @@ the operations it shows.
 | `ServiceDiscovery` | Discovery | T1007 |
 | `ShellDownloadAndExecute` | Execution, CommandAndControl | T1059.004, T1105 |
 
-## 8. Windows command lines
+## 10. Watchlist
 
-`parse.ExtractBatch` reads a `.bat` or `.cmd` file, and the PowerShell parser hands it every
-native command it meets: a bare name at the start of a statement, after the call operator, on the
-right of an assignment or inside a script block, the target of `Start-Process` and the arguments
-of `Process.Start`. A cmdlet is recognised by its Verb-Noun shape instead.
+`-intelfile` names a watchlist of known attacker infrastructure, and `intel` matches the
+indicators of every file against it.
 
-- A command that launches another is followed, four levels deep: `cmd /c`, an inline
-  `powershell -Command`, `schtasks /tr`, `forfiles /c`, `wmic process call create`, `start`,
-  `call`, and the body of `if` and `for`.
-- A here-string and a block comment in a PowerShell script hold data and prose, so no command is
-  read from them.
-- `certutil -decode`, `-encode`, `-decodehex` and `-encodehex` are transforms.
-- A word that ends in `.exe` is a tool unless it is part of an address, the file an output option
-  names, or a path built from a variable that the call operator does not run.
-- A `.bat` file is a script. A `.cmd` file keeps the output role of `roles.json` and is parsed as
-  a batch file all the same.
+- The file is a JSON array of entries or a STIX 2.1 bundle. From a bundle, every quoted literal
+  that an equality compares in the pattern of an `indicator` object is one entry, attributed to
+  the name of the indicator, or to its id when it has no name.
+- An entry that is an address range matches every address inside it.
+- A match gives the finding its attribution and the severity `high`, and counts under
+  `intel hits` in the summary.
 
-## 9. Shell command lines
-
-`parse.ExtractBash` reads a shell script one statement at a time. The tool of a statement is its
-first word that is not an assignment, an option or a wrapper such as `sudo`, `nohup`, `timeout`,
-`doas` or `xargs`.
-
-- A command that launches another is followed, four levels deep: the string after `-c` of `sh`,
-  `bash`, `zsh`, `dash`, `ksh`, `ash` and `su`, the arguments of `eval`, the remote command of
-  `ssh`, the command of `find -exec`, what follows `--` or the container name of `kubectl exec`,
-  `docker exec` and `podman exec`, and the statements of `python -c`.
-- A subshell `( ... )` and a group `{ ...; }` are read as the commands they hold, with or without
-  a redirection after the closing bracket.
-- The commands inside `$( ... )` and backticks are read. The substitution itself is no word of
-  the outer command, so an address in it is not taken for a tool. `$(( ... ))` is arithmetic, and
-  single quotes hold text.
-
-## 10. Encoded payloads
-
-`parse.Decoded` reads what a file carries encoded, and nothing is run: the argument of a
-PowerShell `-EncodedCommand`, in any of its abbreviations, a Base64 literal handed to
-`FromBase64String` or `b64decode`, and a Base64 literal that `echo`, `printf` or a here-string
-feeds to `base64 -d`. A payload is kept when nearly all of it is printable text.
-
-- The commands of an encoded command join the file's tools, and the text of every payload is
-  searched for activities and indicators with the rest of the file. A payload piped from
-  `base64 -d` into a shell is parsed as shell commands.
-- Two layers are read: a payload that carries an encoded command is decoded once more.
-- A payload over 1 MiB of Base64 is left alone, and a file yields at most 32 payloads.
-
-## 11. Assessment
-
-The report ends with what the findings mean and what to do about them. Impacts and remediation
-come from data files, and `assess` holds no knowledge of its own. Mitigation comes from the
-catalogue of section 13.
-
-- An impact or an action applies when one of its triggers is in the evidence: an activity, the
-  tactic of a tool that ran, a watchlist match, or an exposed value of a kind it names. The tactics an activity adds do not trigger
-  anything: the activity is named directly, so a reflective load is not read as log clearing.
-- The basis and the files of each row say why it is there, so a reader can check the claim.
-- Each row names its targets and quotes its evidence: the subjects and the lines of its
-  activities, the first command of each tool behind its tactics, and the exposed values of the
-  kinds it names. A secret counts whether it was collected or used; a username, an email address,
-  a device and an address count only when collected, because what the attacker brought is not
-  what the environment lost. A mitigation names each activity it answers and its subjects.
-- A line an activity quotes is not quoted again for the tool that ran on it.
-- An impact lists up to five affected values of the indicator types it names, taken from the
-  files that show it; an address is cut to its host.
-- A test fails when an activity has no impact or no remediation, so a finding cannot be reported
-  and then left out of the assessment.
-- One impact is not found but assumed: the scripts were written by an AI agent, which is the
-  premise of the tool. It applies whenever anything is found and stands for an ATLAS technique.
-- A notable file is one whose activities, tool tactics or watchlist matches are of high severity.
-  A watchlist match is `high`.
-
-## 12. Exposure
+## 11. Exposure and targets
 
 `exposure.Extract` reads the text of every file and names what it holds that an attacker can use.
 The rules are those of `exposures.json`, and the classes are described in the
@@ -342,11 +307,41 @@ The rules are those of `exposures.json`, and the classes are described in the
 - A secret seen without an account is the same secret seen with one, so the two are one row.
 - A line number is a line of the file. An indicator or an activity found in a decoded report or
   in a decoded payload has none.
-- The same pass gathers what the scripts name outright. A username, an email address, a device
-  or an address read from a script is a target; so is a domain, which is of no kind in an output.
-  `exposures.json` says which kinds are listed and under what title. A target is `discovered`
-  when a file that is not a script and stands earlier in the timeline holds the same value, and
-  `prior` otherwise. Its script lines are quoted after every secret is known, so each is masked.
+
+The same pass gathers the targets: what the scripts name outright.
+
+- A username, an email address, a device or an address read from a script is a target; so is a
+  domain, which is of no kind in an output. `exposures.json` says which kinds are listed and
+  under what title.
+- A target is `discovered` when a file that is not a script and stands earlier in the timeline
+  holds the same value, and `prior` otherwise.
+- Its script lines are quoted after every secret is known, so each is masked.
+
+## 12. Assessment
+
+The report ends with what the findings mean and what to do about them. Impacts and remediation
+come from data files, and `assess` holds no knowledge of its own. Mitigation comes from the
+catalogue of section 13.
+
+- An impact or an action applies when one of its triggers is in the evidence: an activity, the
+  tactic of a tool that ran, a watchlist match, or an exposed value of a kind it names. The
+  tactics an activity adds do not trigger anything: the activity is named directly, so a
+  reflective load is not read as log clearing.
+- The basis and the files of each row say why it is there, so a reader can check the claim.
+- Each row names its targets and quotes its evidence: the subjects and the lines of its
+  activities, the first command of each tool behind its tactics, and the exposed values of the
+  kinds it names. A secret counts whether it was collected or used; a username, an email address,
+  a device and an address count only when collected, because what the attacker brought is not
+  what the environment lost. A mitigation names each activity it answers and its subjects.
+- A line an activity quotes is not quoted again for the tool that ran on it.
+- An impact lists up to five affected values of the indicator types it names, taken from the
+  files that show it; an address is cut to its host.
+- A test fails when an activity has no impact or no remediation, so a finding cannot be reported
+  and then left out of the assessment.
+- One impact is not found but assumed: the scripts were written by an AI agent, which is the
+  premise of the tool. It applies whenever anything is found and stands for an ATLAS technique.
+- A notable file is one whose activities, tool tactics or watchlist matches are of high severity.
+  A watchlist match is `high`.
 
 ## 13. MITRE ATT&CK and MITRE ATLAS
 
@@ -365,3 +360,26 @@ one-sentence summary of each mitigation, not the full text of either framework.
 - The mitigation rows of the report are not written here. For the techniques found, the
   catalogue gives the mitigations each framework links to them; a row is one mitigation, the
   techniques found that it addresses, and the activities and files that showed them.
+
+## 14. Fixtures
+
+`internal/evidencetest/testdata/bash` and `powershell` are the evidence folders of the
+AgentScriptTrace golden test in the VelociSacci repository (`tests/golden/fixtures/`), copied byte
+for byte. They hold CRLF, UTF-16, byte-order-mark and binary files on purpose.
+
+`entra`, `lolbin` and `linux` belong to this repository. `entra` is an agent's run against Entra ID,
+Microsoft Graph and Azure Key Vault in bash, PowerShell and Python, with a JSON Lines log; it shows
+the cloud activities of `activities.json` except the plain role assignment. `lolbin` is a run on a
+Windows host with living-off-the-land binaries and .NET: six PowerShell scripts, a batch file, C#
+source, an MSBuild project and a process-creation log, on documentation addresses. `linux` is a
+run on a Linux host: six shell scripts and a Python script that survey it, read credentials, raise
+privilege, keep access, reduce the record and stage data, with their outputs and an audit log in
+the field names of Falco, auditd and ECS. Its outputs hold accounts, a hash, a password, a token,
+hosts and addresses, all made up, for the exposure to find. Its lines are fragments on variables
+and documentation addresses, and no script in it works as written.
+
+- `.gitattributes` marks every `testdata` path `-text`, so a checkout never converts them.
+- `.gitignore`, `.editorconfig`, `.yamllint`, `.gitleaks.toml` and the fixer hooks leave `testdata` alone.
+- A checkout does not keep modified times, so `<fixture>.times.json` states one per file and
+  `evidencetest.Copy` applies it. Each is three seconds after the file-name timestamp, so the two
+  never coincide in a golden file.
