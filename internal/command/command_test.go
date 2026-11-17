@@ -843,6 +843,45 @@ func TestOutputDir(t *testing.T) {
 	}
 }
 
+// A folder is inside another by where it is, not by how its path is written.
+func TestWithin(t *testing.T) {
+	root := t.TempDir()
+	input := filepath.Join(root, "case42")
+	if err := os.MkdirAll(filepath.Join(input, "sub"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	for _, tt := range []struct {
+		name, folder, dir string
+		want              bool
+	}{
+		{"itself", input, input, true},
+		{"a folder in it", input, filepath.Join(input, "sub"), true},
+		{"a folder to be made in it", input, filepath.Join(input, "new", "deeper"), true},
+		{"its parent", input, root, false},
+		{"a folder beside it", input, filepath.Join(root, "slopmop-case42"), false},
+		{"a folder whose name begins the same", input, input + "-out", false},
+		{"written with a way round", input, filepath.Join(root, "other", "..", "case42", "out"), true},
+		{"an input that does not exist", filepath.Join(root, "missing"), filepath.Join(root, "out"), false},
+		{"inside an input that does not exist", filepath.Join(root, "missing"), filepath.Join(root, "missing", "out"), true},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := within(tt.folder, tt.dir); got != tt.want {
+				t.Errorf("within(%q, %q) = %t, want %t", tt.folder, tt.dir, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestFolderName(t *testing.T) {
+	if got := folderName(filepath.Join(t.TempDir(), "case42")); got != "case42" {
+		t.Errorf("folderName = %q, want case42", got)
+	}
+	// A root without a volume has no letters to lend.
+	if got := folderName(string(filepath.Separator)); got != "root" {
+		t.Errorf("the root of the file system is named %q, want root", got)
+	}
+}
+
 // A run from inside the evidence writes beside it and leaves it as it was.
 func TestReportLeavesTheEvidenceAlone(t *testing.T) {
 	folder := evidencetest.Copy(t, "bash")

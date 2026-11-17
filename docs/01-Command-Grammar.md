@@ -66,8 +66,11 @@ The sections print in the order of the table, whatever order they are named in.
   evidence and among the indicators. `-secrets shown` writes each as it stands in the evidence.
 - The output folder is `slopmop-<name of the input folder>` in the current directory. When the
   current directory is the input folder or inside it, the output folder is made beside the input
-  folder. `-outdir <folder>` names another, which is made when it is missing. An output folder
-  inside the input folder is refused before anything is read, with symbolic links resolved.
+  folder. `-outdir <folder>` names another, which is made when it is missing. A drive that is
+  read whole gives its letter for the name: `slopmop-E`.
+- An output folder inside the input folder is refused before anything is read. A folder is
+  inside by where it is: symbolic links are resolved, a second name for the input folder counts
+  as the input folder, and a folder on another drive is never inside.
 - When the output cannot be written, the report still prints, and the command then fails with exit
   code 1.
 - A sub-folder that is deeper than 16 levels or cannot be read is left out: the report prints and

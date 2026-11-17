@@ -6,6 +6,18 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-11-17
+
+### Fixed
+
+- An output folder on another drive than the input folder is no longer refused as being inside
+  it. Two paths on two Windows volumes could not be compared, and that was read as "inside", so
+  `-outdir` on another drive failed and the default output folder was never the current directory.
+- An input folder on a volume that cannot resolve its links, such as some mounted disk images, is
+  compared by its path and by the folder it is, and is no longer refused.
+- A drive that is read whole, such as `-inputdir E:\`, gives the output folder the letter of the
+  drive, `slopmop-E`; it had no name to give.
+
 ## [0.5.0] - 2026-11-17
 
 ### Added
