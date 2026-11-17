@@ -1,7 +1,0 @@
-FINDING  SEVERITY  TACTIC             INDICATOR  FILES                                                         ATTRIBUTION
-tactic   high      CommandAndControl  -          20261020_100500_step02_download.ps1, 20261020_102000_step...  -
-tactic   high      DefenseImpairment  -          20261020_101500_step04_persist.ps1, 20261020_103000_step0...  -
-tactic   high      Persistence        -          20261020_101500_step04_persist.ps1                            -
-tactic   medium    Execution          -          20261020_101000_step03_exec.ps1, 20261020_101500_step04_p...  -
-tactic   medium    Stealth            -          20261020_101000_step03_exec.ps1, 20261020_101500_step04_p...  -
-tactic   low       Discovery          -          20261020_100000_step01_recon.ps1, 20261020_102500_step06_...  -

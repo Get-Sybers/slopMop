@@ -6,7 +6,7 @@ import (
 
 	"github.com/get-sybers/slopmop/internal/activity"
 	"github.com/get-sybers/slopmop/internal/assess"
-	"github.com/get-sybers/slopmop/internal/cli"
+	"github.com/get-sybers/slopmop/internal/exposure"
 	"github.com/get-sybers/slopmop/internal/indicator"
 	"github.com/get-sybers/slopmop/internal/intel"
 	"github.com/get-sybers/slopmop/internal/inventory"
@@ -23,6 +23,10 @@ type analysis struct {
 	watchlist *intel.Watchlist
 	// skipped names the sub-folders a recursive read left out.
 	skipped []string
+	// exposed is what the evidence holds that an attacker can use.
+	exposed []exposed
+	// redact masks every secret among them in a text that quotes the evidence.
+	redact func(string) string
 }
 
 type pipeline struct {
@@ -32,6 +36,7 @@ type pipeline struct {
 	formats    structured.Table
 	assessment assess.Table
 	catalogue  mitre.Catalogue
+	exposures  exposure.Table
 }
 
 func loadPipeline() (pipeline, error) {
@@ -61,14 +66,38 @@ func loadPipeline() (pipeline, error) {
 	if err != nil {
 		return pipeline{}, err
 	}
-	assessment, err := loadAssessment(tactics, activities, patterns, catalogue)
+	exposures, err := loadExposures(patterns)
+	if err != nil {
+		return pipeline{}, err
+	}
+	assessment, err := loadAssessment(tactics, activities, patterns, catalogue, exposures)
 	if err != nil {
 		return pipeline{}, err
 	}
 	return pipeline{
 		tactics: tactics, activities: activities, patterns: patterns, formats: formats,
-		assessment: assessment, catalogue: catalogue,
+		assessment: assessment, catalogue: catalogue, exposures: exposures,
 	}, nil
+}
+
+// loadExposures checks that the exposure table names only indicator types
+// that exist and gives each kind a severity the tactic table knows.
+func loadExposures(patterns indicator.Table) (exposure.Table, error) {
+	table, err := exposure.Load()
+	if err != nil {
+		return exposure.Table{}, err
+	}
+	for _, typ := range table.IndicatorTypes() {
+		if !patterns.Has(typ) {
+			return exposure.Table{}, fmt.Errorf("exposures.json names the indicator type %q, which indicators.json lacks", typ)
+		}
+	}
+	for _, k := range table.Kinds() {
+		if tactic.Severity(k.Severity).Rank() == 0 {
+			return exposure.Table{}, fmt.Errorf("exposures.json gives %s the severity %q, which is not low, medium or high", k.Name, k.Severity)
+		}
+	}
+	return table, nil
 }
 
 // loadCatalogue checks that every ATT&CK and ATLAS identifier the tactic
@@ -109,13 +138,13 @@ func (p pipeline) atlasOf(hit activity.Hit) []string {
 
 // loadAssessment checks that the impact and action tables name only what
 // the other tables declare.
-func loadAssessment(tactics tactic.Table, activities activity.Table, patterns indicator.Table, catalogue mitre.Catalogue) (assess.Table, error) {
+func loadAssessment(tactics tactic.Table, activities activity.Table, patterns indicator.Table, catalogue mitre.Catalogue, exposures exposure.Table) (assess.Table, error) {
 	table, err := assess.LoadTable()
 	if err != nil {
 		return assess.Table{}, err
 	}
 	known := activities.Names()
-	named, namedTactics, namedTypes, namedAtlas := table.Names()
+	named, namedTactics, namedTypes, namedAtlas, namedKinds := table.Names()
 	for _, name := range named {
 		if !slices.Contains(known, name) {
 			return assess.Table{}, fmt.Errorf("the assessment tables name the activity %q, which activities.json lacks", name)
@@ -136,16 +165,23 @@ func loadAssessment(tactics tactic.Table, activities activity.Table, patterns in
 			return assess.Table{}, fmt.Errorf("impacts.json names the ATLAS technique %q, which the catalogue lacks", id)
 		}
 	}
+	for _, kind := range namedKinds {
+		if !slices.ContainsFunc(exposures.Kinds(), func(k exposure.Kind) bool { return k.Name == kind }) {
+			return assess.Table{}, fmt.Errorf("the assessment tables name the kind of exposure %q, which exposures.json lacks", kind)
+		}
+	}
 	return table, nil
 }
 
-func (p pipeline) run(a *cli.Args) (analysis, error) {
-	res, err := inventory.ReadAll(a.Params[inputDir], depth(a))
+// read analyses a folder, levels deep, against the watchlist at path, if
+// any. plain writes secrets out as they are; otherwise each is masked.
+func (p pipeline) read(folder string, levels int, path string, plain bool) (analysis, error) {
+	res, err := inventory.ReadAll(folder, levels)
 	if err != nil {
 		return analysis{}, err
 	}
 	var watchlist *intel.Watchlist
-	if path := a.Params[intelFile]; path != "" {
+	if path != "" {
 		wl, err := loadIntelFile(path)
 		if err != nil {
 			return analysis{}, err
@@ -155,24 +191,28 @@ func (p pipeline) run(a *cli.Args) (analysis, error) {
 	tables := trace.Tables{
 		Tactics: p.tactics, Activities: p.activities, Patterns: p.patterns, Formats: p.formats, Watchlist: watchlist,
 	}
+	timeline := trace.Build(res.Files, res.Texts, tables)
+	found := p.collectExposed(timeline.Steps, res.Texts, plain)
 	return analysis{
-		timeline:  trace.Build(res.Files, res.Texts, tables),
+		timeline:  timeline,
 		watchlist: watchlist,
 		skipped:   res.Skipped,
+		exposed:   found,
+		redact:    redactor(found),
 	}, nil
 }
 
 // orderCells orders a row's cells by the declared columns, so the declaration
 // and the code cannot drift apart unnoticed.
-func orderCells(verb string, cells map[string]render.Value, columns []render.Column) ([]render.Value, error) {
+func orderCells(class string, cells map[string]render.Value, columns []render.Column) ([]render.Value, error) {
 	if len(columns) != len(cells) {
-		return nil, fmt.Errorf("%s declares %d columns and fills %d", verb, len(columns), len(cells))
+		return nil, fmt.Errorf("the class %s declares %d columns and fills %d", class, len(columns), len(cells))
 	}
 	row := make([]render.Value, len(columns))
 	for i, c := range columns {
 		cell, ok := cells[c.Key]
 		if !ok {
-			return nil, fmt.Errorf("%s declares the column %q, which has no value", verb, c.Key)
+			return nil, fmt.Errorf("the class %s declares the column %q, which has no value", class, c.Key)
 		}
 		row[i] = cell
 	}

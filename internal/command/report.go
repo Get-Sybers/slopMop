@@ -1,7 +1,6 @@
 package command
 
 import (
-	"errors"
 	"slices"
 	"sort"
 	"strconv"
@@ -9,7 +8,6 @@ import (
 
 	"github.com/get-sybers/slopmop/internal/activity"
 	"github.com/get-sybers/slopmop/internal/assess"
-	"github.com/get-sybers/slopmop/internal/cli"
 	"github.com/get-sybers/slopmop/internal/evidence"
 	"github.com/get-sybers/slopmop/internal/mitre"
 	"github.com/get-sybers/slopmop/internal/render"
@@ -21,13 +19,18 @@ import (
 const (
 	sectionSummary     = "summary"
 	sectionFiles       = "files"
+	sectionExposure    = "exposure"
 	sectionImpact      = "impact"
 	sectionRemediation = "remediation"
 	sectionMitigation  = "mitigation"
 )
 
-// severityParam sets how severe a finding makes a file notable.
-const severityParam = "severity"
+const (
+	// maxCited is how many lines one activity, or the tools of one tactic, keep as evidence.
+	maxCited = 24
+	// toolsSuffix ends the basis that names the tools of a tactic.
+	toolsSuffix = " tools"
+)
 
 type metric struct {
 	name  string
@@ -49,60 +52,10 @@ type reportRow struct {
 	// those a mitigation addresses.
 	attack []string
 	atlas  []string
-}
-
-func (e Env) reportList(v verbSpec) (*cli.Verb, error) {
-	if v.Name != "list" || len(v.Aliases) > 0 {
-		return nil, errors.New("the global list verb takes its name and alias from cli.ListVerb")
-	}
-	pipe, err := loadPipeline()
-	if err != nil {
-		return nil, err
-	}
-	if _, err := reportCells(reportRow{}, v.Columns); err != nil {
-		return nil, err
-	}
-	spec := cli.Spec{
-		Selectors: map[string]string{
-			sectionSummary:     "show only the counts",
-			sectionFiles:       "show only the notable files",
-			sectionImpact:      "show only the impact",
-			sectionRemediation: "show only the remediation",
-			sectionMitigation:  "show only the mitigation",
-		},
-		Params:   map[string]string{inputDir: "<folder>", intelFile: "<file>", severityParam: "low|medium|high"},
-		Switches: recursiveSwitch(),
-		Required: []string{inputDir},
-	}
-	return cli.ListVerb(v.Summary, spec, func(a *cli.Args) error {
-		threshold := tactic.High
-		if given, ok := a.Params[severityParam]; ok {
-			threshold = tactic.Severity(given)
-			if threshold.Rank() == 0 {
-				return cli.Usagef("--%s takes low, medium or high, not %q", severityParam, given)
-			}
-		}
-		result, err := pipe.run(a)
-		if err != nil {
-			return err
-		}
-		wanted := map[string]bool{}
-		for _, sel := range a.Selectors {
-			wanted[sel] = true
-		}
-		table := render.Table{Columns: v.Columns}
-		for _, row := range pipe.report(result, threshold, wanted) {
-			cells, err := reportCells(row, v.Columns)
-			if err != nil {
-				return err
-			}
-			table.Rows = append(table.Rows, cells)
-		}
-		if err := render.Write(e.Stdout, table, e.options(a.Output)); err != nil {
-			return err
-		}
-		return skippedError(result.skipped)
-	}), nil
+	// targets name what the row concerns: the account, the file, the host.
+	targets []string
+	// evidence holds the lines that show it, each with its file and line.
+	evidence []string
 }
 
 // report assembles the wanted sections in their fixed order.
@@ -116,7 +69,23 @@ func (p pipeline) report(a analysis, threshold tactic.Severity, wanted map[strin
 	if wanted[sectionFiles] {
 		rows = append(rows, p.notableFiles(a, threshold)...)
 	}
-	found, shown := p.gather(a)
+	if wanted[sectionExposure] {
+		for _, e := range a.exposed {
+			detail := e.seen
+			if e.kind.Secret {
+				detail = e.label() + ", " + e.seen
+			}
+			cites := make([]string, len(e.cites))
+			for i, c := range e.cites {
+				cites[i] = c.String()
+			}
+			rows = append(rows, reportRow{
+				item: e.shown(), section: sectionExposure, level: tactic.Severity(e.kind.Severity),
+				detail: e.kind.Name + ": " + detail, files: cites,
+			})
+		}
+	}
+	found, shown, tools := p.gather(a)
 	impacts := p.assessment.Impacts(found)
 	if wanted[sectionImpact] {
 		for _, r := range impacts {
@@ -131,18 +100,62 @@ func (p pipeline) report(a analysis, threshold tactic.Severity, wanted map[strin
 			row := reportRow{item: r.Name, section: sectionImpact, level: r.Level, detail: detail, basis: r.Basis, files: r.Files}
 			row.attack, row.atlas = p.techniques(shown, r.Activities)
 			row.atlas = appendUnique(row.atlas, r.Atlas...)
+			row.targets, row.evidence = support(shown, tools, r)
 			rows = append(rows, row)
 		}
 	}
 	if wanted[sectionRemediation] {
 		for _, r := range p.assessment.Remediation(found) {
-			rows = append(rows, reportRow{item: r.Name, section: sectionRemediation, level: r.Level, detail: r.Text, basis: r.Basis, files: r.Files})
+			row := reportRow{item: r.Name, section: sectionRemediation, level: r.Level, detail: r.Text, basis: r.Basis, files: r.Files}
+			row.targets, row.evidence = support(shown, tools, r)
+			rows = append(rows, row)
 		}
 	}
 	if wanted[sectionMitigation] {
 		rows = append(rows, p.mitigations(shown, impacts)...)
 	}
 	return rows
+}
+
+// support names what an impact or an action concerns and the lines that
+// show it: the subjects and lines of its activities, the commands of the
+// tools behind its tactics, and the exposed values it lists.
+func support(shown []shownActivity, tools map[string][]cited, r assess.Result) (targets, evidence []string) {
+	quoted := map[cite]bool{}
+	for _, name := range r.Activities {
+		for _, s := range shown {
+			if s.hit.Name != name {
+				continue
+			}
+			for _, c := range s.cites {
+				targets = appendUnique(targets, c.targets()...)
+				evidence = append(evidence, name+": "+c.String())
+				quoted[c.cite] = true
+			}
+		}
+	}
+	for _, basis := range r.Basis {
+		if name, isTools := strings.CutSuffix(basis, toolsSuffix); isTools {
+			for _, c := range tools[name] {
+				// A line an activity already quotes is not quoted again for its tool.
+				if c.line == 0 || !quoted[c.cite] {
+					evidence = append(evidence, c.String())
+				}
+			}
+		}
+	}
+	for _, l := range r.Exposed {
+		for _, label := range l.Labels {
+			if !strings.Contains(label, " ") {
+				label = l.Kind + " " + label
+			}
+			targets = appendUnique(targets, label)
+		}
+		if l.More > 0 {
+			targets = append(targets, "and "+strconv.Itoa(l.More)+" more of kind "+l.Kind)
+		}
+	}
+	return targets, evidence
 }
 
 // techniques returns the ATT&CK and ATLAS techniques of the named activities.
@@ -156,10 +169,51 @@ func (p pipeline) techniques(shown []shownActivity, names []string) (attack, atl
 	return attack, atlas
 }
 
-// shownActivity is an activity the timeline found and the files that show it.
+// shownActivity is an activity the timeline found, the files that show it
+// and the first lines that do.
 type shownActivity struct {
 	hit   activity.Hit
 	files []string
+	cites []cited
+}
+
+// cited is one line of evidence in one file.
+type cited struct {
+	cite
+	text     string
+	subjects []activity.Subject
+}
+
+// cited keeps a line of evidence with every secret in it masked.
+func (a analysis) cited(path string, e activity.Evidence) cited {
+	subjects := make([]activity.Subject, len(e.Subjects))
+	for i, s := range e.Subjects {
+		subjects[i] = activity.Subject{Label: s.Label, Value: a.redact(s.Value)}
+	}
+	return cited{cite{path, e.Line}, a.redact(e.Text), subjects}
+}
+
+// String writes the line and where it stands.
+func (c cited) String() string {
+	return c.text + " (" + c.cite.String() + ")"
+}
+
+// targets names the subjects of the line, each with its label.
+func (c cited) targets() []string {
+	out := make([]string, len(c.subjects))
+	for i, s := range c.subjects {
+		out[i] = s.Label + " " + s.Value
+	}
+	return out
+}
+
+// subjects lists the targets of an activity across its lines, each once.
+func (s shownActivity) subjects() []string {
+	var out []string
+	for _, c := range s.cites {
+		out = appendUnique(out, c.targets()...)
+	}
+	return out
 }
 
 // cause is what showed a technique: the activities or impacts, their files
@@ -202,7 +256,18 @@ func (p pipeline) mitigations(shown []shownActivity, impacts []assess.Result) []
 		}
 	}
 	rows := mitigationRows(p.catalogue.Attack, attack, false)
-	return append(rows, mitigationRows(p.catalogue.Atlas, atlas, true)...)
+	rows = append(rows, mitigationRows(p.catalogue.Atlas, atlas, true)...)
+	// A mitigation is advice of the framework; what it is for here makes it concrete.
+	for i := range rows {
+		for _, name := range rows[i].basis {
+			for _, s := range shown {
+				if subjects := s.subjects(); s.hit.Name == name && len(subjects) > 0 {
+					rows[i].targets = append(rows[i].targets, name+": "+strings.Join(subjects, ", "))
+				}
+			}
+		}
+	}
+	return rows
 }
 
 func mitigationRows(framework mitre.Framework, by map[string]*cause, isAtlas bool) []reportRow {
@@ -306,16 +371,19 @@ func (p pipeline) highest(tactics []string) tactic.Severity {
 	return severity
 }
 
-// gather indexes what the timeline found by the files it was found in, and
-// lists the activities in the order they were first seen.
-func (p pipeline) gather(a analysis) (assess.Evidence, []shownActivity) {
+// gather indexes what the timeline found by the files it was found in, lists
+// the activities in the order they were first seen, and keeps the commands
+// of the tools behind each tactic.
+func (p pipeline) gather(a analysis) (assess.Evidence, []shownActivity, map[string][]cited) {
 	var shown []shownActivity
 	index := map[string]int{}
+	tools := map[string][]cited{}
 	found := assess.Evidence{
 		Activities: map[string][]string{},
 		Tactics:    map[string][]string{},
 		Hits:       map[string][]string{},
 		Indicators: map[string]map[string][]string{},
+		Exposed:    exposedEvidence(a.exposed),
 	}
 	for _, s := range a.timeline.Steps {
 		path := s.File.Path
@@ -328,10 +396,20 @@ func (p pipeline) gather(a analysis) (assess.Evidence, []shownActivity) {
 				shown = append(shown, shownActivity{hit: hit})
 			}
 			shown[i].files = appendUnique(shown[i].files, path)
+			for _, e := range hit.Evidence {
+				if len(shown[i].cites) < maxCited {
+					shown[i].cites = append(shown[i].cites, a.cited(path, e))
+				}
+			}
 		}
 		for _, tool := range s.Tools {
 			if name := p.tactics.Classify(tool); name != "" {
 				found.Tactics[name] = appendUnique(found.Tactics[name], path)
+			}
+		}
+		for _, c := range s.Commands {
+			if name := p.tactics.Classify(c.Tool); name != "" && len(tools[name]) < maxCited {
+				tools[name] = append(tools[name], cited{cite: cite{path, c.Line}, text: a.redact(c.Tool + ": " + c.Text)})
 			}
 		}
 		for _, hit := range s.IntelHits {
@@ -344,7 +422,7 @@ func (p pipeline) gather(a analysis) (assess.Evidence, []shownActivity) {
 			found.Indicators[path][m.Type] = append(found.Indicators[path][m.Type], m.Value)
 		}
 	}
-	return found, shown
+	return found, shown, tools
 }
 
 // listMetrics counts distinct values across the whole timeline; an activity
@@ -402,6 +480,18 @@ func listMetrics(a analysis) []metric {
 		metrics = append(metrics, metric{"activities " + name, activities[name]})
 	}
 	metrics = append(metrics, metric{"tactics", len(tactics)})
+	metrics = append(metrics, metric{"exposed", len(a.exposed)})
+	kinds := map[string]int{}
+	var order []string
+	for _, e := range a.exposed {
+		if kinds[e.kind.Name] == 0 {
+			order = append(order, e.kind.Name)
+		}
+		kinds[e.kind.Name]++
+	}
+	for _, name := range order {
+		metrics = append(metrics, metric{"exposed " + name, kinds[name]})
+	}
 	if a.watchlist != nil {
 		metrics = append(metrics, metric{"intel hits", len(hits)})
 	}
@@ -424,6 +514,15 @@ func reportCells(r reportRow, columns []render.Column) ([]render.Value, error) {
 		"files":   list(r.files),
 		"attack":  list(r.attack),
 		"atlas":   list(r.atlas),
+		"targets": render.NotApplicable(),
+		// One line of evidence is one line of the cell, so a command with a comma stays whole.
+		"evidence": render.NotApplicable(),
+	}
+	if len(r.targets) > 0 {
+		cells["targets"] = render.Text(strings.Join(r.targets, "; "))
+	}
+	if len(r.evidence) > 0 {
+		cells["evidence"] = render.Text(strings.Join(r.evidence, "\n"))
 	}
 	if r.section == sectionSummary || r.level == "" {
 		cells["value"] = render.Int(int64(r.count))
@@ -431,5 +530,5 @@ func reportCells(r reportRow, columns []render.Column) ([]render.Value, error) {
 	if r.detail != "" {
 		cells["detail"] = render.Text(r.detail)
 	}
-	return orderCells("report list", cells, columns)
+	return orderCells("report", cells, columns)
 }

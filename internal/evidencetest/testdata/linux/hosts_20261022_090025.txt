@@ -1,0 +1,3 @@
+127.0.0.1 localhost
+10.20.30.5 db01.corp.internal db01
+10.20.30.6 build01.corp.internal build01

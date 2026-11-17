@@ -1,0 +1,24 @@
+usage: slopmop -inputdir <folder> report [section ...] [-intelfile <file>] [-outdir <folder>] [-secrets masked|shown]
+reads the folder and everything below it, runs nothing, prints the report and saves it
+so far: slopmop -inputdir case42 report
+
+given:
+  -inputdir case42       the folder of scripts and outputs to read
+
+sections (name any to print only those; none = all):
+  summary                the counts
+  timeline               each file in order, with what it shows
+  findings               each activity, indicator and tactic, most severe first
+  files                  the files that hold a finding of high severity
+  exposure               the usernames, emails, passwords, devices and addresses the files hold
+  impact                 what the findings mean, with what each concerns and the lines that show it
+  remediation            what to do about them and to what, most urgent first
+  mitigation             what MITRE ATT&CK and ATLAS say prevents the techniques found
+
+options you can add (one dash or two; each takes a value):
+  -intelfile <file>      a watchlist, JSON or STIX 2.1, to attribute the indicators to
+  -outdir <folder>       where the output is saved; slopmop-<name> in the current directory when not given
+  -secrets masked|shown  how a password, a hash, a token or a key is written; masked when not given
+
+next: slopmop -inputdir case42 report summary --help
+run:  slopmop -inputdir case42 report

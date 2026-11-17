@@ -2,177 +2,65 @@ package command
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/get-sybers/slopmop/internal/cli"
 	"github.com/get-sybers/slopmop/internal/evidencetest"
+	"github.com/get-sybers/slopmop/internal/exposure"
 	"github.com/get-sybers/slopmop/internal/golden"
 	"github.com/get-sybers/slopmop/internal/inventory"
 )
 
+const watchlist = "testdata/watchlist.json"
+
+// run drives the app as the binary does. A work folder of its own keeps an
+// output folder out of the source tree.
 func run(t *testing.T, args ...string) (string, error) {
 	t.Helper()
 	var out bytes.Buffer
-	app := cli.New("slopmop", &out)
-	if err := Register(app, Env{Stdout: &out, Local: time.FixedZone("test", 10*60*60)}); err != nil {
+	app, err := NewApp("slopmop", Env{Stdout: &out, WorkDir: t.TempDir()})
+	if err != nil {
 		t.Fatal(err)
 	}
-	err := app.Run(args)
+	err = app.Run(args)
 	return out.String(), err
 }
 
-func TestFileListViews(t *testing.T) {
-	views := []struct {
-		name string
-		args []string
-	}{
-		{"default", nil},
-		{"wide", []string{"-o", "wide"}},
-		{"json", []string{"-o", "json"}},
-		{"quiet", []string{"-q"}},
-		{"no-headers", []string{"--no-headers"}},
-		{"local", []string{"--tz", "local"}},
-		{"scripts", []string{"-script"}},
-		{"outputs-and-other", []string{"-output", "-other", "-o", "wide"}},
-	}
-	for _, fixture := range evidencetest.List() {
-		folder := evidencetest.Copy(t, fixture)
-		for _, v := range views {
-			t.Run(fixture+"/"+v.name, func(t *testing.T) {
-				out, err := run(t, append([]string{"file", "list", "--inputdir", folder}, v.args...)...)
-				if err != nil {
-					t.Fatal(err)
-				}
-				golden.Check(t, fixture+"-"+v.name, []byte(out))
-			})
-		}
-	}
-}
-
-func TestFileListSelectorsAreTheRoles(t *testing.T) {
-	roles, err := inventory.LoadRoles()
+// report runs the report verb on a folder and returns the readout and the
+// output folder; both paths are temporary, so the readout names placeholders.
+func report(t *testing.T, folder string, extra ...string) (readout, saved string) {
+	t.Helper()
+	saved = filepath.Join(t.TempDir(), "out")
+	out, err := run(t, append([]string{"-inputdir", folder, "report", "-outdir", saved}, extra...)...)
 	if err != nil {
 		t.Fatal(err)
 	}
-	every := []string{"file", "list", "--inputdir", evidencetest.Copy(t, "bash")}
-	want, err := run(t, every...)
+	return strings.ReplaceAll(strings.ReplaceAll(out, saved, "<out>"), folder, "<folder>"), saved
+}
+
+func readFile(t *testing.T, path string) string {
+	t.Helper()
+	data, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, r := range roles {
-		every = append(every, "-"+string(r.Name))
-	}
-	got, err := run(t, every...)
-	if err != nil {
-		t.Fatalf("a role is not a selector: %v", err)
-	}
-	if got != want {
-		t.Errorf("every role selected differs from none selected")
-	}
+	return string(data)
 }
 
-func TestFileListAliases(t *testing.T) {
-	folder := evidencetest.Copy(t, "powershell")
-	want, err := run(t, "file", "list", "--inputdir", folder)
-	if err != nil {
-		t.Fatal(err)
+// rows reads a saved table.
+func rows(t *testing.T, path string) []map[string]any {
+	t.Helper()
+	var table []map[string]any
+	if err := json.Unmarshal([]byte(readFile(t, path)), &table); err != nil {
+		t.Fatalf("%s: %v", path, err)
 	}
-	got, err := run(t, "files", "ls", "--inputdir="+folder)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got != want {
-		t.Errorf("files ls differs from file list")
-	}
-}
-
-func TestFileListNeedsInputDir(t *testing.T) {
-	out, err := run(t, "file", "list")
-	if !errors.Is(err, cli.ErrUsage) || err.Error() != "file list needs --inputdir <folder>" {
-		t.Errorf("error = %v, want the usage error that names --inputdir", err)
-	}
-	if out != "" {
-		t.Errorf("output = %q, want none", out)
-	}
-}
-
-func TestFileListNotFolder(t *testing.T) {
-	folder := evidencetest.Copy(t, "bash")
-	paths := map[string]string{
-		"a missing folder": folder + "/missing",
-		"a file":           folder + "/20250301_103300_notes.txt",
-	}
-	for name, path := range paths {
-		t.Run(name, func(t *testing.T) {
-			if _, err := run(t, "file", "list", "--inputdir", path); !errors.Is(err, inventory.ErrNotFolder) {
-				t.Errorf("error = %v, want ErrNotFolder", err)
-			}
-		})
-	}
-}
-
-func TestRegisterBindsBothWays(t *testing.T) {
-	nouns, err := loadNouns()
-	if err != nil {
-		t.Fatal(err)
-	}
-	env := Env{}
-	var declared []string
-	for _, n := range nouns {
-		for _, v := range n.Verbs {
-			declared = append(declared, n.Name+" "+v.Name)
-		}
-	}
-	if want := []string{"file list", "trace list", "finding list", "report list", "campaign list"}; !slices.Equal(declared, want) {
-		t.Errorf("nouns.json declares %v, want %v", declared, want)
-	}
-
-	if err := register(cli.New("slopmop", &bytes.Buffer{}), nouns, map[string]builder{}); err == nil ||
-		!strings.Contains(err.Error(), "which has no implementation") {
-		t.Errorf("a declared verb without an implementation: error = %v", err)
-	}
-	builders := map[string]builder{
-		"file list":     env.fileList,
-		"trace list":    env.traceList,
-		"finding list":  env.findingList,
-		"report list":   env.reportList,
-		"campaign list": env.campaignList,
-		"file show":     env.fileList,
-	}
-	if err := register(cli.New("slopmop", &bytes.Buffer{}), nouns, builders); err == nil ||
-		!strings.Contains(err.Error(), "does not declare file show") {
-		t.Errorf("an implementation without a declaration: error = %v", err)
-	}
-}
-
-func TestDecodeNounsRejects(t *testing.T) {
-	cases := []struct {
-		name string
-		doc  string
-		want string
-	}{
-		{"not json", `{`, "unexpected"},
-		{"unknown field", `{"nouns":[],"extra":1}`, "unknown field"},
-		{"trailing data", `{"nouns":[]} []`, "after the document"},
-		{"no nouns", `{"nouns":[]}`, "no nouns"},
-		{"noun without verbs", `{"nouns":[{"name":"a","summary":"s"}]}`, "needs a name, a summary and a verb"},
-		{"verb without a summary", `{"nouns":[{"name":"a","summary":"s","verbs":[{"name":"v"}]}]}`, "needs a name and a summary"},
-		{"lower-case header", `{"nouns":[{"name":"a","summary":"s","verbs":[{"name":"v","summary":"s",` +
-			`"columns":[{"header":"name","key":"name"}]}]}]}`, "a v:"},
-	}
-	for _, c := range cases {
-		t.Run(c.name, func(t *testing.T) {
-			if _, err := decodeNouns([]byte(c.doc)); err == nil || !strings.Contains(err.Error(), c.want) {
-				t.Errorf("decodeNouns error = %v, want one containing %q", err, c.want)
-			}
-		})
-	}
+	return table
 }
 
 // nest moves every file of a fixture copy whose name contains part into the sub-folder sub.
@@ -194,33 +82,91 @@ func nest(t *testing.T, folder, part, sub string) {
 	}
 }
 
-func TestRecursive(t *testing.T) {
-	folder := evidencetest.Copy(t, "bash")
-	nest(t, folder, "step0", "phase1")
-	nest(t, folder, "adsync_", "phase1/dc01")
-	nest(t, folder, "ca_", "loot")
-	cases := []struct {
-		golden string
-		args   []string
-	}{
-		{"nested-file-flat", []string{"file", "list"}},
-		{"nested-file-recursive", []string{"file", "list", "--recursive"}},
-		{"nested-file-recursive-json", []string{"files", "ls", "-r", "-script", "-o", "json"}},
-		{"nested-trace-flat", []string{"trace", "list"}},
-		{"nested-trace-recursive", []string{"trace", "list", "-r", "-o", "wide"}},
-	}
-	for _, c := range cases {
-		t.Run(c.golden, func(t *testing.T) {
-			out, err := run(t, append(c.args, "--inputdir", folder)...)
-			if err != nil {
-				t.Fatal(err)
+// Every fixture, as the screen shows it and as it is saved.
+func TestReportViews(t *testing.T) {
+	for _, fixture := range evidencetest.List() {
+		folder := evidencetest.Copy(t, fixture)
+		t.Run(fixture, func(t *testing.T) {
+			readout, saved := report(t, folder)
+			golden.Check(t, fixture+"-report", []byte(readout))
+			for _, name := range []string{"files", "trace", "findings", "exposure", "report"} {
+				golden.Check(t, fixture+"-"+name+"-json", []byte(readFile(t, filepath.Join(saved, name+".json"))))
 			}
-			golden.Check(t, c.golden, []byte(out))
+		})
+		t.Run(fixture+"/intel", func(t *testing.T) {
+			readout, saved := report(t, folder, "-intelfile", watchlist)
+			golden.Check(t, fixture+"-report-intel", []byte(readout))
+			golden.Check(t, fixture+"-findings-intel-json", []byte(readFile(t, filepath.Join(saved, "findings.json"))))
+		})
+		t.Run(fixture+"/sections", func(t *testing.T) {
+			readout, _ := report(t, folder, "remediation", "impact")
+			golden.Check(t, fixture+"-report-impact", []byte(readout))
 		})
 	}
 }
 
-func TestRecursiveReportsFoldersBelowTheLimit(t *testing.T) {
+// What is saved is every section, whichever were asked for, and each class as JSON.
+func TestReportSaves(t *testing.T) {
+	folder := evidencetest.Copy(t, "linux")
+	shown, saved := report(t, folder, "impact")
+	if want := "-> saved to <out>: report.txt, files.json, trace.json, findings.json, exposure.json, report.json\n"; !strings.Contains(shown, want) {
+		t.Errorf("the readout does not say where it was saved:\n%s", shown)
+	}
+	if strings.Contains(shown, "\nTimeline") {
+		t.Errorf("the screen shows a section that was not asked for:\n%s", shown)
+	}
+	full, _ := report(t, folder)
+	lines := slices.DeleteFunc(strings.Split(full, "\n"), func(l string) bool { return strings.HasPrefix(l, "-> saved to ") })
+	text := strings.ReplaceAll(readFile(t, filepath.Join(saved, "report.txt")), folder, "<folder>")
+	if text != strings.Join(lines, "\n") {
+		t.Errorf("report.txt is not the full readout:\n%s", text)
+	}
+	if entries, err := os.ReadDir(saved); err != nil || len(entries) != 6 {
+		t.Errorf("the output folder holds %d entries (%v), want 6", len(entries), err)
+	}
+	for name, least := range map[string]int{"files.json": 14, "trace.json": 14, "findings.json": 30, "exposure.json": 15, "report.json": 60} {
+		if got := len(rows(t, filepath.Join(saved, name))); got < least {
+			t.Errorf("%s holds %d rows, want at least %d", name, got, least)
+		}
+	}
+}
+
+// The sections print in the order of commands.json, whatever order they are named in.
+func TestReportSections(t *testing.T) {
+	folder := evidencetest.Copy(t, "lolbin")
+	every, _ := report(t, folder)
+	var titles []string
+	for _, line := range strings.Split(every, "\n") {
+		if line != "" && !strings.ContainsAny(line[:1], " [-") && !strings.HasPrefix(line, "slopmop") {
+			titles = append(titles, strings.TrimSpace(strings.SplitN(line, "   ", 2)[0]))
+		}
+	}
+	want := []string{"Summary", "Timeline", "Findings", "Notable files", "Exposure", "Impact", "Remediation", "Mitigation"}
+	if !slices.Equal(titles, want) {
+		t.Errorf("sections = %q, want %q", titles, want)
+	}
+	two, _ := report(t, folder, "mitigation", "files")
+	if files, mitigation := strings.Index(two, "\nNotable files"), strings.Index(two, "\nMitigation"); files < 0 || mitigation < files {
+		t.Errorf("the sections are missing or out of order:\n%s", two)
+	}
+	if !strings.Contains(two, "20261020_101500_step04_persist.ps1") || strings.Contains(two, "recon_20261020_100030.txt") {
+		t.Errorf("notable files: want the persistence script and not the recon output:\n%s", two)
+	}
+}
+
+// The sub-folders are read without being asked for, 16 levels down.
+func TestReportReadsSubFolders(t *testing.T) {
+	folder := evidencetest.Copy(t, "bash")
+	nest(t, folder, "step0", "phase1")
+	nest(t, folder, "adsync_", "phase1/dc01")
+	nest(t, folder, "ca_", "loot")
+	readout, saved := report(t, folder, "timeline")
+	golden.Check(t, "nested-report-timeline", []byte(readout))
+	golden.Check(t, "nested-files-json", []byte(readFile(t, filepath.Join(saved, "files.json"))))
+	golden.Check(t, "nested-trace-json", []byte(readFile(t, filepath.Join(saved, "trace.json"))))
+}
+
+func TestReportNamesFoldersBelowTheLimit(t *testing.T) {
 	folder := t.TempDir()
 	deep := folder + strings.Repeat("/d", inventory.MaxDepth)
 	if err := os.MkdirAll(deep+"/e", 0o700); err != nil {
@@ -232,222 +178,514 @@ func TestRecursiveReportsFoldersBelowTheLimit(t *testing.T) {
 		}
 	}
 	kept := strings.Repeat("d/", inventory.MaxDepth)
-	for _, noun := range []string{"file", "trace"} {
-		t.Run(noun, func(t *testing.T) {
-			out, err := run(t, noun, "list", "--inputdir", folder, "--recursive")
-			want := "1 folder(s) not read (unreadable or more than 16 levels down): " + kept + "e"
-			if err == nil || err.Error() != want {
-				t.Errorf("error = %v, want %q", err, want)
-			}
-			if !strings.Contains(out, kept+"kept.sh") || strings.Contains(out, "lost.sh") {
-				t.Errorf("output = %q, want kept.sh and not lost.sh", out)
-			}
-		})
+	saved := filepath.Join(t.TempDir(), "out")
+	out, err := run(t, "-inputdir", folder, "report", "timeline", "-outdir", saved)
+	if want := "1 folder(s) not read (unreadable or more than 16 levels down): " + kept + "e"; err == nil || err.Error() != want {
+		t.Errorf("error = %v, want %q", err, want)
 	}
-	for _, noun := range []string{"finding", "report"} {
-		t.Run(noun, func(t *testing.T) {
-			out, err := run(t, noun, "list", "--inputdir", folder, "-r")
-			if err == nil || !strings.Contains(err.Error(), "1 folder(s) not read") {
-				t.Errorf("error = %v, want the folder that was not read", err)
-			}
-			if out == "" {
-				t.Error("no rows before the error")
-			}
-		})
+	if !strings.Contains(out, kept+"kept.sh") || strings.Contains(out, "lost.sh") {
+		t.Errorf("output = %q, want kept.sh and not lost.sh", out)
 	}
-}
-
-// The aggregates read sub-folders only when asked, as file and trace do.
-func TestAggregatesRecursive(t *testing.T) {
-	folder := evidencetest.Copy(t, "entra")
-	nest(t, folder, "step05", "vault")
-	nest(t, folder, "agent_", "logs/run1")
-	flat, err := run(t, "finding", "list", "-activity", "-q", "--inputdir", folder)
-	if err != nil {
-		t.Fatal(err)
-	}
-	deep, err := run(t, "findings", "ls", "-activity", "-q", "--recursive", "--inputdir", folder)
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, name := range []string{"KeyVaultSecretRead", "KeyVaultKeyUnwrap", "AzureResourceEnumeration"} {
-		if strings.Contains(flat, name) || !strings.Contains(deep, name) {
-			t.Errorf("%s: want it only in the recursive findings\nflat: %q\nrecursive: %q", name, flat, deep)
-		}
-	}
-	for _, c := range []struct{ golden, flag string }{
-		{"entra-nested-report-flat", ""},
-		{"entra-nested-report-recursive", "-r"},
-	} {
-		args := []string{"report", "list", "--inputdir", folder}
-		if c.flag != "" {
-			args = append(args, c.flag)
-		}
-		out, err := run(t, args...)
-		if err != nil {
-			t.Fatal(err)
-		}
-		golden.Check(t, c.golden, []byte(out))
+	if got := len(rows(t, filepath.Join(saved, "files.json"))); got != 1 {
+		t.Errorf("files.json holds %d rows, want the one file that was read", got)
 	}
 }
 
 // The scenario of the entra fixture, with the attacker's range as the watchlist.
-func TestActivityViews(t *testing.T) {
+func TestReportWithARange(t *testing.T) {
 	folder := evidencetest.Copy(t, "entra")
 	ranges := filepath.Join(t.TempDir(), "ranges.json")
 	if err := os.WriteFile(ranges, []byte(`[{"value": "144.172.64.0/24", "attribution": "STORM-0940"}]`), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	views := []struct {
-		golden string
-		args   []string
-	}{
-		{"entra-trace", []string{"trace", "list"}},
-		{"entra-trace-range-wide", []string{"trace", "list", "-o", "wide", "--intelfile", ranges}},
-		{"entra-trace-range-json", []string{"trace", "list", "-script", "-o", "json", "--intelfile", ranges}},
-		{"entra-finding-activity", []string{"finding", "list", "-activity", "-o", "wide"}},
-		{"entra-finding-activity-quiet", []string{"finding", "list", "-activity", "-q"}},
-		{"entra-finding-range", []string{"finding", "list", "-indicator", "--intelfile", ranges}},
-		{"entra-report-range", []string{"report", "list", "--intelfile", ranges}},
+	readout, saved := report(t, folder, "-intelfile", ranges)
+	golden.Check(t, "entra-report-range", []byte(readout))
+	golden.Check(t, "entra-trace-range-json", []byte(readFile(t, filepath.Join(saved, "trace.json"))))
+	golden.Check(t, "entra-findings-range-json", []byte(readFile(t, filepath.Join(saved, "findings.json"))))
+}
+
+// Step 6 of the linux fixture runs a fetched script, an encoded one and a
+// remote command; the lolbin fixture holds a batch file that is a script.
+func TestReportScenarios(t *testing.T) {
+	_, saved := report(t, evidencetest.Copy(t, "linux"))
+	var staged map[string]any
+	for _, row := range rows(t, filepath.Join(saved, "trace.json")) {
+		if row["name"] == "20261022_092500_step06_stage.sh" {
+			staged = row
+		}
 	}
-	for _, v := range views {
-		t.Run(v.golden, func(t *testing.T) {
-			out, err := run(t, append(v.args, "--inputdir", folder)...)
-			if err != nil {
-				t.Fatal(err)
+	for key, wants := range map[string][]string{"tools": {"curl", "uname", "gzip"}, "activities": {"ShellDownloadAndExecute"}} {
+		cell, _ := staged[key].(string)
+		for _, want := range wants {
+			if !slices.Contains(strings.Split(cell, ", "), want) {
+				t.Errorf("step 6 %s = %q, want %s among them", key, cell, want)
 			}
-			golden.Check(t, v.golden, []byte(out))
-		})
+		}
+	}
+	_, saved = report(t, evidencetest.Copy(t, "lolbin"))
+	for _, row := range rows(t, filepath.Join(saved, "files.json")) {
+		if row["name"] == "20261020_103000_step07_cleanup.bat" && row["role"] != "script" {
+			t.Errorf("the batch file has the role %v, want script", row["role"])
+		}
 	}
 }
 
-// The scenario of the lolbin fixture: living-off-the-land binaries and .NET
-// in PowerShell, a batch file, C# source and a process-creation log.
-func TestLolbinViews(t *testing.T) {
-	folder := evidencetest.Copy(t, "lolbin")
-	views := []struct {
-		golden string
-		args   []string
+// find returns the first row whose cells hold every given key and value.
+func find(t *testing.T, table []map[string]any, want map[string]string) map[string]any {
+	t.Helper()
+	for _, row := range table {
+		match := true
+		for key, value := range want {
+			match = match && row[key] == value
+		}
+		if match {
+			return row
+		}
+	}
+	t.Fatalf("no row with %v", want)
+	return nil
+}
+
+// The exposure names what the files hold, by kind, with whose a secret is,
+// whether the scripts collected it or the attacker brought it, and where.
+func TestReportExposure(t *testing.T) {
+	readout, saved := report(t, evidencetest.Copy(t, "linux"), "summary", "exposure")
+	table := rows(t, filepath.Join(saved, "exposure.json"))
+	tests := []struct {
+		row  map[string]string
+		want map[string]any
 	}{
-		{"lolbin-trace", []string{"trace", "list"}},
-		{"lolbin-trace-wide", []string{"trace", "list", "-o", "wide"}},
-		{"lolbin-finding-activity", []string{"finding", "list", "-activity", "-o", "wide"}},
-		{"lolbin-report", []string{"report", "list"}},
-		{"lolbin-report-wide", []string{"report", "list", "-files", "-impact", "-remediation", "-mitigation", "-o", "wide"}},
+		{map[string]string{"kind": "password", "account": "app_rw"},
+			map[string]any{"value": "Fi********1 (15 chars)", "form": "password", "seen": "collected", "severity": "high", "files": "env_20261022_090540.txt:3"}},
+		{map[string]string{"kind": "password", "account": "deploy"},
+			map[string]any{"form": "hash", "seen": "collected", "files": "shadow_20261022_090530.txt:4"}},
+		{map[string]string{"kind": "password", "form": "token"},
+			map[string]any{"account": nil, "value": "fi********9 (24 chars)", "files": "env_20261022_090540.txt:5"}},
+		{map[string]string{"kind": "username", "value": "deploy"},
+			map[string]any{"seen": "collected", "severity": "medium", "files": "passwd_20261022_090020.txt:3"}},
+		{map[string]string{"kind": "username", "value": "ops"},
+			map[string]any{"seen": "used", "files": "20261022_092500_step06_stage.sh:6"}},
+		{map[string]string{"kind": "email", "value": "alerts@corp.example"},
+			map[string]any{"seen": "collected", "files": "env_20261022_090540.txt:4"}},
+		{map[string]string{"kind": "device", "value": "db01.corp.internal"},
+			map[string]any{"seen": "collected", "severity": "low", "files": "hosts_20261022_090025.txt:2, env_20261022_090540.txt:1"}},
+		{map[string]string{"kind": "ip", "value": "10.20.30.5"},
+			map[string]any{"seen": "collected", "files": "hosts_20261022_090025.txt:2"}},
+		{map[string]string{"kind": "ip", "value": "203.0.113.40"},
+			map[string]any{"seen": "used"}},
 	}
-	for _, v := range views {
-		t.Run(v.golden, func(t *testing.T) {
-			out, err := run(t, append(v.args, "--inputdir", folder)...)
-			if err != nil {
-				t.Fatal(err)
+	for _, tt := range tests {
+		row := find(t, table, tt.row)
+		for key, want := range tt.want {
+			if row[key] != want {
+				t.Errorf("%v: %s = %v, want %v", tt.row, key, row[key], want)
 			}
-			golden.Check(t, v.golden, []byte(out))
-		})
+		}
 	}
-	roles, err := run(t, "file", "list", "-script", "-q", "--inputdir", folder)
+	for _, row := range table {
+		if row["value"] == "127.0.0.1" || row["value"] == "localhost" {
+			t.Errorf("the exposure lists %v, which names no host", row["value"])
+		}
+	}
+	for _, want := range []string{
+		"exposed     19  Passwords and secrets 3, Usernames 7, Email addresses 1, Devices 2, IP addresses 6",
+		"\n  Passwords and secrets (3)\n",
+		"[x] Fi********1 (15 chars)  password of app_rw  collected  env_20261022_090540.txt:3\n",
+		"[x] fi********9 (24 chars)  token               collected  env_20261022_090540.txt:5\n",
+		"\n  Usernames (7)\n",
+		"\n  IP addresses (6)\n",
+	} {
+		if !strings.Contains(readout, want) {
+			t.Errorf("the readout lacks %q:\n%s", want, readout)
+		}
+	}
+}
+
+// A secret is masked wherever it would stand: in the exposure, in a command
+// quoted as evidence and among the indicators. -secrets shown writes it out.
+func TestReportMasksSecrets(t *testing.T) {
+	folder := evidencetest.Copy(t, "bash")
+	secret := []string{"Winter2025!", "Qw7#fakeMsolSecretValue99", "Zx9!fakeCloudSyncPass", "8846f7eaee8fb117ad06bdd830b7586c"}
+	readout, saved := report(t, folder)
+	holds := func(text string) []string {
+		var found []string
+		for _, s := range secret {
+			if strings.Contains(text, s) {
+				found = append(found, s)
+			}
+		}
+		return found
+	}
+	if found := holds(readout); len(found) > 0 {
+		t.Errorf("the readout holds %q", found)
+	}
+	entries, err := os.ReadDir(saved)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(roles, "step07_cleanup.bat") {
-		t.Errorf("scripts = %q, want the batch file among them", roles)
+	for _, e := range entries {
+		if found := holds(readFile(t, filepath.Join(saved, e.Name()))); len(found) > 0 {
+			t.Errorf("%s holds %q", e.Name(), found)
+		}
+	}
+	if !strings.Contains(readout, "-p 'Wi********! (11 chars)'") {
+		t.Errorf("the readout does not quote the command with its password masked")
+	}
+	plain, saved := report(t, folder, "-secrets", "shown")
+	if found := holds(plain); len(found) != len(secret) {
+		t.Errorf("-secrets shown: the readout holds %q, want all of %q", found, secret)
+	}
+	row := find(t, rows(t, filepath.Join(saved, "exposure.json")), map[string]string{"kind": "password", "account": "svc_backup"})
+	if row["value"] != "Winter2025!" || row["seen"] != "used" {
+		t.Errorf("-secrets shown: %v, want the password as it stands, used by the scripts", row)
+	}
+	masked, _ := report(t, folder, "-secrets", "masked")
+	if masked != readout {
+		t.Error("-secrets masked differs from the default")
 	}
 }
 
-// The scenario of the linux fixture: a Linux host surveyed, raised, held and
-// cleaned up by shell scripts, a Python script and an audit log.
-func TestLinuxViews(t *testing.T) {
+// An impact, an action and a mitigation name what they concern and quote the
+// lines that show it; a finding quotes its lines.
+func TestReportNamesWhat(t *testing.T) {
+	readout, saved := report(t, evidencetest.Copy(t, "linux"), "impact", "remediation", "mitigation")
+	table := rows(t, filepath.Join(saved, "report.json"))
+	tests := []struct {
+		section, item string
+		targets       []string
+		evidence      []string
+	}{
+		{"impact", "Persistence established",
+			[]string{"account svc", "unit sync.service", "file ~/.ssh/authorized_keys", "file ~/.bashrc"},
+			[]string{"AccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)", "AccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)"}},
+		{"impact", "Privileged access obtained",
+			[]string{"file /etc/sudoers.d/svc", "file /tmp/tool ($F)", "mount /:/host"},
+			[]string{"SetuidBit: chmod u+s \"$F\" (20261022_091000_step03_privesc.sh:4)"}},
+		{"impact", "Movement to other systems", nil,
+			[]string{"ssh: ssh ops@198.51.100.7 'cat /etc/hostname' (20261022_092500_step06_stage.sh:6)"}},
+		{"impact", "Credentials exposed",
+			[]string{"file /etc/shadow", "password of app_rw", "hash of deploy"},
+			[]string{"ShadowFileRead: sudo cat /etc/shadow > shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)"}},
+		{"remediation", "Remove persistence",
+			[]string{"account svc", "unit sync.service"},
+			[]string{"SystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)"}},
+		{"remediation", "Rotate what was read", []string{"password of app_rw", "hash of deploy", "file ~/.ssh/id_rsa"}, nil},
+		{"remediation", "Restore security tooling", []string{"service auditd"},
+			[]string{"SecurityToolDisabling: systemctl stop auditd (20261022_092000_step05_evade.sh:4)"}},
+		{"remediation", "Follow what was enumerated", []string{"username deploy", "device db01.corp.internal", "ip 10.20.30.5"}, nil},
+		{"mitigation", "M1032 Multi-factor Authentication", []string{"AccountCreation: account svc"}, nil},
+	}
+	for _, tt := range tests {
+		row := find(t, table, map[string]string{"section": tt.section, "item": tt.item})
+		targets, _ := row["targets"].(string)
+		for _, want := range tt.targets {
+			if !slices.Contains(strings.Split(targets, "; "), want) {
+				t.Errorf("%s %s: targets = %q, want %q among them", tt.section, tt.item, targets, want)
+			}
+		}
+		evidence, _ := row["evidence"].(string)
+		for _, want := range tt.evidence {
+			if !slices.Contains(strings.Split(evidence, "\n"), want) {
+				t.Errorf("%s %s: evidence = %q, want %q among it", tt.section, tt.item, evidence, want)
+			}
+		}
+	}
+	// A variable the script never sets names nothing, so it is no target.
+	if row := find(t, table, map[string]string{"section": "impact", "item": "Persistence established"}); strings.Contains(row["targets"].(string), "$JOB") {
+		t.Errorf("targets = %q, want no variable that is never set", row["targets"])
+	}
+	for _, want := range []string{
+		"      targets  unit sync.service; account svc;",
+		"      what     ScheduledJobCreation: (crontab -l; echo \"$JOB\") | crontab - (20261022_091500_step04_persist.sh:3)\n",
+		" more in the saved report\n",
+		"      for  AccountCreation: account svc\n",
+	} {
+		if !strings.Contains(readout, want) {
+			t.Errorf("the readout lacks %q", want)
+		}
+	}
+	finding := find(t, rows(t, filepath.Join(saved, "findings.json")), map[string]string{"finding": "AccountCreation"})
+	if want := "useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)\nuseradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)"; finding["evidence"] != want {
+		t.Errorf("the evidence of the finding = %q, want %q", finding["evidence"], want)
+	}
+}
+
+// A secret seen without an account is the same secret seen with one.
+func TestMergeOwned(t *testing.T) {
+	secret := exposure.Kind{Name: "password", Secret: true}
+	all := mergeOwned([]exposed{
+		{kind: secret, value: "s1", form: "password", seen: seenCollected, count: 2, cites: []cite{{"loot.txt", 4}}},
+		{kind: secret, value: "s1", form: "password", account: "alice", seen: seenUsed, count: 1, cites: []cite{{"a.sh", 2}}},
+		{kind: secret, value: "s2", form: "password", seen: seenUsed, count: 1, cites: []cite{{"a.sh", 3}}},
+		{kind: secret, value: "s1", form: "password", count: 1, seen: seenUsed, cites: []cite{{"a.sh", 2}, {"b.sh", 1}}},
+		{kind: exposure.Kind{Name: "username"}, value: "s1", seen: seenUsed, count: 1},
+	})
+	if len(all) != 3 || all[0].account != "alice" || all[0].count != 4 || all[0].seen != seenCollected {
+		t.Fatalf("merged = %+v, want the secret of alice with every count, collected because an output held it first", all)
+	}
+	if want := []cite{{"a.sh", 2}, {"loot.txt", 4}, {"b.sh", 1}}; !slices.Equal(all[0].cites, want) {
+		t.Errorf("cites = %v, want %v", all[0].cites, want)
+	}
+	if all[1].value != "s2" || all[1].account != "" || all[2].kind.Name != "username" {
+		t.Errorf("merged = %+v, want the secret with no owner and the username kept", all)
+	}
+	if got := (cite{"a.sh", 0}).String(); got != "a.sh" {
+		t.Errorf("a cite without a line = %q", got)
+	}
+}
+
+// A secret is masked inside a longer text, the longest first, and one too
+// short to be told from an ordinary word is left.
+func TestRedactor(t *testing.T) {
+	secret := exposure.Kind{Name: "password", Secret: true}
+	redact := redactor([]exposed{
+		{kind: secret, value: "Winter2025!"},
+		{kind: secret, value: "Winter2025!extra"},
+		{kind: secret, value: "abc"},
+		{kind: secret, value: "rsa private key", open: true},
+		{kind: secret, value: "ShownValue1", plain: true},
+		{kind: exposure.Kind{Name: "username"}, value: "svc_backup"},
+	})
+	got := redact("nxc -u svc_backup -p 'Winter2025!' ; x=Winter2025!extra abc rsa private key ShownValue1")
+	want := "nxc -u svc_backup -p 'Wi********! (11 chars)' ; x=Wi********a (16 chars) abc rsa private key ShownValue1"
+	if got != want {
+		t.Errorf("redact = %q, want %q", got, want)
+	}
+	if same := redactor(nil)("unchanged"); same != "unchanged" {
+		t.Errorf("no secrets: %q", same)
+	}
+}
+
+func TestReportFails(t *testing.T) {
 	folder := evidencetest.Copy(t, "linux")
-	views := []struct {
-		golden string
-		args   []string
-	}{
-		{"linux-trace", []string{"trace", "list"}},
-		{"linux-trace-wide", []string{"trace", "list", "-o", "wide"}},
-		{"linux-finding-activity", []string{"finding", "list", "-activity", "-o", "wide"}},
-		{"linux-report-wide", []string{"report", "list", "-files", "-impact", "-remediation", "-mitigation", "-o", "wide"}},
+	bad := filepath.Join(t.TempDir(), "bad.json")
+	if err := os.WriteFile(bad, []byte(`{`), 0o600); err != nil {
+		t.Fatal(err)
 	}
-	for _, v := range views {
-		t.Run(v.golden, func(t *testing.T) {
-			out, err := run(t, append(v.args, "--inputdir", folder)...)
-			if err != nil {
-				t.Fatal(err)
+	tests := []struct {
+		name  string
+		args  []string
+		usage bool
+		want  string
+	}{
+		{"no verb", []string{"-inputdir", folder}, true, "slopmop needs a verb (verbs: report)"},
+		{"no input folder", []string{"report"}, true, "report needs -inputdir <folder>"},
+		{"an unknown verb", []string{"-inputdir", folder, "list"}, true, `unknown verb "list" (verbs: report)`},
+		{"an unknown section", []string{"-inputdir", folder, "report", "impcat"}, true, `report has no section "impcat"`},
+		{"an unknown option", []string{"-inputdir", folder, "report", "-o", "json"}, true, "unknown option -o"},
+		{"a missing folder", []string{"-inputdir", filepath.Join(folder, "missing"), "report"}, false, "not a folder"},
+		{"a file for a folder", []string{"-inputdir", filepath.Join(folder, "audit_20261022_093500.jsonl"), "report"}, false, "not a folder"},
+		{"a missing watchlist", []string{"-inputdir", folder, "report", "-intelfile", bad + ".missing"}, false, "-intelfile:"},
+		{"a broken watchlist", []string{"-inputdir", folder, "report", "-intelfile", bad}, false, "intel watchlist:"},
+		{"an output folder in the evidence", []string{"-inputdir", folder, "report", "-outdir", filepath.Join(folder, "out")}, true, "is inside the folder that is read"},
+		{"a word for the secrets", []string{"-inputdir", folder, "report", "-secrets", "plain"}, true, `-secrets takes masked or shown, not "plain"`},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			out, err := run(t, tt.args...)
+			if err == nil || !strings.Contains(err.Error(), tt.want) || errors.Is(err, cli.ErrUsage) != tt.usage {
+				t.Errorf("error = %v, want one containing %q (usage error: %t)", err, tt.want, tt.usage)
 			}
-			golden.Check(t, v.golden, []byte(out))
+			if out != "" {
+				t.Errorf("output on failure: %q", out)
+			}
 		})
 	}
-	// Step 6 runs a fetched script, an encoded one and a remote command.
-	wide, err := run(t, "trace", "list", "-o", "wide", "--inputdir", folder)
-	if err != nil {
-		t.Fatal(err)
-	}
-	var staged string
-	for _, line := range strings.Split(wide, "\n") {
-		if strings.Contains(line, "step06_stage.sh") {
-			staged = line
-		}
-	}
-	for _, want := range []string{"curl", "uname", "gzip", "ShellDownloadAndExecute"} {
-		if !strings.Contains(staged, want) {
-			t.Errorf("trace of step 6 = %q, want %s in it", staged, want)
-		}
+	if entries, err := os.ReadDir(folder); err != nil || len(entries) != 14 {
+		t.Errorf("the evidence folder holds %d entries after the failures (%v), want 14", len(entries), err)
 	}
 }
 
-// A report is its sections in a fixed order, and a selector picks one.
-func TestReportSections(t *testing.T) {
-	folder := evidencetest.Copy(t, "lolbin")
-	base := []string{"report", "list", "--inputdir", folder, "--intelfile", watchlist, "--no-headers", "-o", "wide"}
-	whole, err := run(t, base...)
-	if err != nil {
+// A save that fails does not withhold the readout; it fails the command after it.
+func TestReportSaveFailure(t *testing.T) {
+	folder := evidencetest.Copy(t, "linux")
+	blocked := filepath.Join(t.TempDir(), "taken")
+	if err := os.WriteFile(blocked, []byte("a file where the folder would be\n"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	var joined string
-	for _, section := range []string{"-summary", "-files", "-impact", "-remediation", "-mitigation"} {
-		part, partErr := run(t, append(base, section)...)
-		if partErr != nil {
-			t.Fatal(partErr)
-		}
-		if part == "" {
-			t.Errorf("%s is empty", section)
-		}
-		joined += part
+	out, err := run(t, "-inputdir", folder, "report", "summary", "-outdir", blocked)
+	if err == nil || !strings.Contains(err.Error(), "output folder:") || errors.Is(err, cli.ErrUsage) {
+		t.Errorf("error = %v, want the output folder that could not be made", err)
 	}
-	// Column widths differ between a part and the whole, so compare the words.
-	if got, want := strings.Fields(joined), strings.Fields(whole); !slices.Equal(got, want) {
-		t.Errorf("the sections together differ from the whole report")
-	}
-	files, err := run(t, "report", "list", "--inputdir", folder, "-files", "-q")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !strings.Contains(files, "20261020_101500_step04_persist.ps1\n") || strings.Contains(files, "recon_20261020_100030.txt") {
-		t.Errorf("notable files = %q, want the persistence script and not the recon output", files)
+	if !strings.Contains(out, "\nSummary\n") || strings.Contains(out, "saved to") {
+		t.Errorf("readout = %q, want the summary and no claim that it was saved", out)
 	}
 }
 
-func TestReportSeverity(t *testing.T) {
-	folder := evidencetest.Copy(t, "lolbin")
-	count := func(level string) int {
-		args := []string{"report", "list", "--inputdir", folder, "-files", "-q"}
-		if level != "" {
-			args = append(args, "--severity", level)
+func TestReportOfNothing(t *testing.T) {
+	readout, saved := report(t, t.TempDir(), "summary", "impact")
+	for _, want := range []string{"[ok] NOTHING FOUND in 0 files", "Impact\n  none\n"} {
+		if !strings.Contains(readout, want) {
+			t.Errorf("readout lacks %q:\n%s", want, readout)
 		}
-		out, err := run(t, args...)
-		if err != nil {
-			t.Fatal(err)
-		}
-		return strings.Count(out, "\n")
 	}
-	high, medium, low := count("high"), count("medium"), count("low")
-	if count("") != high || high >= medium || medium >= low {
-		t.Errorf("notable files: default %d, high %d, medium %d, low %d; want the default to be high and each level to add files", count(""), high, medium, low)
+	if got := strings.TrimSpace(readFile(t, filepath.Join(saved, "trace.json"))); got != "[]" {
+		t.Errorf("trace.json of an empty folder = %q, want an empty array", got)
 	}
-	out, err := run(t, "report", "list", "--inputdir", folder, "--severity", "dire")
-	if !errors.Is(err, cli.ErrUsage) || err.Error() != `--severity takes low, medium or high, not "dire"` {
-		t.Errorf("error = %v, want the usage error that names the levels", err)
+}
+
+// The output folder is never in the evidence: not by default, not on request.
+func TestOutputDir(t *testing.T) {
+	root := t.TempDir()
+	input := filepath.Join(root, "case42")
+	if err := os.MkdirAll(filepath.Join(input, "sub"), 0o700); err != nil {
+		t.Fatal(err)
 	}
-	if out != "" {
-		t.Errorf("output = %q, want none", out)
+	elsewhere := t.TempDir()
+	type test struct {
+		name    string
+		given   string
+		workDir string
+		want    string
+		fails   string
+	}
+	tests := []test{
+		{"the work folder", "", elsewhere, filepath.Join(elsewhere, "slopmop-case42"), ""},
+		{"beside the input when the work folder is the input", "", input, filepath.Join(root, "slopmop-case42"), ""},
+		{"beside the input when the work folder is inside it", "", filepath.Join(input, "sub"), filepath.Join(root, "slopmop-case42"), ""},
+		{"a folder that is given", filepath.Join(elsewhere, "new", "out"), elsewhere, filepath.Join(elsewhere, "new", "out"), ""},
+		{"given inside the input", filepath.Join(input, "out"), elsewhere, "", "is inside the folder that is read"},
+		{"given as the input", input, elsewhere, "", "is inside the folder that is read"},
+	}
+	// A symbolic link needs a privilege on Windows, so the case runs where one can be made.
+	if link := filepath.Join(elsewhere, "link"); os.Symlink(input, link) == nil {
+		tests = append(tests, test{"given through a link into the input", filepath.Join(link, "out"), elsewhere, "", "is inside the folder that is read"})
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := outputDir(input, tt.given, tt.workDir, "slopmop-")
+			switch {
+			case tt.fails != "":
+				if err == nil || !strings.Contains(err.Error(), tt.fails) || !errors.Is(err, cli.ErrUsage) {
+					t.Errorf("outputDir error = %v, want a usage error containing %q", err, tt.fails)
+				}
+			case err != nil || got != tt.want:
+				t.Errorf("outputDir = %q, %v; want %q", got, err, tt.want)
+			}
+		})
+	}
+	if _, err := outputDir(string(filepath.Separator), "", string(filepath.Separator), "slopmop-"); err == nil {
+		t.Error("the root of the file system has a folder outside it")
+	}
+}
+
+// A run from inside the evidence writes beside it and leaves it as it was.
+func TestReportLeavesTheEvidenceAlone(t *testing.T) {
+	folder := evidencetest.Copy(t, "bash")
+	before, err := os.ReadDir(folder)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var out bytes.Buffer
+	app, err := NewApp("slopmop", Env{Stdout: &out, WorkDir: folder})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = app.Run([]string{"-inputdir", folder, "report", "summary"}); err != nil {
+		t.Fatal(err)
+	}
+	after, err := os.ReadDir(folder)
+	if err != nil || len(after) != len(before) {
+		t.Errorf("the evidence folder holds %d entries after the run and %d before (%v)", len(after), len(before), err)
+	}
+	beside := filepath.Join(filepath.Dir(folder), "slopmop-"+filepath.Base(folder))
+	if _, err := os.Stat(filepath.Join(beside, "report.txt")); err != nil {
+		t.Errorf("no report beside the evidence: %v", err)
+	}
+}
+
+func TestRegisterBindsBothWays(t *testing.T) {
+	doc, err := decodeCommands(commandsJSON)
+	if err != nil {
+		t.Fatal(err)
+	}
+	env := Env{Stdout: &bytes.Buffer{}}
+	if err := register(cli.New("slopmop", doc.Usage, env.Stdout), doc, map[string]builder{}); err == nil ||
+		!strings.Contains(err.Error(), "which has no implementation") {
+		t.Errorf("a declared verb without an implementation: error = %v", err)
+	}
+	builders := map[string]builder{"report": env.reportVerb, "process": env.reportVerb}
+	if err := register(cli.New("slopmop", doc.Usage, env.Stdout), doc, builders); err == nil ||
+		!strings.Contains(err.Error(), "does not declare process") {
+		t.Errorf("an implementation without a declaration: error = %v", err)
+	}
+	twice := doc
+	twice.Verbs = append(twice.Verbs, doc.Verbs[0])
+	if err := register(cli.New("slopmop", doc.Usage, env.Stdout), twice, map[string]builder{"report": env.reportVerb}); err == nil ||
+		!strings.Contains(err.Error(), "already taken") {
+		t.Errorf("a verb declared twice: error = %v", err)
+	}
+}
+
+func TestDecodeCommandsRejects(t *testing.T) {
+	const option = `"options":[{"name":"inputdir","hint":"<folder>","summary":"s"}]`
+	cases := []struct {
+		name string
+		doc  string
+		want string
+	}{
+		{"not json", `{`, "unexpected"},
+		{"unknown field", `{"usage":"u","extra":1}`, "unknown field"},
+		{"trailing data", `{"usage":"u","verbs":[{"name":"v","summary":"s"}]} []`, "after the document"},
+		{"no verbs", `{"usage":"u"}`, "no usage or no verbs"},
+		{"no usage", `{"verbs":[{"name":"v","summary":"s"}]}`, "no usage or no verbs"},
+		{"an option without a hint", `{"usage":"u","options":[{"name":"x","summary":"s"}],"verbs":[{"name":"v","summary":"s"}]}`, "lacks a name, a hint or a summary"},
+		{"an option twice", `{"usage":"u","options":[{"name":"x","hint":"h","summary":"s"},{"name":"x","hint":"h","summary":"s"}],"verbs":[{"name":"v","summary":"s"}]}`, "declared twice"},
+		{"a verb without a summary", `{"usage":"u","verbs":[{"name":"v"}]}`, "needs a name and a summary"},
+		{"an undeclared option", `{"usage":"u",` + option + `,"verbs":[{"name":"v","summary":"s","takes":["outdir"]}]}`, `the option "outdir" is not declared`},
+		{"an option required and taken", `{"usage":"u",` + option + `,"verbs":[{"name":"v","summary":"s","requires":["inputdir"],"takes":["inputdir"]}]}`, "named twice"},
+		{"a class twice", `{"usage":"u","verbs":[{"name":"v","summary":"s"}],"classes":[{"name":"c","columns":[{"header":"A","key":"a"}]},{"name":"c","columns":[{"header":"A","key":"a"}]}]}`, "declared twice"},
+		{"a lower-case header", `{"usage":"u","verbs":[{"name":"v","summary":"s"}],"classes":[{"name":"c","columns":[{"header":"name","key":"name"}]}]}`, "class c:"},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if _, err := decodeCommands([]byte(c.doc)); err == nil || !strings.Contains(err.Error(), c.want) {
+				t.Errorf("decodeCommands error = %v, want one containing %q", err, c.want)
+			}
+		})
+	}
+}
+
+// reportSpec returns the report verb as commands.json declares it, to break in a test.
+func reportSpec(t *testing.T) (verbSpec, commandsDoc) {
+	t.Helper()
+	doc, err := decodeCommands(commandsJSON)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return doc.Verbs[0], doc
+}
+
+func TestReportVerbRejects(t *testing.T) {
+	tests := []struct {
+		name   string
+		damage func(v *verbSpec, doc *commandsDoc)
+		want   string
+	}{
+		{"no sections", func(v *verbSpec, _ *commandsDoc) { v.Sections = nil }, "needs a section"},
+		{"a section without a title", func(v *verbSpec, _ *commandsDoc) { v.Sections[0].Title = "" }, "needs a name, a title and a summary"},
+		{"a section twice", func(v *verbSpec, _ *commandsDoc) { v.Sections = append(v.Sections, v.Sections[0]) }, "declared twice"},
+		{"an unknown section", func(v *verbSpec, _ *commandsDoc) { v.Sections[0].Name = "bogus" }, "which has no implementation"},
+		{"a section left out", func(v *verbSpec, _ *commandsDoc) { v.Sections = v.Sections[1:] }, "does not declare the section"},
+		{"an option it reads and does not name", func(v *verbSpec, _ *commandsDoc) { v.Takes = v.Takes[:1] }, `reads the option "outdir"`},
+		{"a row that fills a column the class lacks", func(_ *verbSpec, doc *commandsDoc) { doc.Classes[3].Columns = doc.Classes[3].Columns[1:] }, "the class exposure declares 7 columns and fills 8"},
+		{"no prefix", func(v *verbSpec, _ *commandsDoc) { v.Saved.Prefix = "" }, "needs a prefix"},
+		{"no tables", func(v *verbSpec, _ *commandsDoc) { v.Saved.Tables = nil }, "needs a prefix"},
+		{"an unknown class", func(v *verbSpec, _ *commandsDoc) { v.Saved.Tables[0].Class = "bogus" }, "which has no table"},
+		{"a path for a name", func(v *verbSpec, _ *commandsDoc) { v.Saved.Tables[0].File = "../f.json" }, "not a file name of its own"},
+		{"a name twice", func(v *verbSpec, _ *commandsDoc) { v.Saved.Readout = "trace.json" }, "not a file name of its own"},
+		{"a class without columns", func(_ *verbSpec, doc *commandsDoc) { doc.Classes = doc.Classes[1:] }, "which declares no columns"},
+		{"a column the row lacks", func(_ *verbSpec, doc *commandsDoc) { doc.Classes[0].Columns[0].Key = "bogus" }, `the class file declares the column "bogus"`},
+		{"a column left out", func(_ *verbSpec, doc *commandsDoc) { doc.Classes[1].Columns = doc.Classes[1].Columns[1:] }, "the class trace declares 11 columns and fills 12"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			v, doc := reportSpec(t)
+			tt.damage(&v, &doc)
+			if _, err := (Env{}).reportVerb(v, doc); err == nil || !strings.Contains(err.Error(), tt.want) {
+				t.Errorf("reportVerb error = %v, want one containing %q", err, tt.want)
+			}
+		})
 	}
 }
 
@@ -492,15 +730,15 @@ func TestReportMitigationsComeFromTheCatalogue(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	folder := evidencetest.Copy(t, "lolbin")
-	out, err := run(t, "report", "list", "--inputdir", folder, "-mitigation", "-q")
-	if err != nil {
-		t.Fatal(err)
-	}
-	rows := strings.Split(strings.TrimSpace(out), "\n")
-	attack, atlas := 0, 0
-	for _, row := range rows {
-		id, name, _ := strings.Cut(row, " ")
+	_, saved := report(t, evidencetest.Copy(t, "lolbin"))
+	attack, atlas, guardrails := 0, 0, false
+	for _, row := range rows(t, filepath.Join(saved, "report.json")) {
+		if row["section"] != sectionMitigation {
+			continue
+		}
+		item, _ := row["item"].(string)
+		id, name, _ := strings.Cut(item, " ")
+		guardrails = guardrails || item == "AML.M0020 Generative AI Guardrails"
 		switch {
 		case strings.HasPrefix(id, "AML.M"):
 			atlas++
@@ -516,19 +754,21 @@ func TestReportMitigationsComeFromTheCatalogue(t *testing.T) {
 				t.Errorf("%s is named %q, the catalogue says %q", id, name, got)
 			}
 		default:
-			t.Errorf("row %q is not a mitigation of either framework", row)
+			t.Errorf("row %q is not a mitigation of either framework", item)
 		}
 	}
 	if attack == 0 || atlas == 0 {
 		t.Errorf("%d ATT&CK and %d ATLAS mitigations, want some of each", attack, atlas)
 	}
 	// The premise of the tool brings in the ATLAS technique for generated commands.
-	if !strings.Contains(out, "AML.M0020 Generative AI Guardrails") {
-		t.Errorf("mitigations = %q, want the one ATLAS gives for generated commands", out)
+	if !guardrails {
+		t.Error("the mitigations lack the one ATLAS gives for generated commands")
 	}
-	empty, err := run(t, "report", "list", "--inputdir", t.TempDir(), "-impact", "-remediation", "-mitigation", "--no-headers")
-	if err != nil || empty != "" {
-		t.Errorf("an empty folder gives %q and %v, want no assessment", empty, err)
+	_, saved = report(t, t.TempDir())
+	for _, row := range rows(t, filepath.Join(saved, "report.json")) {
+		if row["section"] != sectionSummary {
+			t.Errorf("an empty folder gives the row %v, want counts only", row)
+		}
 	}
 }
 

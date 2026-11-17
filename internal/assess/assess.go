@@ -21,8 +21,12 @@ var rawImpacts []byte
 //go:embed actions.json
 var rawActions []byte
 
-// maxAffected bounds the indicator values listed with one impact.
-const maxAffected = 5
+const (
+	// maxAffected bounds the indicator values listed with one impact.
+	maxAffected = 5
+	// maxExposed bounds the exposed values of one kind listed with one entry.
+	maxExposed = 8
+)
 
 // trigger says what in the evidence brings an entry into the report.
 type trigger struct {
@@ -32,6 +36,9 @@ type trigger struct {
 	Watchlist bool     `json:"watchlist,omitempty"`
 	// Always brings the entry in whenever the evidence shows anything at all.
 	Always bool `json:"always,omitempty"`
+	// Exposed names kinds of exposure: one value of a kind brings the entry
+	// in, and the entry lists the values.
+	Exposed []string `json:"exposed,omitempty"`
 }
 
 type impact struct {
@@ -67,6 +74,22 @@ type Evidence struct {
 	Hits map[string][]string
 	// Indicators maps a file to its indicator values by type.
 	Indicators map[string]map[string][]string
+	// Exposed maps a kind of exposure to what the evidence holds of it.
+	Exposed map[string][]Exposed
+}
+
+// Exposed is one exposed value, named as a reader acts on it, and its files.
+type Exposed struct {
+	Label string
+	Files []string
+}
+
+// Listed is the exposed values of one kind that an entry concerns.
+type Listed struct {
+	Kind   string
+	Labels []string
+	// More counts the values beyond those listed.
+	More int
 }
 
 // Result is one impact or one action that the evidence calls for.
@@ -85,6 +108,8 @@ type Result struct {
 	Affected []string
 	// More counts the affected values beyond those listed.
 	More int
+	// Exposed lists what the entry concerns, by kind of exposure.
+	Exposed []Listed
 }
 
 // LoadTable reads and validates the embedded impacts.json and actions.json.
@@ -137,16 +162,17 @@ func check(file string, i int, name, text string, level tactic.Severity, tr trig
 		return fmt.Errorf("%s[%d] %s: no text", file, i, name)
 	case level.Rank() == 0:
 		return fmt.Errorf("%s[%d] %s: %q is not low, medium or high", file, i, name, level)
-	case len(tr.Activities)+len(tr.Tactics) == 0 && !tr.Watchlist && !tr.Always:
+	case len(tr.Activities)+len(tr.Tactics)+len(tr.Exposed) == 0 && !tr.Watchlist && !tr.Always:
 		return fmt.Errorf("%s[%d] %s: nothing triggers it", file, i, name)
 	}
 	seen[name] = true
 	return nil
 }
 
-// Names lists every activity, tactic, indicator type and ATLAS technique the
-// table refers to, so a caller that holds those tables can check each one.
-func (t Table) Names() (activities, tactics, indicators, atlas []string) {
+// Names lists every activity, tactic, indicator type, ATLAS technique and
+// kind of exposure the table refers to, so a caller that holds those tables
+// can check each one.
+func (t Table) Names() (activities, tactics, indicators, atlas, exposed []string) {
 	add := func(list []string, items []string) []string {
 		for _, item := range items {
 			if !slices.Contains(list, item) {
@@ -158,11 +184,13 @@ func (t Table) Names() (activities, tactics, indicators, atlas []string) {
 	for _, e := range t.impacts {
 		activities, tactics = add(activities, e.Activities), add(tactics, e.Tactics)
 		indicators, atlas = add(indicators, e.Affected), add(atlas, e.Atlas)
+		exposed = add(exposed, e.Exposed)
 	}
 	for _, e := range t.actions {
 		activities, tactics = add(activities, e.Activities), add(tactics, e.Tactics)
+		exposed = add(exposed, e.Exposed)
 	}
-	return activities, tactics, indicators, atlas
+	return activities, tactics, indicators, atlas, exposed
 }
 
 // Covers reports whether an impact and an action each answer the activity.
@@ -190,6 +218,7 @@ func (t Table) Impacts(e Evidence) []Result {
 			Basis: basis, Activities: activities, Files: files, Atlas: im.Atlas,
 		}
 		r.Affected, r.More = affected(im.Affected, files, e)
+		r.Exposed = im.listed(e)
 		results = append(results, r)
 	}
 	byLevel(results)
@@ -204,6 +233,7 @@ func (t Table) Remediation(e Evidence) []Result {
 		if basis, activities, files := a.fired(e); len(basis) > 0 {
 			results = append(results, Result{
 				Name: a.Name, Level: a.Priority, Text: a.Action, Basis: basis, Activities: activities, Files: files,
+				Exposed: a.listed(e),
 			})
 		}
 	}
@@ -242,6 +272,24 @@ func (tr trigger) fired(e Evidence) (basis, activities, files []string) {
 	for _, name := range tr.Tactics {
 		note(name+" tools", e.Tactics[name])
 	}
+	// The files are gathered through a set for the same reason.
+	held := map[string]bool{}
+	for _, f := range files {
+		held[f] = true
+	}
+	for _, kind := range tr.Exposed {
+		if len(e.Exposed[kind]) > 0 {
+			basis = append(basis, "exposed "+kind)
+		}
+		for _, x := range e.Exposed[kind] {
+			for _, f := range x.Files {
+				if !held[f] {
+					held[f] = true
+					files = append(files, f)
+				}
+			}
+		}
+	}
 	if tr.Watchlist {
 		for _, name := range sortedKeys(e.Hits) {
 			note("watchlist "+name, e.Hits[name])
@@ -258,6 +306,32 @@ func (tr trigger) fired(e Evidence) (basis, activities, files []string) {
 	}
 	sort.Strings(files)
 	return basis, activities, files
+}
+
+// listed returns the exposed values the entry names, a bounded number of each kind.
+func (tr trigger) listed(e Evidence) []Listed {
+	var out []Listed
+	for _, kind := range tr.Exposed {
+		items := e.Exposed[kind]
+		if len(items) == 0 {
+			continue
+		}
+		// A set keeps this linear: a log can hold a hundred thousand addresses.
+		l := Listed{Kind: kind}
+		seen := map[string]bool{}
+		for _, x := range items {
+			if seen[x.Label] {
+				continue
+			}
+			seen[x.Label] = true
+			if len(l.Labels) < maxExposed {
+				l.Labels = append(l.Labels, x.Label)
+			}
+		}
+		l.More = len(seen) - len(l.Labels)
+		out = append(out, l)
+	}
+	return out
 }
 
 func sortedKeys(m map[string][]string) []string {

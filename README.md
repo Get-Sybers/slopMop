@@ -18,38 +18,46 @@ SHA-256. The binary is not code-signed.
 
 ## Use
 
-The grammar is `slopmop NOUN VERB [selectors] [--params] [output flags] [positional]`.
+`slopmop -inputdir <folder> report` reads every file in the folder and below it, analyses them once
+and prints the report: the counts, the timeline, the findings, the notable files, the exposure, the
+impact, the remediation and the mitigation. The exposure lists the usernames, email addresses,
+passwords and other secrets, devices and IP addresses the files hold. An impact, an action and a
+mitigation each name what they concern and quote the lines that show it. It saves the same
+analysis to `slopmop-<folder name>` in the current directory: `report.txt` to read, and
+`files.json`, `trace.json`, `findings.json`, `exposure.json` and `report.json` for a program.
+Nothing is written into the folder that is read, and a secret is written masked.
+
+```text
+$ slopmop -inputdir case42/ai_workdir report
+slopmop report   case42/ai_workdir
+[x] HIGH - 4 impacts: 2 high, 1 medium, 1 low
+[x] high   [!] medium   [i] low
+
+Summary
+  files       16  6 scripts, 9 outputs
+  indicators  13  1 Base64Blob, 4 Domain, 1 EncodedCommand, 1 GUID, 3 IPv4, 3 SHA1
+  activities  1
+  tactics     4
+  exposed     8   Usernames 2, Devices 3, IP addresses 3
+
+Timeline   (step, time, role, file)
+  1  20250302_090000  script  20250302_090000_step01_inventory.ps1
+      tools       get-date, join-path, get-adcomputer, select-object, export-csv
+      tactics     Discovery
+      indicators  1
+```
 
 | Command | What it does |
 | --- | --- |
-| `slopmop file list --inputdir <folder>` | lists the files directly in the input directory |
-| `slopmop file list --inputdir <folder> --recursive` | lists the files in its sub-folders too |
-| `slopmop trace list --inputdir <folder>` | traces the scripts and outputs in the input directory |
-| `slopmop finding list --inputdir <folder>` | lists the activities, indicators and tactics found |
-| `slopmop report list --inputdir <folder>` | reports the counts, the notable files, the impact, and the remediation and mitigation |
-| `slopmop campaign list --intelfile <file>` | lists the attributions in a watchlist |
+| `slopmop -inputdir <folder> report` | prints and saves every section |
+| `slopmop -inputdir <folder> report impact remediation` | prints only the sections named |
+| `slopmop -inputdir <folder> report -intelfile <file>` | attributes the indicators a watchlist matches |
+| `slopmop -inputdir <folder> report -outdir <folder>` | saves the output to the folder named |
+| `slopmop -inputdir <folder> report -secrets shown` | writes each password, hash, token and key as it stands |
+| `slopmop -inputdir <folder> --help` | prints what the line holds so far and what can follow it; `--help` works at every point |
 
-The input directory is always named on the command line with `--inputdir`; nothing is remembered
-between runs.
-
-```text
-$ slopmop file list --inputdir case42/ai_workdir
-NAME                                       ROLE    SIZE   LINES  MODIFIED
-20250302_090000_step01_inventory.ps1       script  487 B  13     2025-03-02T09:00:03Z
-20250302_090500_step02_sync.ps1            script  385 B  7      2025-03-02T09:05:03Z
-20250302_090900_step03_sync_retry.ps1      script  478 B  13     2025-03-02T09:09:03Z
-20250302_091500_step04_certs.ps1           script  387 B  7      2025-03-02T09:15:03Z
-20250302_092200_step05_export.ps1          script  639 B  12     2025-03-02T09:22:03Z
-ca01_20250302_092210.cer                   other   18 B   -      2025-03-02T09:22:13Z
-ca_ping_20250302_091540.log                output  162 B  3      2025-03-02T09:15:43Z
-cert_store_20250302_091530.txt             output  656 B  7      2025-03-02T09:15:33Z
-export_summary_20250302_092215.txt         output  116 B  2      2025-03-02T09:22:18Z
-hosts_20250302_090030.csv                  output  200 B  4      2025-03-02T09:00:33Z
-sync_10.20.1.17_20250302_090530.txt        output  548 B  3      2025-03-02T09:05:33Z
-sync_10.20.1.17_retry_20250302_090930.txt  output  397 B  10     2025-03-02T09:09:33Z
-```
-
-`slopmop`, `slopmop NOUN` and `slopmop NOUN VERB -h` print help generated from the command table.
+The sections are `summary`, `timeline`, `findings`, `files`, `exposure`, `impact`, `remediation`
+and `mitigation`. `report` is the one verb, and nothing is remembered between runs.
 
 ## Layout
 
@@ -57,8 +65,8 @@ sync_10.20.1.17_retry_20250302_090930.txt  output  397 B  10     2025-03-02T09:0
 | --- | --- |
 | `cmd/slopmop/` | the command: wiring and exit codes |
 | `internal/cli/` | the command grammar: parser, registry, dispatch, help |
-| `internal/command/` | the nouns, declared in `nouns.json` and bound to the packages that do the work |
-| `internal/render/` | rows to the screen: default, wide, JSON, quiet |
+| `internal/command/` | the verbs, declared in `commands.json` and bound to the packages that do the work |
+| `internal/render/` | the report as plain lines and a table as JSON; escapes evidence text |
 | `internal/inventory/` | reads the input directory into file records; roles declared in `roles.json` |
 | `internal/evidence/` | the record of one file |
 | `internal/nametime/` | the timestamp written into a file name |

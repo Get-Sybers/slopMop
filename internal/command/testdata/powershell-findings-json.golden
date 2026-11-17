@@ -1,0 +1,189 @@
+[
+  {
+    "finding": "CertificateExport",
+    "severity": "high",
+    "tactic": "CredentialAccess",
+    "indicator": null,
+    "files": "20250302_092200_step05_export.ps1",
+    "attribution": null,
+    "attack": "T1649",
+    "atlas": null,
+    "evidence": "Export-Certificate -Cert $Store -FilePath ca01_20250302_092210.cer | Out-Null (20250302_092200_step05_export.ps1:5)"
+  },
+  {
+    "finding": "Domain",
+    "severity": "high",
+    "tactic": "Discovery, LateralMovement",
+    "indicator": "CA01.corp.example",
+    "files": "20250302_091500_step04_certs.ps1, ca_ping_20250302_091540.log, cert_store_20250302_091530.txt",
+    "attribution": null,
+    "attack": null,
+    "atlas": null,
+    "evidence": null
+  },
+  {
+    "finding": "Domain",
+    "severity": "high",
+    "tactic": "CredentialAccess",
+    "indicator": "app01.corp.example",
+    "files": "20250302_092200_step05_export.ps1",
+    "attribution": null,
+    "attack": null,
+    "atlas": null,
+    "evidence": null
+  },
+  {
+    "finding": "GUID",
+    "severity": "high",
+    "tactic": "CredentialAccess, Discovery, LateralMovement",
+    "indicator": "6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c",
+    "files": "20250302_091500_step04_certs.ps1, 20250302_092200_step05_export.ps1, sync_10.20.1.17_retry_20250302_090930.txt",
+    "attribution": null,
+    "attack": null,
+    "atlas": null,
+    "evidence": null
+  },
+  {
+    "finding": "IPv4",
+    "severity": "high",
+    "tactic": "CredentialAccess, Discovery, LateralMovement",
+    "indicator": "10.20.1.17",
+    "files": "20250302_090900_step03_sync_retry.ps1, hosts_20250302_090030.csv, sync_10.20.1.17_20250302_090530.txt",
+    "attribution": null,
+    "attack": null,
+    "atlas": null,
+    "evidence": null
+  },
+  {
+    "finding": "IPv4",
+    "severity": "high",
+    "tactic": "Discovery, LateralMovement",
+    "indicator": "10.20.1.23",
+    "files": "20250302_091500_step04_certs.ps1, hosts_20250302_090030.csv",
+    "attribution": null,
+    "attack": null,
+    "atlas": null,
+    "evidence": null
+  },
+  {
+    "finding": "IPv4",
+    "severity": "high",
+    "tactic": "Discovery, LateralMovement",
+    "indicator": "10.20.1.5",
+    "files": "20250302_091500_step04_certs.ps1, hosts_20250302_090030.csv",
+    "attribution": null,
+    "attack": null,
+    "atlas": null,
+    "evidence": null
+  },
+  {
+    "finding": "SHA1",
+    "severity": "high",
+    "tactic": "CredentialAccess",
+    "indicator": "0C9B8A7F6E5D4C3B2A1908F7E6D5C4B3A2918070",
+    "files": "export_summary_20250302_092215.txt",
+    "attribution": null,
+    "attack": null,
+    "atlas": null,
+    "evidence": null
+  },
+  {
+    "finding": "SHA1",
+    "severity": "high",
+    "tactic": "CredentialAccess, Discovery, LateralMovement",
+    "indicator": "5F2A9C1E7B3D4A6C8E0F1A2B3C4D5E6F7A8B9C0D",
+    "files": "20250302_092200_step05_export.ps1, cert_store_20250302_091530.txt, export_summary_20250302_092215.txt",
+    "attribution": null,
+    "attack": null,
+    "atlas": null,
+    "evidence": null
+  },
+  {
+    "finding": "SHA1",
+    "severity": "high",
+    "tactic": "Discovery, LateralMovement",
+    "indicator": "A1B2C3D4E5F60718293A4B5C6D7E8F9012345678",
+    "files": "cert_store_20250302_091530.txt",
+    "attribution": null,
+    "attack": null,
+    "atlas": null,
+    "evidence": null
+  },
+  {
+    "finding": "tactic",
+    "severity": "high",
+    "tactic": "CredentialAccess",
+    "indicator": null,
+    "files": "20250302_090900_step03_sync_retry.ps1, 20250302_092200_step05_export.ps1",
+    "attribution": null,
+    "attack": "TA0006",
+    "atlas": "AML.TA0013",
+    "evidence": null
+  },
+  {
+    "finding": "tactic",
+    "severity": "high",
+    "tactic": "LateralMovement",
+    "indicator": null,
+    "files": "20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1, 20250302_091500_step04_certs.ps1",
+    "attribution": null,
+    "attack": "TA0008",
+    "atlas": "AML.TA0015",
+    "evidence": null
+  },
+  {
+    "finding": "EncodedCommand",
+    "severity": "medium",
+    "tactic": "Execution",
+    "indicator": "-enc U3RhZ2VkIGV4cG9ydCBzdW1tYXJ5",
+    "files": "staged_20250302_093100.cmd",
+    "attribution": null,
+    "attack": null,
+    "atlas": null,
+    "evidence": null
+  },
+  {
+    "finding": "Base64Blob",
+    "severity": "low",
+    "tactic": null,
+    "indicator": "U3RhZ2VkIGV4cG9ydCBzdW1tYXJ5IGZvciBleGZpbHRyYXRpb24gdGVzdGluZy4gVGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHBheWxvYWQu",
+    "files": "staged_20250302_093010.b64",
+    "attribution": null,
+    "attack": null,
+    "atlas": null,
+    "evidence": null
+  },
+  {
+    "finding": "Domain",
+    "severity": "low",
+    "tactic": null,
+    "indicator": "contoso.onmicrosoft.com",
+    "files": "sync_10.20.1.17_retry_20250302_090930.txt",
+    "attribution": null,
+    "attack": null,
+    "atlas": null,
+    "evidence": null
+  },
+  {
+    "finding": "Domain",
+    "severity": "low",
+    "tactic": "Discovery",
+    "indicator": "corp.example",
+    "files": "20250302_090000_step01_inventory.ps1, sync_10.20.1.17_retry_20250302_090930.txt",
+    "attribution": null,
+    "attack": null,
+    "atlas": null,
+    "evidence": null
+  },
+  {
+    "finding": "tactic",
+    "severity": "low",
+    "tactic": "Discovery",
+    "indicator": null,
+    "files": "20250302_090000_step01_inventory.ps1, 20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1, 20250302_091500_step04_certs.ps1",
+    "attribution": null,
+    "attack": "TA0007",
+    "atlas": "AML.TA0008",
+    "evidence": null
+  }
+]

@@ -12,7 +12,8 @@
     "statement": "Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.",
     "activities": ["KeyVaultSecretRead", "KeyVaultKeyUnwrap", "LsassDump", "RegistryHiveDump", "CertificateExport", "ShadowFileRead", "PrivateKeyRead", "CredentialFileRead", "ShellHistoryRead", "CloudMetadataAccess", "ProcessMemoryDump", "ClusterSecretRead"],
     "tactics": ["CredentialAccess"],
-    "affected": ["KeyVaultEndpoint"]
+    "affected": ["KeyVaultEndpoint"],
+    "exposed": ["password"]
   },
   {
     "name": "Persistence established",
@@ -101,6 +102,7 @@
     "severity": "low",
     "statement": "Identities, resources or configuration were listed. Later steps were probably aimed with the result.",
     "activities": ["GraphDirectoryEnumeration", "AzureResourceEnumeration", "KeyVaultKeyEnumeration", "DirectorySearch", "RegistryQuery", "SetuidFileSearch", "ServiceDiscovery"],
-    "tactics": ["Discovery"]
+    "tactics": ["Discovery"],
+    "exposed": ["username", "email", "device", "ip"]
   }
 ]

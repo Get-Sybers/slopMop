@@ -1,0 +1,25 @@
+[1mslopmop   case42[0m
+[31m[x] HIGH - 2 impacts: 1 high, 1 low[0m
+[90m[x] high   [!] medium   [i] low[0m
+
+[1mSummary[0m
+  files       3  2 scripts, 1 output
+  activities  1
+
+[1mFindings[0m
+  [90mactivities[0m
+    [31m[x][0m LogDeletion  1 line
+        [90min[0m  a.sh
+    [90m[i][0m Scan         12 lines
+        [90min[0m  b.sh
+
+[1mImpact[0m[90m   (what it means)[0m
+  [33m[!][0m Traces hidden
+      Files were removed.
+      [90mbasis[0m  LogDeletion
+
+[1mMitigation[0m
+  [90mnone[0m
+
+[31m[x] HIGH - 2 impacts: 1 high, 1 low[0m
+[36m-> one section: slopmop <folder> impact[0m

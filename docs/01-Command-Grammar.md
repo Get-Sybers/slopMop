@@ -1,96 +1,102 @@
 # Command grammar
 
-`slopmop NOUN VERB [selectors] [--params] [output flags] [positional]`
+`slopmop -inputdir <folder> VERB [section ...] [options]`
 
-One sentence governs the rest: **a noun names a kind of thing, a verb acts on it, and every flag
-states by its prefix what kind of flag it is.**
+One sentence governs the rest: **an option names its value, a verb says what to do with the
+folder, and the bare words after the verb choose what the verb prints.**
 
-## 1. Nouns and verbs
+## 1. Verbs
 
-| Noun | Alias | Verb | Alias | Meaning |
-| --- | --- | --- | --- | --- |
-| `file` | `files` | `list` | `ls` | lists the files in the input directory, one per row |
+| Verb | Meaning |
+| --- | --- |
+| `report` | reads the folder and everything below it, runs nothing, prints the report and saves it |
 
-The nouns, their verbs, aliases, summaries and columns are declared in
-`internal/command/nouns.json`. Help and registration are built from that file.
+The verbs, their sections, their options and the files they save are declared in
+`internal/command/commands.json`. Help and registration are built from that file. A verb that is
+declared without an implementation, or implemented without a declaration, stops the program at
+start.
 
-`list` is a global verb: it means the same on every noun, takes no positional, and treats an omitted
-selector as every member. Its name and alias are defined once, in `cli.ListVerb`. A verb named
-`list`, `get` or `delete` always carries the alias `ls`, `show` or `rm`, and those aliases belong
-to no other verb.
+## 2. Options
 
-## 2. The four flag kinds
+| Option | Value | Meaning |
+| --- | --- | --- |
+| `-inputdir` | `<folder>` | the folder of scripts and outputs to read; `report` requires it |
+| `-intelfile` | `<file>` | a watchlist, JSON or STIX 2.1, to attribute the indicators to |
+| `-outdir` | `<folder>` | where the output is saved |
+| `-secrets` | `masked` or `shown` | how a password, a hash, a token or a key is written; `masked` when not given |
 
-| Kind | Form | Meaning | Takes a value |
-| --- | --- | --- | --- |
-| Selector | `-name` | one member of a closed set; combinable; none means all | no |
-| Param | `--name value` or `--name=value` | a typed parameter | yes |
-| Switch | `--name`, or its one-letter short form `-n` | turns a behaviour on | no |
-| Output flag | `-o wide\|json`, `-q`, `--no-headers`, `--tz local\|utc` | how rows are printed | as shown |
+- An option is written with one dash or two, and its value follows as the next argument or after
+  `=`: `-inputdir case42`, `--inputdir case42`, `-inputdir=case42`.
+- Every option takes a value, so the argument after an option is its value whatever it looks like.
+- An option stands before the verb or after it. An option given twice is an error. `--` ends the
+  options.
+- There is no default input folder and nothing is remembered between runs, so a command line
+  states its own input in full.
 
-The prefix is enforced: a wrong prefix is a specific error, not a guess. A param given twice is an
-error. `--` ends the flags; everything after it is positional.
+## 3. Sections
 
-A switch is written where a param is. A verb's spec declares each switch and its short form; a short
-form is one lower-case letter that no selector, switch or output flag of the verb uses.
+The bare words after `report` name sections of the report. No word means every section.
 
-Selectors are data-driven. The selectors of `file list` are the roles declared in
-`internal/inventory/roles.json`: `-script`, `-output`, `-other`.
+| Section | Holds |
+| --- | --- |
+| `summary` | the counts |
+| `timeline` | each file in order, with what it shows |
+| `findings` | each activity, indicator and tactic, most severe first |
+| `files` | the files that hold a finding of high severity |
+| `exposure` | the usernames, emails, passwords, devices and addresses the files hold |
+| `impact` | what the findings mean, with what each concerns and the lines that show it |
+| `remediation` | what to do about them and to what, most urgent first |
+| `mitigation` | what MITRE ATT&CK and ATLAS say prevents the techniques found |
 
-Output flags are the same on every verb that prints rows and are rejected on every other verb.
-`-q` cannot be combined with `-o`.
+The sections print in the order of the table, whatever order they are named in.
 
-## 3. The input directory
+## 4. What report does
 
-`--inputdir <folder>` names the directory of scripts and outputs to read. It is a required param of
-every verb that reads evidence: there is no default and nothing is remembered between runs, so a
-command line states its own input in full. A verb's spec lists its required params, and the parser
-rejects a command line that leaves one out.
+- It reads every file in the input folder and in its sub-folders, 16 levels down, and analyses them
+  once. Nothing in the folder is run and nothing is written to it.
+- It prints the sections named, as the [output schema](02-Output-Schema.md) describes.
+- It saves the report with every section, whichever were named, and each class of the output
+  schema as JSON: `report.txt`, `files.json`, `trace.json`, `findings.json`, `exposure.json` and
+  `report.json`. A file of an earlier run is replaced. The last lines of the output name the
+  folder.
+- A secret is masked in everything it prints and saves: in the exposure, in a command quoted as
+  evidence and among the indicators. `-secrets shown` writes each as it stands in the evidence.
+- The output folder is `slopmop-<name of the input folder>` in the current directory. When the
+  current directory is the input folder or inside it, the output folder is made beside the input
+  folder. `-outdir <folder>` names another, which is made when it is missing. An output folder
+  inside the input folder is refused before anything is read, with symbolic links resolved.
+- When the output cannot be written, the report still prints, and the command then fails with exit
+  code 1.
+- A sub-folder that is deeper than 16 levels or cannot be read is left out: the report prints and
+  is saved, then the command fails with exit code 1 and an error that names each such folder.
 
-Without a switch, only the files directly in the directory are read. `--recursive`, or `-r`, reads
-the sub-folders too, 16 levels down. Column 1 is then the path below the input directory, with `/`
-between its elements. A sub-folder that is deeper than 16 levels or cannot be read is left out: the
-rows print, then the command fails with exit code 1 and an error that names each such folder.
-
-## 4. Works
+## 5. Works
 
 | Command | What it does |
 | --- | --- |
-| `slopmop file list --inputdir case42/ai_workdir` | every file in the directory |
-| `slopmop files ls --inputdir=case42/ai_workdir` | the same, through the aliases and the `=` form |
-| `slopmop file list --inputdir case42/ai_workdir -script` | only scripts |
-| `slopmop file list --inputdir case42/ai_workdir -script -other` | two roles at once |
-| `slopmop file list --inputdir case42/ai_workdir -o wide` | every column |
-| `slopmop file list --inputdir case42/ai_workdir -q -script` | script names only, one per line |
-| `slopmop file list --inputdir case42/ai_workdir --recursive` | every file in the directory and its sub-folders |
-| `slopmop trace list --inputdir case42/ai_workdir -r` | the timeline across the sub-folders |
-| `slopmop finding list --inputdir case42/ai_workdir -activity -r` | the activities found, across the sub-folders |
-| `slopmop report list --inputdir case42/ai_workdir --intelfile watchlist.json` | the whole report, with the watchlist matches |
-| `slopmop report list --inputdir case42/ai_workdir -impact -remediation` | two sections of the report |
-| `slopmop report list --inputdir case42/ai_workdir -files --severity medium` | the files with a finding of medium severity or above |
+| `slopmop -inputdir case42/ai_workdir report` | prints and saves the whole report |
+| `slopmop -inputdir case42/ai_workdir report impact remediation` | prints two sections; saves the whole report |
+| `slopmop -inputdir case42/ai_workdir report -intelfile watchlist.json` | the whole report, with the watchlist matches |
+| `slopmop -inputdir case42/ai_workdir report -outdir reports/case42` | the whole report, saved to `reports/case42` |
+| `slopmop -inputdir case42/ai_workdir report exposure -secrets shown` | the exposure, with each secret written out |
+| `slopmop --inputdir=case42/ai_workdir report` | the same as the first, in the other spelling |
 
-## 5. Fails
+## 6. Fails
 
 | Command | Error |
 | --- | --- |
-| `slopmop bogus list` | `unknown noun "bogus"` |
-| `slopmop file bogus` | `file has no verb "bogus"` |
-| `slopmop file list` | `file list needs --inputdir <folder>` |
-| `slopmop file list -inputdir case42` | `-inputdir takes a value; use --inputdir <folder>` |
-| `slopmop file list --inputdir` | `--inputdir needs a value <folder>` |
-| `slopmop file list --inputdir a --inputdir b` | `--inputdir given more than once` |
-| `slopmop file list --inputdir case42 -bogus` | `unknown selector -bogus (valid selectors: -other, -output, -script)` |
-| `slopmop file list --inputdir case42 --role x` | `unknown option --role (valid params: --inputdir <folder>)` |
-| `slopmop file list --inputdir case42 --script` | `--script takes no value; "script" is a selector, use -script` |
-| `slopmop file list --inputdir case42 -recursive` | `-recursive is a switch; use --recursive` |
-| `slopmop file list --inputdir case42 --r` | `--r is a short form; use -r or --recursive` |
-| `slopmop file list --inputdir case42 --recursive=yes` | `--recursive takes no value` |
-| `slopmop file list --inputdir case42 extra` | `file list expects no positional args, got 1` |
-| `slopmop file list --inputdir case42 -o yaml` | `unknown view "yaml" (valid views: json, wide)` |
-| `slopmop file list --inputdir case42 -q -o json` | `-q cannot be combined with -o` |
-| `slopmop file list --inputdir case42/missing` | `not a folder: open case42/missing: no such file or directory` |
+| `slopmop -inputdir case42` | `slopmop needs a verb (verbs: report)` |
+| `slopmop -inputdir case42 list` | `unknown verb "list" (verbs: report)` |
+| `slopmop report` | `report needs -inputdir <folder>` |
+| `slopmop report -inputdir` | `-inputdir needs a value <folder>` |
+| `slopmop -inputdir a -inputdir b report` | `-inputdir given more than once` |
+| `slopmop -inputdir case42 report bogus` | `report has no section "bogus" (sections: summary, timeline, findings, files, exposure, impact, remediation, mitigation)` |
+| `slopmop -inputdir case42 report -o json` | `unknown option -o (options: -inputdir <folder>, -intelfile <file>, -outdir <folder>, -secrets masked\|shown)` |
+| `slopmop -inputdir case42 report -secrets plain` | `-secrets takes masked or shown, not "plain"` |
+| `slopmop -inputdir case42/missing report` | `not a folder: open case42/missing: no such file or directory` |
+| `slopmop -inputdir case42 report -outdir case42/out` | `-outdir is inside the folder that is read; the evidence is never written to` |
 
-## 6. Exit codes
+## 7. Exit codes
 
 | Code | Meaning |
 | --- | --- |
@@ -101,31 +107,78 @@ rows print, then the command fails with exit code 1 and an error that names each
 Errors go to standard error as `error: <message>`. A message that carries a file name from the
 evidence is escaped as described in the [output schema](02-Output-Schema.md).
 
-## 7. Help
+## 8. Help
 
-Help is generated from the registered nouns and each verb's spec, so it cannot drift from the
-parser. `slopmop`, `slopmop help`, `slopmop -h` and `slopmop --help` list the nouns. `slopmop NOUN`
-lists its verbs. `-h` or `--help` after a verb prints that verb's selectors, params, switches and output flags.
+Help is written for the point the command line has come to. `-h`, `-help`, `--help` or the word
+`help`, put anywhere on a line, prints what the line holds so far and what can follow it, and runs
+nothing. It is generated from the registered verbs, so it cannot drift from the parser.
+
+| Line so far | Help says |
+| --- | --- |
+| `slopmop --help`, or `slopmop` alone | the verbs and the options |
+| `slopmop -inputdir --help` | the value the option takes |
+| `slopmop -inputdir <folder> --help` | what was given, and the verbs to add |
+| `slopmop -inputdir <folder> report --help` | what was given, the sections, and the options left to add |
+| `slopmop -inputdir <folder> report impact --help` | the sections chosen and those left to add |
+| `slopmop report --help` | the same as with a folder, and that `-inputdir` is still needed |
+
+- `so far:` repeats the line. A value that holds a space or a character that is not printable is
+  shown quoted.
+- `given:` lists the options that have a value. `still needed:` lists the required options that
+  are missing. The other blocks list what can be added: verbs, sections and options.
+- `problems:` names what does not fit: an unknown verb, section or option, or an option given
+  twice. Help is not an error, so the exit code is 0.
+- `next:` is a line to type to see the help of the next point. `run:` is the command itself; it
+  is shown once nothing is missing and nothing is wrong. Both leave out what was wrong, and write
+  the line in the order of the usage line.
+- A help flag where the value of an option belongs asks about that option. The word `help` there
+  is the value, and so is anything after `=`: `-inputdir help`, `-inputdir=--help`.
 
 ```text
-$ slopmop file list -h
-usage: slopmop file list --inputdir <folder> [selectors] [--params] [output flags]
-list the files in the input directory
+$ slopmop -inputdir case42 --help
+usage: slopmop -inputdir <folder> VERB [section ...] [options]
+so far: slopmop -inputdir case42
 
-selectors (single dash, pick any; none = all):
-  -other          any other file
-  -output         an output a script produced
-  -script         a script the agent wrote
+given:
+  -inputdir case42       the folder of scripts and outputs to read
 
-params (double dash, take a value):
-  --inputdir      <folder> (required)
+add a verb:
+  report                 reads the folder and everything below it, runs nothing, prints the report and saves it
 
-switches (double dash, take no value; the short form takes one dash):
-  --recursive, -r read sub-folders too, 16 levels down
+options you can add (one dash or two; each takes a value):
+  -intelfile <file>      a watchlist, JSON or STIX 2.1, to attribute the indicators to
+  -outdir <folder>       where the output is saved; slopmop-<name> in the current directory when not given
+  -secrets masked|shown  how a password, a hash, a token or a key is written; masked when not given
 
-output flags:
-  -o wide|json    every column, or JSON
-  -q              column 1 only, one per line
-  --no-headers    no header row
-  --tz local|utc  zone of displayed times (default utc)
+next: slopmop -inputdir case42 report --help
+```
+
+```text
+$ slopmop -inputdir case42 report impact --help
+usage: slopmop -inputdir <folder> report [section ...] [-intelfile <file>] [-outdir <folder>] [-secrets masked|shown]
+reads the folder and everything below it, runs nothing, prints the report and saves it
+so far: slopmop -inputdir case42 report impact
+
+given:
+  -inputdir case42       the folder of scripts and outputs to read
+
+sections chosen:
+  impact                 what the findings mean, with what each concerns and the lines that show it
+
+sections you can add:
+  summary                the counts
+  timeline               each file in order, with what it shows
+  findings               each activity, indicator and tactic, most severe first
+  files                  the files that hold a finding of high severity
+  exposure               the usernames, emails, passwords, devices and addresses the files hold
+  remediation            what to do about them and to what, most urgent first
+  mitigation             what MITRE ATT&CK and ATLAS say prevents the techniques found
+
+options you can add (one dash or two; each takes a value):
+  -intelfile <file>      a watchlist, JSON or STIX 2.1, to attribute the indicators to
+  -outdir <folder>       where the output is saved; slopmop-<name> in the current directory when not given
+  -secrets masked|shown  how a password, a hash, a token or a key is written; masked when not given
+
+next: slopmop -inputdir case42 report impact summary --help
+run:  slopmop -inputdir case42 report impact
 ```

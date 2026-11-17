@@ -1,0 +1,7 @@
+usage: slopmop -inputdir <folder> VERB [section ...] [options]
+so far: slopmop -inputdir
+
+-inputdir needs a value:
+  -inputdir <folder>  the folder of scripts and outputs to read
+
+next: slopmop -inputdir <folder> --help

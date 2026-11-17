@@ -14,6 +14,20 @@
     "note": null
   },
   {
+    "step": 1,
+    "name": "token_20261015_090010.json",
+    "role": "output",
+    "time": "20261015_090010",
+    "tools": null,
+    "tactics": null,
+    "transforms": null,
+    "activities": null,
+    "outputs": null,
+    "indicators": null,
+    "intel": null,
+    "note": null
+  },
+  {
     "step": 2,
     "name": "20261015_090500_step02_recon.ps1",
     "role": "script",
@@ -24,6 +38,20 @@
     "activities": "GraphDirectoryEnumeration",
     "outputs": "directory_20261015_090530.txt",
     "indicators": 4,
+    "intel": null,
+    "note": null
+  },
+  {
+    "step": 2,
+    "name": "directory_20261015_090530.txt",
+    "role": "output",
+    "time": "20261015_090530",
+    "tools": null,
+    "tactics": null,
+    "transforms": null,
+    "activities": null,
+    "outputs": null,
+    "indicators": 3,
     "intel": null,
     "note": null
   },
@@ -56,6 +84,20 @@
     "note": null
   },
   {
+    "step": 4,
+    "name": "collect_20261015_092040.txt",
+    "role": "output",
+    "time": "20261015_092040",
+    "tools": null,
+    "tactics": null,
+    "transforms": null,
+    "activities": null,
+    "outputs": null,
+    "indicators": 2,
+    "intel": null,
+    "note": null
+  },
+  {
     "step": 5,
     "name": "20261015_093000_step05_vault.sh",
     "role": "script",
@@ -67,6 +109,48 @@
     "outputs": "vaults_20261015_093010.txt, secrets_20261015_093030.txt",
     "indicators": 3,
     "intel": null,
+    "note": null
+  },
+  {
+    "step": 5,
+    "name": "vaults_20261015_093010.txt",
+    "role": "output",
+    "time": "20261015_093010",
+    "tools": null,
+    "tactics": null,
+    "transforms": null,
+    "activities": null,
+    "outputs": null,
+    "indicators": null,
+    "intel": null,
+    "note": null
+  },
+  {
+    "step": 5,
+    "name": "secrets_20261015_093030.txt",
+    "role": "output",
+    "time": "20261015_093030",
+    "tools": null,
+    "tactics": null,
+    "transforms": null,
+    "activities": null,
+    "outputs": null,
+    "indicators": null,
+    "intel": null,
+    "note": null
+  },
+  {
+    "step": 5,
+    "name": "agent_20261015_093500.jsonl",
+    "role": "output",
+    "time": "20261015_093500",
+    "tools": "az",
+    "tactics": "Discovery, Persistence, PrivilegeEscalation, CredentialAccess",
+    "transforms": null,
+    "activities": "AppRoleAssignment, KeyVaultSecretRead, KeyVaultKeyEnumeration",
+    "outputs": null,
+    "indicators": 7,
+    "intel": "STORM-0940: 144.172.64.128, STORM-0940: 144.172.64.60",
     "note": null
   }
 ]

@@ -1,0 +1,25 @@
+slopmop   case42
+[x] HIGH - 2 impacts: 1 high, 1 low
+[x] high   [!] medium   [i] low
+
+Summary
+  files       3  2 scripts, 1 output
+  activities  1
+
+Findings
+  activities
+    [x] LogDeletion  1 line
+        in  a.sh
+    [i] Scan         12 lines
+        in  b.sh
+
+Impact   (what it means)
+  [!] Traces hidden
+      Files were removed.
+      basis  LogDeletion
+
+Mitigation
+  none
+
+[x] HIGH - 2 impacts: 1 high, 1 low
+-> one section: slopmop <folder> impact

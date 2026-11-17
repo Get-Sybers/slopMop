@@ -10,18 +10,29 @@ import (
 	"fmt"
 	"regexp"
 	"regexp/syntax"
+	"slices"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/get-sybers/slopmop/internal/vars"
 )
 
 //go:embed activities.json
 var raw []byte
 
 // continued joins a line that ends in a bash backslash or a PowerShell
-// backtick to the line after it.
+// backtick to the next, with spaces of the same length, so offsets hold.
 //
 //nolint:gochecknoglobals // a constant replacer
-var continued = strings.NewReplacer("\\\r\n", " ", "\\\n", " ", "`\r\n", " ", "`\n", " ")
+var continued = strings.NewReplacer("\\\r\n", "   ", "\\\n", "  ", "`\r\n", "   ", "`\n", "  ")
+
+const (
+	// maxEvidence is how many lines one activity keeps from one text.
+	maxEvidence = 12
+	// maxText is how many bytes of a line are kept.
+	maxText  = 200
+	ellipsis = "..."
+)
 
 type document struct {
 	// Contexts names patterns that say what a whole text is about.
@@ -44,6 +55,14 @@ type entry struct {
 	// Unless is an optional pattern; a line that matches it does not count.
 	// RE2 has no lookahead, so the exclusion is checked here.
 	Unless string `json:"unless,omitempty"`
+	// Subjects name what a matching line acts on: an account, a file, a host.
+	Subjects []subjectEntry `json:"subjects,omitempty"`
+}
+
+// subjectEntry is a label and a pattern whose one group captures the subject.
+type subjectEntry struct {
+	Label   string `json:"label"`
+	Pattern string `json:"pattern"`
 }
 
 // Hit is one activity found in a text.
@@ -54,6 +73,23 @@ type Hit struct {
 	Atlas   []string
 	// Lines is the number of distinct lines that show the activity.
 	Lines int
+	// Evidence holds the first of those lines, in the order of the text.
+	Evidence []Evidence
+}
+
+// Evidence is one line that shows an activity.
+type Evidence struct {
+	// Line is the number of the line in the text, from 1.
+	Line int
+	// Text is the line without the space around it, cut to a fixed length.
+	Text     string
+	Subjects []Subject
+}
+
+// Subject is what a line acts on, and what kind of thing it is.
+type Subject struct {
+	Label string
+	Value string
 }
 
 // Table holds the compiled activity patterns, in the order of the data file.
@@ -71,6 +107,12 @@ type compiled struct {
 	context  string
 	paths    []pattern
 	unless   *regexp.Regexp
+	subjects []subject
+}
+
+type subject struct {
+	label string
+	rx    *regexp.Regexp
 }
 
 // pattern is a compiled expression and the literals one of which every
@@ -139,6 +181,16 @@ func decode(data []byte) (Table, error) {
 			if c.unless, err = regexp.Compile(e.Unless); err != nil {
 				return Table{}, fmt.Errorf("activities.json[%d] %s unless: %w", i, e.Name, err)
 			}
+		}
+		for _, sub := range e.Subjects {
+			rx, err := regexp.Compile(sub.Pattern)
+			switch {
+			case err != nil:
+				return Table{}, fmt.Errorf("activities.json[%d] %s subject %s: %w", i, e.Name, sub.Label, err)
+			case sub.Label == "" || rx.NumSubexp() != 1:
+				return Table{}, fmt.Errorf("activities.json[%d] %s: a subject needs a label and a pattern with one group", i, e.Name)
+			}
+			c.subjects = append(c.subjects, subject{label: sub.Label, rx: rx})
 		}
 		t.activities = append(t.activities, c)
 	}
@@ -266,11 +318,12 @@ func (t Table) Tactics() []string {
 // Detect returns the activities a text shows, in the order of the data
 // file. A command continued over several lines counts as one line.
 func (t Table) Detect(text string) []Hit {
+	joined := text
 	if strings.Contains(text, "\\\n") || strings.Contains(text, "\\\r") || strings.Contains(text, "`\n") || strings.Contains(text, "`\r") {
-		text = continued.Replace(text)
+		joined = continued.Replace(text)
 	}
 	// Only A to Z are folded, so an offset in lower is the same offset in text.
-	lower := []byte(text)
+	lower := []byte(joined)
 	for i, c := range lower {
 		if c >= 'A' && c <= 'Z' {
 			lower[i] = c + ('a' - 'A')
@@ -278,9 +331,10 @@ func (t Table) Detect(text string) []Hit {
 	}
 	inContext := map[string]bool{}
 	for name, p := range t.contexts {
-		inContext[name] = len(p.lines(text, lower, nil, 1)) > 0
+		inContext[name] = len(p.lines(joined, lower, nil, 1)) > 0
 	}
 	var hits []Hit
+	var variables vars.Set
 	for _, a := range t.activities {
 		patterns := a.patterns
 		if inContext[a.context] {
@@ -288,15 +342,79 @@ func (t Table) Detect(text string) []Hit {
 		}
 		lines := map[int]bool{}
 		for _, p := range patterns {
-			for _, start := range p.lines(text, lower, a.unless, -1) {
+			for _, start := range p.lines(joined, lower, a.unless, -1) {
 				lines[start] = true
 			}
 		}
-		if len(lines) > 0 {
-			hits = append(hits, Hit{Name: a.name, Tactics: a.tactics, Attack: a.attack, Atlas: a.atlas, Lines: len(lines)})
+		if len(lines) == 0 {
+			continue
 		}
+		if variables == nil && len(a.subjects) > 0 {
+			variables = vars.Read(text)
+		}
+		hit := Hit{Name: a.name, Tactics: a.tactics, Attack: a.attack, Atlas: a.atlas, Lines: len(lines)}
+		hit.Evidence = a.evidence(text, joined, lines, variables)
+		hits = append(hits, hit)
 	}
 	return hits
+}
+
+// evidence returns the first lines of an activity. The line number is
+// counted in text, where a continued command still spans its lines.
+func (a compiled) evidence(text, joined string, lines map[int]bool, variables vars.Set) []Evidence {
+	starts := make([]int, 0, len(lines))
+	for start := range lines {
+		starts = append(starts, start)
+	}
+	slices.Sort(starts)
+	if len(starts) > maxEvidence {
+		starts = starts[:maxEvidence]
+	}
+	found := make([]Evidence, 0, len(starts))
+	number, counted := 1, 0
+	for _, start := range starts {
+		number += strings.Count(text[counted:start], "\n")
+		counted = start
+		_, end := lineAround(joined, start)
+		line := strings.Join(strings.Fields(joined[start:end]), " ")
+		e := Evidence{Line: number, Text: cut(line)}
+		for _, sub := range a.subjects {
+			m := sub.rx.FindStringSubmatch(line)
+			if m == nil {
+				continue
+			}
+			// A variable the text never sets names nothing, so it is no subject.
+			if value := resolve(strings.Trim(m[1], "\"'`;,()"), variables); value != "" && !rxUnset.MatchString(value) {
+				e.Subjects = append(e.Subjects, Subject{Label: sub.label, Value: cut(value)})
+			}
+		}
+		found = append(found, e)
+	}
+	return found
+}
+
+// cut shortens s to maxText bytes, ending in "..." and never inside a rune.
+func cut(s string) string {
+	if len(s) <= maxText {
+		return s
+	}
+	end := maxText - len(ellipsis)
+	for end > 0 && !utf8.RuneStart(s[end]) {
+		end--
+	}
+	return s[:end] + ellipsis
+}
+
+// rxUnset is a value that is one variable and nothing else.
+var rxUnset = regexp.MustCompile(`^(?:\$\{?[A-Za-z_]\w*\}?|%[A-Za-z_]\w*%)$`)
+
+// resolve gives a subject that is one variable the value the text sets it
+// to, and keeps the name beside it; anything else is returned as it is.
+func resolve(value string, variables vars.Set) string {
+	if set, ok := variables.Value(value); ok {
+		return set + " (" + value + ")"
+	}
+	return value
 }
 
 // lines returns the start of each line the pattern matches and unless does
