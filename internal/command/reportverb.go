@@ -39,6 +39,7 @@ type reportRun struct {
 	pipe   pipeline
 	result analysis
 	rows   []reportRow
+	shown  []shownActivity
 }
 
 type sectionBuilder func(w reportRun) []render.Group
@@ -145,23 +146,27 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 			sectionSummary: true, sectionFiles: true, sectionTargeted: true, sectionExposure: true, sectionImpact: true,
 			sectionRemediation: true, sectionMitigation: true,
 		}
-		run := reportRun{pipe: pipe, result: result, rows: pipe.report(result, tactic.High, every)}
+		rows, shown := pipe.report(result, tactic.High, every)
+		run := reportRun{pipe: pipe, result: result, rows: rows, shown: shown}
 		// The disk holds every section; the screen holds those asked for.
 		full := render.Readout{Title: "slopmop report   " + folder, Banner: run.banner(), Hints: v.Hints}
-		shown := full
+		screen := full
 		for _, s := range v.Sections {
 			section := render.Section{Title: s.Title, Note: s.Note, Groups: builders[s.Name](run)}
+			if sectionEmpty(section) {
+				continue
+			}
 			full.Sections = append(full.Sections, section)
 			if slices.Contains(a.Words, s.Name) {
-				shown.Sections = append(shown.Sections, section)
+				screen.Sections = append(screen.Sections, section)
 			}
 		}
 		// A failed save does not withhold the readout; it fails the command after it.
 		names, saveErr := run.save(dir, v.Saved, columns, full)
 		if saveErr == nil {
-			shown.Hints = append([]string{"saved to " + dir + ": " + strings.Join(names, ", ")}, v.Hints...)
+			screen.Hints = append([]string{"saved to " + dir + ": " + strings.Join(names, ", ")}, v.Hints...)
 		}
-		if err := render.WriteReadout(e.Stdout, shown, e.Colour); err != nil {
+		if err := render.WriteReadout(e.Stdout, screen, e.Colour); err != nil {
 			return err
 		}
 		return errors.Join(saveErr, skippedError(result.skipped, inventory.MaxDepth))
@@ -195,6 +200,15 @@ func (w reportRun) banner() render.Banner {
 	}
 	text := strings.ToUpper(string(top)) + " - " + plural(total, "impact") + ": " + strings.Join(parts, ", ")
 	return render.Banner{Level: string(top), Text: text}
+}
+
+func sectionEmpty(s render.Section) bool {
+	for _, g := range s.Groups {
+		if len(g.Entries) > 0 {
+			return false
+		}
+	}
+	return true
 }
 
 // summary gives one line per count; the files and the indicators carry
@@ -248,15 +262,14 @@ func (w reportRun) timeline() []render.Group {
 	return []render.Group{g}
 }
 
+// stepTime is the time the timeline shows for a file: the same instant it is
+// ordered by, written as one ISO-8601 UTC stamp whether it came from the file
+// name or the modified time.
 func stepTime(s trace.Step) string {
-	switch {
-	case s.File.Stamped:
-		return s.File.Stamp.Text
-	case !s.File.Modified.IsZero():
-		return render.Stamp(s.File.Modified, nil)
-	default:
-		return "-"
+	if t := fileTime(s.File); !t.IsZero() {
+		return render.Stamp(t, nil)
 	}
+	return "-"
 }
 
 func stepDetail(s trace.Step) []render.Detail {
@@ -320,7 +333,7 @@ func (w reportRun) findings() []render.Group {
 		switch f.kind {
 		case kindActivity:
 			e.Cells = []string{f.label, plural(lines[f.label], "line"), strings.Join(f.tactics, ", "), mitre}
-			e.Detail = lined("what", f.evidence, fewFindingLines)
+			e.Detail = lined("what", f.evidence, fewFindingLines, "the saved findings")
 		case kindIndicator:
 			at = 1
 			e.Cells = []string{f.label, f.indicator, few(f.files)}
@@ -366,7 +379,7 @@ func (w reportRun) assessed(section string) []render.Group {
 			continue
 		}
 		detail := []render.Detail{{Text: r.detail}, {Label: "targets", Text: fewOf(r.targets, fewTargets, "; ")}}
-		detail = append(detail, lined("what", r.evidence, fewLines)...)
+		detail = append(detail, lined("what", r.evidence, fewLines, "report.json")...)
 		detail = append(detail, render.Detail{Label: "basis", Text: strings.Join(r.basis, ", ")})
 		if len(r.evidence) == 0 {
 			detail = append(detail, render.Detail{Label: "files", Text: few(r.files)})
@@ -385,7 +398,7 @@ func (w reportRun) mitigation() []render.Group {
 			continue
 		}
 		detail := []render.Detail{{Text: r.detail}}
-		detail = append(detail, lined("for", r.targets, fewLines)...)
+		detail = append(detail, lined("for", r.targets, fewLines, "report.json")...)
 		if len(r.targets) == 0 {
 			detail = append(detail, render.Detail{Label: "for", Text: strings.Join(r.basis, ", ")})
 		}
@@ -430,13 +443,82 @@ func (w reportRun) targeted() []render.Group {
 		if t.origin == originDiscovered {
 			detail = append(detail, render.Detail{Label: "from", Text: t.from.String()})
 		}
-		detail = append(detail, lined("what", t.lines, fewFindingLines)...)
+		detail = append(detail, lined("what", t.lines, fewFindingLines, "the saved targeted file")...)
 		groups[i].Entries = append(groups[i].Entries, render.Entry{Level: string(t.level()), Cells: cells, Detail: detail})
 	}
 	for name, i := range at {
 		if more := total[name] - len(groups[i].Entries); more > 0 {
 			groups[i].Entries = append(groups[i].Entries, render.Entry{Cells: []string{"and " + strconv.Itoa(more) + " more in the saved targeted file"}})
 		}
+	}
+	groups = append(groups, w.subjectGroups()...)
+	return groups
+}
+
+// subjectGroups builds one group per subject label from the shown activities.
+func (w reportRun) subjectGroups() []render.Group {
+	type entity struct {
+		value      string
+		activities []string
+		level      tactic.Severity
+		evidence   []string
+	}
+	labels := map[string][]entity{}
+	keys := map[string]int{}
+	var labelOrder []string
+	for _, s := range w.shown {
+		top := tactic.Low
+		for _, name := range s.hit.Tactics {
+			if sev := w.pipe.tactics.Severity(name); sev.Rank() > top.Rank() {
+				top = sev
+			}
+		}
+		for _, c := range s.cites {
+			for _, sub := range c.subjects {
+				k := sub.Label + "\x00" + sub.Value
+				i, ok := keys[k]
+				if !ok {
+					if _, started := labels[sub.Label]; !started {
+						labelOrder = append(labelOrder, sub.Label)
+					}
+					i = len(labels[sub.Label])
+					keys[k] = i
+					labels[sub.Label] = append(labels[sub.Label], entity{value: sub.Value, level: top})
+				}
+				ent := &labels[sub.Label][i]
+				if top.Rank() > ent.level.Rank() {
+					ent.level = top
+				}
+				if !slices.Contains(ent.activities, s.hit.Name) {
+					ent.activities = append(ent.activities, s.hit.Name)
+				}
+				line := s.hit.Name + ": " + c.String()
+				if len(ent.evidence) < fewFindingLines && !slices.Contains(ent.evidence, line) {
+					ent.evidence = append(ent.evidence, line)
+				}
+			}
+		}
+	}
+	var groups []render.Group
+	for _, label := range labelOrder {
+		entities := labels[label]
+		g := render.Group{
+			Title:   strings.ToUpper(label[:1]) + label[1:] + " (" + strconv.Itoa(len(entities)) + ")",
+			Columns: []string{"value", "acted on by"},
+		}
+		for i, ent := range entities {
+			if i == fewExposed {
+				g.Entries = append(g.Entries, render.Entry{Cells: []string{"and " + strconv.Itoa(len(entities)-fewExposed) + " more in report.json"}})
+				break
+			}
+			detail := lined("what", ent.evidence, fewFindingLines, "report.json")
+			g.Entries = append(g.Entries, render.Entry{
+				Level:  string(ent.level),
+				Cells:  []string{ent.value, strings.Join(ent.activities, ", ")},
+				Detail: detail,
+			})
+		}
+		groups = append(groups, g)
 	}
 	return groups
 }
@@ -486,13 +568,14 @@ func (w reportRun) exposure() []render.Group {
 	return groups
 }
 
-// lined gives each of the first lines a detail of its own under one label,
-// and counts the rest.
-func lined(label string, lines []string, limit int) []render.Detail {
+// lined gives each of the first lines a detail of its own under one label, and
+// counts the rest, naming the saved file that holds every one of them: the
+// screen and the saved report share this limit, so the overflow is only in JSON.
+func lined(label string, lines []string, limit int, where string) []render.Detail {
 	var out []render.Detail
 	for i, line := range lines {
 		if i == limit {
-			out = append(out, render.Detail{Label: label, Text: "and " + strconv.Itoa(len(lines)-limit) + " more in the saved report"})
+			out = append(out, render.Detail{Label: label, Text: "and " + strconv.Itoa(len(lines)-limit) + " more in " + where})
 			break
 		}
 		out = append(out, render.Detail{Label: label, Text: line})

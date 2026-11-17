@@ -60,7 +60,7 @@ type reportRow struct {
 }
 
 // report assembles the wanted sections in their fixed order.
-func (p pipeline) report(a analysis, threshold tactic.Severity, wanted map[string]bool) []reportRow {
+func (p pipeline) report(a analysis, threshold tactic.Severity, wanted map[string]bool) ([]reportRow, []shownActivity) {
 	var rows []reportRow
 	if wanted[sectionSummary] {
 		for _, m := range listMetrics(a) {
@@ -129,14 +129,17 @@ func (p pipeline) report(a analysis, threshold tactic.Severity, wanted map[strin
 	if wanted[sectionMitigation] {
 		rows = append(rows, p.mitigations(shown, impacts)...)
 	}
-	return rows
+	return rows, shown
 }
 
 // support names what an impact or an action concerns and the lines that
 // show it: the subjects and lines of its activities, the commands of the
 // tools behind its tactics, and the exposed values it lists.
 func support(shown []shownActivity, tools map[string][]cited, r assess.Result) (targets, evidence []string) {
-	quoted := map[cite]bool{}
+	// The key is the place and the bare command, so the same line is quoted once
+	// even in a structured output where it has no number: an audit record is not
+	// quoted for its activity and again for its tool.
+	quoted := map[string]bool{}
 	for _, name := range r.Activities {
 		for _, s := range shown {
 			if s.hit.Name != name {
@@ -144,18 +147,22 @@ func support(shown []shownActivity, tools map[string][]cited, r assess.Result) (
 			}
 			for _, c := range s.cites {
 				targets = appendUnique(targets, c.targets()...)
+				if quoted[c.key()] {
+					continue
+				}
 				evidence = append(evidence, name+": "+c.String())
-				quoted[c.cite] = true
+				quoted[c.key()] = true
 			}
 		}
 	}
 	for _, basis := range r.Basis {
 		if name, isTools := strings.CutSuffix(basis, toolsSuffix); isTools {
 			for _, c := range tools[name] {
-				// A line an activity already quotes is not quoted again for its tool.
-				if c.line == 0 || !quoted[c.cite] {
-					evidence = append(evidence, c.String())
+				if quoted[c.key()] {
+					continue
 				}
+				evidence = append(evidence, c.String())
+				quoted[c.key()] = true
 			}
 		}
 	}
@@ -195,7 +202,10 @@ type shownActivity struct {
 // cited is one line of evidence in one file.
 type cited struct {
 	cite
-	text     string
+	text string
+	// command is the line without its activity or tool name, so the same line
+	// quoted for an activity and for its tool is recognised as one.
+	command  string
 	subjects []activity.Subject
 }
 
@@ -205,12 +215,19 @@ func (a analysis) cited(path string, e activity.Evidence) cited {
 	for i, s := range e.Subjects {
 		subjects[i] = activity.Subject{Label: s.Label, Value: a.redact(s.Value)}
 	}
-	return cited{cite{path, e.Line}, a.redact(e.Text), subjects}
+	text := a.redact(e.Text)
+	return cited{cite: cite{path, e.Line}, text: text, command: text, subjects: subjects}
 }
 
 // String writes the line and where it stands.
 func (c cited) String() string {
 	return c.text + " (" + c.cite.String() + ")"
+}
+
+// key identifies the underlying line by its place and bare command, so it is
+// the same whether the line is quoted for an activity or for its tool.
+func (c cited) key() string {
+	return c.cite.String() + "\x00" + c.command
 }
 
 // targets names the subjects of the line, each with its label.
@@ -430,7 +447,7 @@ func (p pipeline) gather(a analysis) (assess.Evidence, []shownActivity, map[stri
 		}
 		for _, c := range s.Commands {
 			if name := p.tactics.Classify(c.Tool); name != "" && len(tools[name]) < maxCited {
-				tools[name] = append(tools[name], cited{cite: cite{path, c.Line}, text: a.redact(c.Tool + ": " + c.Text)})
+				tools[name] = append(tools[name], cited{cite: cite{path, c.Line}, text: a.redact(c.Tool + ": " + c.Text), command: a.redact(c.Text)})
 			}
 		}
 		for _, hit := range s.IntelHits {

@@ -224,16 +224,14 @@ func intentRow(r intentRun, columns []render.Column) ([]render.Value, error) {
 	return orderCells("intent", cells, columns)
 }
 
-// timeCell is the time of a file as the trace class writes it.
+// timeCell is the time of a file as the trace class writes it: the file-name
+// stamp read as UTC, or else the modified time, as one ISO-8601 instant so a
+// reader never meets a bare token or epoch in a time column.
 func timeCell(f evidence.File) render.Value {
-	switch {
-	case f.Stamped:
-		return render.Text(f.Stamp.Text)
-	case !f.Modified.IsZero():
-		return render.Time(f.Modified)
-	default:
-		return render.NotApplicable()
+	if t := fileTime(f); !t.IsZero() {
+		return render.Time(t)
 	}
+	return render.NotApplicable()
 }
 
 func (w reportRun) intentTable(columns []render.Column) (render.Table, error) {

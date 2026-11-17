@@ -40,7 +40,7 @@ Summary
   exposed     8   Usernames 2, Devices 3, IP addresses 3
 
 Timeline   (step, time, role, file)
-  1  20250302_090000  script  20250302_090000_step01_inventory.ps1
+  1  2025-03-02T09:00:00Z  script  20250302_090000_step01_inventory.ps1
       tools       get-date, join-path, get-adcomputer, select-object, export-csv
       tactics     Discovery
       indicators  1

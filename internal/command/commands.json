@@ -20,7 +20,7 @@
         {"name": "intents", "title": "Intents", "summary": "each ARTEX intent, by its run folder i<number>: its period and its ATT&CK and ATLAS techniques", "note": "an ARTEX run folder i<number>: the first and last time of its files, and the techniques found in them"},
         {"name": "findings", "title": "Findings", "summary": "each activity, indicator and tactic, most severe first"},
         {"name": "files", "title": "Notable files", "summary": "the files that hold a finding of high severity", "note": "a finding of high severity"},
-        {"name": "targeted", "title": "Targeted", "summary": "the usernames, addresses, hostnames and emails the scripts name outright", "note": "hardcoded in a script; prior: no earlier output holds it; discovered: an earlier output does"},
+        {"name": "targeted", "title": "Targeted", "summary": "what the scripts name and what activities acted on", "note": "hardcoded values: prior means no earlier output holds it, discovered means one does; subjects: each entity an activity acted on"},
         {"name": "exposure", "title": "Exposure", "summary": "the usernames, emails, passwords, devices and addresses the files hold", "note": "collected: first seen in an output; used: first seen in a script; a secret is masked"},
         {"name": "impact", "title": "Impact", "summary": "what the findings mean, with what each concerns and the lines that show it"},
         {"name": "remediation", "title": "Remediation", "summary": "what to do about them and to what, most urgent first", "note": "most urgent first"},

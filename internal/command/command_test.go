@@ -134,13 +134,16 @@ func TestReportSaves(t *testing.T) {
 	}
 	// Each format holds every section, and the evidence the text holds.
 	markdown, page := readFile(t, filepath.Join(saved, "report.md")), readFile(t, filepath.Join(saved, "report.html"))
-	for _, title := range []string{"Summary", "Timeline", "Intents", "Findings", "Notable files", "Targeted", "Exposure", "Impact", "Remediation", "Mitigation"} {
+	for _, title := range []string{"Summary", "Timeline", "Findings", "Notable files", "Targeted", "Exposure", "Impact", "Remediation", "Mitigation"} {
 		if !strings.Contains(markdown, "\n## "+title+"\n") {
 			t.Errorf("report.md lacks the section %s", title)
 		}
 		if !strings.Contains(page, "<h2>"+title+"</h2>") {
 			t.Errorf("report.html lacks the section %s", title)
 		}
+	}
+	if strings.Contains(markdown, "\n## Intents\n") {
+		t.Errorf("report.md shows the empty Intents section")
 	}
 	// The title names the folder as each format escapes it, which differs with the path.
 	title, rest, _ := strings.Cut(markdown, "\n")
@@ -177,7 +180,7 @@ func TestReportSections(t *testing.T) {
 			titles = append(titles, strings.TrimSpace(strings.SplitN(line, "   ", 2)[0]))
 		}
 	}
-	want := []string{"Summary", "Timeline", "Intents", "Findings", "Notable files", "Targeted", "Exposure", "Impact", "Remediation", "Mitigation"}
+	want := []string{"Summary", "Timeline", "Findings", "Notable files", "Targeted", "Exposure", "Impact", "Remediation", "Mitigation"}
 	if !slices.Equal(titles, want) {
 		t.Errorf("sections = %q, want %q", titles, want)
 	}
@@ -227,8 +230,8 @@ func TestReportIntents(t *testing.T) {
 		t.Errorf("intents = %q, want %q: in the order they began", order, want)
 	}
 	row := find(t, table, map[string]string{"intent": "i1041", "task": "7"})
-	if row["first"] != "20261022_090000" || row["last"] != "20261022_090040" || row["seconds"] != float64(40) {
-		t.Errorf("i1041 runs from %v to %v, %v seconds, want 090000 to 090040, 40", row["first"], row["last"], row["seconds"])
+	if row["first"] != "2026-10-22T09:00:00Z" || row["last"] != "2026-10-22T09:00:40Z" || row["seconds"] != float64(40) {
+		t.Errorf("i1041 runs from %v to %v, %v seconds, want 2026-10-22T09:00:00Z to 2026-10-22T09:00:40Z, 40", row["first"], row["last"], row["seconds"])
 	}
 	if row["attack"] != "T1083, T1552.005, T1007" || row["atlas"] != "AML.T0055" {
 		t.Errorf("i1041 has ATT&CK %v and ATLAS %v", row["attack"], row["atlas"])
@@ -272,8 +275,8 @@ func TestReportReadsOneIntent(t *testing.T) {
 // Evidence that no ARTEX run wrote has no intent, and its summary no count of them.
 func TestReportWithoutIntents(t *testing.T) {
 	readout, saved := report(t, evidencetest.Copy(t, "bash"), "summary", "intents")
-	if !strings.Contains(readout, "\nIntents   (") || !strings.Contains(readout, ")\n  none\n") {
-		t.Errorf("the section does not say there is none:\n%s", readout)
+	if strings.Contains(readout, "Intents") {
+		t.Errorf("the readout shows the empty Intents section:\n%s", readout)
 	}
 	if strings.Contains(readout, "\n  intents") {
 		t.Errorf("the summary counts intents where there are none:\n%s", readout)
@@ -605,14 +608,14 @@ func TestReportNamesWhat(t *testing.T) {
 			}
 		}
 	}
-	// A variable the script never sets names nothing, so it is no target.
-	if row := find(t, table, map[string]string{"section": "impact", "item": "Persistence established"}); strings.Contains(row["targets"].(string), "$JOB") {
-		t.Errorf("targets = %q, want no variable that is never set", row["targets"])
+	// An unresolved variable is kept so responders see what was targeted.
+	if row := find(t, table, map[string]string{"section": "impact", "item": "Persistence established"}); !strings.Contains(row["targets"].(string), "$JOB") {
+		t.Errorf("targets = %q, want $JOB among them", row["targets"])
 	}
 	for _, want := range []string{
-		"      targets  unit sync.service; account svc;",
+		"      targets  runs $JOB; unit sync.service; account svc;",
 		"      what     ScheduledJobCreation: (crontab -l; echo \"$JOB\") | crontab - (20261022_091500_step04_persist.sh:3)\n",
-		" more in the saved report\n",
+		" more in report.json\n",
 		"      for  AccountCreation: account svc\n",
 	} {
 		if !strings.Contains(readout, want) {
@@ -833,10 +836,11 @@ func TestReportSaveFailure(t *testing.T) {
 
 func TestReportOfNothing(t *testing.T) {
 	readout, saved := report(t, t.TempDir(), "summary", "impact")
-	for _, want := range []string{"[ok] NOTHING FOUND in 0 files", "Impact\n  none\n"} {
-		if !strings.Contains(readout, want) {
-			t.Errorf("readout lacks %q:\n%s", want, readout)
-		}
+	if want := "[ok] NOTHING FOUND in 0 files"; !strings.Contains(readout, want) {
+		t.Errorf("readout lacks %q:\n%s", want, readout)
+	}
+	if bad := "Impact"; strings.Contains(readout, bad) {
+		t.Errorf("readout shows the empty Impact section:\n%s", readout)
 	}
 	if got := strings.TrimSpace(readFile(t, filepath.Join(saved, "trace.json"))); got != "[]" {
 		t.Errorf("trace.json of an empty folder = %q, want an empty array", got)
