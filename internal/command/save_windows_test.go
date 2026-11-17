@@ -8,6 +8,16 @@ import (
 	"testing"
 )
 
+// lacking skips a test for want of something the machine lacks. The CI runner
+// has it, so there the lack is a failure: a skip would pass for a test that ran.
+func lacking(t *testing.T, what string) {
+	t.Helper()
+	if os.Getenv("GITHUB_ACTIONS") == "true" {
+		t.Fatalf("%s, on a runner that has one", what)
+	}
+	t.Skip(what)
+}
+
 // otherVolume makes a folder on a volume other than that of path, or skips
 // the test when the machine has no second volume to write to.
 func otherVolume(t *testing.T, path string) string {
@@ -24,7 +34,7 @@ func otherVolume(t *testing.T, path string) string {
 		t.Cleanup(func() { _ = os.RemoveAll(dir) })
 		return dir
 	}
-	t.Skip("no second volume to write to")
+	lacking(t, "no second volume to write to")
 	return ""
 }
 
@@ -68,7 +78,7 @@ func TestOutputDirThroughADriveLetter(t *testing.T) {
 		}
 	}
 	if drive == "" {
-		t.Skip("no drive letter could be given to the folder")
+		lacking(t, "no drive letter could be given to the folder")
 	}
 	t.Cleanup(func() { _ = exec.Command("subst", drive, "/D").Run() })
 	if !within(input, drive+`\out`) {
