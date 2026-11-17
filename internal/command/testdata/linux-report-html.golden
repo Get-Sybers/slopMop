@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'">
-<title>slopmop report   <folder></title>
+<title>slopmop report   &lt;folder&gt;</title>
 <style>
 :root { --bg: #ffffff; --fg: #1b1f24; --soft: #5b6470; --line: #d8dde3; --panel: #f5f7f9;
   --high: #b3261e; --medium: #9a6700; --low: #5b6470; --clear: #1a7f37; }
@@ -49,7 +49,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 </head>
 <body>
 <header>
-<h1>slopmop report   <folder></h1>
+<h1>slopmop report   &lt;folder&gt;</h1>
 <p class="banner high">[x] HIGH - 12 impacts: 8 high, 3 medium, 1 low</p>
 <p class="legend">[x] high   [!] medium   [i] low</p>
 </header>

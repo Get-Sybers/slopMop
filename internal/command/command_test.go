@@ -6,6 +6,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strings"
 	"testing"
@@ -135,8 +136,17 @@ func TestReportSaves(t *testing.T) {
 			t.Errorf("report.html lacks the section %s", title)
 		}
 	}
-	golden.Check(t, "linux-report-markdown", []byte(strings.ReplaceAll(markdown, folder, "<folder>")))
-	golden.Check(t, "linux-report-html", []byte(strings.ReplaceAll(page, folder, "<folder>")))
+	// The title names the folder as each format escapes it, which differs with the path.
+	title, rest, _ := strings.Cut(markdown, "\n")
+	if !strings.HasPrefix(title, "# slopmop report   ") {
+		t.Errorf("report.md begins %q, want the title", title)
+	}
+	golden.Check(t, "linux-report-markdown", []byte("# slopmop report   <folder>\n"+rest))
+	named := regexp.MustCompile(`(<(title|h1)>slopmop report   )[^<]*(</(title|h1)>)`)
+	if got := len(named.FindAllString(page, -1)); got != 2 {
+		t.Errorf("report.html names the folder in %d titles, want 2", got)
+	}
+	golden.Check(t, "linux-report-html", []byte(named.ReplaceAllString(page, "${1}&lt;folder&gt;${3}")))
 	for _, held := range []string{"useradd -m -s /bin/bash svc", "20261022_091500_step04_persist.sh:7", "T1136.001", "password of app_rw"} {
 		for name, body := range map[string]string{"report.txt": text, "report.md": markdown, "report.html": page} {
 			if !strings.Contains(body, held) {
