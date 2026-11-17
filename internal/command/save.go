@@ -14,6 +14,7 @@ import (
 
 	"github.com/get-sybers/slopmop/internal/cli"
 	"github.com/get-sybers/slopmop/internal/evidence"
+	"github.com/get-sybers/slopmop/internal/parallel"
 	"github.com/get-sybers/slopmop/internal/render"
 	"github.com/get-sybers/slopmop/internal/trace"
 )
@@ -281,27 +282,36 @@ func (w reportRun) save(dir string, s savedSpec, columns map[string][]render.Col
 	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return nil, fmt.Errorf("output folder: %w", err)
 	}
+	// Each file is made apart from the others, on every processor, and
+	// none is written unless all were made.
 	var names []string
-	var contents [][]byte
+	var makers []func() ([]byte, error)
 	writers := readoutWriters()
 	for _, r := range s.Readouts {
-		var written bytes.Buffer
-		if err := writers[r.Format](&written, readout); err != nil {
-			return nil, err
-		}
-		names, contents = append(names, r.File), append(contents, written.Bytes())
+		names = append(names, r.File)
+		makers = append(makers, func() ([]byte, error) {
+			var written bytes.Buffer
+			err := writers[r.Format](&written, readout)
+			return written.Bytes(), err
+		})
 	}
 	builders := tableBuilders()
 	for _, t := range s.Tables {
-		table, err := builders[t.Class](w, columns[t.Class])
-		if err != nil {
-			return nil, err
-		}
-		var encoded bytes.Buffer
-		if err := render.Write(&encoded, table, render.Options{View: render.JSON}); err != nil {
-			return nil, err
-		}
-		names, contents = append(names, t.File), append(contents, encoded.Bytes())
+		names = append(names, t.File)
+		makers = append(makers, func() ([]byte, error) {
+			table, err := builders[t.Class](w, columns[t.Class])
+			if err != nil {
+				return nil, err
+			}
+			var encoded bytes.Buffer
+			err = render.Write(&encoded, table, render.Options{View: render.JSON})
+			return encoded.Bytes(), err
+		})
+	}
+	contents, failed := make([][]byte, len(makers)), make([]error, len(makers))
+	parallel.Each(len(makers), func(i int) { contents[i], failed[i] = makers[i]() })
+	if err := errors.Join(failed...); err != nil {
+		return nil, err
 	}
 	for i, name := range names {
 		if err := os.WriteFile(filepath.Join(dir, name), contents[i], 0o600); err != nil {

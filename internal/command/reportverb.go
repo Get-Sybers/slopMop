@@ -97,7 +97,7 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 		return nil, err
 	}
 	options := doc.options(v)
-	for _, name := range []string{inputDir, intelFile, outDir, secrets} {
+	for _, name := range []string{inputDir, intelFile, outDir, secrets, coresOption, memoryOption} {
 		if !slices.ContainsFunc(options, func(o cli.Option) bool { return o.Name == name }) {
 			return nil, fmt.Errorf("commands.json: it reads the option %q, which it does not name", name)
 		}
@@ -124,6 +124,19 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 		case ok && given != secretsMasked:
 			return cli.Usagef("-%s takes %s or %s, not %q", secrets, secretsMasked, secretsShown, given)
 		}
+		cores, err := percentage(a, coresOption)
+		if err != nil {
+			return err
+		}
+		memory, err := percentage(a, memoryOption)
+		if err != nil {
+			return err
+		}
+		restore, err := limit(cores, memory)
+		if err != nil {
+			return err
+		}
+		defer restore()
 		result, err := pipe.read(folder, inventory.MaxDepth, a.Options[intelFile], plain)
 		if err != nil {
 			return err

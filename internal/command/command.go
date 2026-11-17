@@ -19,10 +19,12 @@ import (
 
 // The options a verb reads; commands.json declares their hints and summaries.
 const (
-	inputDir  = "inputdir"
-	intelFile = "intelfile"
-	outDir    = "outdir"
-	secrets   = "secrets"
+	inputDir     = "inputdir"
+	intelFile    = "intelfile"
+	outDir       = "outdir"
+	secrets      = "secrets"
+	coresOption  = "cores"
+	memoryOption = "memory"
 )
 
 // The values of the secrets option.

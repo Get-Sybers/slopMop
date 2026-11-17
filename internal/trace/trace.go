@@ -12,6 +12,7 @@ import (
 	"github.com/get-sybers/slopmop/internal/evidence"
 	"github.com/get-sybers/slopmop/internal/indicator"
 	"github.com/get-sybers/slopmop/internal/intel"
+	"github.com/get-sybers/slopmop/internal/parallel"
 	"github.com/get-sybers/slopmop/internal/parse"
 	"github.com/get-sybers/slopmop/internal/structured"
 	"github.com/get-sybers/slopmop/internal/tactic"
@@ -48,81 +49,105 @@ type Tables struct {
 	Watchlist  *intel.Watchlist
 }
 
-// Build reads the inventory result and produces a trace timeline.
+// Build reads the inventory result and produces a trace timeline. Each file
+// is read apart from the others, on every processor; the order is that of time.
 func Build(files []evidence.File, texts map[string]string, tables Tables) Timeline {
 	ordered := sortByTime(files)
 	// Each script is parsed once; the result serves both the step and the linking.
-	parsed := map[string]parse.Script{}
-	for _, f := range ordered {
-		if f.Role != evidence.Script {
-			continue
+	scripts := make([]*parse.Script, len(ordered))
+	parallel.Each(len(ordered), func(i int) {
+		f := ordered[i]
+		if text := texts[f.Path]; f.Role == evidence.Script && text != "" {
+			p := parseScript(f, text)
+			scripts[i] = &p
 		}
-		if text := texts[f.Path]; text != "" {
-			parsed[f.Path] = parseScript(f, text)
+	})
+	parsed := map[string]parse.Script{}
+	for i, f := range ordered {
+		if scripts[i] != nil {
+			parsed[f.Path] = *scripts[i]
 		}
 	}
 	linked := linkOutputs(ordered, parsed)
 	// A report is not a turn and links no output, so it stays out of the linking.
-	content := map[string]string{}
-	// asRead is how many bytes of a content are the file as it stands, where a line has its number.
-	asRead := map[string]int{}
-	for _, f := range ordered {
-		text := texts[f.Path]
-		asRead[f.Path] = len(text)
-		if p, decoded, ok := parseReport(f, text, tables.Formats); ok {
-			parsed[f.Path] = p
-			text = decoded
-			asRead[f.Path] = 0
-		}
-		// A .cmd file is an output by role, and is a batch file all the same.
-		if _, done := parsed[f.Path]; !done && isBatch(f) && text != "" {
-			parsed[f.Path] = parse.ExtractBatch(text)
-		}
-		if hidden, extra := decodePayloads(text); extra != "" {
-			p := parsed[f.Path]
-			p.Commands = append(p.Commands, hidden.Commands...)
-			p.Transforms = append(p.Transforms, hidden.Transforms...)
-			parsed[f.Path] = p
-			text += "\n" + extra
-		}
-		content[f.Path] = text
-	}
+	read := make([]reading, len(ordered))
+	parallel.Each(len(ordered), func(i int) {
+		read[i] = readFile(ordered[i], texts[ordered[i].Path], scripts[i], tables.Formats)
+	})
 	steps := make([]Step, len(ordered))
 	turn := 0
 	for i, f := range ordered {
 		if f.Role == evidence.Script {
 			turn++
 		}
-		s := Step{File: f, Turn: turn}
-		if p, ok := parsed[f.Path]; ok {
-			s.Tools = uniqueTools(p.Commands)
-			s.Commands = firstCommands(p.Commands, f.Role == evidence.Script)
-			s.Tactics = classifyTools(s.Tools, tables.Tactics)
-			s.Transforms = uniqueMethods(p.Transforms)
-		}
-		if text := content[f.Path]; text != "" {
-			// An activity adds its tactics to those of the commands that ran.
-			s.Activities = tables.Activities.Detect(text)
-			numberLines(text, asRead[f.Path], s.Activities, nil)
-			for _, a := range s.Activities {
-				for _, name := range a.Tactics {
-					if !slices.Contains(s.Tactics, name) {
-						s.Tactics = append(s.Tactics, name)
-					}
-				}
-			}
-			matches := tables.Patterns.Extract(text)
-			numberLines(text, asRead[f.Path], nil, matches)
-			s.Indicators = len(matches)
-			s.Matches = matches
-			if tables.Watchlist != nil {
-				s.IntelHits = tables.Watchlist.Match(matches)
-			}
-		}
-		s.Outputs = linked[f.Path]
-		steps[i] = s
+		steps[i] = Step{File: f, Turn: turn, Outputs: linked[f.Path]}
 	}
+	parallel.Each(len(ordered), func(i int) {
+		steps[i].fill(read[i], tables)
+	})
 	return Timeline{Steps: steps}
+}
+
+// reading is one file as it is analysed: what it runs, and its text with
+// what was decoded from it.
+type reading struct {
+	parsed *parse.Script
+	text   string
+	// asRead is how many bytes of the text are the file as it stands, where a line has its number.
+	asRead int
+}
+
+func readFile(f evidence.File, text string, script *parse.Script, formats structured.Table) reading {
+	r := reading{parsed: script, text: text, asRead: len(text)}
+	if p, decoded, ok := parseReport(f, text, formats); ok {
+		r.parsed, r.text, r.asRead = &p, decoded, 0
+	}
+	// A .cmd file is an output by role, and is a batch file all the same.
+	if r.parsed == nil && isBatch(f) && r.text != "" {
+		p := parse.ExtractBatch(r.text)
+		r.parsed = &p
+	}
+	if hidden, extra := decodePayloads(r.text); extra != "" {
+		var p parse.Script
+		if r.parsed != nil {
+			p = *r.parsed
+		}
+		p.Commands = append(p.Commands[:len(p.Commands):len(p.Commands)], hidden.Commands...)
+		p.Transforms = append(p.Transforms[:len(p.Transforms):len(p.Transforms)], hidden.Transforms...)
+		r.parsed = &p
+		r.text += "\n" + extra
+	}
+	return r
+}
+
+// fill gives a step what its file shows.
+func (s *Step) fill(r reading, tables Tables) {
+	if r.parsed != nil {
+		s.Tools = uniqueTools(r.parsed.Commands)
+		s.Commands = firstCommands(r.parsed.Commands, s.File.Role == evidence.Script)
+		s.Tactics = classifyTools(s.Tools, tables.Tactics)
+		s.Transforms = uniqueMethods(r.parsed.Transforms)
+	}
+	if r.text == "" {
+		return
+	}
+	// An activity adds its tactics to those of the commands that ran.
+	s.Activities = tables.Activities.Detect(r.text)
+	numberLines(r.text, r.asRead, s.Activities, nil)
+	for _, a := range s.Activities {
+		for _, name := range a.Tactics {
+			if !slices.Contains(s.Tactics, name) {
+				s.Tactics = append(s.Tactics, name)
+			}
+		}
+	}
+	matches := tables.Patterns.Extract(r.text)
+	numberLines(r.text, r.asRead, nil, matches)
+	s.Indicators = len(matches)
+	s.Matches = matches
+	if tables.Watchlist != nil {
+		s.IntelHits = tables.Watchlist.Match(matches)
+	}
 }
 
 // numberLines keeps a line number only where it is a line of the file: the

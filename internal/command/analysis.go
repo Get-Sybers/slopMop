@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"slices"
+	"sync"
 
 	"github.com/get-sybers/slopmop/internal/activity"
 	"github.com/get-sybers/slopmop/internal/assess"
@@ -12,6 +13,7 @@ import (
 	"github.com/get-sybers/slopmop/internal/intent"
 	"github.com/get-sybers/slopmop/internal/inventory"
 	"github.com/get-sybers/slopmop/internal/mitre"
+	"github.com/get-sybers/slopmop/internal/parallel"
 	"github.com/get-sybers/slopmop/internal/render"
 	"github.com/get-sybers/slopmop/internal/structured"
 	"github.com/get-sybers/slopmop/internal/tactic"
@@ -202,8 +204,20 @@ func (p pipeline) read(folder string, levels int, path string, plain bool) (anal
 	tables := trace.Tables{
 		Tactics: p.tactics, Activities: p.activities, Patterns: p.patterns, Formats: p.formats, Watchlist: watchlist,
 	}
+	// What the files hold is read while the timeline is built: neither
+	// needs the other, and both read every text.
+	items := make([][]exposure.Item, len(res.Files))
+	var reading sync.WaitGroup
+	reading.Go(func() {
+		parallel.Each(len(res.Files), func(i int) { items[i] = p.exposures.Extract(res.Texts[res.Files[i].Path]) })
+	})
 	timeline := trace.Build(res.Files, res.Texts, tables)
-	found, named := p.collectExposed(timeline.Steps, res.Texts, plain)
+	reading.Wait()
+	held := make(map[string][]exposure.Item, len(res.Files))
+	for i, f := range res.Files {
+		held[f.Path] = items[i]
+	}
+	found, named := p.collectExposed(timeline.Steps, res.Texts, held, plain)
 	redact := redactor(found)
 	intents, intentOf := p.collectIntents(folder, timeline.Steps)
 	return analysis{

@@ -82,7 +82,7 @@ func (e exposed) files() []string {
 // collectExposed reads every file in the order of the timeline, so a value
 // is collected or used by where it is seen first. It also gathers what the
 // scripts name outright, which it returns for finish to quote.
-func (p pipeline) collectExposed(steps []trace.Step, texts map[string]string, plain bool) ([]exposed, *targets) {
+func (p pipeline) collectExposed(steps []trace.Step, texts map[string]string, held map[string][]exposure.Item, plain bool) ([]exposed, *targets) {
 	kinds := map[string]int{}
 	for i, k := range p.exposures.Kinds() {
 		kinds[k.Name] = i
@@ -113,7 +113,7 @@ func (p pipeline) collectExposed(steps []trace.Step, texts map[string]string, pl
 		}
 	}
 	for _, s := range steps {
-		for _, it := range p.exposures.Extract(texts[s.File.Path]) {
+		for _, it := range held[s.File.Path] {
 			add(it, s)
 		}
 		text := texts[s.File.Path]

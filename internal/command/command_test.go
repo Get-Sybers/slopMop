@@ -8,7 +8,9 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"slices"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -321,6 +323,49 @@ func TestIntentsWithoutATime(t *testing.T) {
 	groups := reportRun{result: analysis{intents: runs}}.intents()
 	if got := groups[0].Entries[4].Cells; !slices.Equal(got, []string{"i30", "-", "-", "-", "1 file"}) {
 		t.Errorf("i30 is written %q", got)
+	}
+}
+
+// A report made on one processor is, byte for byte, the report made on all
+// of them: the work is shared out, and its results are taken in order.
+func TestReportIsTheSameOnEveryProcessor(t *testing.T) {
+	folder := evidencetest.Copy(t, "linux")
+	entries, err := os.ReadDir(folder)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// One file large enough to be searched in pieces, with everything the fixture holds.
+	var large strings.Builder
+	for round := 0; large.Len() < 600<<10; round++ {
+		for _, e := range entries {
+			large.WriteString(strings.ReplaceAll(readFile(t, filepath.Join(folder, e.Name())), "203.0.113.", "203.0."+strconv.Itoa(round%200)+"."))
+			large.WriteString("\n")
+		}
+	}
+	if err := os.WriteFile(filepath.Join(folder, "agent_20261022_100000.log"), []byte(large.String()), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	saved := func(processors int) map[string]string {
+		defer runtime.GOMAXPROCS(runtime.GOMAXPROCS(processors))
+		_, dir := report(t, folder)
+		files, err := os.ReadDir(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+		held := map[string]string{}
+		for _, f := range files {
+			held[f.Name()] = readFile(t, filepath.Join(dir, f.Name()))
+		}
+		return held
+	}
+	one, all := saved(1), saved(max(4, runtime.NumCPU()))
+	if len(one) != 10 || len(all) != len(one) {
+		t.Fatalf("%d files on one processor and %d on all, want 10", len(one), len(all))
+	}
+	for name, body := range one {
+		if all[name] != body {
+			t.Errorf("%s differs between one processor and all of them", name)
+		}
 	}
 }
 
