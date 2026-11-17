@@ -344,7 +344,7 @@ output of its commands in `cmd-output` below it, and names the worker's session
 
 The report ends with what the findings mean and what to do about them. Impacts and remediation
 come from data files, and `assess` holds no knowledge of its own. Mitigation comes from the
-catalogue of section 13.
+catalogue of section 14.
 
 - An impact or an action applies when one of its triggers is in the evidence: an activity, the
   tactic of a tool that ran, a watchlist match, or an exposed value of a kind it names. The
