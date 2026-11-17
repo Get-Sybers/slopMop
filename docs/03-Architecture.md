@@ -24,6 +24,7 @@ about evidence touch no file, and every static table is a data file validated at
 | `internal/intent` | names the ARTEX intent a path lies in, by its run folder or its session name; no I/O |
 | `internal/device` | reads how many processors and how much memory the machine has, on Linux, Windows and macOS; changes nothing |
 | `internal/parallel` | runs independent pieces of work on every processor; no I/O |
+| `internal/progress` | says on the error stream what a run is doing: the stage, how far through it is and the file it has been at for longest |
 | `internal/vars` | reads the variables a script sets to a plain value, so a command that names one is shown with what it holds; no I/O |
 | `internal/sift` | reads an expression when it is loaded and says where in a text it is worth running: the texts every match holds and the bytes a match is made of; no I/O |
 | `internal/mitre` | holds the identifiers, names and mitigation links of MITRE ATT&CK and MITRE ATLAS in `catalogue.json` |
@@ -37,7 +38,8 @@ Imports run one way:
 ```text
 cmd/slopmop -> cli, command, render
 command     -> cli, render, inventory, trace, assess, exposure, mitre, activity,
-               indicator, intel, intent, structured, tactic, evidence, parallel, device
+               indicator, intel, intent, structured, tactic, evidence, parallel, device,
+               progress
 trace       -> parse, structured, tactic, activity, indicator, intel, evidence, parallel
 inventory   -> evidence -> nametime
 activity    -> vars, parallel, sift
@@ -46,6 +48,7 @@ assess      -> tactic
 intel       -> indicator
 indicator   -> parallel, sift
 parse       -> parallel, sift
+progress    -> render
 ```
 
 `cli`, `render`, `structured`, `tactic`, `intent`, `mitre`, `nametime`, `parallel`, `device`,
@@ -99,6 +102,13 @@ work writes only its own result, and the results are taken in a fixed order.
 - The limit is the soft limit of the Go runtime: the collector frees memory sooner as the run
   nears it, and a run that must hold more still does. `GOMAXPROCS` and `GOMEMLIMIT` in the
   environment are kept when the options are not given.
+
+- A run has five stages: reading the folder, analysing the files, gathering what the files hold,
+  assembling the report and saving it. `command` tells `progress` when each begins. `inventory`
+  and `trace` are handed a function that they call as work on a file begins and again when it is
+  done, and know nothing of who listens. A file counts as analysed when every pass over it is
+  done: one for what it holds, two for the timeline and one more to parse a script.
+- A file name on the line is escaped and cut to fit 79 columns, keeping its end.
 
 - The input directory is opened as a root (`os.OpenRoot`) and every file is opened through it read-only, so
   no path leads outside the folder.

@@ -14,6 +14,7 @@ import (
 	"github.com/get-sybers/slopmop/internal/cli"
 	"github.com/get-sybers/slopmop/internal/evidence"
 	"github.com/get-sybers/slopmop/internal/parallel"
+	"github.com/get-sybers/slopmop/internal/progress"
 	"github.com/get-sybers/slopmop/internal/render"
 	"github.com/get-sybers/slopmop/internal/trace"
 )
@@ -288,7 +289,7 @@ const partSuffix = ".part"
 // save writes the readout in each format, and each table, into dir, and
 // returns the names written. A file takes its name only when all are made,
 // so a run that fails leaves no saved file half written.
-func (w reportRun) save(dir string, s savedSpec, columns map[string][]render.Column, readout render.Readout) ([]string, error) {
+func (w reportRun) save(dir string, s savedSpec, columns map[string][]render.Column, readout render.Readout, meter *progress.Meter) ([]string, error) {
 	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return nil, fmt.Errorf("output folder: %w", err)
 	}
@@ -316,7 +317,10 @@ func (w reportRun) save(dir string, s savedSpec, columns map[string][]render.Col
 	// Each file is made apart from the others, on every processor, and
 	// written as it is made, so none is held whole in memory.
 	failed := make([]error, len(makers))
-	parallel.Each(len(makers), func(i int) { failed[i] = writePart(filepath.Join(dir, names[i]+partSuffix), makers[i]) })
+	parallel.Each(len(makers), func(i int) {
+		defer meter.Begin(names[i])()
+		failed[i] = writePart(filepath.Join(dir, names[i]+partSuffix), makers[i])
+	})
 	if err := errors.Join(failed...); err != nil {
 		for _, name := range names {
 			os.Remove(filepath.Join(dir, name+partSuffix))

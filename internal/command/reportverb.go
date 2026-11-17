@@ -9,6 +9,7 @@ import (
 
 	"github.com/get-sybers/slopmop/internal/cli"
 	"github.com/get-sybers/slopmop/internal/inventory"
+	"github.com/get-sybers/slopmop/internal/progress"
 	"github.com/get-sybers/slopmop/internal/render"
 	"github.com/get-sybers/slopmop/internal/tactic"
 	"github.com/get-sybers/slopmop/internal/trace"
@@ -86,6 +87,29 @@ func sectionBuilders() map[string]sectionBuilder {
 	}
 }
 
+// The stages of a run, as the meter names them, in the order they come.
+const (
+	stageRead    = "reading the folder"
+	stageAnalyse = "analysing the files"
+	stageGather  = "gathering what the files hold"
+	stageReport  = "assembling the report"
+	stageSave    = "saving the report"
+	stages       = 5
+)
+
+// meter returns what says how far the run is: on a terminal unless the
+// option hides it, elsewhere only when the option asks for it.
+func (e Env) meter(a *cli.Args) (*progress.Meter, error) {
+	given, ok := a.Options[progressOption]
+	switch {
+	case ok && given != progressShown && given != progressHidden:
+		return nil, cli.Usagef("-%s takes %s or %s, not %q", progressOption, progressShown, progressHidden, given)
+	case e.Progress == nil, given == progressHidden, !ok && !e.Terminal:
+		return nil, nil
+	}
+	return progress.New(e.Progress, e.Terminal, stages), nil
+}
+
 // reportVerb reads the folder and everything below it once, saves every
 // section and every table, and prints every section or those named.
 func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
@@ -98,7 +122,7 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 		return nil, err
 	}
 	options := doc.options(v)
-	for _, name := range []string{inputDir, intelFile, outDir, secrets, coresOption, memoryOption} {
+	for _, name := range []string{inputDir, intelFile, outDir, secrets, coresOption, memoryOption, progressOption} {
 		if !slices.ContainsFunc(options, func(o cli.Option) bool { return o.Name == name }) {
 			return nil, fmt.Errorf("commands.json: it reads the option %q, which it does not name", name)
 		}
@@ -138,10 +162,17 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 			return err
 		}
 		defer restore()
-		result, err := pipe.read(folder, inventory.MaxDepth, a.Options[intelFile], plain)
+		meter, err := e.meter(a)
 		if err != nil {
 			return err
 		}
+		// The line of the meter is taken off before anything else is written.
+		defer meter.Stop()
+		result, err := pipe.read(folder, inventory.MaxDepth, a.Options[intelFile], plain, meter)
+		if err != nil {
+			return err
+		}
+		meter.Stage(stageReport, 0, 0)
 		every := map[string]bool{
 			sectionSummary: true, sectionFiles: true, sectionTargeted: true, sectionExposure: true, sectionImpact: true,
 			sectionRemediation: true, sectionMitigation: true,
@@ -162,7 +193,9 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 			}
 		}
 		// A failed save does not withhold the readout; it fails the command after it.
-		names, saveErr := run.save(dir, v.Saved, columns, full)
+		meter.Stage(stageSave, len(v.Saved.Readouts)+len(v.Saved.Tables), len(v.Saved.Readouts)+len(v.Saved.Tables))
+		names, saveErr := run.save(dir, v.Saved, columns, full, meter)
+		meter.Stop()
 		if saveErr == nil {
 			screen.Hints = append([]string{"saved to " + dir + ": " + strings.Join(names, ", ")}, v.Hints...)
 		}

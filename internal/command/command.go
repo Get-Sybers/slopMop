@@ -19,18 +19,25 @@ import (
 
 // The options a verb reads; commands.json declares their hints and summaries.
 const (
-	inputDir     = "inputdir"
-	intelFile    = "intelfile"
-	outDir       = "outdir"
-	secrets      = "secrets"
-	coresOption  = "cores"
-	memoryOption = "memory"
+	inputDir       = "inputdir"
+	intelFile      = "intelfile"
+	outDir         = "outdir"
+	secrets        = "secrets"
+	coresOption    = "cores"
+	memoryOption   = "memory"
+	progressOption = "progress"
 )
 
 // The values of the secrets option.
 const (
 	secretsMasked = "masked"
 	secretsShown  = "shown"
+)
+
+// The values of the progress option.
+const (
+	progressShown  = "shown"
+	progressHidden = "hidden"
 )
 
 //go:embed commands.json
@@ -42,6 +49,10 @@ type Env struct {
 	Colour bool
 	// WorkDir is where the output folder is made; empty is the current directory.
 	WorkDir string
+	// Progress is where a run says what it is doing, nil for nowhere, and
+	// Terminal says it is a terminal, where one line is written over.
+	Progress io.Writer
+	Terminal bool
 }
 
 // commandsDoc is commands.json: the grammar, and the classes that are saved as JSON.

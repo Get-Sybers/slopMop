@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"slices"
+	"sync"
 	"testing"
 	"time"
 
@@ -122,7 +124,7 @@ func TestReadOversize(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	res, err := readAll(folder, 8, 0, false)
+	res, err := readAll(folder, 8, 0, false, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -329,5 +331,38 @@ func TestReadDepthUnreadableFolder(t *testing.T) {
 	}
 	if len(res.Files) != 1 || res.Files[0].Path != "open/a.sh" || !slices.Equal(res.Skipped, []string{"locked"}) {
 		t.Errorf("files = %+v skipped = %q, want open/a.sh and locked skipped", res.Files, res.Skipped)
+	}
+}
+
+// ReadAllWatched tells of each file once, calls what it is handed back, and
+// reads what ReadAll reads.
+func TestReadAllWatchedTellsOfEveryFile(t *testing.T) {
+	folder := evidencetest.Copy(t, "linux")
+	var mu sync.Mutex
+	begun, done := map[string]int{}, 0
+	watched, err := ReadAllWatched(folder, MaxDepth, func(path string) func() {
+		mu.Lock()
+		defer mu.Unlock()
+		begun[path]++
+		return func() {
+			mu.Lock()
+			defer mu.Unlock()
+			done++
+		}
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, f := range watched.Files {
+		if begun[f.Path] != 1 {
+			t.Errorf("%s is told of %d times, want once", f.Path, begun[f.Path])
+		}
+	}
+	if len(begun) != len(watched.Files) || done != len(watched.Files) || len(watched.Files) == 0 {
+		t.Errorf("%d files are told of and %d readings done, want %d of each", len(begun), done, len(watched.Files))
+	}
+	plain, err := ReadAll(folder, MaxDepth)
+	if err != nil || !reflect.DeepEqual(watched, plain) {
+		t.Errorf("the result differs from the one ReadAll gives (%v)", err)
 	}
 }

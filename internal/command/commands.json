@@ -6,14 +6,15 @@
     {"name": "outdir", "hint": "<folder>", "summary": "where the output is saved; slopmop-<name> in the current directory when not given"},
     {"name": "secrets", "hint": "masked|shown", "summary": "how a password, a hash, a token or a key is written; masked when not given"},
     {"name": "cores", "hint": "<percent>", "summary": "how much of the processors of this machine the run may use, 1 to 100; all of them when not given"},
-    {"name": "memory", "hint": "<percent>", "summary": "how much of the memory of this machine the run tries to stay within, 1 to 100; 75 when not given"}
+    {"name": "memory", "hint": "<percent>", "summary": "how much of the memory of this machine the run tries to stay within, 1 to 100; 75 when not given"},
+    {"name": "progress", "hint": "shown|hidden", "summary": "whether the run says what it is doing as it goes, on the error stream; shown on a terminal when not given"}
   ],
   "verbs": [
     {
       "name": "report",
       "summary": "reads the folder and everything below it, runs nothing, prints the report and saves it",
       "requires": ["inputdir"],
-      "takes": ["intelfile", "outdir", "secrets", "cores", "memory"],
+      "takes": ["intelfile", "outdir", "secrets", "cores", "memory", "progress"],
       "sections": [
         {"name": "summary", "title": "Summary", "summary": "the counts"},
         {"name": "timeline", "title": "Timeline", "summary": "each file in order, with what it shows", "note": "step, time, role, file"},

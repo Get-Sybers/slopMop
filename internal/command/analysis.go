@@ -14,6 +14,7 @@ import (
 	"github.com/get-sybers/slopmop/internal/inventory"
 	"github.com/get-sybers/slopmop/internal/mitre"
 	"github.com/get-sybers/slopmop/internal/parallel"
+	"github.com/get-sybers/slopmop/internal/progress"
 	"github.com/get-sybers/slopmop/internal/render"
 	"github.com/get-sybers/slopmop/internal/structured"
 	"github.com/get-sybers/slopmop/internal/tactic"
@@ -188,8 +189,9 @@ func loadAssessment(tactics tactic.Table, activities activity.Table, patterns in
 
 // read analyses a folder, levels deep, against the watchlist at path, if
 // any. plain writes secrets out as they are; otherwise each is masked.
-func (p pipeline) read(folder string, levels int, path string, plain bool) (analysis, error) {
-	res, err := inventory.ReadAll(folder, levels)
+func (p pipeline) read(folder string, levels int, path string, plain bool, meter *progress.Meter) (analysis, error) {
+	meter.Stage(stageRead, 0, 0)
+	res, err := inventory.ReadAllWatched(folder, levels, meter.Begin)
 	if err != nil {
 		return analysis{}, err
 	}
@@ -207,12 +209,17 @@ func (p pipeline) read(folder string, levels int, path string, plain bool) (anal
 	// What the files hold is read while the timeline is built: neither
 	// needs the other, and both read every text.
 	items := make([][]exposure.Item, len(res.Files))
+	meter.Stage(stageAnalyse, len(res.Files), len(res.Files)+trace.Passes(res.Files))
 	var reading sync.WaitGroup
 	reading.Go(func() {
-		parallel.Each(len(res.Files), func(i int) { items[i] = p.exposures.Extract(res.Texts[res.Files[i].Path]) })
+		parallel.Each(len(res.Files), func(i int) {
+			defer meter.Begin(res.Files[i].Path)()
+			items[i] = p.exposures.Extract(res.Texts[res.Files[i].Path])
+		})
 	})
-	timeline := trace.Build(res.Files, res.Texts, tables)
+	timeline := trace.BuildWatched(res.Files, res.Texts, tables, meter.Begin)
 	reading.Wait()
+	meter.Stage(stageGather, 0, 0)
 	held := make(map[string][]exposure.Item, len(res.Files))
 	for i, f := range res.Files {
 		held[f.Path] = items[i]

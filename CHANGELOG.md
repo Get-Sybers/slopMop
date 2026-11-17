@@ -6,6 +6,16 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Added
+
+- A run says what it is doing. On a terminal one line on standard error names the stage, of
+  five, how many of the files or of the saved files are done, how long the stage has lasted and
+  the file the run has been at for longest, and is taken off before the report is printed.
+- `-progress shown|hidden`. `hidden` says nothing on a terminal; `shown` writes a line when a
+  stage begins and every ten seconds while it lasts where standard error is not a terminal,
+  such as a log file. Without it nothing is written there, and standard output is unchanged.
+- `internal/progress`, which writes the line.
+
 ## [0.5.4] - 2026-11-17
 
 ### Changed
