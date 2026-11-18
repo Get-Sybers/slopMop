@@ -290,6 +290,8 @@ entries and the same limits, and without the line that names the output folder.
 
 - `report.html` is one file that needs no other: its style is inside it, and it follows the
   light or dark setting of the browser.
+- Every text of the page is set in Verdana, a value and an identifier as well as a heading. A
+  machine that has no Verdana sets it in its own sans-serif face: the page carries no font.
 - It holds no script, no image, no form and no link out of the page. The links at the top lead
   to its sections.
 - Its content security policy is `default-src 'none'; style-src 'unsafe-inline'`, so a browser
