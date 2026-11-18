@@ -35,9 +35,11 @@ type document struct {
 	// Vendors are the hosts of vendors that any script reaches for, and that
 	// say nothing of what it aims at. One that begins with a dot stands for
 	// every host that ends in it; any other for itself alone.
-	Vendors []string    `json:"vendors,omitempty"`
-	Token   tokenEntry  `json:"token"`
-	Kinds   []kindEntry `json:"kinds"`
+	Vendors []string   `json:"vendors,omitempty"`
+	Token   tokenEntry `json:"token"`
+	// Accounts say what collecting an account shows, by its shape.
+	Accounts []accountEntry `json:"accounts,omitempty"`
+	Kinds    []kindEntry    `json:"kinds"`
 }
 
 type kindEntry struct {
@@ -193,6 +195,8 @@ type Table struct {
 	user, app int
 	// token names the claims that are read from a JSON web token.
 	token tokenEntry
+	// accounts are the shapes of an account, each with what collecting one shows.
+	accounts []shape
 	// vendors are the hosts of vendors, and vendorEnds what such a host ends in.
 	vendors    map[string]bool
 	vendorEnds []string
@@ -326,6 +330,9 @@ func decode(data []byte) (Table, error) {
 	}
 	var err error
 	if t.finder, err = sift.NewFinder(texts); err != nil {
+		return Table{}, fmt.Errorf("exposures.json: %w", err)
+	}
+	if t.accounts, err = shapes(doc.Accounts); err != nil {
 		return Table{}, fmt.Errorf("exposures.json: %w", err)
 	}
 	t.ascii = !slices.ContainsFunc(t.patterns, func(p pattern) bool {

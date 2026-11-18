@@ -2,6 +2,8 @@ package command
 
 import (
 	"encoding/base64"
+	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -319,5 +321,53 @@ func TestACommandShowsItsTechnique(t *testing.T) {
 	}
 	if !moved || mitigated == 0 {
 		t.Errorf("the impact names the technique of ssh: %t, and %d mitigations address it, want both", moved, mitigated)
+	}
+}
+
+// An account the scripts collected shows a technique by its shape, at the
+// output that holds it first. An account a script brought shows none, nor
+// does an output that holds again what an earlier one held.
+func TestCollectedAccountsShowDiscovery(t *testing.T) {
+	folder := t.TempDir()
+	for name, text := range map[string]string{
+		"20261101_090000_step01_look.sh":   "#!/bin/bash\nssh ops@10.0.0.5 uptime\n",
+		"20261101_090100_step01_out.txt":   "root:x:0:0:root:/root:/bin/bash\ndeploy:x:1000:1000::/home/deploy:/bin/bash\nuid=1000(deploy) gid=1000(deploy)\nusername: ops\n",
+		"20261101_090200_step02_out.txt":   "CORP\\jsmith\nSamAccountName : mhall\nuserPrincipalName: alice@contoso.onmicrosoft.com\nmail: bob@partner.example\nusername: carol\n",
+		"20261101_090300_step03_again.txt": "root:x:0:0:root:/root:/bin/bash\nCORP\\jsmith\n",
+	} {
+		if err := os.WriteFile(filepath.Join(folder, name), []byte(text), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	readout, saved := report(t, folder, "tactics", "timeline", "findings")
+	shown := map[string]string{}
+	for _, row := range rows(t, filepath.Join(saved, "findings.json")) {
+		if name, _ := row["finding"].(string); strings.HasSuffix(name, "Discovery") {
+			lines, _ := row["evidence"].([]any)
+			shown[name] = fmt.Sprint(row["attack"], " of ", row["tactic"], " in ", row["files"], ", ", len(lines))
+		}
+	}
+	// A line shows what the shape of its account says: the listing of deploy
+	// is one thing and what its own identity says another.
+	want := map[string]string{
+		"LocalAccountDiscovery":  "T1087.001 of Discovery in 20261101_090100_step01_out.txt, 2",
+		"SystemUserDiscovery":    "T1033 of Discovery in 20261101_090100_step01_out.txt, 1",
+		"DomainAccountDiscovery": "T1087.002 of Discovery in 20261101_090200_step02_out.txt, 2",
+		"CloudAccountDiscovery":  "T1087.004 of Discovery in 20261101_090200_step02_out.txt, 1",
+		"EmailAccountDiscovery":  "T1087.003 of Discovery in 20261101_090200_step02_out.txt, 1",
+		"AccountDiscovery":       "T1087 of Discovery in 20261101_090200_step02_out.txt, 1",
+	}
+	if !maps.Equal(shown, want) {
+		t.Errorf("the outputs show\n  %v, want\n  %v", shown, want)
+	}
+	// The outputs stand under the tactic of their techniques, and the techniques in their block.
+	tactics, timeline, _ := strings.Cut(readout, "\nTimeline")
+	if !regexp.MustCompile(`\n  \[i\] Discovery +TA0007, AML\.TA0008  20261101_090100_step01_out\.txt, 20261101_090200_step02_out\.txt\n`).MatchString(tactics) {
+		t.Errorf("the tactics do not list the two outputs, and those alone, under Discovery:\n%s", tactics)
+	}
+	for _, row := range []string{"T1087.001  Account Discovery: Local Account", "T1033      System Owner/User Discovery", "T1087.004  Account Discovery: Cloud Account", "T1087      Account Discovery "} {
+		if !strings.Contains(timeline, "\n      "+row) {
+			t.Errorf("the timeline lacks the row %q:\n%s", row, timeline)
+		}
 	}
 }

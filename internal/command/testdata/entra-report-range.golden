@@ -5,7 +5,7 @@ slopmop report   <folder>
 Summary
   files       11  5 scripts, 6 outputs
   indicators  32  6 Domain, 2 Email, 1 EntraLoginEndpoint, 4 GUID, 11 GraphEndpoint, 2 IPv4, 3 KeyVaultEndpoint, 1 OAuthScope, 2 URL
-  activities  12
+  activities  13
   tactics     6
   targeted    5   Email addresses 2, Hostnames 2, IP addresses 1
   exposed     7   Email addresses 2, Tenants 1, Applications 1, Cloud resources 1, IP addresses 2
@@ -17,13 +17,14 @@ Tactics   (tactic, identifiers, files)
   [x] Persistence          TA0003, AML.TA0006  20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl
   [x] PrivilegeEscalation  TA0004, AML.TA0012  20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl
   [!] Collection           TA0009, AML.TA0009  20261015_092000_step04_collect.py
-  [i] Discovery            TA0007, AML.TA0008  20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh and 1 more
+  [i] Discovery            TA0007, AML.TA0008  20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh and 2 more
 
 Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools of a tactic that no technique is named for)
-  [x] InitialAccess, Discovery                                      2026-10-15T09:00:00Z to 2026-10-15T09:05:00Z
+  [x] InitialAccess, Discovery                                      2026-10-15T09:00:00Z to 2026-10-15T09:05:30Z
       T1078.004  Valid Accounts: Cloud Accounts                                  TA0001  InitialAccess          AML.T0012  Valid Accounts
       T1087.004  Account Discovery: Cloud Account                                TA0007  Discovery              AML.T0075  Enterprise Resource Discovery
       T1069.003  Permission Groups Discovery: Cloud Groups                       TA0007  Discovery              AML.T0075  Enterprise Resource Discovery
+      T1087.003  Account Discovery: Email Account                                TA0007  Discovery
       tools      az, get-mgapplication                                           TA0007  Discovery
       watchlist  STORM-0940: 144.172.64.128
 
@@ -51,7 +52,7 @@ Timeline   (a block for each intent, from the first of its files to be created u
       T1098.003  Account Manipulation: Additional Cloud Roles                    TA0004  PrivilegeEscalation
                                                                                  TA0003  Persistence
       watchlist  STORM-0940: 144.172.64.128, STORM-0940: 144.172.64.60
-  and 5 files that show no tactic, in the saved trace
+  and 4 files that show no tactic, in the saved trace
 
 Findings
   activities
@@ -80,6 +81,8 @@ Findings
         what  chat = requests.get("https://graph.microsoft.com/v1.0/users/" + user + "/mailFolders/TeamsMessagesData/messages", headers=headers) (20261015_092000_step04_collect.py:9)
     [i] AzureResourceEnumeration       1 line   Discovery                         T1580, AML.T0075
         what  az keyvault list --query "[].name" -o tsv > vaults_20261015_093010.txt (20261015_093000_step05_vault.sh:2)
+    [i] EmailAccountDiscovery          1 line   Discovery                         T1087.003
+        what  {"value":[{"userPrincipalName":"alice@corp.example"},{"userPrincipalName":"bob@corp.example"}]} (directory_20261015_090530.txt:1)
     [i] GraphDirectoryEnumeration      4 lines  Discovery                         T1087.004, T1069.003, AML.T0075
         what  Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/users?`$top=999" | ConvertTo-Json | Out-File directory_20261015_090530.txt (20261015_090500_step02_recon.ps1:2)
               Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/servicePrincipals?`$top=999" (20261015_090500_step02_recon.ps1:3)

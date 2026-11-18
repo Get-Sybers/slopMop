@@ -89,6 +89,18 @@
     "shown": ["upn", "unique_name", "preferred_username", "email", "name", "appid", "azp", "client_id", "app_displayname", "aud", "scp", "scope", "roles", "exp", "tid", "iss", "sub"],
     "times": ["exp", "iat", "nbf", "auth_time"]
   },
+  "accounts": [
+    {"activity": "DomainAccountDiscovery", "technique": "T1087.002", "line": "(?i)(?:^|[\\s\\\"'=:,;(\\[])[a-z0-9][a-z0-9.-]{0,62}\\\\(?P<account>[a-z0-9._$-]+)"},
+    {"activity": "DomainAccountDiscovery", "technique": "T1087.002", "line": "(?i)\\bsamaccountname\\b[\\\"']?\\s*[:=]\\s*[\\\"']?(?P<account>[a-z0-9._$-]+)"},
+    {"activity": "DomainAccountDiscovery", "technique": "T1087.002", "value": "(?i)@(?:[a-z0-9-]+\\.)*(?:local|lan|internal|corp|intranet)$"},
+    {"activity": "CloudAccountDiscovery", "technique": "T1087.004", "service": true},
+    {"activity": "CloudAccountDiscovery", "technique": "T1087.004", "line": "arn:aws[\\w-]*:iam::\\d*:user/(?:[\\w+=,.@-]+/)*(?P<account>[\\w+=,.@-]+)"},
+    {"activity": "EmailAccountDiscovery", "technique": "T1087.003", "value": "@"},
+    {"activity": "LocalAccountDiscovery", "technique": "T1087.001", "line": "^(?P<account>[a-z_][a-z0-9_-]*):[^:]*:\\d+:\\d+:"},
+    {"activity": "SystemUserDiscovery", "technique": "T1033", "line": "\\buid=\\d+\\((?P<account>[^)\\s]+)\\)"},
+    {"activity": "SystemUserDiscovery", "technique": "T1033", "line": "^(?P<account>[a-z_][a-z0-9_-]{0,31})\\s+(?:pts/\\d+|tty\\d+)\\s"},
+    {"activity": "AccountDiscovery", "technique": "T1087"}
+  ],
   "kinds": [
     {
       "name": "password",

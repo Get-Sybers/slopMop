@@ -82,6 +82,9 @@ func loadPipeline() (pipeline, error) {
 	if err != nil {
 		return pipeline{}, err
 	}
+	if err = collected(exposures.Shows(), activities.Names(), tactics, catalogue); err != nil {
+		return pipeline{}, err
+	}
 	intents, err := intent.Load()
 	if err != nil {
 		return pipeline{}, err
@@ -187,6 +190,35 @@ func filed(name, attack string, techniques []string, catalogue mitre.Catalogue) 
 	return nil
 }
 
+// collected checks what exposures.json says collecting an account shows: an
+// activity that activities.json does not name as well, and a technique the
+// catalogue lists and files under a tactic of the tactic table.
+func collected(shows []exposure.Shown, activities []string, tactics tactic.Table, catalogue mitre.Catalogue) error {
+	for _, s := range shows {
+		switch {
+		case slices.Contains(activities, s.Activity):
+			return fmt.Errorf("exposures.json names the activity %s, which activities.json names as well", s.Activity)
+		case !catalogue.Attack.HasTechnique(s.Technique):
+			return fmt.Errorf("exposures.json gives %s the ATT&CK technique %q, which the catalogue lacks", s.Activity, s.Technique)
+		case len(tacticsOf(s.Technique, tactics, catalogue)) == 0:
+			return fmt.Errorf("exposures.json gives %s the technique %s, which ATT&CK files under no tactic of tactics.json", s.Activity, s.Technique)
+		}
+	}
+	return nil
+}
+
+// tacticsOf names the tactics a technique is of: those of the tactic table
+// that ATT&CK files the technique under, in the order of the table.
+func tacticsOf(id string, tactics tactic.Table, catalogue mitre.Catalogue) []string {
+	var names []string
+	for _, name := range tactics.Names() {
+		if slices.Contains(catalogue.Attack.TacticsOf(id), tactics.Attack(name)) {
+			names = append(names, name)
+		}
+	}
+	return names
+}
+
 // follows checks that a technique gives an activity each of its tactics:
 // ATT&CK files every technique of the activity under one of its tactics,
 // and under every tactic of the activity one of its techniques.
@@ -290,6 +322,7 @@ func (p pipeline) read(folder string, levels int, period window, path string, me
 		held[f.Path] = items[i]
 	}
 	found, named := p.collectExposed(timeline.Steps, res.Texts, held)
+	p.discover(timeline.Steps, res.Texts, found)
 	intents, intentOf := p.collectIntents(folder, timeline.Steps)
 	return analysis{
 		intents:   intents,

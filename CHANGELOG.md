@@ -34,6 +34,14 @@ All notable changes to this project are recorded in this file. The format follow
   impact of its tactic and in the mitigations, which have more rows for it.
 - A command whose technique is not named gives its tactic alone, and the timeline lists it as a
   tool of that tactic. The 166 commands of Discovery are among them.
+- An account the scripts collected shows a technique of discovery, by its shape, at the output
+  that holds it first: `T1087.002` for a name after its domain or a name of a directory,
+  `T1087.004` for an account of a service, `T1087.003` for an address, `T1087.001` for a line
+  of the password file, `T1033` for the line that says who a command runs as or who is signed
+  in, and `T1087` for an account of no shape. `exposures.json` lists the shapes under
+  `accounts`. What an output shows so is an activity with the lines that name the accounts, so
+  it stands in the findings, in the block and the row of its intent, under its tactic and in
+  the mitigations.
 
 ### Fixed
 

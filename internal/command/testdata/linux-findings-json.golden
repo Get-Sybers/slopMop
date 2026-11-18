@@ -841,6 +841,64 @@
     "evidence": null
   },
   {
+    "finding": "EmailAccountDiscovery",
+    "severity": "low",
+    "tactic": "Discovery",
+    "indicator": null,
+    "files": "env_20261022_090540.txt",
+    "attribution": null,
+    "first": "2026-10-22T09:05:40Z",
+    "last": "2026-10-22T09:05:40Z",
+    "attack": "T1087.003",
+    "atlas": null,
+    "evidence": [
+      {
+        "time": "2026-10-22T09:05:40Z",
+        "file": "env_20261022_090540.txt",
+        "line": 4,
+        "text": "SMTP_USER=alerts@corp.example"
+      }
+    ]
+  },
+  {
+    "finding": "LocalAccountDiscovery",
+    "severity": "low",
+    "tactic": "Discovery",
+    "indicator": null,
+    "files": "passwd_20261022_090020.txt",
+    "attribution": null,
+    "first": "2026-10-22T09:00:20Z",
+    "last": "2026-10-22T09:00:20Z",
+    "attack": "T1087.001",
+    "atlas": null,
+    "evidence": [
+      {
+        "time": "2026-10-22T09:00:20Z",
+        "file": "passwd_20261022_090020.txt",
+        "line": 1,
+        "text": "root:x:0:0:root:/root:/bin/bash"
+      },
+      {
+        "time": "2026-10-22T09:00:20Z",
+        "file": "passwd_20261022_090020.txt",
+        "line": 2,
+        "text": "daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin"
+      },
+      {
+        "time": "2026-10-22T09:00:20Z",
+        "file": "passwd_20261022_090020.txt",
+        "line": 3,
+        "text": "deploy:x:1000:1000:Deploy:/home/deploy:/bin/bash"
+      },
+      {
+        "time": "2026-10-22T09:00:20Z",
+        "file": "passwd_20261022_090020.txt",
+        "line": 4,
+        "text": "app_rw:x:1001:1001:Application:/home/app_rw:/bin/bash"
+      }
+    ]
+  },
+  {
     "finding": "ServiceDiscovery",
     "severity": "low",
     "tactic": "Discovery",
@@ -885,7 +943,7 @@
     "severity": "low",
     "tactic": "Discovery",
     "indicator": null,
-    "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_092500_step06_stage.sh",
+    "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_092500_step06_stage.sh, env_20261022_090540.txt, passwd_20261022_090020.txt",
     "attribution": null,
     "first": "2026-10-22T09:00:00Z",
     "last": "2026-10-22T09:25:00Z",

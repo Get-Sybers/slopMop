@@ -322,7 +322,7 @@ func TestReportIntents(t *testing.T) {
 	if row["from"] != first || row["until"] != last || row["seconds"] != "40" {
 		t.Errorf("i1041 runs from %v to %v, %v seconds, want %s to %s, 40", row["from"], row["until"], row["seconds"], first, last)
 	}
-	if row["attack"] != "T1083, T1552.005, T1007" || row["atlas"] != "AML.T0055" {
+	if row["attack"] != "T1083, T1552.005, T1007, T1087.001" || row["atlas"] != "AML.T0055" {
 		t.Errorf("i1041 has ATT&CK %v and ATLAS %v", row["attack"], row["atlas"])
 	}
 	if session := find(t, table, map[string]string{"intent": "i1051"}); session["task"] != nil || session["files"] != "data/noa/exp3-worker-i1051.sh, i1051_audit_20261022_093500.jsonl" {
@@ -400,7 +400,7 @@ func TestReportWithoutIntents(t *testing.T) {
 		"\n  [x] CredentialAccess, Exfiltration  2025-03-01T10:45:00Z\n" +
 			"      T1649      Steal or Forge Authentication Certificates    TA0006  CredentialAccess\n",
 		"      T1048      Exfiltration Over Alternative Protocol        TA0010  Exfiltration        AML.T0025  Exfiltration via Cyber Means\n",
-		"\n  and 10 files that show no tactic, in the saved trace\n",
+		"\n  and 8 files that show no tactic, in the saved trace\n",
 	} {
 		if !strings.Contains(timeline, block) {
 			t.Errorf("the timeline lacks %q:\n%s", block, readout)
@@ -570,7 +570,7 @@ func TestReportIntentsByCreation(t *testing.T) {
 		t.Fatalf("intents.csv holds %d intents, want i7 and i8:\n%v", len(table), table)
 	}
 	for i, want := range []struct{ id, attack, files string }{
-		{"i7", "T1136.001", "i7_20200101_000000_persist.sh, cmd-i7.stdout.txt"},
+		{"i7", "T1136.001, T1033", "i7_20200101_000000_persist.sh, cmd-i7.stdout.txt"},
 		{"i8", "T1003.008", "i8_creds.sh"},
 	} {
 		row := table[i]
@@ -1603,6 +1603,39 @@ func TestTacticsFollowFromTechniques(t *testing.T) {
 			t.Error(err)
 		}
 	})
+}
+
+// What collecting an account shows is an activity of its own name and a
+// technique of a tactic of the table. The embedded table is held to that.
+func TestCollectedAccountsShowATechnique(t *testing.T) {
+	pipe, err := loadPipeline()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tt := range []struct {
+		name  string
+		shows exposure.Shown
+		want  string
+	}{
+		{"an activity and a technique of Discovery", exposure.Shown{Activity: "Made", Technique: "T1087.002"}, ""},
+		{"an activity activities.json names", exposure.Shown{Activity: "FileDownload", Technique: "T1087.002"}, "which activities.json names as well"},
+		{"a technique the catalogue lacks", exposure.Shown{Activity: "Made", Technique: "T0000"}, `the ATT&CK technique "T0000", which the catalogue lacks`},
+		{"a technique of no tactic of the table", exposure.Shown{Activity: "Made", Technique: "T1583"}, "which ATT&CK files under no tactic of tactics.json"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			err := collected([]exposure.Shown{tt.shows}, pipe.activities.Names(), pipe.tactics, pipe.catalogue)
+			if (err == nil) != (tt.want == "") || (err != nil && !strings.Contains(err.Error(), tt.want)) {
+				t.Errorf("collected = %v, want %q", err, tt.want)
+			}
+		})
+	}
+	shows := pipe.exposures.Shows()
+	if err := collected(shows, pipe.activities.Names(), pipe.tactics, pipe.catalogue); err != nil || len(shows) == 0 {
+		t.Errorf("the embedded table shows %d activities: %v", len(shows), err)
+	}
+	if got := tacticsOf("T1053.005", pipe.tactics, pipe.catalogue); !slices.Equal(got, []string{"Execution", "PrivilegeEscalation", "Persistence"}) {
+		t.Errorf("the tactics of T1053.005 are %q, want the three ATT&CK files it under, in the order of the table", got)
+	}
 }
 
 // A command is filed under a technique of its tactic: one the catalogue

@@ -136,7 +136,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tbody>
 <tr class="entry"><td class="cell">files</td><td class="cell">14</td><td class="cell">7 scripts, 7 outputs</td></tr>
 <tr class="entry"><td class="cell">indicators</td><td class="cell">15</td><td class="cell">4 Domain, 1 Email, 7 IPv4, 3 URL</td></tr>
-<tr class="entry"><td class="cell">activities</td><td class="cell">26</td><td class="cell"></td></tr>
+<tr class="entry"><td class="cell">activities</td><td class="cell">28</td><td class="cell"></td></tr>
 <tr class="entry"><td class="cell">tactics</td><td class="cell">11</td><td class="cell"></td></tr>
 <tr class="entry"><td class="cell">targeted</td><td class="cell">5</td><td class="cell">Hostnames 1, IP addresses 4</td></tr>
 <tr class="entry"><td class="cell">exposed</td><td class="cell">18</td><td class="cell">Passwords and secrets 3, Usernames 6, Email addresses 1, Devices 2, IP addresses 6</td></tr>
@@ -161,7 +161,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">Collection</td><td class="cell">TA0009, AML.TA0009</td><td class="cell">20261022_092500_step06_stage.sh</td></tr>
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">Execution</td><td class="cell">TA0002, AML.TA0005</td><td class="cell">20261022_091500_step04_persist.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py and 1 more</td></tr>
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">Stealth</td><td class="cell">TA0005, AML.TA0007</td><td class="cell">20261022_092000_step05_evade.sh</td></tr>
-<tr class="entry"><td class="mark low">[i]</td><td class="cell">Discovery</td><td class="cell">TA0007, AML.TA0008</td><td class="cell">20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 1 more</td></tr>
+<tr class="entry"><td class="mark low">[i]</td><td class="cell">Discovery</td><td class="cell">TA0007, AML.TA0008</td><td class="cell">20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 3 more</td></tr>
 </tbody>
 </table>
 </div>
@@ -172,9 +172,11 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <ol class="blocks marked">
 <li class="heads"><div class="line"><span>ATT&amp;CK technique</span><span>tactic</span><span>ATLAS technique</span></div></li>
 <li class="block"><span class="dot high"></span>
-<div class="head"><span class="mark high">[x]</span><span class="name">Discovery, CredentialAccess</span><span class="rest">2026-10-22T09:00:00Z to 2026-10-22T09:05:00Z</span></div>
+<div class="head"><span class="mark high">[x]</span><span class="name">Discovery, CredentialAccess</span><span class="rest">2026-10-22T09:00:00Z to 2026-10-22T09:05:40Z</span></div>
 <div class="line"><span class="id">T1083</span><span class="what">File and Directory Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
 <div class="line begins"><span class="id">T1007</span><span class="what">System Service Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1087.001</span><span class="what">Account Discovery: Local Account</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1087.003</span><span class="what">Account Discovery: Email Account</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
 <div class="line begins"><span class="id kind">tools</span><span class="what">id, uname, find, kubectl</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
 <div class="line begins"><span class="id">T1552.005</span><span class="what">Unsecured Credentials: Cloud Instance Metadata API</span><span class="id far">TA0006</span><span class="what">CredentialAccess</span><span class="id">AML.T0055</span><span class="what">Unsecured Credentials</span></div>
 <div class="line begins"><span class="id">T1003.008</span><span class="what">OS Credential Dumping: /etc/passwd and /etc/shadow</span><span class="id far">TA0006</span><span class="what">CredentialAccess</span><span class="id">AML.T0090</span><span class="what">OS Credential Dumping</span></div>
@@ -244,7 +246,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <div class="wrap">
 <table>
 <tbody>
-<tr class="entry"><td class="cell">and 6 files that show no tactic, in the saved trace</td></tr>
+<tr class="entry"><td class="cell">and 4 files that show no tactic, in the saved trace</td></tr>
 </tbody>
 </table>
 </div>
@@ -357,6 +359,17 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">Timestomp</td><td class="cell">1 line</td><td class="cell">Stealth</td><td class="cell">T1070.006, AML.T0138</td></tr>
 <tr class="detail"><td colspan="5"><div class="under">
 <div class="pair"><span class="label">what</span><span class="value">touch -r /bin/ls &#34;$F&#34; (20261022_092000_step05_evade.sh:8)</span></div>
+</div></td></tr>
+<tr class="entry"><td class="mark low">[i]</td><td class="cell">EmailAccountDiscovery</td><td class="cell">1 line</td><td class="cell">Discovery</td><td class="cell">T1087.003</td></tr>
+<tr class="detail"><td colspan="5"><div class="under">
+<div class="pair"><span class="label">what</span><span class="value">SMTP_USER=alerts@corp.example (env_20261022_090540.txt:4)</span></div>
+</div></td></tr>
+<tr class="entry"><td class="mark low">[i]</td><td class="cell">LocalAccountDiscovery</td><td class="cell">4 lines</td><td class="cell">Discovery</td><td class="cell">T1087.001</td></tr>
+<tr class="detail"><td colspan="5"><div class="under">
+<div class="pair"><span class="label">what</span><span class="value">root:x:0:0:root:/root:/bin/bash (passwd_20261022_090020.txt:1)</span></div>
+<div class="pair"><span class="label"></span><span class="value">daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin (passwd_20261022_090020.txt:2)</span></div>
+<div class="pair"><span class="label"></span><span class="value">deploy:x:1000:1000:Deploy:/home/deploy:/bin/bash (passwd_20261022_090020.txt:3)</span></div>
+<div class="pair"><span class="label"></span><span class="value">and 1 more in the saved findings</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark low">[i]</td><td class="cell">ServiceDiscovery</td><td class="cell">1 line</td><td class="cell">Discovery</td><td class="cell">T1007</td></tr>
 <tr class="detail"><td colspan="5"><div class="under">
@@ -892,10 +905,14 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <p>Set and enforce secure password policies for accounts to reduce the likelihood of unauthorized access.</p>
 <div class="pair"><span class="label">for</span><span class="value">ShadowFileRead, CredentialFileRead, PrivateKeyRead</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1028 Operating System Configuration</td><td class="cell">T1053.002, T1548.001, T1548.003, T1552.003, T1690</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1028 Operating System Configuration</td><td class="cell">T1053.002, T1087.001, T1548.001, T1548.003, T1552.003, T1690</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Operating System Configuration involves adjusting system settings and hardening the default configurations of an operating system (OS) to mitigate adversary exploitation and prevent abuse of system functionality.</p>
-<div class="pair"><span class="label">for</span><span class="value">ScheduledJobCreation, SetuidBit, SudoersModification, ShellHistoryRead, HistoryDisabling</span></div>
+<div class="pair"><span class="label">exposed</span><span class="value">username: app_rw</span></div>
+<div class="pair"><span class="label"></span><span class="value">username: daemon</span></div>
+<div class="pair"><span class="label"></span><span class="value">username: deploy</span></div>
+<div class="pair"><span class="label"></span><span class="value">username: root</span></div>
+<div class="pair"><span class="label">for</span><span class="value">ScheduledJobCreation, LocalAccountDiscovery, SetuidBit, SudoersModification, ShellHistoryRead, HistoryDisabling</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1029 Remote Data Storage</td><td class="cell">T1070.003, T1685.006</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">

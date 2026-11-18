@@ -664,6 +664,26 @@
     "evidence": null
   },
   {
+    "finding": "DomainAccountDiscovery",
+    "severity": "low",
+    "tactic": "Discovery",
+    "indicator": null,
+    "files": "recon_20261020_100030.txt",
+    "attribution": null,
+    "first": "2026-10-20T10:00:30Z",
+    "last": "2026-10-20T10:00:30Z",
+    "attack": "T1087.002",
+    "atlas": "AML.T0075",
+    "evidence": [
+      {
+        "time": "2026-10-20T10:00:30Z",
+        "file": "recon_20261020_100030.txt",
+        "line": 2,
+        "text": "corp\\svc_build S-1-5-21-1111111111-2222222222-3333333333-1105"
+      }
+    ]
+  },
+  {
     "finding": "Domain",
     "severity": "low",
     "tactic": "Discovery",
@@ -681,7 +701,7 @@
     "severity": "low",
     "tactic": "Discovery",
     "indicator": null,
-    "files": "20261020_100000_step01_recon.ps1, 20261020_102500_step06_pinvoke.ps1",
+    "files": "20261020_100000_step01_recon.ps1, 20261020_102500_step06_pinvoke.ps1, recon_20261020_100030.txt",
     "attribution": null,
     "first": "2026-10-20T10:00:00Z",
     "last": "2026-10-20T10:25:00Z",

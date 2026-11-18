@@ -49,7 +49,10 @@ type exposed struct {
 	// of a key, or each host it is used against.
 	services []string
 	seen     string
-	cites    []cite
+	// begun is where the value is seen first, as seen says: the earliest
+	// place of every sighting the value stands for.
+	begun cite
+	cites []cite
 	// count is the number of lines that hold the value.
 	count int
 	// within names every file that holds a credential, and named every
@@ -140,6 +143,7 @@ func (p pipeline) collectExposed(steps []trace.Step, texts map[string]string, he
 			i = len(all)
 			index[key] = i
 			e := exposed{kind: p.exposures.Kinds()[kinds[it.Kind]], value: it.Value, account: it.Account, form: it.Form, seen: seenCollected}
+			e.begun = cite{s.File.Path, it.Line}
 			if it.Service != "" {
 				e.services = []string{it.Service}
 			}
@@ -300,7 +304,7 @@ func mergeOwned(all []exposed) []exposed {
 		kept[at].fold(e)
 		// A value is collected or used by where it is seen first.
 		if earliest, folded := first[at]; i < to && (!folded || i < earliest) {
-			first[at], kept[at].seen = i, e.seen
+			first[at], kept[at].seen, kept[at].begun = i, e.seen, e.begun
 		}
 	}
 	return kept
@@ -397,7 +401,7 @@ func mergeKinds(all []exposed, order map[string]int) []exposed {
 			kept[at].account = e.account
 		}
 		if earliest, folded := first[at]; i < to && (!folded || i < earliest) {
-			first[at], kept[at].seen = i, e.seen
+			first[at], kept[at].seen, kept[at].begun = i, e.seen, e.begun
 		}
 	}
 	return kept
