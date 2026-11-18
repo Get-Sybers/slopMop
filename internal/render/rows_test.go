@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/get-sybers/slopmop/internal/render"
 )
@@ -128,5 +129,71 @@ func TestRowsErrors(t *testing.T) {
 				t.Errorf("error %v does not wrap %v", err, tt.wantErr)
 			}
 		})
+	}
+}
+
+// A list is the array of objects encoding/json would indent, its keys in the order given.
+func TestRowsWriteAListAsObjects(t *testing.T) {
+	when := time.Date(2026, 10, 22, 9, 15, 0, 0, time.UTC)
+	line := func(file string, n render.Value, text string) []render.Field {
+		return []render.Field{
+			{Key: "time", Value: render.Time(when)}, {Key: "file", Value: render.Text(file)},
+			{Key: "line", Value: n}, {Key: "text", Value: render.Text(text)},
+		}
+	}
+	tests := []struct {
+		name string
+		list render.Value
+		want string
+	}{
+		{"no item", render.List(nil), `[]`},
+		{"one item", render.List([][]render.Field{line("a.sh", render.Int(7), `say "x"`)}),
+			`[{"time":"2026-10-22T09:15:00Z","file":"a.sh","line":7,"text":"say \"x\""}]`},
+		{"two items and a line that is not known", render.List([][]render.Field{line("a.sh", render.Int(7), "id"), line("b.jsonl", render.NotApplicable(), "a\tb")}),
+			`[{"time":"2026-10-22T09:15:00Z","file":"a.sh","line":7,"text":"id"},{"time":"2026-10-22T09:15:00Z","file":"b.jsonl","line":null,"text":"a\tb"}]`},
+		{"a list in a list", render.List([][]render.Field{{{Key: "inner", Value: render.List([][]render.Field{{{Key: "n", Value: render.Int(1)}}})}}}),
+			`[{"inner":[{"n":1}]}]`},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var got bytes.Buffer
+			rows, err := render.NewRows(&got, rowColumns())
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err = rows.Write([]render.Value{render.Int(0), tt.list, render.NotApplicable()}); err != nil {
+				t.Fatal(err)
+			}
+			if err = rows.Close(); err != nil {
+				t.Fatal(err)
+			}
+			var want bytes.Buffer
+			if err = json.Indent(&want, []byte(`[{"n":0,"text":`+tt.want+`,"none":null}]`), "", "  "); err != nil {
+				t.Fatal(err)
+			}
+			if got.String() != want.String()+"\n" {
+				t.Errorf("rows are\n%s\nwant\n%s", got.String(), want.String())
+			}
+		})
+	}
+}
+
+// Text inside a list is escaped as text outside one is.
+func TestRowsEscapeTextInAList(t *testing.T) {
+	var got bytes.Buffer
+	rows, err := render.NewRows(&got, rowColumns())
+	if err != nil {
+		t.Fatal(err)
+	}
+	list := render.List([][]render.Field{{{Key: "text", Value: render.Text("\x1b[2J\u202e<b>")}}})
+	if err = rows.Write([]render.Value{render.Int(0), list, render.NotApplicable()}); err != nil {
+		t.Fatal(err)
+	}
+	if err = rows.Close(); err != nil {
+		t.Fatal(err)
+	}
+	checkPrintable(t, got.String())
+	if want := `"text": "\u001b[2J\u202e<b>"`; !strings.Contains(got.String(), want) {
+		t.Errorf("rows are\n%s\nwant them to hold %s", got.String(), want)
 	}
 }

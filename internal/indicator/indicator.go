@@ -25,6 +25,9 @@ type entry struct {
 	// immediately after it matches. Go's regexp (RE2) has no lookahead, so
 	// the trailing context is checked here instead of inside Pattern.
 	NotFollowedBy string `json:"not_followed_by,omitempty"`
+	// NotPrecededBy is the same for the text that ends where the match
+	// begins, on its line: what says the match is something else.
+	NotPrecededBy string `json:"not_preceded_by,omitempty"`
 }
 
 // Match is one indicator found in a text.
@@ -46,8 +49,9 @@ type compiled struct {
 	typ string
 	rx  *regexp.Regexp
 	// notAfter, when non-nil, is anchored at the start of the text that
-	// follows a match and rejects the match if it matches there.
-	notAfter *regexp.Regexp
+	// follows a match and rejects the match if it matches there. notBefore
+	// does so for the text that leads up to it, read backwards from the match.
+	notAfter, notBefore *regexp.Regexp
 	// plan says where in a text the pattern is worth running, and rare holds
 	// the texts its places are found by; with none, its shape finds them.
 	plan sift.Plan
@@ -91,6 +95,17 @@ func LoadPatterns() (Table, error) {
 				return Table{}, fmt.Errorf("indicators.json[%d] %s not_followed_by: %w", i, e.Type, err)
 			}
 			patterns[i].notAfter = na
+		}
+		if e.NotPrecededBy != "" {
+			turned, err := sift.Backwards(e.NotPrecededBy)
+			if err != nil {
+				return Table{}, fmt.Errorf("indicators.json[%d] %s not_preceded_by: %w", i, e.Type, err)
+			}
+			nb, err := regexp.Compile(`^(?:` + turned + `)`)
+			if err != nil {
+				return Table{}, fmt.Errorf("indicators.json[%d] %s not_preceded_by: %w", i, e.Type, err)
+			}
+			patterns[i].notBefore = nb
 		}
 	}
 	return Table{patterns: patterns}, nil
@@ -265,16 +280,23 @@ func (t Table) Extract(text string) []Match {
 	// so the first pattern to find a value keeps it, as in one pass.
 	seen := map[string]bool{}
 	var matches []Match
+	var turned []byte
 	for n, s := range searches {
 		p := t.patterns[s.pattern]
 		for _, loc := range found[n] {
 			start, end := loc[0], loc[1]
+			val := text[start:end]
+			// A value already kept is not looked at again, whatever stands around it.
+			if seen[val] {
+				continue
+			}
 			if p.notAfter != nil && p.notAfter.MatchString(text[end:]) {
 				continue
 			}
-			val := text[start:end]
-			if seen[val] {
-				continue
+			if p.notBefore != nil {
+				if turned = sift.Turned(turned[:0], leading(text, start)); p.notBefore.Match(turned) {
+					continue
+				}
 			}
 			seen[val] = true
 			matches = append(matches, Match{Type: p.typ, Value: val, Start: start})
@@ -282,6 +304,15 @@ func (t Table) Extract(text string) []Match {
 	}
 	sort.Slice(matches, func(i, j int) bool { return matches[i].Start < matches[j].Start })
 	return matches
+}
+
+// behind is how many bytes before a match are read for what it must not follow.
+const behind = 48
+
+// leading returns the text that leads up to start on its line, behind bytes at most.
+func leading(text string, start int) string {
+	before := text[max(0, start-behind):start]
+	return before[strings.LastIndexByte(before, '\n')+1:]
 }
 
 // CountByType returns the number of distinct indicator values per type.

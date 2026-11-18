@@ -43,7 +43,7 @@ Impact
       basis    CertificateExport, CredentialAccess tools
 
 [x] HIGH - 4 impacts: 2 high, 1 medium, 1 low
--> saved to slopmop-ai_workdir: report.txt, report.md, report.html, files.json, trace.json, findings.json, targeted.json, exposure.json, report.json
+-> saved to slopmop-ai_workdir: report.txt, report.md, report.html, files.csv, trace.json, intents.json, findings.json, targeted.json, exposure.csv, report.json
 -> one section: slopmop -inputdir <folder> report impact
 ```
 
@@ -148,7 +148,8 @@ sequence cannot reach the terminal and one entry line is always one line:
 
 A cell, a detail or a title is escaped whole. Error messages on standard error are escaped the
 same way. JSON is encoded by `encoding/json`, and every rune that is not printable is then written
-as a `\u` escape, so the value read back is the value in the evidence.
+as a `\u` escape, so the value read back is the value in the evidence. A cell of CSV is escaped as
+a cell of the report is.
 
 ## 3. Secrets
 
@@ -173,12 +174,12 @@ Every run saves ten files to its output folder.
 | `report.txt` | the report as plain text, as the screen shows it without colour |
 | `report.md` | the report as Markdown |
 | `report.html` | the report as one HTML page |
-| `files.json` | the `file` class |
+| `files.csv` | the `file` class |
 | `trace.json` | the `trace` class |
 | `intents.json` | the `intent` class |
 | `findings.json` | the `finding` class |
 | `targeted.json` | the `targeted` class |
-| `exposure.json` | the `exposure` class |
+| `exposure.csv` | the `exposure` class |
 | `report.json` | the `report` class |
 
 The three report files hold the same report: every section, whichever were named, with the same
@@ -209,17 +210,27 @@ A JSON file is one array of objects, one object per row, with the keys of its cl
 of the tables below.
 
 ```text
-$ cat slopmop-ai_workdir/files.json
+$ cat slopmop-ai_workdir/findings.json
 [
   {
-    "name": "20250302_090000_step01_inventory.ps1",
-    "role": "script",
-    "size": 487,
-    "lines": 13,
-    "modified": "2025-03-02T09:00:03Z",
-    "sha256": "2232e80ab6e9391a221315e0b9aaf9dd70739833a376a0e3ee4e671251be09d6",
-    "name_time": "20250302_090000",
-    "note": null
+    "finding": "CertificateExport",
+    "severity": "high",
+    "tactic": "CredentialAccess",
+    "indicator": null,
+    "files": "20250302_092200_step05_export.ps1",
+    "attribution": null,
+    "first": "2025-03-02T09:22:00Z",
+    "last": "2025-03-02T09:22:00Z",
+    "attack": "T1649",
+    "atlas": null,
+    "evidence": [
+      {
+        "time": "2025-03-02T09:22:00Z",
+        "file": "20250302_092200_step05_export.ps1",
+        "line": 5,
+        "text": "Export-Certificate -Cert $Store -FilePath ca01_20250302_092210.cer | Out-Null"
+      }
+    ]
   }
 ]
 ```
@@ -228,9 +239,31 @@ $ cat slopmop-ai_workdir/files.json
 - A size is a count of bytes and a hash is whole.
 - A value that does not apply is `null`.
 - A list is one string, joined with `, `. Two lists are joined otherwise, because their items
-  hold commas: `targets` with `; ` and `evidence` with a line break.
+  hold commas: `targets` with `; `, and the `evidence` of the `targeted` and `report` classes with
+  a line break.
+- The `evidence` of the `finding` class is an array of objects, one per line of evidence.
 
-## 6. Classes
+## 6. CSV
+
+A CSV file is one line of the keys of its class, in the order of the tables below, and one line
+per row.
+
+```text
+$ cat slopmop-ai_workdir/files.csv
+name,path,role,size,lines,modified,sha256,name_time,note
+20250302_090000_step01_inventory.ps1,/cases/case42/ai_workdir/20250302_090000_step01_inventory.ps1,script,487,13,2025-03-02T09:00:03Z,2232e80ab6e9391a221315e0b9aaf9dd70739833a376a0e3ee4e671251be09d6,20250302_090000,
+20250302_090500_step02_sync.ps1,/cases/case42/ai_workdir/20250302_090500_step02_sync.ps1,script,385,7,2025-03-02T09:05:03Z,0b6610dfe1ddb50ae17a395528d915bcf73ecd032e1d849117b421c7c7af2d77,20250302_090500,
+```
+
+- The text is UTF-8 without a byte order mark, and a line ends with a line feed.
+- A cell that holds a comma or a double quote stands in double quotes, with each double quote in
+  it doubled.
+- Times, sizes and hashes are written as in JSON. A value that does not apply is an empty cell.
+- A list is one cell, joined with `, `.
+- A text that begins with `=`, `+`, `-` or `@` follows an apostrophe. A spreadsheet reads such a
+  cell as a formula, and the text is the attacker's.
+
+## 7. Classes
 
 The columns of each class are declared in `internal/command/commands.json`.
 
@@ -238,16 +271,17 @@ The columns of each class are declared in `internal/command/commands.json`.
 
 One row per file, sorted by name in byte order.
 
-| JSON key | Value |
+| Column | Value |
 | --- | --- |
-| `name` | the path below the input folder |
+| `name` | the path below the input folder, with `/` between its parts |
+| `path` | the whole path of the file on the machine of the run, as its system writes it |
 | `role` | `script`, `output` or `other` |
 | `size` | bytes read |
-| `lines` | lines of text; `null` when the file has a note |
+| `lines` | lines of text; empty when the file has a note |
 | `modified` | the modified time |
-| `sha256` | SHA-256 of the raw bytes; `null` when the file is unreadable |
-| `name_time` | the timestamp exactly as it stands in the file name; `null` when there is none |
-| `note` | `binary`, `oversize`, `unreadable`, or `null` |
+| `sha256` | SHA-256 of the raw bytes; empty when the file is unreadable |
+| `name_time` | the timestamp exactly as it stands in the file name; empty when there is none |
+| `note` | `binary`, `oversize`, `unreadable`, or empty |
 
 ### trace
 
@@ -281,11 +315,29 @@ One row per activity, per distinct indicator and per tactic.
 | `indicator` | the indicator's value; `null` on an activity or tactic row |
 | `files` | the files that show it |
 | `attribution` | the watchlist attributions of an indicator; `null` otherwise |
+| `first` | the time of the earliest file that shows it; `null` when none of its files has a time |
+| `last` | the time of the latest file that shows it; `null` when none of its files has a time |
 | `attack` | on an activity, its MITRE ATT&CK techniques; on a tactic, its ATT&CK tactic; `null` on an indicator |
 | `atlas` | on an activity, its MITRE ATLAS techniques; on a tactic, its ATLAS tactic; `null` on an indicator |
-| `evidence` | on an activity, the first 24 lines that show it, each with its place; `null` otherwise |
+| `evidence` | on an activity, the first 24 lines that show it, in the order of the timeline; `null` otherwise |
+
+Each line of `evidence` is an object.
+
+| JSON key | Value |
+| --- | --- |
+| `time` | the time of the file that holds the line, as the `trace` class gives it; `null` when the file has none |
+| `file` | the path of that file below the input folder |
+| `line` | the number of the line in the file; `null` in a structured output, where a record has no line |
+| `text` | the line, with every secret in it masked |
 
 Sort: severity from `high` to `low`, then activities, indicators and tactics, each by name.
+
+- An `IPv4` indicator is four numbers from 0 to 255, none with a leading zero, and may end in a
+  prefix length. One that begins with `0.` is none, apart from `0.0.0.0`.
+- A version number is no address. Four such numbers are left out when a fifth stands before or
+  after them, when they follow `version`, `ver`, `build`, a comparison such as `==` or `>=`, `^`,
+  `~`, a name and a hyphen or the name of a browser and a slash, and when a suffix such as `-rc1`,
+  `-beta` or `-1ubuntu2` follows them.
 
 ### targeted
 
@@ -315,12 +367,12 @@ value. Two values that differ only in case are one row.
 
 One row per distinct value. A secret is one row per value and account.
 
-| JSON key | Value |
+| Column | Value |
 | --- | --- |
 | `kind` | `password`, `username`, `email`, `device` or `ip` |
 | `value` | the value; a secret is masked unless `-secrets shown` |
-| `account` | whose a secret is, when the evidence says; `null` otherwise |
-| `form` | what a secret is: `password`, `hash`, `token`, `key` or `secret`; `null` on the other kinds |
+| `account` | whose a secret is, when the evidence says; empty otherwise |
+| `form` | what a secret is: `password`, `hash`, `token`, `key` or `secret`; empty on the other kinds |
 | `seen` | `collected` when the value is first seen in an output, in the order of the timeline: the scripts gathered it. `used` when it is first seen in a script: the attacker brought it |
 | `severity` | `high` for a secret, `medium` for a username and an email address, `low` for a device and an address |
 | `count` | the lines that hold the value |

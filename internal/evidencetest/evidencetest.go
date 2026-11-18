@@ -3,12 +3,15 @@ package evidencetest
 
 import (
 	"embed"
+	"encoding/csv"
 	"encoding/json"
 	"io/fs"
 	"os"
 	"path"
 	"path/filepath"
+	"slices"
 	"sort"
+	"strings"
 	"testing"
 	"time"
 )
@@ -76,4 +79,26 @@ func loadTimes(tb testing.TB, name string) map[string]time.Time {
 		tb.Fatalf("fixture %s: %v", name, err)
 	}
 	return times
+}
+
+// Portable returns a saved table of files, as CSV, as every machine writes
+// it: each whole path, which holds the temporary folder and the separator of
+// this system, becomes <folder> and the name of the file below it.
+func Portable(tb testing.TB, table, folder string) string {
+	tb.Helper()
+	records, err := csv.NewReader(strings.NewReader(table)).ReadAll()
+	if err != nil || len(records) == 0 {
+		tb.Fatalf("the table of files is not CSV with a header: %v", err)
+	}
+	name, whole := slices.Index(records[0], "name"), slices.Index(records[0], "path")
+	if name < 0 || whole < 0 {
+		tb.Fatalf("the table of files has the columns %q, want name and path among them", records[0])
+	}
+	for _, r := range records[1:] {
+		if want := filepath.Join(folder, filepath.FromSlash(r[name])); r[whole] != want {
+			tb.Errorf("the path of %s = %q, want %q", r[name], r[whole], want)
+		}
+		table = strings.ReplaceAll(table, r[whole], "<folder>/"+r[name])
+	}
+	return table
 }

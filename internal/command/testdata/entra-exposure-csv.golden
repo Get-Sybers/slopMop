@@ -1,0 +1,8 @@
+kind,value,account,form,seen,severity,count,files
+username,alice@corp.example,,,collected,medium,1,directory_20261015_090530.txt:1
+username,bob@corp.example,,,collected,medium,1,directory_20261015_090530.txt:1
+username,66666666-7777-4888-9999-000000000000,,,used,medium,1,20261015_090000_step01_token.sh:8
+email,alice@corp.example,,,collected,medium,2,"directory_20261015_090530.txt:1, 20261015_092000_step04_collect.py:7"
+email,bob@corp.example,,,collected,medium,2,"directory_20261015_090530.txt:1, 20261015_092000_step04_collect.py:7"
+ip,144.172.64.60,,,collected,low,1,agent_20261015_093500.jsonl
+ip,144.172.64.128,,,used,low,2,"20261015_090000_step01_token.sh:5, agent_20261015_093500.jsonl"

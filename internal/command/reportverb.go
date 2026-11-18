@@ -3,6 +3,7 @@ package command
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
 	"slices"
 	"strconv"
 	"strings"
@@ -41,6 +42,8 @@ type reportRun struct {
 	result analysis
 	rows   []reportRow
 	shown  []shownActivity
+	// folder is the whole path of the input folder.
+	folder string
 }
 
 type sectionBuilder func(w reportRun) []render.Group
@@ -161,6 +164,10 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 		if err != nil {
 			return err
 		}
+		whole, err := filepath.Abs(folder)
+		if err != nil {
+			return fmt.Errorf("input folder: %w", err)
+		}
 		restore, err := limit(cores, memory)
 		if err != nil {
 			return err
@@ -182,7 +189,7 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 			sectionRemediation: true, sectionMitigation: true,
 		}
 		rows, shown := pipe.report(result, tactic.High, every)
-		run := reportRun{pipe: pipe, result: result, rows: rows, shown: shown}
+		run := reportRun{pipe: pipe, result: result, rows: rows, shown: shown, folder: whole}
 		// The disk holds every section; the screen holds those asked for.
 		full := render.Readout{Title: "slopmop report   " + folder, Banner: run.banner(), Hints: v.Hints}
 		screen := full
@@ -336,7 +343,7 @@ func (w reportRun) findings() []render.Group {
 		switch f.kind {
 		case kindActivity:
 			e.Cells = []string{f.label, plural(lines[f.label], "line"), strings.Join(f.tactics, ", "), mitre}
-			e.Detail = lined("what", f.evidence, fewFindingLines, "the saved findings")
+			e.Detail = lined("what", f.lines(), fewFindingLines, "the saved findings")
 		case kindIndicator:
 			at = 1
 			e.Cells = []string{f.label, f.indicator, few(f.files)}

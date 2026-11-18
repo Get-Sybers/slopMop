@@ -40,13 +40,13 @@
           {"format": "html", "file": "report.html"}
         ],
         "tables": [
-          {"class": "file", "file": "files.json"},
-          {"class": "trace", "file": "trace.json"},
-          {"class": "intent", "file": "intents.json"},
-          {"class": "finding", "file": "findings.json"},
-          {"class": "targeted", "file": "targeted.json"},
-          {"class": "exposure", "file": "exposure.json"},
-          {"class": "report", "file": "report.json"}
+          {"class": "file", "format": "csv", "file": "files.csv"},
+          {"class": "trace", "format": "json", "file": "trace.json"},
+          {"class": "intent", "format": "json", "file": "intents.json"},
+          {"class": "finding", "format": "json", "file": "findings.json"},
+          {"class": "targeted", "format": "json", "file": "targeted.json"},
+          {"class": "exposure", "format": "csv", "file": "exposure.csv"},
+          {"class": "report", "format": "json", "file": "report.json"}
         ]
       }
     }
@@ -56,6 +56,7 @@
       "name": "file",
       "columns": [
         {"header": "NAME", "key": "name"},
+        {"header": "PATH", "key": "path", "wide": true},
         {"header": "ROLE", "key": "role"},
         {"header": "SIZE", "key": "size"},
         {"header": "LINES", "key": "lines"},
@@ -92,6 +93,8 @@
         {"header": "INDICATOR", "key": "indicator"},
         {"header": "FILES", "key": "files"},
         {"header": "ATTRIBUTION", "key": "attribution"},
+        {"header": "FIRST", "key": "first"},
+        {"header": "LAST", "key": "last"},
         {"header": "ATTACK", "key": "attack", "wide": true},
         {"header": "ATLAS", "key": "atlas", "wide": true},
         {"header": "EVIDENCE", "key": "evidence", "wide": true}

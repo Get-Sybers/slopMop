@@ -10,7 +10,7 @@ about evidence touch no file, and every static table is a data file validated at
 | `cmd/slopmop` | builds the application, runs it, maps the result to an exit code |
 | `internal/cli` | the grammar: options, verbs, the words after a verb, dispatch, generated help; knows no verb |
 | `internal/command` | the verbs: declares them in `commands.json`, binds each to its implementation, and saves the output |
-| `internal/render` | writes the report as plain lines, Markdown and HTML, and a table in the default, wide, quiet and JSON views, of which the saved files use JSON; escapes evidence text |
+| `internal/render` | writes the report as plain lines, Markdown and HTML, and a table in the default, wide, quiet and JSON views and as CSV, of which the saved files use JSON and CSV; escapes evidence text |
 | `internal/inventory` | walks the input directory and builds one record per file; owns all evidence I/O |
 | `internal/evidence` | the file record and its vocabularies (role, note); no I/O |
 | `internal/nametime` | detects the timestamp written into a file name; no I/O |
@@ -26,7 +26,7 @@ about evidence touch no file, and every static table is a data file validated at
 | `internal/parallel` | runs independent pieces of work on every processor; no I/O |
 | `internal/progress` | says on the error stream what a run is doing: the stage, how far through it is and the file it has been at for longest |
 | `internal/vars` | reads the variables a script sets to a plain value, so a command that names one is shown with what it holds; no I/O |
-| `internal/sift` | reads an expression when it is loaded and says where in a text it is worth running: the texts every match holds and the bytes a match is made of; no I/O |
+| `internal/sift` | reads an expression when it is loaded and says where in a text it is worth running: the texts every match holds and the bytes a match is made of; turns round an expression that is read from the end of a text; no I/O |
 | `internal/mitre` | holds the identifiers, names and mitigation links of MITRE ATT&CK and MITRE ATLAS in `catalogue.json` |
 | `internal/intel` | matches extracted indicators against an operator-supplied watchlist: a JSON array or a STIX 2.1 bundle; an entry that is an address range matches every address inside it |
 | `internal/trace` | reconstructs the timeline from scripts and outputs: ordering, tool extraction, tactic classification, activity detection, indicator counting, output linking |
@@ -59,7 +59,7 @@ progress    -> render
 | File | Declares | Checked at load |
 | --- | --- | --- |
 | `internal/inventory/roles.json` | each role's summary, extensions and shebang patterns | the roles are `script`, `output`, `other` in that order; extensions are lower-case, dotted and in one role; patterns compile; `other` takes neither |
-| `internal/command/commands.json` | the usage line, the options, the verbs with their sections, hints and saved files, and the columns of each class | names, hints and summaries present and unique; a verb names only declared options; columns pass the table check; a saved file is a file name of its own; a saved report names a format that has a writer, once; every declared verb and section has an implementation and every implementation a declaration; a row fills exactly the declared columns |
+| `internal/command/commands.json` | the usage line, the options, the verbs with their sections, hints and saved files, and the columns of each class | names, hints and summaries present and unique; a verb names only declared options; columns pass the table check; a saved file is a file name of its own; a saved report names a format that has a writer, once; a saved table names a format that has a writer; every declared verb and section has an implementation and every implementation a declaration; a row fills exactly the declared columns |
 | `internal/tactic/tactics.json` | the tactics, the severity of each, its ATT&CK and ATLAS identifiers and the commands it claims | every tactic has a name, a severity of `low`, `medium` or `high`, both identifiers and at least one command; no command appears in two tactics; `command` rejects an identifier the catalogue lacks |
 | `internal/activity/activities.json` | each activity's name, tactics, ATT&CK and ATLAS techniques and patterns, the contexts some patterns need, and the subjects a matching line acts on | names are present and unique; every activity has a tactic, an ATT&CK technique and a pattern; `command` rejects a technique the catalogue lacks; paths and a known context go together; every pattern compiles and the literal it is found by holds no line break; a subject has a label and a pattern with one group; `command` rejects a tactic that `tactics.json` lacks |
 | `internal/assess/impacts.json` | each impact's name, severity and statement, what triggers it, the indicator types to list as affected and the kinds of exposure it concerns | names are present and unique; a statement and a severity of `low`, `medium` or `high`; something triggers each; `command` rejects an activity, a tactic, an indicator type or a kind of exposure the other tables lack |
@@ -67,7 +67,7 @@ progress    -> render
 | `internal/exposure/exposures.json` | each kind of exposure: its title, its severity, whether it is a secret, the field names and endings that hold it, the indicator types that are of it, what a value must and must not look like, and its patterns | names, titles and severities present and unique; a field name is lower-case letters and digits and in one kind; an ending has three characters or more; an indicator type is in one kind and `command` rejects one that `indicators.json` lacks; every expression compiles; a pattern has a group named `value` and a lower-case text a line must hold; `command` rejects a severity that is not `low`, `medium` or `high` |
 | `internal/intent/paths.json` | the rules that find an ARTEX intent in a path, in the order they are tried, and the folder names that are none | a rule has a name of its own and a pattern that compiles with a group named `id` and no group but `id` and `task`; a rejected name is present once |
 | `internal/mitre/catalogue.json` | for ATT&CK and for ATLAS: the version, the tactics, the mitigations with a one-sentence summary, and each technique's name, tactics and mitigations | a version, tactics, techniques and mitigations are present; a technique names only tactics and mitigations that are listed |
-| `internal/indicator/indicators.json` | indicator types and their regex patterns | every entry has a type and a pattern; every pattern compiles |
+| `internal/indicator/indicators.json` | indicator types and their regex patterns, with what a match must not follow on its line and what must not follow it | every entry has a type and a pattern; every expression compiles |
 | `internal/structured/formats.json` | the extensions of each structured format, the field names that hold a command, and the HTML elements that hold a command, are kept verbatim or are dropped | the formats are `json`, `xml`, `html` in that order; extensions are lower-case, dotted and in one format; names are lower-case letters and digits, listed once, and an element is in one list |
 
 All are embedded with `go:embed` and decoded strictly: an unknown field or trailing data is an
@@ -164,6 +164,10 @@ a match can be, and finds what a search of the whole text finds.
   the bytes it is made of that is long enough. A run is handed over with one byte either side, so
   a word boundary reads as it does in the text. No indicator is run on every line, and a test
   fails when one would be.
+- What an indicator must not follow is an expression that ends where the match begins. `sift`
+  turns it round when the table is loaded, and it is run from the match backwards over the 48
+  bytes before it on its line: from one place, where the expression as written is tried from
+  each of them.
 - An activity is run on the lines that hold one of its literals and a text of every other set.
   The literals of every pattern of the table are looked for in one pass over a text, and each
   pattern then reads the lines of its own, where a pass for each literal reads the text once for

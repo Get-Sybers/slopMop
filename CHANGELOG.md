@@ -18,11 +18,34 @@ All notable changes to this project are recorded in this file. The format follow
 - The summary of a run with a window has the row `left out`, with the number of files outside it
   and what the window left out, on the screen, in the saved reports and in `report.json`.
 
+- `files.csv` has the column `path`: the whole path of each file on the machine of the run.
+- A finding in `findings.json` has `first` and `last`, the times of the earliest and the latest
+  file that shows it.
+- `indicators.json` says what a match of a type must not follow, `not_preceded_by`, as it says
+  what must not follow it. `sift.Backwards` turns that expression round, so it is run from the
+  match backwards: from one place, not from each of the bytes before the match.
+
 ### Changed
 
 - The time of a file has one definition, `evidence.File.Time`, which the timeline, the intents
   and the reading share. `inventory.Scope` says how much of a folder is read: the depth, the
   window and what is told of each file.
+- The files and the exposure are saved as CSV, `files.csv` and `exposure.csv`, in place of
+  `files.json` and `exposure.json`: a line of keys and a line per row. A value that does not
+  apply is an empty cell, and a text that a spreadsheet would read as a formula follows an
+  apostrophe.
+- The `evidence` of a finding in `findings.json` is an array with one object per line: the
+  `time` of its file, the `file`, the `line` and the `text`. It was one string.
+- `commands.json` names the format of each saved table, `json` or `csv`.
+
+### Fixed
+
+- A version number is not reported as an IPv4 address. Four numbers are an address only when
+  none has a leading zero and the first is not 0, `0.0.0.0` apart, and they are left out where
+  the text says they are a version: after `version`, `ver`, `build`, a comparison, `^`, `~`, a
+  package name and a hyphen or the name of a browser, beside a fifth number, and before a
+  suffix such as `-rc1` or `-1ubuntu2`. `0.1.5.3` and `Chrome/120.0.0.0` are no longer
+  indicators.
 
 ## [0.5.5] - 2026-11-17
 

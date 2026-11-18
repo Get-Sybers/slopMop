@@ -2,11 +2,13 @@ package command
 
 import (
 	"bytes"
+	"encoding/csv"
 	"encoding/json"
 	"errors"
 	"maps"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"runtime"
 	"slices"
@@ -60,14 +62,42 @@ func readFile(t *testing.T, path string) string {
 	return string(data)
 }
 
-// rows reads a saved table.
+// rows reads a saved table, JSON or CSV. A cell of CSV is text, and nil when it is empty.
 func rows(t *testing.T, path string) []map[string]any {
 	t.Helper()
 	var table []map[string]any
-	if err := json.Unmarshal([]byte(readFile(t, path)), &table); err != nil {
-		t.Fatalf("%s: %v", path, err)
+	if filepath.Ext(path) != ".csv" {
+		if err := json.Unmarshal([]byte(readFile(t, path)), &table); err != nil {
+			t.Fatalf("%s: %v", path, err)
+		}
+		return table
+	}
+	records, err := csv.NewReader(strings.NewReader(readFile(t, path))).ReadAll()
+	if err != nil || len(records) == 0 {
+		t.Fatalf("%s: not CSV with a header: %v", path, err)
+	}
+	for _, record := range records[1:] {
+		row := map[string]any{}
+		for i, key := range records[0] {
+			row[key] = nil
+			if record[i] != "" {
+				row[key] = record[i]
+			}
+		}
+		table = append(table, row)
 	}
 	return table
+}
+
+// tableText reads a saved table as it is compared with a golden file: the
+// table of files without the temporary folder its whole paths begin with.
+func tableText(t *testing.T, saved, folder, name string) string {
+	t.Helper()
+	text := readFile(t, filepath.Join(saved, name))
+	if name == "files.csv" {
+		return evidencetest.Portable(t, text, folder)
+	}
+	return text
 }
 
 // nest moves every file of a fixture copy whose name contains part into the sub-folder sub.
@@ -96,8 +126,8 @@ func TestReportViews(t *testing.T) {
 		t.Run(fixture, func(t *testing.T) {
 			readout, saved := report(t, folder)
 			golden.Check(t, fixture+"-report", []byte(readout))
-			for _, name := range []string{"files", "trace", "findings", "targeted", "exposure", "report"} {
-				golden.Check(t, fixture+"-"+name+"-json", []byte(readFile(t, filepath.Join(saved, name+".json"))))
+			for _, name := range []string{"files.csv", "trace.json", "findings.json", "targeted.json", "exposure.csv", "report.json"} {
+				golden.Check(t, fixture+"-"+strings.Replace(name, ".", "-", 1), []byte(tableText(t, saved, folder, name)))
 			}
 		})
 		t.Run(fixture+"/intel", func(t *testing.T) {
@@ -113,11 +143,11 @@ func TestReportViews(t *testing.T) {
 }
 
 // What is saved is every section, whichever were asked for, in each format,
-// and each class as JSON.
+// and each class as JSON or CSV.
 func TestReportSaves(t *testing.T) {
 	folder := evidencetest.Copy(t, "linux")
 	shown, saved := report(t, folder, "impact")
-	if want := "-> saved to <out>: report.txt, report.md, report.html, files.json, trace.json, intents.json, findings.json, targeted.json, exposure.json, report.json\n"; !strings.Contains(shown, want) {
+	if want := "-> saved to <out>: report.txt, report.md, report.html, files.csv, trace.json, intents.json, findings.json, targeted.json, exposure.csv, report.json\n"; !strings.Contains(shown, want) {
 		t.Errorf("the readout does not say where it was saved:\n%s", shown)
 	}
 	if strings.Contains(shown, "\nTimeline") {
@@ -163,7 +193,7 @@ func TestReportSaves(t *testing.T) {
 			}
 		}
 	}
-	for name, least := range map[string]int{"files.json": 14, "trace.json": 14, "findings.json": 30, "targeted.json": 6, "exposure.json": 15, "report.json": 60} {
+	for name, least := range map[string]int{"files.csv": 14, "trace.json": 14, "findings.json": 30, "targeted.json": 6, "exposure.csv": 15, "report.json": 60} {
 		if got := len(rows(t, filepath.Join(saved, name))); got < least {
 			t.Errorf("%s holds %d rows, want at least %d", name, got, least)
 		}
@@ -380,8 +410,25 @@ func TestReportReadsSubFolders(t *testing.T) {
 	nest(t, folder, "ca_", "loot")
 	readout, saved := report(t, folder, "timeline")
 	golden.Check(t, "nested-report-timeline", []byte(readout))
-	golden.Check(t, "nested-files-json", []byte(readFile(t, filepath.Join(saved, "files.json"))))
+	golden.Check(t, "nested-files-csv", []byte(tableText(t, saved, folder, "files.csv")))
 	golden.Check(t, "nested-trace-json", []byte(readFile(t, filepath.Join(saved, "trace.json"))))
+}
+
+// The whole path of a file does not depend on how the input folder was named.
+func TestReportFilesHaveWholePaths(t *testing.T) {
+	folder := evidencetest.Copy(t, "linux")
+	t.Chdir(filepath.Dir(folder))
+	_, saved := report(t, filepath.Base(folder))
+	table := rows(t, filepath.Join(saved, "files.csv"))
+	if len(table) != 14 {
+		t.Fatalf("files.csv holds %d files, want 14", len(table))
+	}
+	for _, row := range table {
+		name, _ := row["name"].(string)
+		if want := filepath.Join(folder, name); row["path"] != want {
+			t.Errorf("the path of %s = %v, want %s", name, row["path"], want)
+		}
+	}
 }
 
 func TestReportNamesFoldersBelowTheLimit(t *testing.T) {
@@ -404,8 +451,8 @@ func TestReportNamesFoldersBelowTheLimit(t *testing.T) {
 	if !strings.Contains(out, kept+"kept.sh") || strings.Contains(out, "lost.sh") {
 		t.Errorf("output = %q, want kept.sh and not lost.sh", out)
 	}
-	if got := len(rows(t, filepath.Join(saved, "files.json"))); got != 1 {
-		t.Errorf("files.json holds %d rows, want the one file that was read", got)
+	if got := len(rows(t, filepath.Join(saved, "files.csv"))); got != 1 {
+		t.Errorf("files.csv holds %d rows, want the one file that was read", got)
 	}
 }
 
@@ -441,7 +488,7 @@ func TestReportScenarios(t *testing.T) {
 		}
 	}
 	_, saved = report(t, evidencetest.Copy(t, "lolbin"))
-	for _, row := range rows(t, filepath.Join(saved, "files.json")) {
+	for _, row := range rows(t, filepath.Join(saved, "files.csv")) {
 		if row["name"] == "20261020_103000_step07_cleanup.bat" && row["role"] != "script" {
 			t.Errorf("the batch file has the role %v, want script", row["role"])
 		}
@@ -468,7 +515,7 @@ func find(t *testing.T, table []map[string]any, want map[string]string) map[stri
 // whether the scripts collected it or the attacker brought it, and where.
 func TestReportExposure(t *testing.T) {
 	readout, saved := report(t, evidencetest.Copy(t, "linux"), "summary", "exposure")
-	table := rows(t, filepath.Join(saved, "exposure.json"))
+	table := rows(t, filepath.Join(saved, "exposure.csv"))
 	tests := []struct {
 		row  map[string]string
 		want map[string]any
@@ -553,7 +600,7 @@ func TestReportMasksSecrets(t *testing.T) {
 	if found := holds(plain); len(found) != len(secret) {
 		t.Errorf("-secrets shown: the readout holds %q, want all of %q", found, secret)
 	}
-	row := find(t, rows(t, filepath.Join(saved, "exposure.json")), map[string]string{"kind": "password", "account": "svc_backup"})
+	row := find(t, rows(t, filepath.Join(saved, "exposure.csv")), map[string]string{"kind": "password", "account": "svc_backup"})
 	if row["value"] != "Winter2025!" || row["seen"] != "used" {
 		t.Errorf("-secrets shown: %v, want the password as it stands, used by the scripts", row)
 	}
@@ -623,8 +670,15 @@ func TestReportNamesWhat(t *testing.T) {
 		}
 	}
 	finding := find(t, rows(t, filepath.Join(saved, "findings.json")), map[string]string{"finding": "AccountCreation"})
-	if want := "useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)\nuseradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)"; finding["evidence"] != want {
-		t.Errorf("the evidence of the finding = %q, want %q", finding["evidence"], want)
+	want := []any{
+		map[string]any{"time": "2026-10-22T09:15:00Z", "file": "20261022_091500_step04_persist.sh", "line": float64(7), "text": "useradd -m -s /bin/bash svc"},
+		map[string]any{"time": "2026-10-22T09:35:00Z", "file": "audit_20261022_093500.jsonl", "line": nil, "text": "useradd -m -s /bin/bash svc"},
+	}
+	if !reflect.DeepEqual(finding["evidence"], want) {
+		t.Errorf("the evidence of the finding = %v, want %v", finding["evidence"], want)
+	}
+	if finding["first"] != "2026-10-22T09:15:00Z" || finding["last"] != "2026-10-22T09:35:00Z" {
+		t.Errorf("the finding is from %v until %v, want the times of its two files", finding["first"], finding["last"])
 	}
 }
 
@@ -1133,6 +1187,8 @@ func TestReportVerbRejects(t *testing.T) {
 		{"a name twice", func(v *verbSpec, _ *commandsDoc) { v.Saved.Readouts[0].File = "trace.json" }, "not a file name of its own"},
 		{"no readouts", func(v *verbSpec, _ *commandsDoc) { v.Saved.Readouts = nil }, "needs a prefix"},
 		{"an unknown format", func(v *verbSpec, _ *commandsDoc) { v.Saved.Readouts[1].Format = "pdf" }, `"pdf" is not a format of its own`},
+		{"a table in an unknown format", func(v *verbSpec, _ *commandsDoc) { v.Saved.Tables[0].Format = "xml" }, `"xml" is not a format of a table`},
+		{"a table without a format", func(v *verbSpec, _ *commandsDoc) { v.Saved.Tables[1].Format = "" }, `"" is not a format of a table`},
 		{"a format twice", func(v *verbSpec, _ *commandsDoc) { v.Saved.Readouts[2].Format = "text" }, `"text" is not a format of its own`},
 		{"a readout under a table's name", func(v *verbSpec, _ *commandsDoc) { v.Saved.Readouts[2].File = v.Saved.Readouts[0].File }, "not a file name of its own"},
 		{"a readout in a folder", func(v *verbSpec, _ *commandsDoc) { v.Saved.Readouts[1].File = "sub/report.md" }, "not a file name of its own"},
