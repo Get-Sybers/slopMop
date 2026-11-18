@@ -6,6 +6,24 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Added
+
+- `-start <time>` and `-stop <time>` set a window of time on what a run reads. `-start` alone
+  looks forward from its time and `-stop` alone looks back from it. A file whose time is
+  outside the window is not opened, so it is not hashed, not analysed and in no saved file.
+  The time of a file is the one the timeline places it at: the time in its name, or else when
+  it was last modified. A time is a day or a day and a time, UTC unless it names a zone; a day
+  alone is the whole day, and a file named by a day alone is in the window when any part of
+  that day is.
+- The summary of a run with a window has the row `left out`, with the number of files outside it
+  and what the window left out, on the screen, in the saved reports and in `report.json`.
+
+### Changed
+
+- The time of a file has one definition, `evidence.File.Time`, which the timeline, the intents
+  and the reading share. `inventory.Scope` says how much of a folder is read: the depth, the
+  window and what is told of each file.
+
 ## [0.5.5] - 2026-11-17
 
 ### Changed

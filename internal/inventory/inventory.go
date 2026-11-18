@@ -10,6 +10,7 @@ import (
 	"os"
 	"path"
 	"sort"
+	"time"
 
 	"github.com/get-sybers/slopmop/internal/evidence"
 	"github.com/get-sybers/slopmop/internal/nametime"
@@ -29,30 +30,44 @@ type Result struct {
 	Texts map[string]string // path → decoded text; absent for binary/oversize/unreadable
 	// Skipped holds the sub-folders a recursive read did not walk: below the depth or unreadable.
 	Skipped []string
+	// Outside is how many files were not read: their time is not in the scope.
+	Outside int
+}
+
+// Scope says how much of a folder is read.
+type Scope struct {
+	// Depth is how many levels of sub-folder are walked.
+	Depth int
+	// From and Until bound the time of the files that are read, as
+	// evidence.File.Within counts it; a zero time leaves that side open.
+	From, Until time.Time
+	// Watch, when set, is told of each file as it is read.
+	Watch Watch
 }
 
 // Read lists the regular files in folder, sorted by path, walking depth levels
 // of sub-folder. It opens everything read-only through a root, so nothing
 // outside the folder is reachable.
 func Read(folder string, depth int) (Result, error) {
-	return readAll(folder, maxTextBytes, depth, false, nil)
+	return readAll(folder, maxTextBytes, Scope{Depth: depth}, false)
 }
 
 // ReadAll is Read plus the decoded text of every readable file.
 func ReadAll(folder string, depth int) (Result, error) {
-	return readAll(folder, maxTextBytes, depth, true, nil)
+	return Scope{Depth: depth}.ReadAll(folder)
 }
 
 // Watch is told the path of a file as its reading begins, and returns what
 // is called when the reading is done.
 type Watch func(path string) (done func())
 
-// ReadAllWatched is ReadAll that tells watch of each file as it is read.
-func ReadAllWatched(folder string, depth int, watch Watch) (Result, error) {
-	return readAll(folder, maxTextBytes, depth, true, watch)
+// ReadAll reads the files of folder that are in the scope, with the decoded
+// text of every readable one. A file outside the scope is not opened.
+func (s Scope) ReadAll(folder string) (Result, error) {
+	return readAll(folder, maxTextBytes, s, true)
 }
 
-func readAll(folder string, limit int64, depth int, keepText bool, watch Watch) (Result, error) {
+func readAll(folder string, limit int64, scope Scope, keepText bool) (Result, error) {
 	roles, err := LoadRoles()
 	if err != nil {
 		return Result{}, err
@@ -62,20 +77,21 @@ func readAll(folder string, limit int64, depth int, keepText bool, watch Watch) 
 		return Result{}, fmt.Errorf("%w: %w", ErrNotFolder, err)
 	}
 	defer root.Close()
-	r := reader{root: root, limit: limit, depth: depth, roles: newClassifier(roles)}
+	r := reader{root: root, limit: limit, depth: scope.Depth, roles: newClassifier(roles)}
 	if err := r.walk(".", 0); err != nil {
 		return Result{}, fmt.Errorf("%w: %w", ErrNotFolder, err)
 	}
+	outside := r.keep(scope)
 	// Each file is read on its own goroutine, into its own slot; the order of
 	// the result is that of the path, not of when a read finished.
 	reads := make([]read, len(r.found))
 	parallel.Each(len(r.found), func(i int) {
-		if watch != nil {
-			defer watch(r.found[i].path)()
+		if scope.Watch != nil {
+			defer scope.Watch(r.found[i].path)()
 		}
 		reads[i].file, reads[i].text = r.fileWithText(r.found[i].path, r.found[i].name)
 	})
-	res := Result{Files: make([]evidence.File, len(reads)), Skipped: r.skipped}
+	res := Result{Files: make([]evidence.File, len(reads)), Skipped: r.skipped, Outside: outside}
 	if keepText {
 		res.Texts = make(map[string]string, len(reads))
 	}
@@ -100,7 +116,34 @@ type reader struct {
 }
 
 // found is a regular file the walk listed, read in the second pass.
-type found struct{ path, name string }
+type found struct {
+	path, name string
+	entry      os.DirEntry
+}
+
+// keep drops the files whose time is not in the scope, before any is
+// opened, and returns how many it dropped. The time is the one the file is
+// placed at once read: that of its name, or else when it was last modified.
+func (r *reader) keep(scope Scope) (outside int) {
+	if scope.From.IsZero() && scope.Until.IsZero() {
+		return 0
+	}
+	kept := r.found[:0]
+	for _, f := range r.found {
+		file := evidence.File{}
+		file.Stamp, file.Stamped = nametime.Detect(f.name)
+		if info, err := f.entry.Info(); err == nil && !file.Stamped {
+			file.Modified = info.ModTime().UTC()
+		}
+		if file.Within(scope.From, scope.Until) {
+			kept = append(kept, f)
+		} else {
+			outside++
+		}
+	}
+	r.found = kept
+	return outside
+}
 
 // read is one file's record and its text.
 type read struct {
@@ -120,7 +163,7 @@ func (r *reader) walk(dir string, level int) error {
 		p := path.Join(dir, e.Name())
 		switch {
 		case e.Type().IsRegular():
-			r.found = append(r.found, found{p, e.Name()})
+			r.found = append(r.found, found{path: p, name: e.Name(), entry: e})
 		case e.IsDir() && r.depth > 0:
 			if level == r.depth || r.walk(p, level+1) != nil {
 				r.skipped = append(r.skipped, p)

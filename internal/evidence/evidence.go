@@ -37,3 +37,30 @@ type File struct {
 	SHA256   string
 	Note     Note
 }
+
+// Time is when a file is placed in the timeline: the time in its name, or
+// else when it was last modified. The zero time means it has neither.
+func (f File) Time() time.Time {
+	if f.Stamped {
+		return f.Stamp.Time
+	}
+	return f.Modified
+}
+
+// Within reports whether the time of a file is from one instant until
+// another, both counted in; a zero instant leaves that side open. A name
+// that gives a day and no time stands for the whole day.
+func (f File) Within(from, until time.Time) bool {
+	if from.IsZero() && until.IsZero() {
+		return true
+	}
+	first := f.Time()
+	if first.IsZero() {
+		return false
+	}
+	last := first
+	if f.Stamped && f.Stamp.Precision == nametime.Day {
+		last = first.Add(24*time.Hour - time.Nanosecond)
+	}
+	return (until.IsZero() || !first.After(until)) && (from.IsZero() || !last.Before(from))
+}

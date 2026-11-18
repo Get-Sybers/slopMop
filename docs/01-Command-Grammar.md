@@ -27,6 +27,8 @@ start.
 | `-cores` | a percentage, 1 to 100 | how much of the processors of this machine the run may use; all of them when not given |
 | `-memory` | a percentage, 1 to 100 | how much of the memory of this machine the run tries to stay within; 75 when not given |
 | `-progress` | `shown` or `hidden` | whether the run says what it is doing as it goes; `shown` on a terminal when not given |
+| `-start` | a day, or a day and a time | reads only the files of this time or later; alone, it looks forward from this time |
+| `-stop` | a day, or a day and a time | reads only the files of this time or earlier, a day alone counted to its end; alone, it looks back from this time |
 
 - An option is written with one dash or two, and its value follows as the next argument or after
   `=`: `-inputdir case42`, `--inputdir case42`, `-inputdir=case42`.
@@ -76,6 +78,20 @@ The sections print in the order of the table, whatever order they are named in.
   the run writes.
 - The memory limit is one the run works to keep: it frees what it no longer needs sooner as it
   nears the limit. What a folder needs in order to be analysed, the run still takes.
+- `-start` and `-stop` set a window of time. Given together they bound it on both sides. `-start`
+  alone looks forward: every file of that time or later is read. `-stop` alone looks back: every
+  file of that time or earlier is read.
+- A file whose time is outside the window is not opened: it is not hashed, not analysed and in
+  no saved file. The time of a file is the one the timeline places it at: the time in its name,
+  or else when it was last modified. A time written inside a file plays no part.
+- A time is a day, `2026-10-22`, or a day and a time, `2026-10-22T09:30` or
+  `2026-10-22T09:30:00Z`. It is UTC unless it names a zone, `2026-10-22T11:30:00+02:00`. A day
+  alone is the whole day: `-start` begins at its first instant and `-stop` ends at its last, so
+  `-start 2026-10-22 -stop 2026-10-22` is that one day. Both ends are counted in.
+- A file whose name gives a day and no time is in the window when any part of that day is. A
+  file with no time at all is outside every window.
+- The summary of a run with a window has the row `left out`: how many files were outside it, and
+  what the window left out. A report made with a window always says so.
 - A run says what it is doing on standard error, never on standard output: the stage it is in
   of five, how many of the files or of the saved files are done, how long the stage has lasted
   and, once one has taken two seconds, the file it has been at for longest:
@@ -106,6 +122,9 @@ The sections print in the order of the table, whatever order they are named in.
 | `slopmop -inputdir case42/ai_workdir report -outdir reports/case42` | the whole report, saved to `reports/case42` |
 | `slopmop -inputdir case42/ai_workdir report exposure -secrets shown` | the exposure, with each secret written out |
 | `slopmop -inputdir case42/ai_workdir report -progress shown 2> run.log` | the whole report, with a line for each stage in `run.log` |
+| `slopmop -inputdir case42/ai_workdir report -start 2026-10-22 -stop 2026-10-23` | the report of the files of those two days |
+| `slopmop -inputdir case42/ai_workdir report -start 2026-10-22T09:30` | looks forward: the report of the files from half past nine UTC on |
+| `slopmop -inputdir case42/ai_workdir report -stop 2026-10-22T09:30` | looks back: the report of the files up to half past nine UTC |
 | `slopmop --inputdir=case42/ai_workdir report` | the same as the first, in the other spelling |
 
 ## 6. Fails
@@ -118,10 +137,12 @@ The sections print in the order of the table, whatever order they are named in.
 | `slopmop report -inputdir` | `-inputdir needs a value <folder>` |
 | `slopmop -inputdir a -inputdir b report` | `-inputdir given more than once` |
 | `slopmop -inputdir case42 report bogus` | `report has no section "bogus" (sections: summary, timeline, intents, findings, files, targeted, exposure, impact, remediation, mitigation)` |
-| `slopmop -inputdir case42 report -o json` | `unknown option -o (options: -inputdir <folder>, -intelfile <file>, -outdir <folder>, -secrets masked\|shown, -cores <percent>, -memory <percent>, -progress shown\|hidden)` |
+| `slopmop -inputdir case42 report -o json` | `unknown option -o (options: -inputdir <folder>, -intelfile <file>, -outdir <folder>, -secrets masked\|shown, -cores <percent>, -memory <percent>, -progress shown\|hidden, -start <time>, -stop <time>)` |
 | `slopmop -inputdir case42 report -secrets plain` | `-secrets takes masked or shown, not "plain"` |
 | `slopmop -inputdir case42 report -cores 0` | `-cores takes a percentage from 1 to 100, not "0"` |
 | `slopmop -inputdir case42 report -progress loud` | `-progress takes shown or hidden, not "loud"` |
+| `slopmop -inputdir case42 report -start yesterday` | `-start takes a day or a day and a time, such as 2026-10-22 or 2026-10-22T09:30:00Z, not "yesterday"` |
+| `slopmop -inputdir case42 report -start 2026-10-23 -stop 2026-10-22` | `-stop 2026-10-22 is before -start 2026-10-23` |
 | `slopmop -inputdir case42/missing report` | `not a folder: open case42/missing: no such file or directory` |
 | `slopmop -inputdir case42 report -outdir case42/out` | `-outdir is inside the folder that is read; the evidence is never written to` |
 
@@ -182,13 +203,15 @@ options you can add (one dash or two; each takes a value):
   -cores <percent>        how much of the processors of this machine the run may use, 1 to 100; all of them when not given
   -memory <percent>       how much of the memory of this machine the run tries to stay within, 1 to 100; 75 when not given
   -progress shown|hidden  whether the run says what it is doing as it goes, on the error stream; shown on a terminal when not given
+  -start <time>           reads only the files of this time or later, such as 2026-10-22 or 2026-10-22T09:30:00Z; alone, it looks forward from this time
+  -stop <time>            reads only the files of this time or earlier, a day alone counted to its end; alone, it looks back from this time
 
 next: slopmop -inputdir case42 report --help
 ```
 
 ```text
 $ slopmop -inputdir case42 report impact --help
-usage: slopmop -inputdir <folder> report [section ...] [-intelfile <file>] [-outdir <folder>] [-secrets masked|shown] [-cores <percent>] [-memory <percent>] [-progress shown|hidden]
+usage: slopmop -inputdir <folder> report [section ...] [-intelfile <file>] [-outdir <folder>] [-secrets masked|shown] [-cores <percent>] [-memory <percent>] [-progress shown|hidden] [-start <time>] [-stop <time>]
 reads the folder and everything below it, runs nothing, prints the report and saves it
 so far: slopmop -inputdir case42 report impact
 
@@ -216,6 +239,8 @@ options you can add (one dash or two; each takes a value):
   -cores <percent>        how much of the processors of this machine the run may use, 1 to 100; all of them when not given
   -memory <percent>       how much of the memory of this machine the run tries to stay within, 1 to 100; 75 when not given
   -progress shown|hidden  whether the run says what it is doing as it goes, on the error stream; shown on a terminal when not given
+  -start <time>           reads only the files of this time or later, such as 2026-10-22 or 2026-10-22T09:30:00Z; alone, it looks forward from this time
+  -stop <time>            reads only the files of this time or earlier, a day alone counted to its end; alone, it looks back from this time
 
 next: slopmop -inputdir case42 report impact summary --help
 run:  slopmop -inputdir case42 report impact

@@ -124,7 +124,7 @@ func TestReadOversize(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	res, err := readAll(folder, 8, 0, false, nil)
+	res, err := readAll(folder, 8, Scope{}, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -334,13 +334,13 @@ func TestReadDepthUnreadableFolder(t *testing.T) {
 	}
 }
 
-// ReadAllWatched tells of each file once, calls what it is handed back, and
-// reads what ReadAll reads.
-func TestReadAllWatchedTellsOfEveryFile(t *testing.T) {
+// A scope with a watch tells of each file once, calls what it is handed
+// back, and reads what ReadAll reads.
+func TestScopeTellsOfEveryFile(t *testing.T) {
 	folder := evidencetest.Copy(t, "linux")
 	var mu sync.Mutex
 	begun, done := map[string]int{}, 0
-	watched, err := ReadAllWatched(folder, MaxDepth, func(path string) func() {
+	watched, err := Scope{Depth: MaxDepth, Watch: func(path string) func() {
 		mu.Lock()
 		defer mu.Unlock()
 		begun[path]++
@@ -349,7 +349,7 @@ func TestReadAllWatchedTellsOfEveryFile(t *testing.T) {
 			defer mu.Unlock()
 			done++
 		}
-	})
+	}}.ReadAll(folder)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -364,5 +364,59 @@ func TestReadAllWatchedTellsOfEveryFile(t *testing.T) {
 	plain, err := ReadAll(folder, MaxDepth)
 	if err != nil || !reflect.DeepEqual(watched, plain) {
 		t.Errorf("the result differs from the one ReadAll gives (%v)", err)
+	}
+}
+
+// A scope with a window reads only the files whose time is in it, and says
+// how many it left out; a file that is left out is not opened.
+func TestScopeReadsAWindow(t *testing.T) {
+	folder := evidencetest.Copy(t, "linux")
+	// A file with no time in its name is placed by when it was last modified.
+	untimed := filepath.Join(folder, "notes.txt")
+	if err := os.WriteFile(untimed, []byte("notes\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	modified := time.Date(2026, 10, 22, 9, 12, 0, 0, time.UTC)
+	if err := os.Chtimes(untimed, modified, modified); err != nil {
+		t.Fatal(err)
+	}
+	whole, err := ReadAll(folder, MaxDepth)
+	if err != nil {
+		t.Fatal(err)
+	}
+	at := func(hour, minute int) time.Time { return time.Date(2026, 10, 22, hour, minute, 0, 0, time.UTC) }
+	for _, tt := range []struct {
+		name        string
+		from, until time.Time
+		want        []string
+	}{
+		{"both sides", at(9, 10), at(9, 20), []string{"20261022_091000_step03_privesc.sh", "20261022_091500_step04_persist.sh", "20261022_092000_step05_evade.sh", "notes.txt"}},
+		{"from alone", at(9, 30), time.Time{}, []string{"20261022_093000_step07_channel.py", "audit_20261022_093500.jsonl"}},
+		{"until alone", time.Time{}, at(9, 0), []string{"20261022_090000_step01_recon.sh"}},
+		{"nothing in it", at(12, 0), at(13, 0), nil},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			res, err := Scope{Depth: MaxDepth, From: tt.from, Until: tt.until}.ReadAll(folder)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var got []string
+			for _, f := range res.Files {
+				got = append(got, f.Path)
+				if !f.Within(tt.from, tt.until) {
+					t.Errorf("%s was read, and its time %v is outside the window", f.Path, f.Time())
+				}
+			}
+			if !slices.Equal(got, tt.want) {
+				t.Errorf("read %q, want %q", got, tt.want)
+			}
+			if res.Outside != len(whole.Files)-len(tt.want) || len(res.Texts) != len(tt.want) {
+				t.Errorf("%d files left out and %d texts kept, want %d and %d", res.Outside, len(res.Texts), len(whole.Files)-len(tt.want), len(tt.want))
+			}
+		})
+	}
+	// With no window nothing is left out.
+	if whole.Outside != 0 || len(whole.Files) != 15 {
+		t.Errorf("no window: %d files read and %d left out, want 15 and 0", len(whole.Files), whole.Outside)
 	}
 }

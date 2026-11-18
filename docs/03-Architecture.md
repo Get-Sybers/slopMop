@@ -120,6 +120,12 @@ work writes only its own result, and the results are taken in a fixed order.
   no path leads outside the folder.
 - Only regular files are listed. Symbolic links and special files are skipped without being
   opened. Hidden files are listed.
+- A read takes a scope: a depth, a window of time and a function to tell of each file. The window
+  is applied when the folder has been walked and before a file is opened: the time in the name
+  is read from the name, and the time a file was last modified from its directory entry, so a
+  file outside the window costs no reading. `Result.Outside` counts those files.
+- `evidence.File.Time` is the one definition of the time of a file, and `Within` of whether it is
+  in a window; the timeline, the intents and the reading all use them.
 - A read takes a depth. At depth 0 only the files directly in the folder are listed and sub-folders
   are skipped. `report` reads at `inventory.MaxDepth`, 16 levels of sub-folder. Each
   sub-folder is opened through the same root. A symbolic link to a folder is not walked, so a walk
