@@ -14,7 +14,13 @@ make conform    # the gate CI runs
 ```
 
 Each GitHub release carries a Windows x64 binary, `slopmop-<version>-windows-amd64.exe`, and its
-SHA-256. The binary is not code-signed.
+SHA-256. The binary is not code-signed. A release after 0.6.2 carries an attestation of its
+provenance, and its stamp names its version and its commit:
+
+```sh
+gh attestation verify slopmop-<version>-windows-amd64.exe -R Get-Sybers/slopMop
+go version -m slopmop-<version>-windows-amd64.exe
+```
 
 ## Use
 

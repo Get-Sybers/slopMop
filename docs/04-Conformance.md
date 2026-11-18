@@ -92,13 +92,31 @@ and `go.sum` are restored.
 
 ## 7. Release
 
-`.github/workflows/release.yml` is run by hand on `main` with a version such as `v0.1.0`. It stops
-unless `CHANGELOG.md` has a section for that version.
+`.github/workflows/release.yml` is run by hand. It builds the Windows binary from any branch and
+keeps it with the run for 14 days; run with `publish` on `main`, it publishes that build as a
+GitHub release.
 
-- It runs on Windows: the tests, the integration test, then `go build -trimpath` for windows/amd64.
-- It runs the built file against the PowerShell fixture; that same file is the one published.
-- It publishes `slopmop-<version>-windows-amd64.exe` and its `.sha256` as a GitHub release, tags the
-  commit with the version, and takes the release notes from the version's changelog section.
+- The version is never an input: it is the newest `## [X.Y.Z]` of `CHANGELOG.md`, raised in the pull
+  request that cuts the release. A build that is not a publish is `v0.0.0`, which is no release.
+- A release is made once. A publish stops when the tag of the version is there already: when the
+  run begins, and again before the release is made.
+- The `build` job runs on Windows with a token that reads: the tests, the integration test, then
+  `go build -trimpath -buildvcs=true` for windows/amd64. When the binary is built the checkout is
+  as it was checked out, and tagged with the version; the tag is the checkout's alone until the
+  release is published.
+- Go stamps the binary from git, and `go version -m` shows the stamp: the version, the commit and
+  `vcs.modified=false`. The job stops when the stamp of the built file says otherwise. A clone of
+  the tag, built with the same Go and the same command, gives the same file. Go takes the version
+  from the tag while the module is of `v0` or `v1`: from `v2` on, the path of the module ends in
+  the major version.
+- The job runs the built file against the PowerShell fixture, writes its `.sha256` and the release
+  notes, which are the changelog section of the version, and keeps the three with the run.
+- The `publish` job is the one job with a token that writes, and runs no code of the repository.
+  It runs in the `release` environment, where a required reviewer approves it when the repository
+  settings name one. It takes the build of the `build` job, checks it against its checksum, attests
+  its provenance, and publishes `slopmop-<version>-windows-amd64.exe` and its `.sha256` as the
+  release, which tags the commit with the version.
+- `gh attestation verify slopmop-<version>-windows-amd64.exe -R Get-Sybers/slopMop` shows that the
+  workflow built a downloaded file.
 
-A pull request that changes the workflow runs every step except the publish. Only the publish step
-uses the job's write permission.
+A pull request that changes the workflow runs the `build` job.
