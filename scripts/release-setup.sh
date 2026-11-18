@@ -22,8 +22,13 @@ gpg --batch --pinentry-mode loopback --passphrase '' --armor --export-secret-key
   gh secret set GPG_PRIVATE_KEY --env release --repo "${repo}"
 gpg --armor --export >release-key.asc
 
-echo "The token that pushes to ghcr.io, a classic personal access token with write:packages:"
-gh secret set GHCR_TOKEN --env release --repo "${repo}"
+# The token is typed, never passed: with no terminal it is left for its owner.
+if [[ -t 0 ]]; then
+  echo "The token that pushes to ghcr.io, a classic personal access token with write:packages:"
+  gh secret set GHCR_TOKEN --env release --repo "${repo}"
+else
+  echo "GHCR_TOKEN is left to set, at a terminal: gh secret set GHCR_TOKEN --env release --repo ${repo}"
+fi
 
 echo "release-key.asc holds the public key: commit it. Its fingerprint:"
 gpg --show-keys --with-colons release-key.asc 2>/dev/null | awk -F: '$1 == "fpr" { print $10; exit }'

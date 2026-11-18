@@ -127,7 +127,8 @@ GitHub release.
 - `scripts/release-setup.sh` sets the environment up, once, for an owner of the repository who is
   signed in to `gh`. It makes the environment with that owner as its reviewer, makes the key that
   signs in a keyring of its own, hands the secret half to the environment and keeps no copy, writes
-  the public half to `release-key.asc`, and asks for the token of the registry.
+  the public half to `release-key.asc`, and asks for the token of the registry when it is run at a
+  terminal.
 - The publish signs and packs with the key of the environment and verifies with `release-key.asc`,
   the public key the repository gives out. It stops when the repository has no such file, and when
   the key of the environment is not that key.
