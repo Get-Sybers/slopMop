@@ -6,6 +6,8 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-11-18
+
 ### Changed
 
 - A block of the timeline is a table of what was identified and what follows from it. A row is
@@ -54,10 +56,11 @@ All notable changes to this project are recorded in this file. The format follow
 - The name of a group is no username. A listing of groups gave `Administrators` of
   `BUILTIN\Administrators` as a username, and a word of a name such as `Enterprise Admins`;
   a name on a line whose security identifier is of a group is left out.
-- A tactic that the tools of a script give stands in the block of its intent, in a row with
-  those tools. A script whose name begins with its intent, such as `i201_scan.sh`, stood under
-  a tactic in the Tactics section while the block of the intent named none: a block listed
-  only techniques, and a tool gives a tactic and no technique.
+- A tactic that the tools of a script give stands in the block of its intent: in the row of
+  the technique a tool is filed under, or in a row with the tools whose technique is not
+  named. A script whose name begins with its intent, such as `i201_scan.sh`, stood under a
+  tactic in the Tactics section while the block of the intent named none: a block listed only
+  the techniques of activities.
 - The Tactics section and the timeline agree, each from its side. A tactic lists every file
   that shows it, an output as well as a script, and names under `intents` the intents of those
   files; the block of each of those intents has the tactic in a row. A tactic that only an
