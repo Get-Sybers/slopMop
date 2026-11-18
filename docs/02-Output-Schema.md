@@ -107,7 +107,8 @@ folder of a thousand files is read in the periods it falls into.
 ### Intent timeline
 
 The intent timeline tells when each ARTEX intent ran and what it did. An entry is an intent, in
-the order the intents began.
+the order the intents began, and every intent has one: the section is not cut, however many
+intents there are.
 
 - A file is an intent's own when its name holds the name of the intent, `i` and a number, or it
   lies in the folder of the intent, as the `intent` class of section 7 sets out.
@@ -117,7 +118,7 @@ the order the intents began.
   creation time. The last line of the section counts those files.
 - `until` is `-` when the intent is one instant. The techniques of an intent are those of the
   activities its files show, in the order they are first shown; `-` when they show none.
-- The saved `intents.json` holds every intent, with its task, its tactics, its activities and
+- The saved `intents.json` holds each intent with its task, its tactics, its activities and
   every one of its files.
 
 ### Places, targets and evidence
@@ -143,7 +144,6 @@ that holds every line it omits, because the screen and the saved report share on
 | --- | --- |
 | the files of an entry | the first 3: `a.sh, b.sh, c.sh and 4 more` |
 | the periods of the timeline | the first 20 and the last 20, with the number left out between them |
-| the intents of the intent timeline | the first 20 and the last 20, with the number left out between them |
 | the activities, the tools and the intents of a period | the first 8 |
 | the indicators among the findings | the first 40 |
 | each kind of target and of exposure | the first 40 |

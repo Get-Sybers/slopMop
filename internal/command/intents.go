@@ -138,7 +138,8 @@ func (r intentRun) timedBy() string {
 }
 
 // intents is the timeline by intent, in the order the intents began: when
-// each ran, its techniques and the files that are its own.
+// each ran, its techniques and the files that are its own. Every intent is
+// an entry, however many there are.
 func (w reportRun) intents() []render.Group {
 	all := w.result.intents
 	if len(all) == 0 {
@@ -169,23 +170,13 @@ func (w reportRun) intents() []render.Group {
 		}
 		files, recorded = files+len(r.files), recorded+r.recorded
 	}
-	// A line that is no intent stands in a group of its own, so its length
-	// does not set the width of the columns.
-	note := func(text string) render.Group {
-		return render.Group{Entries: []render.Entry{{Cells: []string{text}}}}
-	}
 	groups := []render.Group{{Columns: columns, Entries: entries}}
-	if more := len(entries) - fewPeriods; more > 0 {
-		half := fewPeriods / 2
-		groups = []render.Group{
-			{Columns: columns, Entries: entries[:half]},
-			note("and " + counted(more, "more intent", "more intents") + " here, in intents.json"),
-			{Columns: columns, Entries: entries[len(entries)-half:]},
-		}
-	}
 	if other := files - recorded; other > 0 {
-		groups = append(groups, note(strconv.Itoa(other)+" of "+counted(files, "file is", "files are")+
-			" timed by name or last change: their creation time is not recorded, or is that of a copy, which is after the last change"))
+		// A line that is no intent stands in a group of its own, so its length
+		// does not set the width of the columns.
+		line := strconv.Itoa(other) + " of " + counted(files, "file is", "files are") +
+			" timed by name or last change: their creation time is not recorded, or is that of a copy, which is after the last change"
+		groups = append(groups, render.Group{Entries: []render.Entry{{Cells: []string{line}}}})
 	}
 	return groups
 }

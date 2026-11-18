@@ -523,26 +523,22 @@ func TestReportIntentsByCreation(t *testing.T) {
 	}
 }
 
-// Of more intents than the timeline of intents shows, the first and the last are shown.
-func TestIntentsShowTheFirstAndTheLast(t *testing.T) {
+// Every intent is shown, however many there are: none is left for the saved file alone.
+func TestIntentsAreAllShown(t *testing.T) {
 	at := time.Date(2026, 10, 22, 9, 0, 0, 0, time.UTC)
 	var runs []intentRun
-	for i := range fewPeriods + 5 {
+	for i := range 5 * fewPeriods {
 		when := at.Add(time.Duration(i) * time.Minute)
 		runs = append(runs, intentRun{ref: intent.Ref{ID: "i" + strconv.Itoa(100+i)}, from: when, until: when, timed: 1, recorded: 1, files: []string{"a.sh"}})
 	}
 	groups := reportRun{result: analysis{intents: runs}}.intents()
-	if len(groups) != 3 || len(groups[0].Entries) != fewPeriods/2 || len(groups[2].Entries) != fewPeriods/2 {
-		t.Fatalf("%d groups, want the first %d intents, a line and the last %d", len(groups), fewPeriods/2, fewPeriods/2)
+	if len(groups) != 1 || len(groups[0].Entries) != len(runs) {
+		t.Fatalf("%d groups with %d entries in the first, want one group of all %d intents", len(groups), len(groups[0].Entries), len(runs))
 	}
-	if got, want := groups[1].Entries[0].Cells[0], "and 5 more intents here, in intents.json"; got != want {
-		t.Errorf("the line between them is %q, want %q", got, want)
-	}
-	if first, last := groups[0].Entries[0].Cells[2], groups[2].Entries[fewPeriods/2-1].Cells[2]; first != "i100" || last != "i144" {
-		t.Errorf("the intents shown run from %s to %s, want i100 to i144", first, last)
-	}
-	if all := (reportRun{result: analysis{intents: runs[:fewPeriods]}}).intents(); len(all) != 1 || len(all[0].Entries) != fewPeriods {
-		t.Errorf("%d intents are not shown whole", fewPeriods)
+	for i, e := range groups[0].Entries {
+		if e.Cells[2] != runs[i].ref.ID {
+			t.Fatalf("entry %d is %s, want %s: every intent in the order it began", i, e.Cells[2], runs[i].ref.ID)
+		}
 	}
 }
 

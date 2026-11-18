@@ -47,9 +47,8 @@ All notable changes to this project are recorded in this file. The format follow
 - `commands.json` names the format of each saved table, `json` or `csv`.
 - The Intents section is the Intent timeline. An entry is an intent, in the order the intents
   began: when the first of its files was created, when the last was, the intent and its ATT&CK
-  techniques, with its ATLAS techniques and its files below. Of more than 40 intents the first
-  20 and the last 20 are shown; `intents.json` holds every one, with its task, tactics and
-  activities.
+  techniques, with its ATLAS techniques and its files below. Every intent is shown, however
+  many there are; `intents.json` adds the task, the tactics and the activities of each.
 - An intent runs from the first of its files to be created until the last. It ran from the
   earliest to the latest time of the timeline: the timestamp in a file name, or else the
   modified time. A file whose creation time is after its last change is a copy, made when it was
