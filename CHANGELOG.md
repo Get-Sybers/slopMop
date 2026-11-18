@@ -6,6 +6,14 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Fixed
+
+- The block of an intent in the timeline lists the tactics its files show, each under its
+  ATT&CK and ATLAS identifiers, before its techniques. A script whose name begins with its
+  intent, such as `i201_scan.sh`, stood under a tactic in the Tactics section while the block
+  of the intent named none: a block listed only the techniques of recognised activities, and a
+  tactic that comes from the tools a script runs has no technique.
+
 ## [0.6.1] - 2026-11-18
 
 ### Added

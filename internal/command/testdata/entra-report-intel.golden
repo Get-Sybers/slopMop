@@ -19,7 +19,7 @@ Tactics   (tactic, identifiers, files)
   [!] Collection           TA0009, AML.TA0009  20261015_092000_step04_collect.py
   [i] Discovery            TA0007, AML.TA0008  20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh
 
-Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the techniques its files show)
+Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the tactics and the techniques its files show)
   [x] InitialAccess, Discovery                                      2026-10-15T09:00:00Z to 2026-10-15T09:05:00Z
       T1078.004  Valid Accounts: Cloud Accounts
       T1087.004  Account Discovery: Cloud Account

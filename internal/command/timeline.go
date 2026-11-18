@@ -70,7 +70,7 @@ func counted(n int, one, more string) string {
 
 // timeline is a line of blocks in the order of time: one for each intent
 // where the files name intents, and one for each period otherwise. A block
-// lists its techniques by name; the saved trace holds every file.
+// lists its tactics and its techniques; the saved trace holds every file.
 func (w reportRun) timeline() []render.Group {
 	if len(w.result.intents) > 0 {
 		return w.intentBlocks()
@@ -89,7 +89,8 @@ func (w reportRun) timeline() []render.Group {
 		if len(p.tactics) > 0 {
 			name, level = strings.Join(p.tactics, ", "), string(w.pipe.highest(p.tactics))
 		}
-		entries[i] = render.Entry{Level: level, Cells: []string{name, when}, Detail: w.named(p.attack, p.atlas, p.hits)}
+		// The tactics of a period are its name, so they are not listed under it again.
+		entries[i] = render.Entry{Level: level, Cells: []string{name, when}, Detail: w.named(nil, p.attack, p.atlas, p.hits)}
 	}
 	// A line that is no block stands in a group of its own.
 	note := func(text string) render.Group {
@@ -113,18 +114,25 @@ func (w reportRun) timeline() []render.Group {
 // noTechnique stands in a block whose files show no technique.
 const noTechnique = "no MITRE ATT&CK technique identified"
 
-// named lists techniques by identifier and name, those of ATT&CK first, or
-// says that none was identified, and then the watchlist matches, if any.
-func (w reportRun) named(attack, atlas, hits []string) []render.Detail {
+// named lists what a block shows: its tactics, each under its identifiers
+// of ATT&CK and ATLAS, in the order of the tactic table; its techniques by
+// identifier and name, or that none was identified; and its watchlist matches.
+func (w reportRun) named(tactics, attack, atlas, hits []string) []render.Detail {
 	var out []render.Detail
+	for _, name := range w.pipe.tactics.Names() {
+		if slices.Contains(tactics, name) {
+			out = append(out, render.Detail{Label: w.pipe.tactics.Attack(name) + ", " + w.pipe.tactics.Atlas(name), Text: name})
+		}
+	}
 	for _, id := range attack {
 		out = append(out, render.Detail{Label: id, Text: or(w.pipe.catalogue.Attack.NameOf(id), "-")})
 	}
 	for _, id := range atlas {
 		out = append(out, render.Detail{Label: id, Text: or(w.pipe.catalogue.Atlas.NameOf(id), "-")})
 	}
-	if len(out) == 0 {
-		out = []render.Detail{{Text: noTechnique}}
+	// A tactic is of the tools a file runs; a technique is of an activity, and a file may show none.
+	if len(attack)+len(atlas) == 0 {
+		out = append(out, render.Detail{Text: noTechnique})
 	}
 	if len(hits) > 0 {
 		out = append(out, render.Detail{Label: "watchlist", Text: fewOf(hits, fewFiles, ", ")})

@@ -51,7 +51,7 @@ hold all of them.
 | --- | --- |
 | `summary` | the counts |
 | `tactics` | each tactic the scripts show, most severe first, with its ATT&CK and ATLAS identifiers |
-| `timeline` | what was done, in order of time, as a line of blocks: one for each ARTEX intent `i<number>`, or for each period of files that show the same tactics where no file names an intent, with its ATT&CK and ATLAS techniques by name |
+| `timeline` | what was done, in order of time, as a line of blocks: one for each ARTEX intent `i<number>`, or for each period of files that show the same tactics where no file names an intent, with its tactics and its ATT&CK and ATLAS techniques by name |
 | `findings` | each activity, most severe first, with the lines that show it |
 | `targeted` | the IP addresses, hostnames and email addresses the scripts name outright, without the hosts of vendors that any script reaches for, whether the attacker knew each beforehand, and what each activity acted on: a task with what it runs, an archive, a file |
 | `exposure` | the passwords and other secrets with whose each is and what it is used against, usernames, email addresses, tenants, SSH keys with their hosts, API keys with their services, applications, cloud resources, devices and IP addresses the files hold, and what is of Microsoft 365 and of Google Cloud; a token or a value in base64 is written decoded |

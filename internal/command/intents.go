@@ -143,8 +143,8 @@ func (r intentRun) timedBy() string {
 }
 
 // intentBlocks is the timeline by intent: a block for each, in the order the
-// intents began, with when it ran and each of its techniques by name. Every
-// intent has its block, however many there are.
+// intents began, with when it ran, the tactics its files show and each of
+// its techniques by name. Every intent has its block, however many there are.
 func (w reportRun) intentBlocks() []render.Group {
 	all := w.result.intents
 	entries := make([]render.Entry, len(all))
@@ -157,7 +157,7 @@ func (w reportRun) intentBlocks() []render.Group {
 				period += " to " + last
 			}
 		}
-		entries[i] = render.Entry{Level: string(r.level), Cells: []string{r.ref.ID, period}, Detail: w.named(r.attack, r.atlas, r.hits)}
+		entries[i] = render.Entry{Level: string(r.level), Cells: []string{r.ref.ID, period}, Detail: w.named(r.tactics, r.attack, r.atlas, r.hits)}
 		files, recorded = files+len(r.files), recorded+r.recorded
 	}
 	groups := []render.Group{{Blocks: true, Entries: entries}}

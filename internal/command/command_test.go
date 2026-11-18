@@ -345,8 +345,17 @@ func TestReportIntents(t *testing.T) {
 	}
 	_, timeline, _ := strings.Cut(readout, "\nTimeline")
 	for _, id := range []string{"i1041", "i1042", "i998", "i1051"} {
-		if !regexp.MustCompile(`\n  \[x\] ` + id + ` +2026-10-22T09:\d\d:\d\dZ to 2026-10-22T09:\d\d:\d\dZ\n      T\d{4}`).MatchString(timeline) {
-			t.Errorf("the timeline has no block for %s with its period and its techniques:\n%s", id, timeline)
+		block := `\n  \[x\] ` + id + ` +2026-10-22T09:\d\d:\d\dZ to 2026-10-22T09:\d\d:\d\dZ\n(?:      TA\d{4}, AML\.TA\d{4} +\w+\n)+      T\d{4}`
+		if !regexp.MustCompile(block).MatchString(timeline) {
+			t.Errorf("the timeline has no block for %s with its period, its tactics and its techniques:\n%s", id, timeline)
+		}
+	}
+	// A tactic the Tactics section gives a file of an intent stands in the block of the intent.
+	_, block, _ := strings.Cut(timeline, "] i1042 ")
+	block, _, _ = strings.Cut(block, "\n\n")
+	for _, row := range []string{"\n      TA0007, AML.TA0008  Discovery\n", "\n      TA0006, AML.TA0013  CredentialAccess\n"} {
+		if !strings.Contains(block, row) {
+			t.Errorf("the block of i1042 lacks the tactic row %q:\n%s", row, block)
 		}
 	}
 	// A period is written as one stamp or as two with "to" between them, and never in columns.
@@ -566,8 +575,11 @@ func TestReportIntentsByCreation(t *testing.T) {
 			}
 		}
 	}
-	if !strings.Contains(readout, "  [x] i7  ") || !strings.Contains(readout, "      T1136.001  Create Account: Local Account\n") {
+	if !strings.Contains(readout, "  [x] i7  ") || !regexp.MustCompile(`\n      T1136\.001 +Create Account: Local Account\n`).MatchString(readout) {
 		t.Errorf("the readout has no block for i7 that names its technique:\n%s", readout)
+	}
+	if !strings.Contains(readout, "\n      TA0003, AML.TA0006  Persistence\n") {
+		t.Errorf("the block of i7 does not list the tactic of its script:\n%s", readout)
 	}
 	if strings.Contains(readout, "timed by name or last change") {
 		t.Errorf("the readout says a file is not timed by its creation:\n%s", readout)

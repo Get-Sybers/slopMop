@@ -1,6 +1,7 @@
 package command
 
 import (
+	"reflect"
 	"slices"
 	"strconv"
 	"strings"
@@ -152,5 +153,42 @@ func TestIntentBlocksNameWatchlistMatches(t *testing.T) {
 	}
 	if got, want := groups[0].Entries[1].Detail, []render.Detail{{Text: noTechnique}}; !slices.Equal(got, want) {
 		t.Errorf("the block of i6 lists %v, want %v", got, want)
+	}
+}
+
+// A tactic is of the tools a file runs, and a technique of an activity: a
+// file that shows a tactic and no technique gives its intent the tactic,
+// with its identifiers, and the block still says that no technique was found.
+func TestIntentBlocksListTactics(t *testing.T) {
+	pipe, err := loadPipeline()
+	if err != nil {
+		t.Fatal(err)
+	}
+	scan := stepAt(0, "i201_scan.sh", "Discovery")
+	move := stepAt(5, "i202-move.sh", "CommandAndControl", "Discovery", "LateralMovement")
+	move.Activities = []activity.Hit{{Name: "FileDownload", Attack: []string{"T1105"}, Atlas: []string{"AML.T0072"}}}
+	runs, _ := pipe.collectIntents(t.TempDir(), []trace.Step{scan, stepAt(1, "cmd-i201.stdout.txt"), move, stepAt(9, "i203.sh")})
+	groups := reportRun{pipe: pipe, result: analysis{intents: runs}}.timeline()
+	if len(groups) == 0 || len(groups[0].Entries) != 3 {
+		t.Fatalf("the timeline has %d groups, want a block for each of the three intents", len(groups))
+	}
+	wants := [][]render.Detail{
+		{{Label: "TA0007, AML.TA0008", Text: "Discovery"}, {Text: noTechnique}},
+		{
+			{Label: "TA0007, AML.TA0008", Text: "Discovery"}, {Label: "TA0008, AML.TA0015", Text: "LateralMovement"},
+			{Label: "TA0011, AML.TA0014", Text: "CommandAndControl"}, {Label: "T1105", Text: "Ingress Tool Transfer"},
+			{Label: "AML.T0072", Text: "Cyber Communication Channel"},
+		},
+		{{Text: noTechnique}},
+	}
+	for i, want := range wants {
+		if got := groups[0].Entries[i]; !slices.Equal(got.Detail, want) {
+			t.Errorf("the block of %s lists %v, want %v", got.Cells[0], got.Detail, want)
+		}
+	}
+	// A period is named by its tactics, so its block does not list them a second time.
+	periods := runOf(t, []trace.Step{stepAt(0, "scan.sh", "Discovery")}, nil).timeline()
+	if got, want := periods[0].Entries[0], (render.Entry{Level: "low", Cells: []string{"Discovery", "2026-10-22T09:00:00Z"}, Detail: []render.Detail{{Text: noTechnique}}}); !reflect.DeepEqual(got, want) {
+		t.Errorf("the block of a period is %+v, want %+v", got, want)
 	}
 }

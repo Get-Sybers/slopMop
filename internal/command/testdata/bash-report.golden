@@ -16,7 +16,7 @@ Tactics   (tactic, identifiers, files)
   [!] Execution         TA0002, AML.TA0005  20250301_102700_step03_adsync_v2.sh
   [i] Discovery         TA0007, AML.TA0008  20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh
 
-Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the techniques its files show)
+Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the tactics and the techniques its files show)
   [i] Discovery                       2025-03-01T10:15:00Z
       no MITRE ATT&CK technique identified
 

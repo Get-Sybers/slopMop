@@ -120,7 +120,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 </section>
 <section id="section-3">
 <h2>Timeline</h2>
-<p class="note">a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the techniques its files show</p>
+<p class="note">a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the tactics and the techniques its files show</p>
 <ol class="blocks">
 <li class="block"><span class="dot high"></span>
 <div class="head"><span class="mark high">[x]</span><span class="name">Discovery, CredentialAccess</span><span class="rest">2026-10-22T09:00:00Z to 2026-10-22T09:05:00Z</span></div>

@@ -35,7 +35,7 @@ _tactic, identifiers, files_
 
 ## Timeline
 
-_a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the techniques its files show_
+_a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the tactics and the techniques its files show_
 
 - **\[x\] high** · `Discovery, CredentialAccess` · `2026-10-22T09:00:00Z to 2026-10-22T09:05:00Z`
   - **T1083:** `File and Directory Discovery`

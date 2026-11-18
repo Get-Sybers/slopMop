@@ -24,7 +24,7 @@ Tactics   (tactic, identifiers, files)
   [!] Stealth              TA0005, AML.TA0007  20261022_092000_step05_evade.sh
   [i] Discovery            TA0007, AML.TA0008  20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 1 more
 
-Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the techniques its files show)
+Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the tactics and the techniques its files show)
   [x] Discovery, CredentialAccess                                   2026-10-22T09:00:00Z to 2026-10-22T09:05:00Z
       T1083      File and Directory Discovery
       T1552.005  Unsecured Credentials: Cloud Instance Metadata API

@@ -2,7 +2,7 @@ slopmop report   <folder>
 [x] HIGH - 4 impacts: 2 high, 2 low
 [x] high   [!] medium   [i] low
 
-Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the techniques its files show)
+Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the tactics and the techniques its files show)
   [i] Discovery                       2025-03-01T10:15:00Z
       no MITRE ATT&CK technique identified
 
