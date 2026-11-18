@@ -205,7 +205,7 @@ func TestBinary(t *testing.T) {
 	if strings.Contains(stdout, "\x1b[") {
 		t.Error("report: colour codes in output that is not a terminal")
 	}
-	for _, name := range []string{"report.txt", "report.md", "report.html", "files.json", "trace.json", "intents.json", "findings.json", "targeted.json", "exposure.json", "report.json"} {
+	for _, name := range []string{"report.txt", "report.md", "report.html", "files.csv", "trace.json", "intents.json", "findings.json", "targeted.json", "exposure.csv", "report.json"} {
 		if info, err := os.Stat(filepath.Join(work, saved, name)); err != nil || info.Size() == 0 {
 			t.Errorf("report: %s was not saved: %v", name, err)
 		}
@@ -216,7 +216,7 @@ func TestBinary(t *testing.T) {
 		t.Fatalf("report with sections: exit code %d", code)
 	}
 	golden.Check(t, "report-impact", []byte(strings.ReplaceAll(strings.ReplaceAll(stdout, out, "<out>"), nested, "<folder>")))
-	golden.Check(t, "files-json", []byte(readFile(t, filepath.Join(out, "files.json"))))
+	golden.Check(t, "files-csv", []byte(evidencetest.Portable(t, readFile(t, filepath.Join(out, "files.csv")), nested)))
 }
 
 func readFile(t *testing.T, path string) string {

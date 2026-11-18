@@ -45,10 +45,25 @@ func readoutWriters() map[string]readoutWriter {
 	}
 }
 
-// savedFile is one class written as JSON, every column.
+// savedFile is one class written in one format, every column.
 type savedFile struct {
-	Class string `json:"class"`
-	File  string `json:"file"`
+	Class  string `json:"class"`
+	Format string `json:"format"`
+	File   string `json:"file"`
+}
+
+// tableWriter takes a table row by row; Close ends it.
+type tableWriter interface {
+	Write(values []render.Value) error
+	Close() error
+}
+
+// tableWriters are the formats a table is saved in, by name.
+func tableWriters() map[string]func(io.Writer, []render.Column) (tableWriter, error) {
+	return map[string]func(io.Writer, []render.Column) (tableWriter, error){
+		"json": func(w io.Writer, c []render.Column) (tableWriter, error) { return render.NewRows(w, c) },
+		"csv":  func(w io.Writer, c []render.Column) (tableWriter, error) { return render.NewCSV(w, c) },
+	}
 }
 
 // tableBuilder hands add each row of a class in turn, so no table is held whole.
@@ -82,12 +97,14 @@ func checkSaved(s savedSpec, doc commandsDoc) (map[string][]render.Column, error
 		}
 		formats[r.Format], names[r.File] = true, true
 	}
-	builders := tableBuilders()
+	builders, tables := tableBuilders(), tableWriters()
 	columns := map[string][]render.Column{}
 	for _, t := range s.Tables {
 		switch {
 		case builders[t.Class] == nil:
 			return nil, fmt.Errorf("commands.json: saved names the class %q, which has no table", t.Class)
+		case tables[t.Format] == nil:
+			return nil, fmt.Errorf("commands.json: saved: %q is not a format of a table", t.Format)
 		case t.File == "" || t.File != filepath.Base(t.File) || names[t.File]:
 			return nil, fmt.Errorf("commands.json: saved: %q is not a file name of its own", t.File)
 		case len(doc.columns(t.Class)) == 0:
@@ -98,7 +115,7 @@ func checkSaved(s savedSpec, doc commandsDoc) (map[string][]render.Column, error
 	}
 	// A row fills every declared column, or the table cannot be written.
 	checks := map[string]func([]render.Column) ([]render.Value, error){
-		"file":     func(c []render.Column) ([]render.Value, error) { return fileRow(evidence.File{}, c) },
+		"file":     func(c []render.Column) ([]render.Value, error) { return fileRow(evidence.File{}, "", c) },
 		"trace":    func(c []render.Column) ([]render.Value, error) { return traceRow(trace.Step{}, "", c) },
 		"intent":   func(c []render.Column) ([]render.Value, error) { return intentRow(intentRun{}, c) },
 		"finding":  func(c []render.Column) ([]render.Value, error) { return findingRow(finding{}, c) },
@@ -118,7 +135,7 @@ func (w reportRun) fileTable(columns []render.Column, add func([]render.Value) e
 	steps := append([]trace.Step(nil), w.result.timeline.Steps...)
 	sort.SliceStable(steps, func(i, j int) bool { return steps[i].File.Path < steps[j].File.Path })
 	for _, s := range steps {
-		row, err := fileRow(s.File, columns)
+		row, err := fileRow(s.File, w.folder, columns)
 		if err != nil {
 			return err
 		}
@@ -308,11 +325,11 @@ func (w reportRun) save(dir string, s savedSpec, columns map[string][]render.Col
 		names = append(names, r.File)
 		makers = append(makers, func(out io.Writer) error { return writers[r.Format](out, readout) })
 	}
-	builders := tableBuilders()
+	builders, tables := tableBuilders(), tableWriters()
 	for _, t := range s.Tables {
 		names = append(names, t.File)
 		makers = append(makers, func(out io.Writer) error {
-			rows, err := render.NewRows(out, columns[t.Class])
+			rows, err := tables[t.Format](out, columns[t.Class])
 			if err != nil {
 				return err
 			}

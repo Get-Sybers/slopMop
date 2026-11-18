@@ -83,3 +83,38 @@ func TestManifestsNameTheirFiles(t *testing.T) {
 		})
 	}
 }
+
+// recorder stands in for a test so a failing check can be observed.
+type recorder struct {
+	testing.TB
+	failed bool
+}
+
+func (r *recorder) Helper()               {}
+func (r *recorder) Errorf(string, ...any) { r.failed = true }
+
+func TestPortable(t *testing.T) {
+	folder := filepath.Join(t.TempDir(), "case")
+	inner := filepath.Join(folder, "sub", "b.txt")
+	tests := []struct {
+		name   string
+		table  string
+		want   string
+		failed bool
+	}{
+		{"a file and one in a sub-folder", "name,path,role\na.sh," + filepath.Join(folder, "a.sh") + ",script\nsub/b.txt," + inner + ",output\n",
+			"name,path,role\na.sh,<folder>/a.sh,script\nsub/b.txt,<folder>/sub/b.txt,output\n", false},
+		{"a path that is not below the folder", "name,path\na.sh," + filepath.Join(folder, "other", "a.sh") + "\n", "name,path\na.sh,<folder>/a.sh\n", true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			observed := &recorder{TB: t}
+			if got := Portable(observed, tt.table, folder); got != tt.want {
+				t.Errorf("Portable = %q, want %q", got, tt.want)
+			}
+			if observed.failed != tt.failed {
+				t.Errorf("the check failed = %v, want %v", observed.failed, tt.failed)
+			}
+		})
+	}
+}

@@ -82,12 +82,12 @@ that is read. A password, a hash, a token and a key are written masked.
 | `report.html` | the report, every section, as one page for a browser |
 | `report.md` | the report, every section, as Markdown |
 | `report.txt` | the report, every section, as plain text |
-| `files.json` | every file with its role, size, line count, times and SHA-256 |
+| `files.csv` | every file with its whole path, role, size, line count, times and SHA-256 |
 | `trace.json` | the timeline |
 | `intents.json` | the ARTEX intents |
-| `findings.json` | the activities, indicators and tactics |
+| `findings.json` | the activities, indicators and tactics, each with when it was seen and its lines of evidence |
 | `targeted.json` | what the scripts name outright |
-| `exposure.json` | what the files hold |
+| `exposure.csv` | what the files hold |
 | `report.json` | every row of the report |
 
 ## Layout

@@ -77,8 +77,8 @@ func TestReportWindow(t *testing.T) {
 			t.Errorf("the summary lacks %q:\n%s", want, readout)
 		}
 	}
-	if got := len(rows(t, filepath.Join(saved, "files.json"))); got != 3 {
-		t.Errorf("files.json holds %d files, want the 3 in the window", got)
+	if got := len(rows(t, filepath.Join(saved, "files.csv"))); got != 3 {
+		t.Errorf("files.csv holds %d files, want the 3 in the window", got)
 	}
 	found := false
 	for _, row := range rows(t, filepath.Join(saved, "report.json")) {

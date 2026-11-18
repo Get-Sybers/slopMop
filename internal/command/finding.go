@@ -4,6 +4,7 @@ import (
 	"slices"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/get-sybers/slopmop/internal/evidence"
 	"github.com/get-sybers/slopmop/internal/indicator"
@@ -31,8 +32,39 @@ type finding struct {
 	// identifiers on a tactic.
 	attack []string
 	atlas  []string
-	// evidence holds the lines that show an activity, each with its file and line.
-	evidence []string
+	// first and last are the times of the earliest and the latest file that
+	// shows it; both are zero when no file that shows it has a time.
+	first, last time.Time
+	// evidence holds the lines that show an activity.
+	evidence []dated
+}
+
+// dated is one line of evidence and the time of its file.
+type dated struct {
+	cited
+	at time.Time
+}
+
+// seen widens the period of a finding to hold the time of a file that shows it.
+func (f *finding) seen(at time.Time) {
+	if at.IsZero() {
+		return
+	}
+	if f.first.IsZero() || at.Before(f.first) {
+		f.first = at
+	}
+	if at.After(f.last) {
+		f.last = at
+	}
+}
+
+// lines writes each line of evidence with where it stands.
+func (f finding) lines() []string {
+	lines := make([]string, len(f.evidence))
+	for i, e := range f.evidence {
+		lines[i] = e.String()
+	}
+	return lines
 }
 
 // listFindings aggregates the timeline: one finding per activity, one per
@@ -52,7 +84,7 @@ func (p pipeline) listFindings(a analysis) []finding {
 	var order []*finding
 	files := seenFiles{}
 	for _, s := range a.timeline.Steps {
-		path := s.File.Path
+		path, at := s.File.Path, s.File.Time()
 		for _, hit := range s.Activities {
 			f, ok := byActivity[hit.Name]
 			if !ok {
@@ -66,9 +98,10 @@ func (p pipeline) listFindings(a analysis) []finding {
 			if files.fresh("a\x00"+hit.Name, path) {
 				f.files = append(f.files, path)
 			}
+			f.seen(at)
 			for _, e := range hit.Evidence {
 				if len(f.evidence) < maxCited {
-					f.evidence = append(f.evidence, a.cited(path, e).String())
+					f.evidence = append(f.evidence, dated{cited: a.cited(path, e), at: at})
 				}
 			}
 		}
@@ -86,6 +119,7 @@ func (p pipeline) listFindings(a analysis) []finding {
 				if files.fresh("t\x00"+name, path) {
 					f.files = append(f.files, path)
 				}
+				f.seen(at)
 			}
 		}
 		for _, m := range s.Matches {
@@ -105,6 +139,7 @@ func (p pipeline) listFindings(a analysis) []finding {
 			if files.fresh("i\x00"+key, path) {
 				f.files = append(f.files, path)
 			}
+			f.seen(at)
 			f.tactics = appendUnique(f.tactics, s.Tactics...)
 			f.tactics = appendUnique(f.tactics, inherited[path]...)
 		}
@@ -185,6 +220,14 @@ func (s seenFiles) fresh(key, file string) bool {
 	return true
 }
 
+// when is an instant, or the value that does not apply when there is none.
+func when(at time.Time) render.Value {
+	if at.IsZero() {
+		return render.NotApplicable()
+	}
+	return render.Time(at)
+}
+
 func findingRow(f finding, columns []render.Column) ([]render.Value, error) {
 	list := func(items []string) render.Value {
 		if len(items) == 0 {
@@ -199,12 +242,27 @@ func findingRow(f finding, columns []render.Column) ([]render.Value, error) {
 		"indicator":   render.NotApplicable(),
 		"files":       list(f.files),
 		"attribution": list(f.attributions),
+		"first":       when(f.first),
+		"last":        when(f.last),
 		"attack":      list(f.attack),
 		"atlas":       list(f.atlas),
 		"evidence":    render.NotApplicable(),
 	}
 	if len(f.evidence) > 0 {
-		cells["evidence"] = render.Text(strings.Join(f.evidence, "\n"))
+		items := make([][]render.Field, len(f.evidence))
+		for i, e := range f.evidence {
+			line := render.NotApplicable()
+			if e.line > 0 {
+				line = render.Int(int64(e.line))
+			}
+			items[i] = []render.Field{
+				{Key: "time", Value: when(e.at)},
+				{Key: "file", Value: render.Text(e.file)},
+				{Key: "line", Value: line},
+				{Key: "text", Value: render.Text(e.text)},
+			}
+		}
+		cells["evidence"] = render.List(items)
 	}
 	if f.indicator != "" {
 		cells["indicator"] = render.Text(f.indicator)

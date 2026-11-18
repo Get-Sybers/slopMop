@@ -1,15 +1,19 @@
 package command
 
 import (
+	"path/filepath"
+
 	"github.com/get-sybers/slopmop/internal/evidence"
 	"github.com/get-sybers/slopmop/internal/render"
 )
 
 // fileRow orders a file's cells by the declared columns, so the declaration
-// and the code cannot drift apart unnoticed.
-func fileRow(f evidence.File, columns []render.Column) ([]render.Value, error) {
+// and the code cannot drift apart unnoticed. The folder is the whole path of
+// the input folder, as this system writes it.
+func fileRow(f evidence.File, folder string, columns []render.Column) ([]render.Value, error) {
 	cells := map[string]render.Value{
 		"name":      render.Text(f.Path),
+		"path":      render.Text(filepath.Join(folder, filepath.FromSlash(f.Path))),
 		"role":      render.Text(string(f.Role)),
 		"size":      render.Size(f.Size),
 		"lines":     render.NotApplicable(),

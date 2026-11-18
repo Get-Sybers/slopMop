@@ -2,6 +2,7 @@ package render
 
 import (
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -23,6 +24,7 @@ const (
 	kindHash
 	kindNotApplicable
 	kindNever
+	kindList
 )
 
 // Value is one cell of a table; the zero Value is the empty text.
@@ -31,6 +33,14 @@ type Value struct {
 	text string
 	num  int64
 	when time.Time
+	// items are the items of a list, each a set of named values.
+	items [][]Field
+}
+
+// Field is one named value of an item of a list.
+type Field struct {
+	Key   string
+	Value Value
 }
 
 // Text is evidence or any other free text.
@@ -53,6 +63,10 @@ func NotApplicable() Value { return Value{kind: kindNotApplicable} }
 
 // Never is the sentinel for an event that has not happened.
 func Never() Value { return Value{kind: kindNever} }
+
+// List is a list of items, each a set of named values in order, such as the
+// lines of evidence behind a finding. JSON writes it as an array of objects.
+func List(items [][]Field) Value { return Value{kind: kindList, items: items} }
 
 // style is how the views meant for reading write a cell.
 type style struct {
@@ -84,6 +98,17 @@ func (v Value) cell(s style) string {
 		return notApplicable
 	case kindNever:
 		return never
+	case kindList:
+		// One cell holds the list: the values of an item side by side, item after item.
+		items := make([]string, len(v.items))
+		for i, item := range v.items {
+			values := make([]string, len(item))
+			for n, f := range item {
+				values[n] = f.Value.cell(s)
+			}
+			items[i] = strings.Join(values, " ")
+		}
+		return strings.Join(items, "; ")
 	default:
 		return Escape(v.text)
 	}

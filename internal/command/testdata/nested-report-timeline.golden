@@ -20,5 +20,5 @@ Timeline   (from, until, files, tactics)
       files       phase1/20250301_104500_step07_exfil.sh
   and 10 files that show no tactic, in the saved trace
 
--> saved to <out>: report.txt, report.md, report.html, files.json, trace.json, intents.json, findings.json, targeted.json, exposure.json, report.json
+-> saved to <out>: report.txt, report.md, report.html, files.csv, trace.json, intents.json, findings.json, targeted.json, exposure.csv, report.json
 -> one section: slopmop -inputdir <folder> report impact

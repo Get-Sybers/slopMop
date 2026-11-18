@@ -53,6 +53,44 @@ func (r *Rows) value(v any) error {
 	return nil
 }
 
+// rowIndent stands before each key of a row.
+const rowIndent = "    "
+
+// put adds v to the row. A list is an array of objects, one to an item, with
+// each of its lines after indent.
+func (r *Rows) put(v Value, indent string) error {
+	if v.kind != kindList {
+		return r.value(v.raw())
+	}
+	if len(v.items) == 0 {
+		r.row.WriteString("[]")
+		return nil
+	}
+	r.row.WriteByte('[')
+	for n, item := range v.items {
+		if n > 0 {
+			r.row.WriteByte(',')
+		}
+		r.row.WriteString("\n" + indent + "  {")
+		for k, f := range item {
+			if k > 0 {
+				r.row.WriteByte(',')
+			}
+			r.row.WriteString("\n" + indent + rowIndent)
+			if err := r.value(f.Key); err != nil {
+				return err
+			}
+			r.row.WriteString(": ")
+			if err := r.put(f.Value, indent+rowIndent); err != nil {
+				return err
+			}
+		}
+		r.row.WriteString("\n" + indent + "  }")
+	}
+	r.row.WriteString("\n" + indent + "]")
+	return nil
+}
+
 // Write adds one row, which fills every column in order.
 func (r *Rows) Write(values []Value) error {
 	if len(values) != len(r.columns) {
@@ -68,10 +106,10 @@ func (r *Rows) Write(values []Value) error {
 		if i > 0 {
 			r.row.WriteString(",\n")
 		}
-		r.row.WriteString("    ")
+		r.row.WriteString(rowIndent)
 		r.row.Write(r.keys[i])
 		r.row.WriteString(": ")
-		if err := r.value(v.raw()); err != nil {
+		if err := r.put(v, rowIndent); err != nil {
 			return err
 		}
 	}
