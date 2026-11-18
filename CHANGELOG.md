@@ -6,6 +6,18 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Changed
+
+- The lines of the timeline's blocks are the rows of one table. The tactic, its ATT&CK and
+  ATLAS identifiers, the identifier of a technique and the name of the technique each stand in
+  a column of their own, at the same place in every block: in the text, where the identifiers
+  of a tactic no longer stand in brackets after its name, and in `report.html`, where each
+  block had columns of its own width and a technique's identifier and name ran together. The
+  page writes a tactic in bold and its identifiers in grey, parts the tactics of a block with a
+  rule, writes the line that says no technique was identified in grey, lines up the names of
+  the blocks, and on a narrow screen sets a tactic above its techniques. In `report.md` a
+  tactic is written once, with its techniques as a list under it.
+
 ### Fixed
 
 - A block of the timeline lists the tactics its files show, each with its ATT&CK and ATLAS

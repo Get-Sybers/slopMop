@@ -26,73 +26,73 @@ Tactics   (tactic, identifiers, files)
 
 Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with each tactic and the techniques under it)
   [x] Discovery, CredentialAccess                                   2026-10-22T09:00:00Z to 2026-10-22T09:05:00Z
-      Discovery (TA0007, AML.TA0008)            T1083      File and Directory Discovery
-                                                T1007      System Service Discovery
-      CredentialAccess (TA0006, AML.TA0013)     T1552.005  Unsecured Credentials: Cloud Instance Metadata API
-                                                T1003.008  OS Credential Dumping: /etc/passwd and /etc/shadow
-                                                T1552.004  Unsecured Credentials: Private Keys
-                                                T1552.001  Unsecured Credentials: Credentials In Files
-                                                T1552.003  Unsecured Credentials: Shell History
-                                                T1552.007  Unsecured Credentials: Container API
-                                                AML.T0055  Unsecured Credentials
-                                                AML.T0090  OS Credential Dumping
+      Discovery            TA0007, AML.TA0008  T1083      File and Directory Discovery
+                                               T1007      System Service Discovery
+      CredentialAccess     TA0006, AML.TA0013  T1552.005  Unsecured Credentials: Cloud Instance Metadata API
+                                               T1003.008  OS Credential Dumping: /etc/passwd and /etc/shadow
+                                               T1552.004  Unsecured Credentials: Private Keys
+                                               T1552.001  Unsecured Credentials: Credentials In Files
+                                               T1552.003  Unsecured Credentials: Shell History
+                                               T1552.007  Unsecured Credentials: Container API
+                                               AML.T0055  Unsecured Credentials
+                                               AML.T0090  OS Credential Dumping
 
   [x] Discovery, PrivilegeEscalation                                2026-10-22T09:10:00Z
-      Discovery (TA0007, AML.TA0008)            no MITRE ATT&CK technique identified
-      PrivilegeEscalation (TA0004, AML.TA0012)  T1548.003  Abuse Elevation Control Mechanism: Sudo and Sudo Caching
-                                                T1548.001  Abuse Elevation Control Mechanism: Setuid and Setgid
-                                                T1611      Escape to Host
-                                                AML.T0105  Escape to Host
+      Discovery            TA0007, AML.TA0008  no MITRE ATT&CK technique identified
+      PrivilegeEscalation  TA0004, AML.TA0012  T1548.003  Abuse Elevation Control Mechanism: Sudo and Sudo Caching
+                                               T1548.001  Abuse Elevation Control Mechanism: Setuid and Setgid
+                                               T1611      Escape to Host
+                                               AML.T0105  Escape to Host
 
   [x] Execution, PrivilegeEscalation, Persistence                   2026-10-22T09:15:00Z
-      Execution (TA0002, AML.TA0005)            T1053.003  Scheduled Task/Job: Cron
-                                                T1053.002  Scheduled Task/Job: At
-                                                T1053.006  Scheduled Task/Job: Systemd Timers
-      PrivilegeEscalation (TA0004, AML.TA0012)  T1543.002  Create or Modify System Process: Systemd Service
-      Persistence (TA0003, AML.TA0006)          T1053.003  Scheduled Task/Job: Cron
-                                                T1053.002  Scheduled Task/Job: At
-                                                T1053.006  Scheduled Task/Job: Systemd Timers
-                                                T1543.002  Create or Modify System Process: Systemd Service
-                                                T1136.001  Create Account: Local Account
-                                                T1098.004  Account Manipulation: SSH Authorized Keys
-                                                T1546.004  Event Triggered Execution: Unix Shell Configuration Modification
-                                                AML.T0125  Create Account
-                                                AML.T0142  Event Triggered Execution
+      Execution            TA0002, AML.TA0005  T1053.003  Scheduled Task/Job: Cron
+                                               T1053.002  Scheduled Task/Job: At
+                                               T1053.006  Scheduled Task/Job: Systemd Timers
+      PrivilegeEscalation  TA0004, AML.TA0012  T1543.002  Create or Modify System Process: Systemd Service
+      Persistence          TA0003, AML.TA0006  T1053.003  Scheduled Task/Job: Cron
+                                               T1053.002  Scheduled Task/Job: At
+                                               T1053.006  Scheduled Task/Job: Systemd Timers
+                                               T1543.002  Create or Modify System Process: Systemd Service
+                                               T1136.001  Create Account: Local Account
+                                               T1098.004  Account Manipulation: SSH Authorized Keys
+                                               T1546.004  Event Triggered Execution: Unix Shell Configuration Modification
+                                               AML.T0125  Create Account
+                                               AML.T0142  Event Triggered Execution
 
   [x] Stealth, DefenseImpairment                                    2026-10-22T09:20:00Z
-      Stealth (TA0005, AML.TA0007)              T1070.003  Indicator Removal: Clear Command History
-                                                T1070.006  Indicator Removal: Timestomp
-                                                AML.T0138  Indicator Removal
-      DefenseImpairment (TA0112, AML.TA0007)    T1685.006  Disable or Modify Tools: Clear Linux or Mac System Logs
-                                                T1690      Prevent Command History Logging
-                                                T1685      Disable or Modify Tools
-                                                T1685.004  Disable or Modify Tools: Disable or Modify Linux Audit System Log
-                                                T1686      Disable or Modify System Firewall
+      Stealth              TA0005, AML.TA0007  T1070.003  Indicator Removal: Clear Command History
+                                               T1070.006  Indicator Removal: Timestomp
+                                               AML.T0138  Indicator Removal
+      DefenseImpairment    TA0112, AML.TA0007  T1685.006  Disable or Modify Tools: Clear Linux or Mac System Logs
+                                               T1690      Prevent Command History Logging
+                                               T1685      Disable or Modify Tools
+                                               T1685.004  Disable or Modify Tools: Disable or Modify Linux Audit System Log
+                                               T1686      Disable or Modify System Firewall
 
   [x] Discovery, LateralMovement, Execution, Collection, CommandAndControl, Exfiltration  2026-10-22T09:25:00Z to 2026-10-22T09:30:00Z
-      Discovery (TA0007, AML.TA0008)            no MITRE ATT&CK technique identified
-      LateralMovement (TA0008, AML.TA0015)      no MITRE ATT&CK technique identified
-      Execution (TA0002, AML.TA0005)            T1059.004  Command and Scripting Interpreter: Unix Shell
-                                                AML.T0050  Command and Scripting Interpreter
-      Collection (TA0009, AML.TA0009)           T1560.001  Archive Collected Data: Archive via Utility
-      CommandAndControl (TA0011, AML.TA0014)    T1105      Ingress Tool Transfer
-                                                T1095      Non-Application Layer Protocol
-                                                AML.T0072  Cyber Communication Channel
-      Exfiltration (TA0010, AML.TA0010)         T1048      Exfiltration Over Alternative Protocol
-                                                AML.T0025  Exfiltration via Cyber Means
+      Discovery            TA0007, AML.TA0008  no MITRE ATT&CK technique identified
+      LateralMovement      TA0008, AML.TA0015  no MITRE ATT&CK technique identified
+      Execution            TA0002, AML.TA0005  T1059.004  Command and Scripting Interpreter: Unix Shell
+                                               AML.T0050  Command and Scripting Interpreter
+      Collection           TA0009, AML.TA0009  T1560.001  Archive Collected Data: Archive via Utility
+      CommandAndControl    TA0011, AML.TA0014  T1105      Ingress Tool Transfer
+                                               T1095      Non-Application Layer Protocol
+                                               AML.T0072  Cyber Communication Channel
+      Exfiltration         TA0010, AML.TA0010  T1048      Exfiltration Over Alternative Protocol
+                                               AML.T0025  Exfiltration via Cyber Means
 
   [x] Execution, Persistence, DefenseImpairment                     2026-10-22T09:35:00Z
-      Execution (TA0002, AML.TA0005)            T1053.003  Scheduled Task/Job: Cron
-                                                T1053.002  Scheduled Task/Job: At
-                                                T1053.006  Scheduled Task/Job: Systemd Timers
-      Persistence (TA0003, AML.TA0006)          T1053.003  Scheduled Task/Job: Cron
-                                                T1053.002  Scheduled Task/Job: At
-                                                T1053.006  Scheduled Task/Job: Systemd Timers
-                                                T1136.001  Create Account: Local Account
-                                                AML.T0125  Create Account
-      DefenseImpairment (TA0112, AML.TA0007)    T1685      Disable or Modify Tools
-                                                T1685.004  Disable or Modify Tools: Disable or Modify Linux Audit System Log
-                                                T1686      Disable or Modify System Firewall
+      Execution            TA0002, AML.TA0005  T1053.003  Scheduled Task/Job: Cron
+                                               T1053.002  Scheduled Task/Job: At
+                                               T1053.006  Scheduled Task/Job: Systemd Timers
+      Persistence          TA0003, AML.TA0006  T1053.003  Scheduled Task/Job: Cron
+                                               T1053.002  Scheduled Task/Job: At
+                                               T1053.006  Scheduled Task/Job: Systemd Timers
+                                               T1136.001  Create Account: Local Account
+                                               AML.T0125  Create Account
+      DefenseImpairment    TA0112, AML.TA0007  T1685      Disable or Modify Tools
+                                               T1685.004  Disable or Modify Tools: Disable or Modify Linux Audit System Log
+                                               T1686      Disable or Modify System Firewall
   and 6 files that show no tactic, in the saved trace
 
 Findings

@@ -47,8 +47,8 @@ type Group struct {
 	Columns []string
 	Entries []Entry
 	// Blocks sets each entry apart as a block, one under another: a timeline.
-	// The first cell names the block and its detail lines are a list, each
-	// label the identifier of what its text names.
+	// The first cell names the block, and its detail lines are a table whose
+	// columns every block of the group shares.
 	Blocks bool
 }
 
@@ -62,7 +62,15 @@ type Entry struct {
 // Detail is one indented line under an entry; the label may be empty.
 type Detail struct {
 	Label string
-	Text  string
+	// Note says more of the label, beside it: the identifiers of what the
+	// label names. The lines that share a label and its note stand under
+	// them, and the two are written once.
+	Note string
+	// Key identifies the text and stands before it, in a column of its own.
+	Key  string
+	Text string
+	// None marks a text that says nothing was found; it is written in grey.
+	None bool
 }
 
 const (
@@ -200,7 +208,7 @@ func (p *pen) section(s Section) {
 
 func (p *pen) group(g Group, indent string) {
 	var widths []int
-	marked, label := 0, 0
+	marked, label, note, key := 0, 0, 0, 0
 	for _, e := range g.Entries {
 		glyph, _ := mark(e.Level)
 		marked = max(marked, len(glyph))
@@ -210,9 +218,12 @@ func (p *pen) group(g Group, indent string) {
 			}
 			widths[i] = min(widest, max(widths[i], utf8.RuneCountInString(shown(c))))
 		}
+		// The labels, the notes and the keys of a group each stand in one column.
 		for _, d := range e.Detail {
 			if d.Text != "" {
 				label = max(label, utf8.RuneCountInString(d.Label))
+				note = max(note, utf8.RuneCountInString(shown(d.Note)))
+				key = min(widest, max(key, utf8.RuneCountInString(shown(d.Key))))
 			}
 		}
 	}
@@ -250,18 +261,35 @@ func (p *pen) group(g Group, indent string) {
 			}
 			if d.Label == "" {
 				p.line(under, Escape(d.Text))
+				last = ""
 				continue
 			}
-			// A label is written once; the lines under it that share it stand in its column.
-			name := d.Label
-			if name == last {
-				name = ""
+			// A label is written once, with its note; the lines under it
+			// that share both stand in the columns after them.
+			name, of, same := d.Label, shown(d.Note), d.Label+"\x00"+d.Note
+			if same == last {
+				name, of = "", ""
 			}
-			last = d.Label
-			pad := strings.Repeat(" ", label-utf8.RuneCountInString(name))
-			p.line(under, p.paint(labelled, name), pad, gap, Escape(d.Text))
+			last = same
+			parts := []string{under, p.paint(labelled, name), spaces(label, name), gap}
+			if note > 0 {
+				parts = append(parts, p.paint(sgrGrey, of), spaces(note, of), gap)
+			}
+			if id := shown(d.Key); id != "" {
+				parts = append(parts, id, spaces(key, id), gap)
+			}
+			text := Escape(d.Text)
+			if d.None {
+				text = p.paint(sgrGrey, text)
+			}
+			p.line(append(parts, text)...)
 		}
 	}
+}
+
+// spaces fills a column of a width after the text that stands in it.
+func spaces(width int, text string) string {
+	return strings.Repeat(" ", max(0, width-utf8.RuneCountInString(text)))
 }
 
 // shown escapes a cell; an empty cell stays empty, where Escape quotes it.

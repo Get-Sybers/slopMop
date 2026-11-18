@@ -30,7 +30,11 @@ func sampleReadout() Readout {
 			}}}},
 			{Title: "Intent timeline", Note: "a block for each intent", Groups: []Group{{Blocks: true, Entries: []Entry{
 				{Level: LevelHigh, Cells: []string{"i7", "2026-10-22T09:00:00Z to 2026-10-22T09:05:00Z"}, Detail: []Detail{
-					{Label: "T1083", Text: "File and Directory Discovery"}, {Label: "AML.T0055", Text: "Unsecured Credentials"},
+					{Label: "Discovery", Note: "TA0007, AML.TA0008", Key: "T1083", Text: "File and Directory Discovery"},
+					{Label: "Discovery", Note: "TA0007, AML.TA0008", Key: "AML.T0075", Text: "Enterprise Resource Discovery"},
+					{Label: "CredentialAccess", Note: "TA0006, AML.TA0013", Key: "AML.T0055", Text: "Unsecured Credentials"},
+					{Label: "Exfiltration", Note: "TA0010, AML.TA0010", Text: "no technique", None: true},
+					{Label: "watchlist", Text: "APT-EXAMPLE: 203.0.113.9"},
 				}},
 				{Cells: []string{"i8", "2026-10-22T09:10:00Z"}, Detail: []Detail{{Text: "no technique"}}},
 			}}}},
@@ -70,7 +74,7 @@ func TestWriteReadoutEscapesEvidence(t *testing.T) {
 		Title:  hostile,
 		Banner: Banner{Level: LevelClear, Text: hostile},
 		Sections: []Section{{Title: hostile, Note: hostile, Groups: []Group{{Title: hostile, Entries: []Entry{
-			{Level: LevelHigh, Cells: []string{hostile, hostile}, Detail: []Detail{{Label: "in", Text: hostile}, {Text: hostile}}},
+			{Level: LevelHigh, Cells: []string{hostile, hostile}, Detail: []Detail{{Label: "in", Note: hostile, Key: hostile, Text: hostile}, {Text: hostile}}},
 		}}}}},
 		Hints: []string{hostile},
 	}
@@ -119,6 +123,48 @@ func TestWriteReadoutSharesALabel(t *testing.T) {
 	want := "t\n\nS\n  entry\n      a sentence\n      what   first\n             second\n      basis  third\n      what   fourth\n"
 	if out.String() != want {
 		t.Errorf("readout = %q, want %q", out.String(), want)
+	}
+}
+
+// The labels, their notes and the keys of a group each stand in one column,
+// whichever entry a line is under, and a label is written once with its note.
+func TestWriteReadoutLinesUpDetail(t *testing.T) {
+	r := Readout{Title: "t", Sections: []Section{{Title: "S", Groups: []Group{{Blocks: true, Entries: []Entry{
+		{Cells: []string{"one"}, Detail: []Detail{
+			{Label: "Discovery", Note: "TA0007", Key: "T1083", Text: "first"},
+			{Label: "Discovery", Note: "TA0007", Key: "AML.T0075", Text: "second"},
+			{Label: "Exfiltration", Note: "TA0010", Text: "none found", None: true},
+		}},
+		{Cells: []string{"two"}, Detail: []Detail{
+			{Label: "CredentialAccess", Note: "TA0006, AML.TA0013", Key: "T1552", Text: "third"},
+			{Label: "watchlist", Text: "fourth"},
+		}},
+	}}}}}}
+	var out bytes.Buffer
+	if err := WriteReadout(&out, r, false); err != nil {
+		t.Fatal(err)
+	}
+	want := strings.Join([]string{"t", "", "S", "  one",
+		"      Discovery         TA0007              T1083      first",
+		"                                            AML.T0075  second",
+		"      Exfiltration      TA0010              none found",
+		"",
+		"  two",
+		"      CredentialAccess  TA0006, AML.TA0013  T1552      third",
+		"      watchlist                             fourth",
+		"",
+	}, "\n")
+	if out.String() != want {
+		t.Errorf("readout =\n%s\nwant\n%s", out.String(), want)
+	}
+	out.Reset()
+	if err := WriteReadout(&out, r, true); err != nil {
+		t.Fatal(err)
+	}
+	for _, grey := range []string{sgrGrey + "TA0007" + sgrReset, sgrGrey + "none found" + sgrReset} {
+		if !strings.Contains(out.String(), grey) {
+			t.Errorf("the readout in colour lacks %q:\n%q", grey, out.String())
+		}
 	}
 }
 

@@ -101,10 +101,10 @@ func TestTimelineSection(t *testing.T) {
 			t.Errorf("period %d is %q, want %q", i+1, got, want)
 		}
 	}
-	if got, want := groups[0].Entries[0].Detail, []render.Detail{{Label: "Discovery (TA0007, AML.TA0008)", Text: "T1007  System Service Discovery"}}; !slices.Equal(got, want) {
+	if got, want := groups[0].Entries[0].Detail, tacticLines("Discovery", "TA0007, AML.TA0008", "T1007  System Service Discovery"); !slices.Equal(got, want) {
 		t.Errorf("the first block lists %v, want %v", got, want)
 	}
-	if got, want := groups[0].Entries[1].Detail, []render.Detail{{Label: "Persistence (TA0003, AML.TA0006)", Text: noTechnique}}; !slices.Equal(got, want) {
+	if got, want := groups[0].Entries[1].Detail, tacticLines("Persistence", "TA0003, AML.TA0006"); !slices.Equal(got, want) {
 		t.Errorf("the second block lists %v, want %v", got, want)
 	}
 	if got, want := cells(groups[1].Entries[0]), "and 1 file that shows no tactic, in the saved trace"; got != want {
@@ -156,6 +156,20 @@ func TestIntentBlocksNameWatchlistMatches(t *testing.T) {
 	}
 }
 
+// tacticLines is how a block lists a tactic: the tactic and its identifiers with
+// each technique, written "id  name", or with the line that says there is none.
+func tacticLines(tactic, identifiers string, techniques ...string) []render.Detail {
+	var out []render.Detail
+	for _, technique := range techniques {
+		id, name, _ := strings.Cut(technique, "  ")
+		out = append(out, render.Detail{Label: tactic, Note: identifiers, Key: id, Text: name})
+	}
+	if len(out) == 0 {
+		out = append(out, render.Detail{Label: tactic, Note: identifiers, Text: noTechnique, None: true})
+	}
+	return out
+}
+
 // A technique stands under its parent tactic: the tactic of the activity
 // that shows it, where its framework files it there. A tactic that only a
 // tool gives has no technique under it, and its block says so.
@@ -178,19 +192,14 @@ func TestBlocksListTechniquesUnderTactics(t *testing.T) {
 	if len(groups) == 0 || len(groups[0].Entries) != 4 {
 		t.Fatalf("the timeline has %d groups, want a block for each of the four intents", len(groups))
 	}
-	const discovery, control = "Discovery (TA0007, AML.TA0008)", "CommandAndControl (TA0011, AML.TA0014)"
-	const execution, escalation, persistence = "Execution (TA0002, AML.TA0005)", "PrivilegeEscalation (TA0004, AML.TA0012)", "Persistence (TA0003, AML.TA0006)"
+	discovery := tacticLines("Discovery", "TA0007, AML.TA0008")
 	wants := [][]render.Detail{
-		{{Label: discovery, Text: noTechnique}},
-		{
-			{Label: discovery, Text: noTechnique}, {Label: "LateralMovement (TA0008, AML.TA0015)", Text: noTechnique},
-			{Label: control, Text: "T1105      Ingress Tool Transfer"}, {Label: control, Text: "AML.T0072  Cyber Communication Channel"},
-		},
-		{
-			{Label: execution, Text: "T1053.005  Scheduled Task/Job: Scheduled Task"}, {Label: escalation, Text: noTechnique},
-			{Label: persistence, Text: "T1053.005  Scheduled Task/Job: Scheduled Task"}, {Label: persistence, Text: "T1136.001  Create Account: Local Account"},
-			{Label: persistence, Text: "AML.T0125  Create Account"},
-		},
+		discovery,
+		slices.Concat(discovery, tacticLines("LateralMovement", "TA0008, AML.TA0015"),
+			tacticLines("CommandAndControl", "TA0011, AML.TA0014", "T1105  Ingress Tool Transfer", "AML.T0072  Cyber Communication Channel")),
+		slices.Concat(tacticLines("Execution", "TA0002, AML.TA0005", "T1053.005  Scheduled Task/Job: Scheduled Task"),
+			tacticLines("PrivilegeEscalation", "TA0004, AML.TA0012"),
+			tacticLines("Persistence", "TA0003, AML.TA0006", "T1053.005  Scheduled Task/Job: Scheduled Task", "T1136.001  Create Account: Local Account", "AML.T0125  Create Account")),
 		{{Text: noTechnique}},
 	}
 	for i, want := range wants {
@@ -200,7 +209,7 @@ func TestBlocksListTechniquesUnderTactics(t *testing.T) {
 	}
 	// A period lists the same under its name: each of its tactics with its identifiers and its techniques.
 	periods := runOf(t, []trace.Step{stepAt(0, "scan.sh", "Discovery")}, nil).timeline()
-	if got, want := periods[0].Entries[0], (render.Entry{Level: "low", Cells: []string{"Discovery", "2026-10-22T09:00:00Z"}, Detail: []render.Detail{{Label: discovery, Text: noTechnique}}}); !reflect.DeepEqual(got, want) {
+	if got, want := periods[0].Entries[0], (render.Entry{Level: "low", Cells: []string{"Discovery", "2026-10-22T09:00:00Z"}, Detail: discovery}); !reflect.DeepEqual(got, want) {
 		t.Errorf("the block of a period is %+v, want %+v", got, want)
 	}
 }

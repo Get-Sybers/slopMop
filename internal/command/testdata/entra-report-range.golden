@@ -21,37 +21,37 @@ Tactics   (tactic, identifiers, files)
 
 Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with each tactic and the techniques under it)
   [x] InitialAccess, Discovery                                      2026-10-15T09:00:00Z to 2026-10-15T09:05:00Z
-      InitialAccess (TA0001, AML.TA0004)        T1078.004  Valid Accounts: Cloud Accounts
-                                                AML.T0012  Valid Accounts
-      Discovery (TA0007, AML.TA0008)            T1087.004  Account Discovery: Cloud Account
-                                                T1069.003  Permission Groups Discovery: Cloud Groups
-                                                AML.T0075  Enterprise Resource Discovery
-      watchlist                                 STORM-0940: 144.172.64.128
+      InitialAccess        TA0001, AML.TA0004  T1078.004  Valid Accounts: Cloud Accounts
+                                               AML.T0012  Valid Accounts
+      Discovery            TA0007, AML.TA0008  T1087.004  Account Discovery: Cloud Account
+                                               T1069.003  Permission Groups Discovery: Cloud Groups
+                                               AML.T0075  Enterprise Resource Discovery
+      watchlist                                STORM-0940: 144.172.64.128
 
   [x] PrivilegeEscalation, Persistence                              2026-10-15T09:10:00Z
-      PrivilegeEscalation (TA0004, AML.TA0012)  T1098.003  Account Manipulation: Additional Cloud Roles
-      Persistence (TA0003, AML.TA0006)          T1098.003  Account Manipulation: Additional Cloud Roles
-                                                T1098.001  Account Manipulation: Additional Cloud Credentials
+      PrivilegeEscalation  TA0004, AML.TA0012  T1098.003  Account Manipulation: Additional Cloud Roles
+      Persistence          TA0003, AML.TA0006  T1098.003  Account Manipulation: Additional Cloud Roles
+                                               T1098.001  Account Manipulation: Additional Cloud Credentials
 
   [!] Collection                                                    2026-10-15T09:20:00Z
-      Collection (TA0009, AML.TA0009)           T1114.002  Email Collection: Remote Email Collection
-                                                T1213.005  Data from Information Repositories: Messaging Applications
-                                                T1213.002  Data from Information Repositories: Sharepoint
-                                                AML.T0126  Automated Collection
-                                                AML.T0036  Data from Information Repositories
+      Collection           TA0009, AML.TA0009  T1114.002  Email Collection: Remote Email Collection
+                                               T1213.005  Data from Information Repositories: Messaging Applications
+                                               T1213.002  Data from Information Repositories: Sharepoint
+                                               AML.T0126  Automated Collection
+                                               AML.T0036  Data from Information Repositories
 
   [x] Discovery, CredentialAccess                                   2026-10-15T09:30:00Z
-      Discovery (TA0007, AML.TA0008)            T1580      Cloud Infrastructure Discovery
-                                                AML.T0075  Enterprise Resource Discovery
-      CredentialAccess (TA0006, AML.TA0013)     T1555.006  Credentials from Password Stores: Cloud Secrets Management Stores
+      Discovery            TA0007, AML.TA0008  T1580      Cloud Infrastructure Discovery
+                                               AML.T0075  Enterprise Resource Discovery
+      CredentialAccess     TA0006, AML.TA0013  T1555.006  Credentials from Password Stores: Cloud Secrets Management Stores
 
   [x] Discovery, CredentialAccess, PrivilegeEscalation, Persistence  2026-10-15T09:35:00Z
-      Discovery (TA0007, AML.TA0008)            T1580      Cloud Infrastructure Discovery
-                                                AML.T0075  Enterprise Resource Discovery
-      CredentialAccess (TA0006, AML.TA0013)     T1555.006  Credentials from Password Stores: Cloud Secrets Management Stores
-      PrivilegeEscalation (TA0004, AML.TA0012)  T1098.003  Account Manipulation: Additional Cloud Roles
-      Persistence (TA0003, AML.TA0006)          T1098.003  Account Manipulation: Additional Cloud Roles
-      watchlist                                 STORM-0940: 144.172.64.128, STORM-0940: 144.172.64.60
+      Discovery            TA0007, AML.TA0008  T1580      Cloud Infrastructure Discovery
+                                               AML.T0075  Enterprise Resource Discovery
+      CredentialAccess     TA0006, AML.TA0013  T1555.006  Credentials from Password Stores: Cloud Secrets Management Stores
+      PrivilegeEscalation  TA0004, AML.TA0012  T1098.003  Account Manipulation: Additional Cloud Roles
+      Persistence          TA0003, AML.TA0006  T1098.003  Account Manipulation: Additional Cloud Roles
+      watchlist                                STORM-0940: 144.172.64.128, STORM-0940: 144.172.64.60
   and 5 files that show no tactic, in the saved trace
 
 Findings

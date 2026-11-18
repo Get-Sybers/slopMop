@@ -34,8 +34,10 @@ func hostileReadout(hostile string) Readout {
 		Banner: Banner{Level: LevelHigh, Text: hostile},
 		Sections: []Section{{Title: hostile, Note: hostile, Groups: []Group{
 			{Title: hostile, Columns: []string{hostile}, Entries: []Entry{{Level: LevelHigh, Cells: []string{hostile, hostile}}}},
-			{Entries: []Entry{{Cells: []string{hostile}, Detail: []Detail{{Label: hostile, Text: hostile}, {Text: hostile}}}}},
-			{Blocks: true, Entries: []Entry{{Level: LevelHigh, Cells: []string{hostile, hostile}, Detail: []Detail{{Label: hostile, Text: hostile}, {Text: hostile}}}}},
+			{Entries: []Entry{{Cells: []string{hostile}, Detail: []Detail{{Label: hostile, Note: hostile, Key: hostile, Text: hostile}, {Text: hostile}}}}},
+			{Blocks: true, Entries: []Entry{{Level: LevelHigh, Cells: []string{hostile, hostile}, Detail: []Detail{
+				{Label: hostile, Note: hostile, Key: hostile, Text: hostile}, {Label: hostile, Text: hostile, None: true}, {Text: hostile},
+			}}}},
 		}}},
 		Hints: []string{hostile},
 	}
@@ -131,7 +133,7 @@ func TestWriteHTMLEscapesEvidence(t *testing.T) {
 			t.Errorf("the page holds %q as markup:\n%s", raw, page)
 		}
 	}
-	if got, want := strings.Count(page, "&lt;script&gt;alert(1)&lt;/script&gt;"), 20; got != want {
+	if got, want := strings.Count(page, "&lt;script&gt;alert(1)&lt;/script&gt;"), 26; got != want {
 		t.Errorf("the text is on the page %d times, want %d:\n%s", got, want, page)
 	}
 }
@@ -174,6 +176,78 @@ func TestWriteHTMLSharesALabel(t *testing.T) {
 	}
 	if got := strings.Count(out.String(), `class="value"`); got != 2 {
 		t.Errorf("%d labelled lines, want 2: an empty detail is left out", got)
+	}
+}
+
+// keyed holds every kind of line a detail has: two that share a label and
+// its note, one that says nothing was found, one with no key, and a sentence.
+func keyed(blocks bool) Readout {
+	return Readout{Title: "t", Sections: []Section{{Title: "S", Groups: []Group{{Blocks: blocks, Entries: []Entry{{
+		Level: LevelHigh, Cells: []string{"one"},
+		Detail: []Detail{
+			{Label: "Discovery", Note: "TA0007", Key: "T1083", Text: "first"},
+			{Label: "Discovery", Note: "TA0007", Key: "AML.T0075", Text: "second"},
+			{Label: "Exfiltration", Note: "TA0010", Text: "none found", None: true},
+			{Label: "watchlist", Text: "third"},
+			{Text: "a sentence"},
+		},
+	}}}}}}}
+}
+
+// The lines of a block are cells of the columns its group shares: a label
+// and its note once, a key before its text, a text with no key across both.
+func TestWriteHTMLLinesOfABlock(t *testing.T) {
+	var out bytes.Buffer
+	if err := WriteHTML(&out, keyed(true)); err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{
+		`<ol class="blocks marked">`,
+		`<div class="line"><span class="of"><span class="topic">Discovery</span><span class="aside">TA0007</span></span><span class="key">T1083</span><span class="text">first</span></div>`,
+		`<div class="line"><span class="key">AML.T0075</span><span class="text">second</span></div>`,
+		`<div class="line begins"><span class="of"><span class="topic">Exfiltration</span><span class="aside">TA0010</span></span><span class="text wide none">none found</span></div>`,
+		`<div class="line begins"><span class="of"><span class="topic">watchlist</span></span><span class="text wide">third</span></div>`,
+		`<div class="line begins"><span class="said">a sentence</span></div>`,
+	} {
+		if !strings.Contains(out.String(), want) {
+			t.Errorf("the page lacks %s:\n%s", want, out.String())
+		}
+	}
+	// A table has a label and a value for a line, so each takes what stands beside it.
+	out.Reset()
+	if err := WriteHTML(&out, keyed(false)); err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{
+		`<span class="label">Discovery (TA0007)</span><span class="value">T1083  first</span>`,
+		`<span class="label"></span><span class="value">AML.T0075  second</span>`,
+		`<span class="label">Exfiltration (TA0010)</span><span class="value">none found</span>`,
+	} {
+		if !strings.Contains(out.String(), want) {
+			t.Errorf("the page lacks %s:\n%s", want, out.String())
+		}
+	}
+}
+
+// Markdown lists the lines that have a key under their label, written once,
+// and fills the keys to one width; a text that says nothing was found is plain.
+func TestWriteMarkdownListsKeyedLines(t *testing.T) {
+	var out bytes.Buffer
+	if err := WriteMarkdown(&out, keyed(true)); err != nil {
+		t.Fatal(err)
+	}
+	want := strings.Join([]string{"# t", "", "\\[x\\] high   \\[!\\] medium   \\[i\\] low", "", "## S", "",
+		"- **\\[x\\] high** · `one`",
+		"  - **Discovery (TA0007):**",
+		"    - `T1083      first`",
+		"    - `AML.T0075  second`",
+		"  - **Exfiltration (TA0010):** none found",
+		"  - **watchlist:** `third`",
+		"  - a sentence",
+		"",
+	}, "\n")
+	if out.String() != want {
+		t.Errorf("markdown =\n%s\nwant\n%s", out.String(), want)
 	}
 }
 

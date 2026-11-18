@@ -45,11 +45,12 @@ type htmlRow struct {
 	Span int
 }
 
-// htmlDetail is a detail line. A label is written once: the lines under it
-// that share it are Labelled and carry no Label, as in the plain text.
+// htmlDetail is a detail line. A label is written once, with its note: the
+// lines under it that share both are Labelled and carry neither, as in the
+// plain text. A line that Begins is the first of a label after another's.
 type htmlDetail struct {
-	Label, Text string
-	Labelled    bool
+	Label, Note, Key, Text string
+	Labelled, Begins, None bool
 }
 
 // WriteHTML writes r to w as one HTML page that needs nothing else: its
@@ -115,11 +116,20 @@ func htmlOf(s Section, id string) htmlSection {
 				if d.Text == "" {
 					continue
 				}
-				detail := htmlDetail{Label: shown(d.Label), Text: Escape(d.Text), Labelled: d.Label != ""}
-				if d.Label == last {
-					detail.Label = ""
+				detail := htmlDetail{Label: shown(d.Label), Note: shown(d.Note), Key: shown(d.Key), Text: Escape(d.Text), Labelled: d.Label != "", None: d.None}
+				// A table has two columns for a line: the note goes with the label, the key with the text.
+				if !g.Blocks && d.Note != "" {
+					detail.Label, detail.Note = detail.Label+" ("+detail.Note+")", ""
 				}
-				last = d.Label
+				if !g.Blocks && d.Key != "" {
+					detail.Key, detail.Text = "", detail.Key+gap+detail.Text
+				}
+				same := d.Label + "\x00" + d.Note
+				if d.Label != "" && same == last {
+					detail.Label, detail.Note = "", ""
+				}
+				detail.Begins = len(row.Detail) > 0 && same != last
+				last = same
 				row.Detail = append(row.Detail, detail)
 			}
 			group.Rows = append(group.Rows, row)

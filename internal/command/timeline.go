@@ -165,15 +165,10 @@ func (w reportRun) named(shown []string, found techniques, hits []string) []rend
 		}
 		return filed
 	}
-	// The names of the techniques of a block begin in one column.
-	width := 0
-	for _, id := range slices.Concat(found.attack, found.atlas) {
-		width = max(width, len(id))
-	}
-	under := map[string][]string{}
+	under := map[string][]render.Detail{}
 	place := func(ids []string, framework mitre.Framework, identifier func(string) string) {
 		for _, id := range ids {
-			line := id + strings.Repeat(" ", width-len(id)) + "  " + or(framework.NameOf(id), "-")
+			line := render.Detail{Key: id, Text: or(framework.NameOf(id), "-")}
 			for _, name := range parents(id, framework, identifier) {
 				under[name] = append(under[name], line)
 				tactics = appendUnique(tactics, name)
@@ -187,12 +182,14 @@ func (w reportRun) named(shown []string, found techniques, hits []string) []rend
 		if !slices.Contains(tactics, name) {
 			continue
 		}
-		label := name + " (" + w.pipe.tactics.Attack(name) + ", " + w.pipe.tactics.Atlas(name) + ")"
-		for _, line := range under[name] {
-			out = append(out, render.Detail{Label: label, Text: line})
+		lines := under[name]
+		if len(lines) == 0 {
+			lines = []render.Detail{{Text: noTechnique, None: true}}
 		}
-		if len(under[name]) == 0 {
-			out = append(out, render.Detail{Label: label, Text: noTechnique})
+		// A tactic is a label, its identifiers the note beside it.
+		for _, line := range lines {
+			line.Label, line.Note = name, w.pipe.tactics.Attack(name)+", "+w.pipe.tactics.Atlas(name)
+			out = append(out, line)
 		}
 	}
 	if len(out) == 0 {

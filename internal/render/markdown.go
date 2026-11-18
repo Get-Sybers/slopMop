@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"unicode/utf8"
 )
 
 // WriteMarkdown writes r to w as Markdown. A group whose entries carry no
@@ -121,6 +122,15 @@ func mdTable(b *bytes.Buffer, g Group) {
 }
 
 func mdList(b *bytes.Buffer, g Group) {
+	// The keys of a group are filled to one width, so the texts begin in one column.
+	key := 0
+	for _, e := range g.Entries {
+		for _, d := range e.Detail {
+			if d.Text != "" {
+				key = max(key, utf8.RuneCountInString(d.Key))
+			}
+		}
+	}
 	for _, e := range g.Entries {
 		var parts []string
 		if glyph, _ := mark(e.Level); glyph != "" {
@@ -132,14 +142,31 @@ func mdList(b *bytes.Buffer, g Group) {
 			}
 		}
 		b.WriteString("- " + strings.Join(parts, " · ") + "\n")
+		last := ""
 		for _, d := range e.Detail {
+			label := d.Label
+			if d.Note != "" {
+				label += " (" + d.Note + ")"
+			}
 			switch {
 			case d.Text == "":
 			case d.Label == "":
 				// A line without a label is a sentence of the tool's own.
 				b.WriteString("  - " + mdText(d.Text) + "\n")
+				last = ""
+			case d.Key != "":
+				// The lines that have a key are a list under their label, which is written once.
+				if label != last {
+					b.WriteString("  - **" + mdText(label) + ":**\n")
+				}
+				b.WriteString("    - " + mdCode(d.Key+spaces(key, d.Key)+gap+d.Text, false) + "\n")
+				last = label
+			case d.None:
+				b.WriteString("  - **" + mdText(label) + ":** " + mdText(d.Text) + "\n")
+				last = ""
 			default:
-				b.WriteString("  - **" + mdText(d.Label) + ":** " + mdCode(d.Text, false) + "\n")
+				b.WriteString("  - **" + mdText(label) + ":** " + mdCode(d.Text, false) + "\n")
+				last = ""
 			}
 		}
 	}

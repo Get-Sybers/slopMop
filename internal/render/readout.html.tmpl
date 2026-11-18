@@ -48,15 +48,46 @@ tr.detail td { padding-top: 0; }
 .dot { position: absolute; left: -27px; top: 13px; width: 12px; height: 12px; border-radius: 50%;
   background: currentColor; border: 2px solid var(--bg); }
 .head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; }
-.head .mark { font-weight: 600; }
+.head .mark { flex: 0 0 28px; min-width: 0; white-space: nowrap; font-weight: 600;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 .name { font-weight: 600; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; overflow-wrap: anywhere; }
 .rest { color: var(--soft); font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px;
   overflow-wrap: anywhere; }
-.items { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 2px 14px; margin-top: 6px;
-  font-size: 13px; }
-.id { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
-.items .value { font-family: inherit; }
-.plain { grid-column: 1 / -1; color: var(--soft); }
+.line { display: grid; grid-template-columns: 11em 11em 8em minmax(0, 1fr); column-gap: 18px;
+  align-items: baseline; padding: 1px 0; font-size: 13px; }
+.head + .line { margin-top: 6px; }
+.line.begins { margin-top: 4px; padding-top: 5px; border-top: 1px solid var(--line); }
+.marked .line { margin-left: 40px; }
+.of { display: contents; }
+.topic { grid-column: 1; font-weight: 600; }
+.aside { grid-column: 2; color: var(--soft); font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 12px; }
+.key { grid-column: 3; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+.text { grid-column: 4; overflow-wrap: anywhere; }
+.text.wide { grid-column: 3 / -1; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+.text.none { font-family: inherit; }
+.said { grid-column: 1 / -1; color: var(--soft); }
+@supports (grid-template-columns: subgrid) {
+  .blocks { display: grid; grid-template-columns: repeat(3, max-content) minmax(0, 1fr); column-gap: 18px; }
+  .block { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; }
+  .head, .line { grid-column: 1 / -1; }
+  .line { grid-template-columns: subgrid; }
+}
+@media (max-width: 760px) {
+  .blocks { display: block; }
+  .marked .line { margin-left: 0; }
+  .line { grid-template-columns: 8em minmax(0, 1fr); gap: 2px 12px; }
+  .of { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 10px; grid-column: 1 / -1; }
+  .key { grid-column: 1; }
+  .text { grid-column: 2; }
+  .text.wide { grid-column: 1 / -1; }
+}
+@supports (grid-template-columns: subgrid) {
+  @media (max-width: 760px) {
+    .block { grid-template-columns: max-content minmax(0, 1fr); column-gap: 12px; }
+    .line { grid-template-columns: subgrid; }
+  }
+}
 footer { margin-top: 40px; font-size: 13px; border-top: 1px solid var(--line); padding-top: 10px; }
 footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 @media print { nav { display: none; } body { padding: 0; } table { min-width: 0; } }
@@ -92,20 +123,19 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <h3>{{.Title}}</h3>
 {{- end}}
 {{- if .Blocks}}
-<ol class="blocks">
+<ol class="blocks{{if .Marked}} marked{{end}}">
 {{- range .Rows}}
 <li class="block"><span class="dot {{.Level}}"></span>
 <div class="head">{{if .Marked}}<span class="mark {{.Level}}">{{.Mark}}</span>{{end}}{{range $i, $c := .Cells}}<span class="{{if $i}}rest{{else}}name{{end}}">{{$c}}</span>{{end}}</div>
-{{- if .Detail}}
-<div class="items">
 {{- range .Detail}}
-{{- if .Labelled}}
-<span class="id">{{.Label}}</span><span class="value">{{.Text}}</span>
+<div class="line{{if .Begins}} begins{{end}}">
+{{- if not .Labelled}}<span class="said">{{.Text}}</span>
 {{- else}}
-<span class="plain">{{.Text}}</span>
+{{- if .Label}}<span class="of"><span class="topic">{{.Label}}</span>{{if .Note}}<span class="aside">{{.Note}}</span>{{end}}</span>{{end}}
+{{- if .Key}}<span class="key">{{.Key}}</span><span class="text">{{.Text}}</span>
+{{- else}}<span class="text wide{{if .None}} none{{end}}">{{.Text}}</span>
 {{- end}}
-{{- end}}
-</div>
+{{- end}}</div>
 {{- end}}
 </li>
 {{- end}}

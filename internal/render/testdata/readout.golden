@@ -20,8 +20,11 @@ Impact   (what it means)
 
 Intent timeline   (a block for each intent)
   [x] i7  2026-10-22T09:00:00Z to 2026-10-22T09:05:00Z
-      T1083      File and Directory Discovery
-      AML.T0055  Unsecured Credentials
+      Discovery         TA0007, AML.TA0008  T1083      File and Directory Discovery
+                                            AML.T0075  Enterprise Resource Discovery
+      CredentialAccess  TA0006, AML.TA0013  AML.T0055  Unsecured Credentials
+      Exfiltration      TA0010, AML.TA0010  no technique
+      watchlist                             APT-EXAMPLE: 203.0.113.9
 
       i8  2026-10-22T09:10:00Z
       no technique

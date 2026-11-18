@@ -73,7 +73,9 @@ Impact
 - Detail lines stand indented under an entry, each with a label. Lines that share a label stand
   under it, and the label is written once.
 - A block is an entry set apart from the next by an empty line: its name, then what it holds as
-  a list, an identifier and what the identifier names on each line.
+  the rows of a table. A row has four columns: a label, the identifiers of what the label
+  names, an identifier, and what that identifier names. Each column begins at the same place in
+  every block of the section.
 - Times are UTC.
 - Colour is used only when standard output is a terminal, `NO_COLOR` is unset and `TERM` is not
   `dumb`; on Windows, only inside Windows Terminal. A file or a pipe receives no colour code.
@@ -108,13 +110,13 @@ name ARTEX intents, a block is an intent; where none does, a block is a period.
 ```text
 Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with each tactic and the techniques under it)
   [x] i1041  2026-10-22T09:00:00Z to 2026-10-22T09:00:40Z
-      Discovery (TA0007, AML.TA0008)            T1083      File and Directory Discovery
-                                                T1007      System Service Discovery
-      CredentialAccess (TA0006, AML.TA0013)     T1552.005  Unsecured Credentials: Cloud Instance Metadata API
-                                                AML.T0055  Unsecured Credentials
+      Discovery            TA0007, AML.TA0008  T1083      File and Directory Discovery
+                                               T1007      System Service Discovery
+      CredentialAccess     TA0006, AML.TA0013  T1552.005  Unsecured Credentials: Cloud Instance Metadata API
+                                               AML.T0055  Unsecured Credentials
 
   [x] i1042  2026-10-22T09:05:00Z to 2026-10-22T09:05:40Z
-      Discovery (TA0007, AML.TA0008)            no MITRE ATT&CK technique identified
+      Discovery            TA0007, AML.TA0008  no MITRE ATT&CK technique identified
 ```
 
 - A block names the intent, or the tactics of the period, and when it ran: one time when that is
@@ -122,6 +124,9 @@ Timeline   (a block for each intent, from the first of its files to be created u
 - Under it stand the tactics its files show, each once, by name with its identifiers of ATT&CK
   and ATLAS, in the order of `tactics.json`. A period, which is named by its tactics, lists
   them here with their identifiers.
+- The lines of the blocks are the rows of one table. The tactics stand in one column, their
+  identifiers in the next, then the identifiers of the techniques and then their names, each at
+  the same place in every block.
 - Beside a tactic stand the techniques under it, each on a line by its identifier and the name
   its framework gives it, a sub-technique after the technique it is part of: the ATT&CK
   techniques and then the ATLAS techniques, in the order they are first shown.
@@ -266,6 +271,9 @@ entries and the same limits, and without the line that names the output folder.
 - The title is the first heading, a section is a second-level heading and a group a third.
 - A group whose entries have no detail lines is a table with a header row. Any other group is a
   list, each entry one item with its detail lines as items under it; a block is such an item.
+- In a block of the timeline a tactic is an item, written once with its identifiers, and its
+  techniques are the items under it. The identifiers of the techniques are filled to one width,
+  so their names begin in one column.
 - Every value and every line of evidence is a code span, so a viewer shows it as written and
   makes no link, no formatting and no HTML of it.
 
@@ -281,6 +289,10 @@ entries and the same limits, and without the line that names the output folder.
   its row. Every text of the evidence is escaped.
 - The blocks of a timeline stand one under another on a line, each with a mark on the line in
   the colour of its severity.
+- The lines of the blocks are the rows of one table: the tactic, its identifiers, the identifier
+  of a technique and its name each begin at the same place in every block, and a rule parts one
+  tactic of a block from the next. On a screen no wider than 760 pixels a tactic stands above
+  its techniques.
 
 ## 5. JSON
 
