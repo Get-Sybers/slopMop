@@ -77,7 +77,7 @@ Impact
 | Findings, tactics | tactic, its ATT&CK and ATLAS identifiers, files | none |
 | Notable files | role, file | `found`, `linked` |
 | Targeted, a group per kind | the value, for an address whether it is private or public, whether it is prior or discovered, the places in the scripts | `from`: the output that held a discovered value first; `what`: the script lines that name it |
-| Exposure, a group per kind | the value, whether it was collected or used, the places; a secret also says what it is and whose | none |
+| Exposure, a group per kind, then one per service that has a group of its own | the value, whether it was collected or used, the places; where the evidence says so, what the value is, whose it is and what it is for | none |
 | Impact | the impact | its statement; `targets`: what it concerns; `what`: the lines that show it; `basis`; `files` when no line is quoted |
 | Remediation | the action | its text; `targets`: what to act on; `what`; `basis`; `files` when no line is quoted |
 | Mitigation | the mitigation, the techniques found that it addresses | the framework's own sentence; `for`: each activity it answers and what that activity acted on |
@@ -403,16 +403,18 @@ value. Two values that differ only in case are one row.
 
 ### exposure
 
-One row per distinct value. A secret is one row per value and account.
+One row per distinct value. A value that the evidence gives two accounts, or two services, is one
+row for each.
 
 | Column | Value |
 | --- | --- |
-| `kind` | `password`, `username`, `email`, `device` or `ip` |
+| `kind` | `password`, `username`, `email`, `tenant`, `sshkey`, `apikey`, `application`, `resource`, `device` or `ip` |
 | `value` | the value; a secret is masked unless `-secrets shown` |
-| `account` | whose a secret is, when the evidence says; empty otherwise |
-| `form` | what a secret is: `password`, `hash`, `token`, `key` or `secret`; empty on the other kinds |
+| `account` | whose a secret or an SSH key is, when the evidence says; empty otherwise |
+| `form` | what the value is: of a secret `password`, `hash`, `token`, `key` or `secret`; of an SSH key `public key`, `private key` or `key file`; of a resource `project`, `bucket` or `site`; empty on the other kinds |
+| `service` | what the value gives access to, when the evidence says: the service a key, a token, a tenant, an application or a resource is of, such as `Microsoft 365`, `Google Cloud`, `AWS` or `GitHub`, and the host of an SSH key; empty otherwise |
 | `seen` | `collected` when the value is first seen in an output, in the order of the timeline: the scripts gathered it. `used` when it is first seen in a script: the attacker brought it |
-| `severity` | `high` for a secret, `medium` for a username and an email address, `low` for a device and an address |
+| `severity` | `high` for a secret, an API key and an SSH key, `medium` for a username, an email address, a tenant and an application, `low` for a resource, a device and an address |
 | `count` | the lines that hold the value |
 | `files` | the first five places that hold it |
 
@@ -426,10 +428,33 @@ Sort: the kinds in the order above, `collected` before `used`, then by value.
 - A device is a value under a field that names a host, the host of a share, a scan report or a
   remote login, a name a tool reports, and a name in `.local`, `.lan`, `.internal`, `.corp` or
   `.intranet`.
-- A secret is a value under a field whose name ends as `password`, `secret`, `token` or `key`
-  does, a password a tool reports or is given, the hash of a dumped account or of a `shadow` line,
-  a password inside an address, a bearer token, and the indicators `JWT`, `AWSKey` and
-  `PrivateKey`. The same NT hash is one value however it is written.
+- A secret is a value under a field whose name ends as `password`, `secret` or `token` does, a
+  password a tool reports or is given, the hash of a dumped account or of a `shadow` line, a
+  password inside an address, a bearer token, and the indicators `JWT` and `PrivateKey`. The
+  same NT hash is one value however it is written.
+- An API key is a value under a field whose name ends as `apikey`, `secretkey` or `accesskey`
+  does, the indicator `AWSKey`, and a value in the form a service gives its keys, such as
+  `ghp_`, `sk-`, `xoxb-` or `AIza` and what follows. It is masked as a secret is. A token that is
+  the key of a service is listed as that key and not as a secret too.
+- A tenant is a directory identifier or a domain under a field that names a tenant, after
+  `-TenantId` or `--tenant`, in the address of a Microsoft login, and a domain of
+  `onmicrosoft.com`.
+- An SSH key is a public key, named by its fingerprint as `ssh-keygen -l` gives it, with the
+  user and the host of its comment or the host of its line in `known_hosts`; the header of a
+  private key of SSH; and the key file `ssh`, `scp` or `sftp` is given with `-i`, with the user
+  and the host it opens.
+- An application is the identifier of a client under a field that names one or after
+  `-ClientId`: a directory identifier, or a client of Google. A resource is a project of Google
+  Cloud, a bucket of Google Cloud or of AWS, and a site of SharePoint.
+- The service of a value is the one its own form shows, such as the key of a provider, a
+  directory identifier of a tenant or an address of `gserviceaccount.com`; else the one that
+  issued a JSON web token, by the host its claims name; else the one a word of its field name
+  names, as `AZURE_CLIENT_SECRET` and `OPENAI_API_KEY` do.
+- What is of Microsoft 365 and what is of Google Cloud is listed in the report a second time, in
+  a group of that service, whatever its kind: a tenant, an application, a secret, a token, an
+  account, a project. The saved file holds each value once, with its `service`.
+- A value is folded into the same value of which the evidence says more: whose it is, or what
+  it is for.
 - A secret takes the account of its own record, line or tool option. Under a field name it takes
   the username read at most three lines before it, unless both field names begin differently:
   `DB_PASSWORD` is the password of `DB_USER` and `API_TOKEN` is not.

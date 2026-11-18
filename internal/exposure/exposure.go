@@ -35,7 +35,8 @@ const (
 )
 
 type document struct {
-	Kinds []kindEntry `json:"kinds"`
+	Services []serviceEntry `json:"services,omitempty"`
+	Kinds    []kindEntry    `json:"kinds"`
 }
 
 type kindEntry struct {
@@ -75,12 +76,17 @@ type suffixEntry struct {
 type indicatorEntry struct {
 	Type string `json:"type"`
 	Form string `json:"form,omitempty"`
+	// Unless is an expression: a value that matches it is not of the kind.
+	Unless string `json:"unless,omitempty"`
 }
 
 // patternEntry is an expression with a group named value and, where the
-// line says whose the value is, one named account.
+// line says whose the value is, one named account, and one named host
+// where it says which host the value is for.
 type patternEntry struct {
 	Form string `json:"form,omitempty"`
+	// Service names the service every value of the pattern is of.
+	Service string `json:"service,omitempty"`
 	// Needs are lower-case texts one of which a line must hold to be tried.
 	Needs   []string `json:"needs"`
 	Unless  string   `json:"unless,omitempty"`
@@ -102,8 +108,12 @@ type Item struct {
 	Value string
 	// Account is whose a secret is, when the evidence says.
 	Account string
-	// Form is what a secret is: a password, a hash, a token or a key.
+	// Form is what a secret is: a password, a hash, a token or a key. A
+	// value of another kind has a form where its kind holds several.
 	Form string
+	// Service is what the value gives access to: a cloud or the provider of
+	// a key, or the host an SSH key is for.
+	Service string
 	// Line is the line of the text, from 1.
 	Line int
 	// Open marks a secret whose value here describes it and gives nothing away.
@@ -117,6 +127,8 @@ type rule struct {
 	with []string
 	// prefix is what stands before the ending that named the kind: "db" of "dbpassword".
 	prefix string
+	// unless leaves out a value of an indicator that matches it.
+	unless *regexp.Regexp
 }
 
 type pattern struct {
@@ -130,6 +142,10 @@ type pattern struct {
 	rx      *regexp.Regexp
 	value   int
 	account int
+	// host is the group that names the host a value is for, and service the
+	// service every value is of; a host named on the line comes first.
+	host    int
+	service string
 }
 
 type compiledKind struct {
@@ -148,6 +164,16 @@ type Table struct {
 	patterns  []pattern
 	// names holds every key and ending: a field of a kind holds one of them.
 	names [][]byte
+	// services are what a value can be of, and words the words of a field
+	// name that name one.
+	services []service
+	words    map[string]string
+	// ofAny holds, for each kind, one expression that every value of some service matches.
+	ofAny []*regexp.Regexp
+	// finder looks for every needed text it takes in one pass, and found
+	// says, for each needed text of each pattern, which of its answers that is; -1 for none.
+	finder *sift.Finder
+	found  [][]int
 	// ascii says every needed text is ASCII, so a text put in lower case
 	// byte by byte holds what a line put in lower case holds.
 	ascii bool
@@ -215,6 +241,9 @@ func decode(data []byte) (Table, error) {
 			t.hardcoded[ind.Type] = rule{kind: i}
 		}
 	}
+	if err := t.addServices(doc.Services); err != nil {
+		return Table{}, fmt.Errorf("exposures.json: %w", err)
+	}
 	// The longest ending decides, so "accesstoken" is a token and not a "token" of another kind.
 	sort.SliceStable(t.suffixes, func(i, j int) bool { return len(t.suffixes[i].text) > len(t.suffixes[j].text) })
 	for key := range t.exact {
@@ -224,6 +253,28 @@ func decode(data []byte) (Table, error) {
 		t.names = append(t.names, []byte(s.text))
 	}
 	slices.SortFunc(t.names, bytes.Compare)
+	// A text of three bytes or more on one line is left to the finder.
+	var texts []string
+	at := map[string]int{}
+	t.found = make([][]int, len(t.patterns))
+	for n, p := range t.patterns {
+		t.found[n] = make([]int, len(p.needs))
+		for k, need := range p.needs {
+			t.found[n][k] = -1
+			if len(need) < 3 || strings.Contains(need, "\n") {
+				continue
+			}
+			if _, ok := at[need]; !ok {
+				at[need] = len(texts)
+				texts = append(texts, need)
+			}
+			t.found[n][k] = at[need]
+		}
+	}
+	var err error
+	if t.finder, err = sift.NewFinder(texts); err != nil {
+		return Table{}, fmt.Errorf("exposures.json: %w", err)
+	}
 	t.ascii = !slices.ContainsFunc(t.patterns, func(p pattern) bool {
 		return slices.ContainsFunc(p.needs, func(need string) bool {
 			return strings.ContainsFunc(need, func(r rune) bool { return r >= utf8.RuneSelf })
@@ -266,7 +317,11 @@ func (t *Table) add(i int, e kindEntry) error {
 		if _, taken := t.indicators[ind.Type]; taken || ind.Type == "" {
 			return fmt.Errorf("the indicator type %q is in two kinds or has no name", ind.Type)
 		}
-		t.indicators[ind.Type] = rule{kind: i, form: ind.Form}
+		unless, err := optional(ind.Unless)
+		if err != nil {
+			return err
+		}
+		t.indicators[ind.Type] = rule{kind: i, form: ind.Form, unless: unless}
 	}
 	for _, p := range e.Patterns {
 		rx, err := regexp.Compile(p.Pattern)
@@ -277,7 +332,10 @@ func (t *Table) add(i int, e kindEntry) error {
 		if err != nil {
 			return err
 		}
-		c := pattern{kind: i, form: p.Form, needs: p.Needs, sets: plan.Needs, rx: rx, value: rx.SubexpIndex("value"), account: rx.SubexpIndex("account")}
+		c := pattern{
+			kind: i, form: p.Form, needs: p.Needs, sets: plan.Needs, rx: rx, service: p.Service,
+			value: rx.SubexpIndex("value"), account: rx.SubexpIndex("account"), host: rx.SubexpIndex("host"),
+		}
 		if c.value < 0 || len(p.Needs) == 0 {
 			return fmt.Errorf("the pattern %s lacks a group named value or a needed text", p.Pattern)
 		}
@@ -341,7 +399,10 @@ func (t Table) FromIndicator(typ, value string, line int) (Item, bool) {
 	if (k.valid != nil && !k.valid.MatchString(value)) || (k.reject != nil && k.reject.MatchString(value)) {
 		return Item{}, false
 	}
-	item := Item{Kind: k.Name, Value: value, Form: r.form, Line: line}
+	if r.unless != nil && r.unless.MatchString(value) {
+		return Item{}, false
+	}
+	item := Item{Kind: k.Name, Value: value, Form: r.form, Service: t.serviceOf(r.kind, value, "", ""), Line: line}
 	// The header of a key block names the key; the key itself is in the lines below it.
 	if strings.HasPrefix(value, "-----BEGIN ") {
 		item.Value = strings.ToLower(strings.Trim(strings.TrimPrefix(value, "-----BEGIN "), "- "))
@@ -408,13 +469,21 @@ type scanner struct {
 	marks [][]uint64
 	// flat is a line as a field name is compared: its letters and digits, in lower case.
 	flat []byte
+	// services holds the service of each value already asked about.
+	services map[asked]string
+}
+
+// asked is what the service of a value is read from.
+type asked struct {
+	kind             int
+	value, host, key string
 }
 
 // Extract returns what a text holds, in the order it is found. A text that
 // is JSON is read by its fields; any other is read line by line, and by its
 // columns when its first line is a header.
 func (t Table) Extract(text string) []Item {
-	s := &scanner{t: t, vars: vars.Read(text), seen: map[Item]bool{}}
+	s := &scanner{t: t, vars: vars.Read(text), seen: map[Item]bool{}, services: map[asked]string{}}
 	if first := strings.TrimLeft(text, " \t\r\n\ufeff"); strings.HasPrefix(first, "{") || strings.HasPrefix(first, "[") {
 		if s.json(text) {
 			return s.items
@@ -430,8 +499,15 @@ func (t Table) Extract(text string) []Item {
 	return s.items
 }
 
+// source is what the rule that found a value says of it: whose it is, what
+// it is, what it is for, and the name of the field it stood under.
+type source struct {
+	account, form, service, key string
+}
+
 // emit cleans a value and records it when the kind accepts it.
-func (s *scanner) emit(kind int, value, account, form string, line int) (string, bool) {
+func (s *scanner) emit(kind int, value string, by source, line int) (string, bool) {
+	form := by.form
 	value = s.clean(value)
 	k := s.t.kinds[kind]
 	if !k.Secret {
@@ -445,9 +521,28 @@ func (s *scanner) emit(kind int, value, account, form string, line int) (string,
 	if value == "" || rejected || (k.valid != nil && !k.valid.MatchString(value)) {
 		return "", false
 	}
-	item := Item{Kind: k.Name, Value: value, Line: line}
+	item := Item{Kind: k.Name, Value: value, Form: form, Line: line}
+	// What the rule says nothing of is not cleaned: most values come alone.
+	if by.account != "" {
+		item.Account = s.owner(by.account)
+	}
+	host := ""
+	if by.service != "" {
+		// A host of known_hosts stands in brackets when it names a port.
+		host = strings.NewReplacer("[", "", "]", "").Replace(s.owner(by.service))
+	}
+	// A text names the same value under the same field many times over.
+	of := asked{kind, value, host, by.key}
+	service, known := s.services[of]
+	if !known {
+		service = s.t.serviceOf(kind, value, host, by.key)
+		s.services[of] = service
+	}
+	item.Service = service
+	if form == formPublicKey {
+		item.Value = fingerprint(value)
+	}
 	if k.Secret {
-		item.Account, item.Form = s.owner(account), form
 		if item.Form == "" {
 			item.Form = k.Name
 		}
@@ -511,11 +606,14 @@ func (s *scanner) line(line string, number int) {
 			continue
 		}
 		for _, m := range p.rx.FindAllStringSubmatch(line, -1) {
-			account := ""
+			by := source{form: p.form, service: p.service}
 			if p.account >= 0 {
-				account = m[p.account]
+				by.account = m[p.account]
 			}
-			s.emit(p.kind, m[p.value], account, p.form, number)
+			if p.host >= 0 && m[p.host] != "" {
+				by.service = m[p.host]
+			}
+			s.emit(p.kind, m[p.value], by, number)
 		}
 	}
 }
@@ -552,8 +650,27 @@ func (t Table) mark(text string, lines []string) [][]uint64 {
 		at += len(line) + 1
 	}
 	marks := make([][]uint64, len(t.patterns))
+	set := func(n, i int) {
+		if marks[n] == nil {
+			marks[n] = make([]uint64, (len(lines)+63)/64)
+		}
+		marks[n][i/64] |= 1 << (i % 64)
+	}
+	// The needed texts the finder takes are all looked for in one pass. A
+	// line it names may hold its text past where a line is read to: the
+	// pattern is then tried on it and finds nothing.
+	found := t.finder.Lines(lower)
 	for n, p := range t.patterns {
-		for _, need := range p.needs {
+		for k, need := range p.needs {
+			if at := t.found[n][k]; at >= 0 {
+				for _, begins := range found[at] {
+					i := sort.SearchInts(starts, begins)
+					if len(lines[i]) >= 4 && sift.Holds(lower[begins:begins+min(len(lines[i]), maxLine)], p.sets) {
+						set(n, i)
+					}
+				}
+				continue
+			}
 			i := 0
 			for at := 0; at < len(lower); at = starts[i] + len(lines[i]) + 1 {
 				found := bytes.Index(lower[at:], []byte(need))
@@ -568,10 +685,7 @@ func (t Table) mark(text string, lines []string) [][]uint64 {
 				if len(lines[i]) < 4 || at+found+len(need) > read || !sift.Holds(lower[starts[i]:read], p.sets) {
 					continue
 				}
-				if marks[n] == nil {
-					marks[n] = make([]uint64, (len(lines)+63)/64)
-				}
-				marks[n][i/64] |= 1 << (i % 64)
+				set(n, i)
 			}
 		}
 	}
@@ -582,18 +696,18 @@ func (t Table) mark(text string, lines []string) [][]uint64 {
 // username of its own line, or the one read at most a few lines before it.
 func (s *scanner) pairs(line string, number int) {
 	type found struct {
-		rule  rule
-		value string
+		rule       rule
+		key, value string
 	}
 	var fields []found
 	for _, m := range rxPair.FindAllStringSubmatch(line, -1) {
 		if r, ok := s.t.lookup(m[1], nil); ok {
-			fields = append(fields, found{r, m[2] + m[3] + m[4]})
+			fields = append(fields, found{r, m[1], m[2] + m[3] + m[4]})
 		}
 	}
 	for _, f := range fields {
 		if !s.t.kinds[f.rule.kind].Secret {
-			if value, ok := s.emit(f.rule.kind, f.value, "", "", number); ok && s.t.kinds[f.rule.kind].Name == usernameKind {
+			if value, ok := s.emit(f.rule.kind, f.value, source{form: f.rule.form, key: f.key}, number); ok && s.t.kinds[f.rule.kind].Name == usernameKind {
 				s.account, s.accountLine, s.accountPrefix = value, number, f.rule.prefix
 			}
 		}
@@ -606,7 +720,7 @@ func (s *scanner) pairs(line string, number int) {
 			if s.account != "" && number-s.accountLine <= near && related {
 				account = s.account
 			}
-			s.emit(f.rule.kind, f.value, account, f.rule.form, number)
+			s.emit(f.rule.kind, f.value, source{account: account, form: f.rule.form, key: f.key}, number)
 		}
 	}
 }
@@ -633,14 +747,14 @@ func (s *scanner) record(keys, values []string, line int) {
 	for i, key := range keys {
 		rules[i], known[i] = s.t.lookup(key, beside)
 		if known[i] && !s.t.kinds[rules[i].kind].Secret {
-			if value, ok := s.emit(rules[i].kind, values[i], "", "", line); ok && account == "" && s.t.kinds[rules[i].kind].Name == usernameKind {
+			if value, ok := s.emit(rules[i].kind, values[i], source{form: rules[i].form, key: keys[i]}, line); ok && account == "" && s.t.kinds[rules[i].kind].Name == usernameKind {
 				account = value
 			}
 		}
 	}
 	for i := range keys {
 		if known[i] && s.t.kinds[rules[i].kind].Secret {
-			s.emit(rules[i].kind, values[i], account, rules[i].form, line)
+			s.emit(rules[i].kind, values[i], source{account: account, form: rules[i].form, key: keys[i]}, line)
 		}
 	}
 }

@@ -25,7 +25,7 @@
     "action": "Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.",
     "activities": ["KeyVaultSecretRead", "KeyVaultKeyUnwrap", "LsassDump", "RegistryHiveDump", "CertificateExport", "ShadowFileRead", "PrivateKeyRead", "CredentialFileRead", "ShellHistoryRead", "CloudMetadataAccess", "ProcessMemoryDump", "ClusterSecretRead"],
     "tactics": ["CredentialAccess"],
-    "exposed": ["password"]
+    "exposed": ["password", "apikey", "sshkey"]
   },
   {
     "name": "Remove persistence",
@@ -86,6 +86,6 @@
     "action": "Use what was listed to predict targets: check those identities, vaults and hosts for later activity.",
     "activities": ["GraphDirectoryEnumeration", "AzureResourceEnumeration", "KeyVaultKeyEnumeration", "DirectorySearch", "RegistryQuery", "SetuidFileSearch", "ServiceDiscovery"],
     "tactics": ["Discovery"],
-    "exposed": ["username", "email", "device", "ip"]
+    "exposed": ["username", "email", "tenant", "application", "resource", "device", "ip"]
   }
 ]

@@ -870,6 +870,60 @@ func TestReportNamesWhat(t *testing.T) {
 	}
 }
 
+// The exposure names the tenants, the SSH keys with their hosts and the API
+// keys with their services, and lists what is of Microsoft 365 and of Google
+// Cloud in a group of its own.
+func TestReportExposureOfServices(t *testing.T) {
+	const tenant, app = "6f9619ff-8b86-4d11-b42d-00c04fc964ff", "1b2c3d4e-5f60-4718-8293-a4b5c6d7e8f9"
+	const token = "ghp_Ab3dE9fGh1JkLm5nPq7RsTu2VwXy4Z0c8Ab3" //nolint:gosec // G101: a made-up value in the form of a key.
+	folder := t.TempDir()
+	for name, text := range map[string]string{
+		"20261101_090000_step01_m365.sh": "#!/bin/bash\nexport AZURE_TENANT_ID=" + tenant + "\nexport AZURE_CLIENT_ID=" + app +
+			"\nexport AZURE_CLIENT_SECRET=\"Qz8~fakeClientSecretValue.0123456789abc\"\ncurl -s https://contoso.sharepoint.com/sites/finance/_api/web\n",
+		"20261101_090500_step02_gcp.sh":       "#!/bin/bash\ngcloud compute instances list --project=acme-prod-4711\ngsutil ls gs://acme-prod-backups/\n",
+		"20261101_091000_step03_ssh.sh":       "#!/bin/bash\nssh -i ~/.ssh/id_ed25519 ops@10.20.30.5 'id'\n",
+		"authorized_keys_20261101_091025.txt": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGJhY2tkb29yYmFja2Rvb3JiYWNrZG9vcmJhY2tkb29y backdoor@attacker-box\n",
+		"env_20261101_091500.txt":             "GITHUB_TOKEN=" + token + "\nINTERNAL_API_KEY=9f8e7d6c5b4a3928\n",
+	} {
+		if err := os.WriteFile(filepath.Join(folder, name), []byte(text), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	readout, saved := report(t, folder, "exposure")
+	table := rows(t, filepath.Join(saved, "exposure.csv"))
+	for _, want := range []map[string]string{
+		{"kind": "tenant", "value": tenant, "service": "Microsoft 365"},
+		{"kind": "application", "value": app, "service": "Microsoft 365"},
+		{"kind": "password", "form": "secret", "service": "Microsoft 365", "seen": "used"},
+		{"kind": "resource", "value": "contoso.sharepoint.com", "form": "site", "service": "Microsoft 365"},
+		{"kind": "resource", "value": "acme-prod-4711", "form": "project", "service": "Google Cloud"},
+		{"kind": "resource", "value": "gs://acme-prod-backups", "form": "bucket", "service": "Google Cloud"},
+		{"kind": "sshkey", "value": "~/.ssh/id_ed25519", "form": "key file", "account": "ops", "service": "10.20.30.5"},
+		{"kind": "sshkey", "value": "ssh-ed25519 SHA256:Ddp3soYTdzq1tXKnpZgVrTfTOXeC2oHvS7SeMWqylYU", "form": "public key", "account": "backdoor", "service": "attacker-box"},
+		{"kind": "apikey", "form": "key", "service": "GitHub", "seen": "collected"},
+		{"kind": "apikey", "value": "9f********8 (16 chars)", "form": "key"},
+	} {
+		find(t, table, want)
+	}
+	for _, row := range table {
+		if row["kind"] == "password" && row["form"] == "token" {
+			t.Errorf("the token of GitHub is listed as a plain secret as well: %v", row)
+		}
+	}
+	for _, want := range []string{
+		"\n  Tenants (1)\n", "\n  SSH keys (2)\n", "\n  API keys (2)\n", "\n  Applications (1)\n", "\n  Cloud resources (3)\n",
+		"\n  Microsoft 365 (4)\n", "\n  Google Cloud (2)\n",
+		"key, GitHub  ", "key file of ops, 10.20.30.5  ", "public key of backdoor, attacker-box  ", "site, Microsoft 365  ",
+	} {
+		if !strings.Contains(readout, want) {
+			t.Errorf("the readout lacks %q:\n%s", want, readout)
+		}
+	}
+	if strings.Contains(readout, token) || strings.Contains(readFile(t, filepath.Join(saved, "exposure.csv")), token) {
+		t.Errorf("the token is written out as it stands:\n%s", readout)
+	}
+}
+
 // What a script names outright is a target: prior when no earlier output
 // holds it, discovered when one does, with the script lines that name it.
 func TestReportTargeted(t *testing.T) {
@@ -1366,7 +1420,7 @@ func TestReportVerbRejects(t *testing.T) {
 		{"an unknown section", func(v *verbSpec, _ *commandsDoc) { v.Sections[0].Name = "bogus" }, "which has no implementation"},
 		{"a section left out", func(v *verbSpec, _ *commandsDoc) { v.Sections = v.Sections[1:] }, "does not declare the section"},
 		{"an option it reads and does not name", func(v *verbSpec, _ *commandsDoc) { v.Takes = v.Takes[:1] }, `reads the option "outdir"`},
-		{"a row that fills a column the class lacks", func(_ *verbSpec, doc *commandsDoc) { doc.Classes[4].Columns = doc.Classes[4].Columns[1:] }, "the class exposure declares 7 columns and fills 8"},
+		{"a row that fills a column the class lacks", func(_ *verbSpec, doc *commandsDoc) { doc.Classes[4].Columns = doc.Classes[4].Columns[1:] }, "the class exposure declares 8 columns and fills 9"},
 		{"a column the targeted row lacks", func(_ *verbSpec, doc *commandsDoc) { doc.Classes[3].Columns[2].Key = "bogus" }, `the class targeted declares the column "bogus"`},
 		{"no prefix", func(v *verbSpec, _ *commandsDoc) { v.Saved.Prefix = "" }, "needs a prefix"},
 		{"no tables", func(v *verbSpec, _ *commandsDoc) { v.Saved.Tables = nil }, "needs a prefix"},

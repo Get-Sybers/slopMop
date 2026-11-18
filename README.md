@@ -56,7 +56,7 @@ hold all of them.
 | `findings` | each activity, indicator and tactic, most severe first, with the lines that show it |
 | `files` | the files that hold a finding of high severity |
 | `targeted` | the usernames, IP addresses, hostnames and email addresses the scripts name outright, and whether the attacker knew each beforehand |
-| `exposure` | the usernames, email addresses, passwords and other secrets, devices and IP addresses the files hold |
+| `exposure` | the passwords and other secrets, usernames, email addresses, tenants, SSH keys with their hosts, API keys with their services, applications, cloud resources, devices and IP addresses the files hold, and what is of Microsoft 365 and of Google Cloud |
 | `impact` | what the findings mean, what each concerns and the lines that show it |
 | `remediation` | what to do and to what, most urgent first |
 | `mitigation` | what MITRE ATT&CK and MITRE ATLAS say prevents the techniques found |

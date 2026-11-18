@@ -13,7 +13,7 @@
     "activities": ["KeyVaultSecretRead", "KeyVaultKeyUnwrap", "LsassDump", "RegistryHiveDump", "CertificateExport", "ShadowFileRead", "PrivateKeyRead", "CredentialFileRead", "ShellHistoryRead", "CloudMetadataAccess", "ProcessMemoryDump", "ClusterSecretRead"],
     "tactics": ["CredentialAccess"],
     "affected": ["KeyVaultEndpoint"],
-    "exposed": ["password"]
+    "exposed": ["password", "apikey", "sshkey"]
   },
   {
     "name": "Persistence established",
@@ -103,6 +103,6 @@
     "statement": "Identities, resources or configuration were listed. Later steps were probably aimed with the result.",
     "activities": ["GraphDirectoryEnumeration", "AzureResourceEnumeration", "KeyVaultKeyEnumeration", "DirectorySearch", "RegistryQuery", "SetuidFileSearch", "ServiceDiscovery"],
     "tactics": ["Discovery"],
-    "exposed": ["username", "email", "device", "ip"]
+    "exposed": ["username", "email", "tenant", "application", "resource", "device", "ip"]
   }
 ]

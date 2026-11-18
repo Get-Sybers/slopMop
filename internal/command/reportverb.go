@@ -539,39 +539,57 @@ func (w reportRun) exposure() []render.Group {
 	var groups []render.Group
 	at := map[string]int{}
 	total := map[string]int{}
-	for _, e := range w.result.exposed {
-		total[e.kind.Name]++
-	}
-	for _, e := range w.result.exposed {
-		i, ok := at[e.kind.Name]
+	// add puts a value in the group of a title, which says what else it is.
+	add := func(title string, e exposed, what string, described bool) {
+		i, ok := at[title]
 		if !ok {
 			i = len(groups)
-			at[e.kind.Name] = i
+			at[title] = i
 			columns := []string{"value", "seen", "found in"}
-			if e.kind.Secret {
+			if described {
 				columns = []string{"value", "what", "seen", "found in"}
 			}
-			groups = append(groups, render.Group{Title: e.kind.Title + " (" + strconv.Itoa(total[e.kind.Name]) + ")", Columns: columns})
+			groups = append(groups, render.Group{Columns: columns})
 		}
+		total[title]++
+		groups[i].Title = title + " (" + strconv.Itoa(total[title]) + ")"
 		if len(groups[i].Entries) == fewExposed {
-			continue
+			return
 		}
 		cites := make([]string, len(e.cites))
 		for n, c := range e.cites {
 			cites[n] = c.String()
 		}
 		entry := render.Entry{Level: e.kind.Severity, Cells: []string{e.shown(), e.seen, few(cites)}}
-		if e.kind.Secret {
-			whose := e.form
-			if e.account != "" {
-				whose += " of " + e.account
-			}
-			entry.Cells = []string{e.shown(), whose, e.seen, few(cites)}
+		if described {
+			entry.Cells = []string{e.shown(), what, e.seen, few(cites)}
 		}
 		groups[i].Entries = append(groups[i].Entries, entry)
 	}
-	for name, i := range at {
-		if more := total[name] - len(groups[i].Entries); more > 0 {
+	// A kind says what its values are when one of them has something to say.
+	described := map[string]bool{}
+	for _, e := range w.result.exposed {
+		described[e.kind.Name] = described[e.kind.Name] || e.kind.Secret || e.what() != ""
+	}
+	for _, e := range w.result.exposed {
+		add(e.kind.Title, e, e.what(), described[e.kind.Name])
+	}
+	// What is of a service that has a group of its own is listed there as well.
+	for _, s := range w.pipe.exposures.Services() {
+		for _, e := range w.result.exposed {
+			if s.Group && e.service == s.Name {
+				// The group names the service, so a line says what the value is: its form, or its kind.
+				of := e
+				of.service = ""
+				if of.form == "" {
+					of.form = e.kind.Name
+				}
+				add(s.Name, e, of.what(), true)
+			}
+		}
+	}
+	for title, i := range at {
+		if more := total[title] - len(groups[i].Entries); more > 0 {
 			groups[i].Entries = append(groups[i].Entries, render.Entry{Cells: []string{"and " + strconv.Itoa(more) + " more in the saved exposure file"}})
 		}
 	}

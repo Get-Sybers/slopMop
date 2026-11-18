@@ -8,7 +8,7 @@ Summary
   activities  1
   tactics     4
   targeted    7   Usernames 1, Hostnames 3, IP addresses 3
-  exposed     8   Usernames 2, Devices 3, IP addresses 3
+  exposed     10  Usernames 2, Tenants 2, Devices 3, IP addresses 3
   intel hits  1
 
 Timeline   (from, until, files, tactics)
@@ -97,6 +97,9 @@ Exposure   (collected: first seen in an output; used: first seen in a script; a 
   Usernames (2)
     [!] MSOL_0a1b2c3d4e5f  collected  sync_10.20.1.17_retry_20250302_090930.txt:9
     [!] svc_backup         used       20250302_090900_step03_sync_retry.ps1:3, 20250302_090900_step03_sync_retry.ps1:4
+  Tenants (2)
+    [!] 6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c  Microsoft 365  collected  sync_10.20.1.17_retry_20250302_090930.txt:10, 20250302_091500_step04_certs.ps1:3
+    [!] contoso.onmicrosoft.com               Microsoft 365  collected  sync_10.20.1.17_retry_20250302_090930.txt:5
   Devices (3)
     [i] AADC01  collected  hosts_20250302_090030.csv:3
     [i] CA01    collected  hosts_20250302_090030.csv:4
@@ -105,6 +108,9 @@ Exposure   (collected: first seen in an output; used: first seen in a script; a 
     [i] 10.20.1.17  collected  hosts_20250302_090030.csv:3, sync_10.20.1.17_20250302_090530.txt:1, 20250302_090900_step03_sync_retry.ps1:2
     [i] 10.20.1.23  collected  hosts_20250302_090030.csv:4, 20250302_091500_step04_certs.ps1:2
     [i] 10.20.1.5   collected  hosts_20250302_090030.csv:2, 20250302_091500_step04_certs.ps1:2
+  Microsoft 365 (2)
+    [!] 6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c  tenant  collected  sync_10.20.1.17_retry_20250302_090930.txt:10, 20250302_091500_step04_certs.ps1:3
+    [!] contoso.onmicrosoft.com               tenant  collected  sync_10.20.1.17_retry_20250302_090930.txt:5
 
 Impact
   [x] Credentials exposed
@@ -130,14 +136,14 @@ Impact
       files    20250302_090000_step01_inventory.ps1, 20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1 and 3 more
   [i] Environment mapped
       Identities, resources or configuration were listed. Later steps were probably aimed with the result.
-      targets  username MSOL_0a1b2c3d4e5f; device AADC01; device CA01; device DC01; ip 10.20.1.17; ip 10.20.1.23; ip 10.20.1.5
+      targets  username MSOL_0a1b2c3d4e5f; tenant 6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c; tenant contoso.onmicrosoft.com; device AADC01; device CA01; device DC01; ip 10.20.1.17; ip 10.20.1.23; ip 10.20.1.5
       what     get-adcomputer: Get-ADComputer -Filter * -Server $Domain -Properties IPv4Address | (20250302_090000_step01_inventory.ps1:10)
                get-adsyncconnector: Get-ADSyncConnector | Select-Object Name, Type (20250302_090500_step02_sync.ps1:5)
                get-adsyncscheduler: Get-ADSyncScheduler (20250302_090500_step02_sync.ps1:6)
                get-adsyncconnector: Get-ADSyncConnector | Select-Object Name, Type (20250302_090900_step03_sync_retry.ps1:11)
                get-adsyncscheduler: Get-ADSyncScheduler (20250302_090900_step03_sync_retry.ps1:12)
                get-childitem: Invoke-Command -ComputerName $h -ScriptBlock { Get-ChildItem Cert:\LocalMachine\My } >> cert_store_20250302_091530.txt (20250302_091500_step04_certs.ps1:5)
-      basis    Discovery tools, exposed username, exposed device, exposed ip
+      basis    Discovery tools, exposed username, exposed tenant, exposed device, exposed ip
 
 Remediation   (most urgent first)
   [x] Revoke sessions and reset identities
@@ -159,14 +165,14 @@ Remediation   (most urgent first)
       files    20250302_091500_step04_certs.ps1, hosts_20250302_090030.csv
   [i] Follow what was enumerated
       Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
-      targets  username MSOL_0a1b2c3d4e5f; device AADC01; device CA01; device DC01; ip 10.20.1.17; ip 10.20.1.23; ip 10.20.1.5
+      targets  username MSOL_0a1b2c3d4e5f; tenant 6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c; tenant contoso.onmicrosoft.com; device AADC01; device CA01; device DC01; ip 10.20.1.17; ip 10.20.1.23; ip 10.20.1.5
       what     get-adcomputer: Get-ADComputer -Filter * -Server $Domain -Properties IPv4Address | (20250302_090000_step01_inventory.ps1:10)
                get-adsyncconnector: Get-ADSyncConnector | Select-Object Name, Type (20250302_090500_step02_sync.ps1:5)
                get-adsyncscheduler: Get-ADSyncScheduler (20250302_090500_step02_sync.ps1:6)
                get-adsyncconnector: Get-ADSyncConnector | Select-Object Name, Type (20250302_090900_step03_sync_retry.ps1:11)
                get-adsyncscheduler: Get-ADSyncScheduler (20250302_090900_step03_sync_retry.ps1:12)
                get-childitem: Invoke-Command -ComputerName $h -ScriptBlock { Get-ChildItem Cert:\LocalMachine\My } >> cert_store_20250302_091530.txt (20250302_091500_step04_certs.ps1:5)
-      basis    Discovery tools, exposed username, exposed device, exposed ip
+      basis    Discovery tools, exposed username, exposed tenant, exposed device, exposed ip
 
 Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1015 Active Directory Configuration        T1649

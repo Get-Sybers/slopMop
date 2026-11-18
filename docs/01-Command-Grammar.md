@@ -50,7 +50,7 @@ The bare words after `report` name sections of the report. No word means every s
 | `findings` | each activity, indicator and tactic, most severe first |
 | `files` | the files that hold a finding of high severity |
 | `targeted` | the usernames, addresses, hostnames and emails the scripts name outright |
-| `exposure` | the usernames, emails, passwords, devices and addresses the files hold |
+| `exposure` | the passwords, usernames, emails, tenants, SSH keys, API keys, applications, cloud resources, devices and addresses the files hold, and what is of Microsoft 365 and of Google Cloud |
 | `impact` | what the findings mean, with what each concerns and the lines that show it |
 | `remediation` | what to do about them and to what, most urgent first |
 | `mitigation` | what MITRE ATT&CK and ATLAS say prevents the techniques found |
@@ -228,7 +228,7 @@ sections you can add:
   findings                each activity, indicator and tactic, most severe first
   files                   the files that hold a finding of high severity
   targeted                what the scripts name and what activities acted on
-  exposure                the usernames, emails, passwords, devices and addresses the files hold
+  exposure                the passwords, usernames, emails, tenants, SSH keys, API keys, applications, cloud resources, devices and addresses the files hold, and what is of Microsoft 365 and of Google Cloud
   remediation             what to do about them and to what, most urgent first
   mitigation              what MITRE ATT&CK and ATLAS say prevents the techniques found
 
