@@ -6,6 +6,8 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+## [0.6.3] - 2026-11-18
+
 ### Added
 
 - The release workflow builds the binary from any branch when it is run without `publish`, and
