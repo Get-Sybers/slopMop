@@ -6,14 +6,35 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Added
+
+- The release workflow builds the binary from any branch when it is run without `publish`, and
+  keeps it with the run for 14 days: a change is tried as a built binary before it is merged.
+  Such a build is `v0.0.0`, which is no release.
+- A release carries an attestation of its provenance:
+  `gh attestation verify slopmop-<version>-windows-amd64.exe -R Get-Sybers/slopMop` shows that
+  the release workflow of this repository built the file.
+
+### Changed
+
+- The release workflow takes no version. It publishes the newest version `CHANGELOG.md` names,
+  the one raised in the pull request that cuts the release, when it is run with `publish` on
+  `main`. The version was typed in when the workflow was run.
+- A release is made once: a publish stops when the tag of the version is there already, when
+  the run begins and again before the release is made.
+- The binary is built by a job with a token that reads. A second job, the one with a token that
+  writes, runs no code of the repository: it takes the build, checks it against its checksum
+  and publishes it from the `release` environment, where a required reviewer approves a release
+  when the repository settings name one. One job with a token that writes did both.
+
 ### Fixed
 
 - The stamp of a released binary says what it is. `go version -m` shows the version, the commit
   and `vcs.modified=false`, and a clone of the tag, built with the same Go and the same command,
   gives the same file. The release workflow builds from the checkout as it was checked out,
-  tagged with the version, writes the release notes when it publishes them, and stops when the
-  stamp of the built file says otherwise. It wrote the notes into the checkout before it built,
-  and the tag was made after: every binary from 0.1.0 to 0.6.2 is stamped
+  tagged with the version, writes the release notes after the build, and stops when the stamp
+  of the built file says otherwise. It wrote the notes into the checkout before it built, and
+  the tag was made after: every binary from 0.1.0 to 0.6.2 is stamped
   `v0.0.0-<time>-<commit>+dirty` and `vcs.modified=true`, with nothing changed in its source.
 
 ## [0.6.2] - 2026-11-18
