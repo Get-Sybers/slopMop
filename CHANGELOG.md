@@ -66,6 +66,10 @@ All notable changes to this project are recorded in this file. The format follow
   files; the block of each of those intents has the tactic in a row. A tactic that only an
   output showed stood in the block of its intent and in the count of the summary, and not in
   the Tactics section or among the tactics of `findings.json`.
+- The test that the Tactics section and the timeline agree sets the time of each of its files.
+  It wrote them in no order and expected the intents of a tactic by their numbers, which holds
+  only while the files have one time: the intents stand in the order they began, and the test
+  failed on macOS, where each file has a time of its own.
 
 ## [0.6.1] - 2026-11-18
 
