@@ -195,6 +195,7 @@ func (r *reader) fileWithText(p, name string) (evidence.File, string) {
 		return f, ""
 	}
 	f.Modified = info.ModTime().UTC()
+	f.Created = created(h, info)
 
 	sum := sha256.New()
 	kept := &capped{limit: r.limit}

@@ -1,6 +1,10 @@
 {
   "rules": [
     {
+      "name": "file name",
+      "pattern": "(?:^|/)(?:[^/]*?[^0-9A-Za-z/])??(?P<id>i[0-9]{1,19})(?:[^0-9A-Za-z/][^/]*)?$"
+    },
+    {
       "name": "run folder",
       "pattern": "(?:^|/)tasks/(?P<task>[^/]+)/(?P<id>i[0-9]{1,19})(?:/|$)"
     },

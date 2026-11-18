@@ -28,6 +28,12 @@ func sampleReadout() Readout {
 			{Title: "Impact", Note: "what it means", Groups: []Group{{Entries: []Entry{
 				{Level: LevelMedium, Cells: []string{"Traces hidden"}, Detail: []Detail{{Text: "Files were removed."}, {Label: "basis", Text: "LogDeletion"}}},
 			}}}},
+			{Title: "Intent timeline", Note: "a block for each intent", Groups: []Group{{Blocks: true, Entries: []Entry{
+				{Level: LevelHigh, Cells: []string{"i7", "2026-10-22T09:00:00Z to 2026-10-22T09:05:00Z"}, Detail: []Detail{
+					{Label: "T1083", Text: "File and Directory Discovery"}, {Label: "AML.T0055", Text: "Unsecured Credentials"},
+				}},
+				{Cells: []string{"i8", "2026-10-22T09:10:00Z"}, Detail: []Detail{{Text: "no technique"}}},
+			}}}},
 			{Title: "Mitigation", Groups: []Group{{}}},
 		},
 		Hints: []string{"one section: slopmop <folder> impact"},

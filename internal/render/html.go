@@ -31,7 +31,9 @@ type htmlGroup struct {
 	Title   string
 	Columns []string
 	Marked  bool
-	Rows    []htmlRow
+	// Blocks lays the rows out as blocks on a line, not as a table.
+	Blocks bool
+	Rows   []htmlRow
 }
 
 type htmlRow struct {
@@ -91,7 +93,7 @@ func htmlOf(s Section, id string) htmlSection {
 		}
 		out.Empty = false
 		marked, width := g.marked(), g.width()
-		group := htmlGroup{Title: shown(g.Title), Marked: marked}
+		group := htmlGroup{Title: shown(g.Title), Marked: marked, Blocks: g.Blocks}
 		for _, c := range g.Columns {
 			group.Columns = append(group.Columns, Escape(c))
 		}

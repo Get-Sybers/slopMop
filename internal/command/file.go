@@ -18,6 +18,7 @@ func fileRow(f evidence.File, folder string, columns []render.Column) ([]render.
 		"size":      render.Size(f.Size),
 		"lines":     render.NotApplicable(),
 		"modified":  render.NotApplicable(),
+		"created":   when(f.Created),
 		"sha256":    render.NotApplicable(),
 		"name_time": render.NotApplicable(),
 		"note":      render.NotApplicable(),

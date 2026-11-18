@@ -109,6 +109,21 @@ func (f Framework) HasTactic(id string) bool {
 	return ok
 }
 
+// NameOf returns the name of the technique as the framework writes it in
+// full, a sub-technique after the technique it is part of, or none.
+func (f Framework) NameOf(technique string) string {
+	own, ok := f.Techniques[technique]
+	if !ok {
+		return ""
+	}
+	if dot := strings.LastIndexByte(technique, '.'); dot > 0 {
+		if whole, ok := f.Techniques[technique[:dot]]; ok {
+			return whole.Name + ": " + own.Name
+		}
+	}
+	return own.Name
+}
+
 // TacticsOf returns the tactics the framework files the technique under.
 func (f Framework) TacticsOf(technique string) []string {
 	return f.Techniques[technique].Tactics

@@ -18,6 +18,14 @@
       Files were removed.
       [90mbasis[0m  LogDeletion
 
+[1mIntent timeline[0m[90m   (a block for each intent)[0m
+  [31m[x][0m [1mi7[0m  2026-10-22T09:00:00Z to 2026-10-22T09:05:00Z
+      T1083      File and Directory Discovery
+      AML.T0055  Unsecured Credentials
+
+      [1mi8[0m  2026-10-22T09:10:00Z
+      no technique
+
 [1mMitigation[0m
   [90mnone[0m
 

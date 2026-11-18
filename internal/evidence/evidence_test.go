@@ -76,3 +76,38 @@ func TestWithin(t *testing.T) {
 		}
 	}
 }
+
+// A file was made when its file system says so, unless that is after its
+// last change: then it is a copy, and has the time of the timeline.
+func TestMade(t *testing.T) {
+	modified := at("2026-10-25T12:00:00Z")
+	created := func(name, when string) evidence.File {
+		f := named(name, modified)
+		f.Created = at(when)
+		return f
+	}
+	for _, tt := range []struct {
+		name     string
+		file     evidence.File
+		want     time.Time
+		recorded bool
+	}{
+		{"made before its last change", created("notes.txt", "2026-10-25T11:59:59Z"), at("2026-10-25T11:59:59Z"), true},
+		{"made long before its last change", created("notes.txt", "2026-10-01T08:00:00Z"), at("2026-10-01T08:00:00Z"), true},
+		{"made before its last change, with a time in its name", created("20261022_090000_recon.sh", "2026-10-25T11:00:00Z"), at("2026-10-25T11:00:00Z"), true},
+		{"a copy, made after its last change", created("notes.txt", "2026-11-02T10:00:00Z"), modified, false},
+		{"a copy with a time in its name", created("20261022_090000_recon.sh", "2026-11-02T10:00:00Z"), at("2026-10-22T09:00:00Z"), false},
+		{"made at the instant of its last change", created("20261022_090000_recon.sh", "2026-10-25T12:00:00Z"), modified, true},
+		{"a copy made a moment after its last change", created("notes.txt", "2026-10-25T12:00:00.001Z"), modified, false},
+		{"no creation time", named("notes.txt", modified), modified, false},
+		{"no creation time and a time in its name", named("20261022_090000_recon.sh", modified), at("2026-10-22T09:00:00Z"), false},
+		{"no time at all", evidence.File{Name: "notes.txt"}, time.Time{}, false},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			got, recorded := tt.file.Made()
+			if !got.Equal(tt.want) || recorded != tt.recorded {
+				t.Errorf("Made() = %s, %t, want %s, %t", got, recorded, tt.want, tt.recorded)
+			}
+		})
+	}
+}

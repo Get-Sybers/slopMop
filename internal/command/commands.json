@@ -20,7 +20,7 @@
       "sections": [
         {"name": "summary", "title": "Summary", "summary": "the counts"},
         {"name": "timeline", "title": "Timeline", "summary": "what was done, in order of time: each period of files that show the same tactics", "note": "from, until, files, tactics"},
-        {"name": "intents", "title": "Intents", "summary": "each ARTEX intent, by its run folder i<number>: its period and its ATT&CK and ATLAS techniques", "note": "an ARTEX run folder i<number>: the first and last time of its files, and the techniques found in them"},
+        {"name": "intents", "title": "Intent timeline", "summary": "the timeline by ARTEX intent i<number>: a block for each, with when its files were created and its ATT&CK and ATLAS techniques by name", "note": "a block for each intent, in order of time: from the first of its files to be created until the last, and the techniques its files show"},
         {"name": "findings", "title": "Findings", "summary": "each activity, indicator and tactic, most severe first"},
         {"name": "files", "title": "Notable files", "summary": "the files that hold a finding of high severity", "note": "a finding of high severity"},
         {"name": "targeted", "title": "Targeted", "summary": "what the scripts name and what activities acted on", "note": "hardcoded values: prior means no earlier output holds it, discovered means one does; subjects: each entity an activity acted on"},
@@ -42,7 +42,7 @@
         "tables": [
           {"class": "file", "format": "csv", "file": "files.csv"},
           {"class": "trace", "format": "json", "file": "trace.json"},
-          {"class": "intent", "format": "json", "file": "intents.json"},
+          {"class": "intent", "format": "csv", "file": "intents.csv"},
           {"class": "finding", "format": "json", "file": "findings.json"},
           {"class": "targeted", "format": "json", "file": "targeted.json"},
           {"class": "exposure", "format": "csv", "file": "exposure.csv"},
@@ -61,6 +61,7 @@
         {"header": "SIZE", "key": "size"},
         {"header": "LINES", "key": "lines"},
         {"header": "MODIFIED", "key": "modified"},
+        {"header": "CREATED", "key": "created"},
         {"header": "SHA256", "key": "sha256", "wide": true},
         {"header": "NAME TIME", "key": "name_time", "wide": true},
         {"header": "NOTE", "key": "note", "wide": true}
@@ -144,17 +145,18 @@
     {
       "name": "intent",
       "columns": [
+        {"header": "FROM", "key": "from"},
+        {"header": "UNTIL", "key": "until"},
         {"header": "INTENT", "key": "intent"},
-        {"header": "TASK", "key": "task"},
-        {"header": "FIRST", "key": "first"},
-        {"header": "LAST", "key": "last"},
-        {"header": "SECONDS", "key": "seconds"},
-        {"header": "SEVERITY", "key": "severity"},
-        {"header": "TACTICS", "key": "tactics"},
         {"header": "ATTACK", "key": "attack"},
         {"header": "ATLAS", "key": "atlas"},
-        {"header": "ACTIVITIES", "key": "activities", "wide": true},
-        {"header": "FILES", "key": "files", "wide": true}
+        {"header": "FILES", "key": "files"},
+        {"header": "TASK", "key": "task", "wide": true},
+        {"header": "SECONDS", "key": "seconds", "wide": true},
+        {"header": "TIMED BY", "key": "timed_by", "wide": true},
+        {"header": "SEVERITY", "key": "severity", "wide": true},
+        {"header": "TACTICS", "key": "tactics", "wide": true},
+        {"header": "ACTIVITIES", "key": "activities", "wide": true}
       ]
     }
   ]

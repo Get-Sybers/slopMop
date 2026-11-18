@@ -35,6 +35,7 @@ func hostileReadout(hostile string) Readout {
 		Sections: []Section{{Title: hostile, Note: hostile, Groups: []Group{
 			{Title: hostile, Columns: []string{hostile}, Entries: []Entry{{Level: LevelHigh, Cells: []string{hostile, hostile}}}},
 			{Entries: []Entry{{Cells: []string{hostile}, Detail: []Detail{{Label: hostile, Text: hostile}, {Text: hostile}}}}},
+			{Blocks: true, Entries: []Entry{{Level: LevelHigh, Cells: []string{hostile, hostile}, Detail: []Detail{{Label: hostile, Text: hostile}, {Text: hostile}}}}},
 		}}},
 		Hints: []string{hostile},
 	}
@@ -130,7 +131,7 @@ func TestWriteHTMLEscapesEvidence(t *testing.T) {
 			t.Errorf("the page holds %q as markup:\n%s", raw, page)
 		}
 	}
-	if got, want := strings.Count(page, "&lt;script&gt;alert(1)&lt;/script&gt;"), 15; got != want {
+	if got, want := strings.Count(page, "&lt;script&gt;alert(1)&lt;/script&gt;"), 20; got != want {
 		t.Errorf("the text is on the page %d times, want %d:\n%s", got, want, page)
 	}
 }

@@ -28,6 +28,16 @@ _what it means_
   - Files were removed.
   - **basis:** `LogDeletion`
 
+## Intent timeline
+
+_a block for each intent_
+
+- **\[x\] high** · `i7` · `2026-10-22T09:00:00Z to 2026-10-22T09:05:00Z`
+  - **T1083:** `File and Directory Discovery`
+  - **AML.T0055:** `Unsecured Credentials`
+- `i8` · `2026-10-22T09:10:00Z`
+  - no technique
+
 ## Mitigation
 
 None.

@@ -82,8 +82,8 @@ func loadTimes(tb testing.TB, name string) map[string]time.Time {
 }
 
 // Portable returns a saved table of files, as CSV, as every machine writes
-// it: each whole path, which holds the temporary folder and the separator of
-// this system, becomes <folder> and the name of the file below it.
+// it: each whole path becomes <folder> and the name of the file below it, and
+// each creation time, which is when the fixture was copied, <created>.
 func Portable(tb testing.TB, table, folder string) string {
 	tb.Helper()
 	records, err := csv.NewReader(strings.NewReader(table)).ReadAll()
@@ -94,11 +94,20 @@ func Portable(tb testing.TB, table, folder string) string {
 	if name < 0 || whole < 0 {
 		tb.Fatalf("the table of files has the columns %q, want name and path among them", records[0])
 	}
+	created := slices.Index(records[0], "created")
 	for _, r := range records[1:] {
 		if want := filepath.Join(folder, filepath.FromSlash(r[name])); r[whole] != want {
 			tb.Errorf("the path of %s = %q, want %q", r[name], r[whole], want)
 		}
-		table = strings.ReplaceAll(table, r[whole], "<folder>/"+r[name])
+		r[whole] = "<folder>/" + r[name]
+		if created >= 0 {
+			r[created] = "<created>"
+		}
 	}
-	return table
+	var out strings.Builder
+	w := csv.NewWriter(&out)
+	if err := w.WriteAll(records); err != nil {
+		tb.Fatalf("the table of files: %v", err)
+	}
+	return out.String()
 }

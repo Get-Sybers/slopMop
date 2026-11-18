@@ -420,3 +420,35 @@ func TestScopeReadsAWindow(t *testing.T) {
 		t.Errorf("no window: %d files read and %d left out, want 15 and 0", len(whole.Files), whole.Outside)
 	}
 }
+
+// A file is read with the time it was made, where its file system records
+// one, and a file made and then changed keeps both.
+func TestReadKeepsWhenAFileWasMade(t *testing.T) {
+	folder := t.TempDir()
+	began := time.Now().Add(-2 * time.Second)
+	path := filepath.Join(folder, "a.sh")
+	if err := os.WriteFile(path, []byte("id\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	later := time.Now().Add(time.Hour).Truncate(time.Second)
+	if err := os.Chtimes(path, later, later); err != nil {
+		t.Fatal(err)
+	}
+	res, err := ReadAll(folder, MaxDepth)
+	if err != nil || len(res.Files) != 1 {
+		t.Fatalf("ReadAll gives %d files (%v), want one", len(res.Files), err)
+	}
+	f := res.Files[0]
+	if f.Created.IsZero() {
+		t.Skip("this file system records no creation time")
+	}
+	if ended := time.Now().Add(2 * time.Second); f.Created.Before(began) || f.Created.After(ended) || f.Created.Location() != time.UTC {
+		t.Errorf("the file was made at %s, want a time in UTC from %s until %s", f.Created, began.UTC(), ended.UTC())
+	}
+	if !f.Modified.Equal(later) {
+		t.Errorf("the file was last changed at %s, want %s", f.Modified, later.UTC())
+	}
+	if at, recorded := f.Made(); !recorded || !at.Equal(f.Created) {
+		t.Errorf("Made() = %s, %t, want the creation time %s", at, recorded, f.Created)
+	}
+}

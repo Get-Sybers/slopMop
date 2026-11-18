@@ -24,11 +24,19 @@ All notable changes to this project are recorded in this file. The format follow
 - `indicators.json` says what a match of a type must not follow, `not_preceded_by`, as it says
   what must not follow it. `sift.Backwards` turns that expression round, so it is run from the
   match backwards: from one place, not from each of the bytes before the match.
+- A file belongs to the ARTEX intent its own name holds: `i` and a number with no letter and no
+  digit before or after them, as in `i1042_scan.sh` and `cmd-i1042.stdout.txt`. The name of a
+  file decides before the folder it lies in, and the intent owns the techniques of each of its
+  files.
+- A file is read with its creation time, where its file system records one. `files.csv` has the
+  column `created`.
+- The table of the intents has `timed_by`: whether the period of an intent is read from
+  creation times, from the times of the timeline, or from both.
 
 ### Changed
 
-- The time of a file has one definition, `evidence.File.Time`, which the timeline, the intents
-  and the reading share. `inventory.Scope` says how much of a folder is read: the depth, the
+- The time of a file has one definition, `evidence.File.Time`, which the timeline and the
+  reading share. `inventory.Scope` says how much of a folder is read: the depth, the
   window and what is told of each file.
 - The files and the exposure are saved as CSV, `files.csv` and `exposure.csv`, in place of
   `files.json` and `exposure.json`: a line of keys and a line per row. A value that does not
@@ -37,6 +45,19 @@ All notable changes to this project are recorded in this file. The format follow
 - The `evidence` of a finding in `findings.json` is an array with one object per line: the
   `time` of its file, the `file`, the `line` and the `text`. It was one string.
 - `commands.json` names the format of each saved table, `json` or `csv`.
+- The Intents section is the Intent timeline: a line of blocks, one for each intent, in the
+  order the intents began. A block names the intent and the period it ran for, and lists each
+  of its ATT&CK and ATLAS techniques by its identifier and its name, a sub-technique after the
+  technique it is part of. Every intent has its block, however many there are.
+- The intents are saved as CSV, `intents.csv`, in place of `intents.json`. A row begins as the
+  table of the intents does, with `from`, `until`, `intent`, `attack`, `atlas` and `files`, and
+  holds every file of the intent; `task`, `seconds`, `timed_by`, `severity`, `tactics` and
+  `activities` follow.
+- An intent runs from the first of its files to be created until the last. It ran from the
+  earliest to the latest time of the timeline: the timestamp in a file name, or else the
+  modified time. A file whose creation time is after its last change is a copy, made when it was
+  copied, and keeps the time of the timeline, as does a file with no creation time; the last
+  line of the section counts those files.
 
 ### Fixed
 
