@@ -14,6 +14,9 @@ All notable changes to this project are recorded in this file. The format follow
 - The binary is signed. `slopmop-<version>-windows-amd64.exe.asc` is a detached GPG signature,
   made with the key the `release` environment holds. A publish stops unless `release-key.asc` of
   the repository, with no other key at hand, verifies it.
+- `scripts/release-setup.sh` sets the `release` environment up, once: its reviewer, the key that
+  signs, whose secret half the environment alone holds, and the token of the registry. It writes
+  the public half of the key to `release-key.asc`.
 - A version carries an attestation of its provenance:
   `gh attestation verify slopmop-<version>-windows-amd64.exe -R Get-Sybers/slopMop` shows that
   the release workflow of this repository built the file.
