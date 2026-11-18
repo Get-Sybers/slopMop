@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/get-sybers/slopmop/internal/evidence"
 	"github.com/get-sybers/slopmop/internal/indicator"
 	"github.com/get-sybers/slopmop/internal/render"
 	"github.com/get-sybers/slopmop/internal/tactic"
@@ -110,22 +109,22 @@ func (p pipeline) listFindings(a analysis) []finding {
 				}
 			}
 		}
-		if s.File.Role == evidence.Script {
-			for _, name := range s.Tactics {
-				f, ok := byTactic[name]
-				if !ok {
-					f = &finding{
-						kind: kindTactic, label: kindTactic, tactics: []string{name},
-						attack: []string{tactics.Attack(name)}, atlas: []string{tactics.Atlas(name)},
-					}
-					byTactic[name] = f
-					order = append(order, f)
+		// A tactic is of every file that shows it, a script or what a script
+		// wrote: the timeline gives an intent the tactics of all its files.
+		for _, name := range s.Tactics {
+			f, ok := byTactic[name]
+			if !ok {
+				f = &finding{
+					kind: kindTactic, label: kindTactic, tactics: []string{name},
+					attack: []string{tactics.Attack(name)}, atlas: []string{tactics.Atlas(name)},
 				}
-				if files.fresh("t\x00"+name, path) {
-					f.files = append(f.files, path)
-				}
-				f.seen(at)
+				byTactic[name] = f
+				order = append(order, f)
 			}
+			if files.fresh("t\x00"+name, path) {
+				f.files = append(f.files, path)
+			}
+			f.seen(at)
 		}
 		for _, m := range s.Matches {
 			key := m.Type + "\x00" + m.Value

@@ -11,12 +11,12 @@ Summary
   exposed     7   Email addresses 2, Tenants 1, Applications 1, Cloud resources 1, IP addresses 2
 
 Tactics   (tactic, identifiers, files)
-  [x] CredentialAccess     TA0006, AML.TA0013  20261015_093000_step05_vault.sh
+  [x] CredentialAccess     TA0006, AML.TA0013  20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl
   [x] InitialAccess        TA0001, AML.TA0004  20261015_090000_step01_token.sh
-  [x] Persistence          TA0003, AML.TA0006  20261015_091000_step03_escalate.ps1
-  [x] PrivilegeEscalation  TA0004, AML.TA0012  20261015_091000_step03_escalate.ps1
+  [x] Persistence          TA0003, AML.TA0006  20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl
+  [x] PrivilegeEscalation  TA0004, AML.TA0012  20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl
   [!] Collection           TA0009, AML.TA0009  20261015_092000_step04_collect.py
-  [i] Discovery            TA0007, AML.TA0008  20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh
+  [i] Discovery            TA0007, AML.TA0008  20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh and 1 more
 
 Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the tactics and the techniques its files show)
   [x] InitialAccess, Discovery                                      2026-10-15T09:00:00Z to 2026-10-15T09:05:00Z

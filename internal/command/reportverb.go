@@ -335,16 +335,31 @@ func (w reportRun) findings() []render.Group {
 	return []render.Group{g}
 }
 
-// tactics lists each tactic the scripts show, most severe first, with its
-// identifiers in ATT&CK and ATLAS and the scripts that show it.
+// tactics lists each tactic the files show, most severe first, with its
+// identifiers in ATT&CK and ATLAS, the files that show it and the intents
+// of those files: the blocks of the timeline that list the tactic.
 func (w reportRun) tactics() []render.Group {
 	g := render.Group{Columns: []string{"tactic", "identifiers", "files"}}
 	for _, f := range w.found {
-		if f.kind == kindTactic {
-			g.Entries = append(g.Entries, render.Entry{
-				Level: string(f.severity), Cells: []string{strings.Join(f.tactics, ", "), f.mitre(), few(f.files)},
-			})
+		if f.kind != kindTactic {
+			continue
 		}
+		shown := map[string]bool{}
+		for _, file := range f.files {
+			shown[w.result.intentOf[file]] = true
+		}
+		// The intents stand in the order of the timeline, every one of them.
+		var intents []string
+		for _, r := range w.result.intents {
+			if shown[r.ref.ID] {
+				intents = append(intents, r.ref.ID)
+			}
+		}
+		g.Entries = append(g.Entries, render.Entry{
+			Level:  string(f.severity),
+			Cells:  []string{strings.Join(f.tactics, ", "), f.mitre(), few(f.files)},
+			Detail: []render.Detail{{Label: "intents", Text: strings.Join(intents, ", ")}},
+		})
 	}
 	return []render.Group{g}
 }

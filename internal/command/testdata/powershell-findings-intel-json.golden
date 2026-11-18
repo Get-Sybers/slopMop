@@ -176,6 +176,19 @@
     "evidence": null
   },
   {
+    "finding": "tactic",
+    "severity": "medium",
+    "tactic": "Execution",
+    "indicator": null,
+    "files": "staged_20250302_093100.cmd",
+    "attribution": null,
+    "first": "2025-03-02T09:31:00Z",
+    "last": "2025-03-02T09:31:00Z",
+    "attack": "TA0002",
+    "atlas": "AML.TA0005",
+    "evidence": null
+  },
+  {
     "finding": "Base64Blob",
     "severity": "low",
     "tactic": null,

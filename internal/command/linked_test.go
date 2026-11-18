@@ -8,6 +8,8 @@ import (
 	"slices"
 	"strings"
 	"testing"
+
+	"github.com/get-sybers/slopmop/internal/evidencetest"
 )
 
 // intrusion writes a folder of scripts and outputs that sign in, persist,
@@ -193,5 +195,90 @@ func TestReportConcernsWhatIsExposed(t *testing.T) {
 		if strings.Contains(readout, gone) {
 			t.Errorf("the readout holds %q, which is a command, a script or what one acts on:\n%s", gone, readout)
 		}
+	}
+}
+
+// The Tactics section and the timeline say the same of an intent: a tactic
+// lists every file that shows it, a script or an output, and names the
+// intents of those files, and the block of each of them lists the tactic.
+func TestTacticsAndTimelineAgree(t *testing.T) {
+	folder := t.TempDir()
+	for name, text := range map[string]string{ //nolint:gosec // G101: file names and commands of a made-up folder, no credential.
+		"i201_scan.sh":        "#!/bin/bash\nnmap -sV 10.0.0.0/24 -oN scan.txt\n",
+		"cmd-i201.stdout.txt": "Nmap scan report for dc01.corp.example (10.0.0.5)\n+ cat /etc/shadow\n",
+		"i202-move.sh":        "#!/bin/bash\ncurl -s https://files.corp.example/x -o /tmp/x\nssh ops@10.0.0.5 id\n",
+		"i203_creds.sh":       "#!/bin/bash\ncat /etc/shadow\n",
+		"i204.sh":             "#!/bin/bash\necho done\n",
+		"notes.sh":            "#!/bin/bash\nwhoami\n",
+	} {
+		if err := os.WriteFile(filepath.Join(folder, name), []byte(text), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	readout, saved := report(t, folder, "tactics", "timeline")
+	tactics, timeline, _ := strings.Cut(readout, "\nTimeline")
+	for _, want := range []string{
+		"  [x] CredentialAccess   TA0006, AML.TA0013  cmd-i201.stdout.txt, i203_creds.sh\n      intents  i201, i203\n",
+		"  [x] LateralMovement    TA0008, AML.TA0015  i202-move.sh\n      intents  i202\n",
+		"  [i] Discovery          TA0007, AML.TA0008  i201_scan.sh, i202-move.sh, notes.sh\n      intents  i201, i202\n",
+	} {
+		if !strings.Contains(tactics, want) {
+			t.Errorf("the tactics lack %q:\n%s", want, tactics)
+		}
+	}
+	// What the saved files hold agrees as the readout does: the intents of
+	// the files of a tactic are the intents whose row lists the tactic.
+	intentOf := map[string]string{}
+	for _, row := range rows(t, filepath.Join(saved, "trace.json")) {
+		if id, _ := row["intent"].(string); id != "" {
+			intentOf[row["name"].(string)] = id
+		}
+	}
+	listed := map[string][]string{}
+	for _, row := range rows(t, filepath.Join(saved, "intents.csv")) {
+		shown, _ := row["tactics"].(string)
+		for _, name := range strings.Split(shown, ", ") {
+			if name != "" {
+				listed[name] = append(listed[name], row["intent"].(string))
+			}
+		}
+	}
+	found := 0
+	for _, row := range rows(t, filepath.Join(saved, "findings.json")) {
+		if row["finding"] != kindTactic {
+			continue
+		}
+		found++
+		name := row["tactic"].(string)
+		var of []string
+		for _, file := range strings.Split(row["files"].(string), ", ") {
+			if id := intentOf[file]; id != "" && !slices.Contains(of, id) {
+				of = append(of, id)
+			}
+		}
+		slices.Sort(of)
+		want := slices.Clone(listed[name])
+		slices.Sort(want)
+		if !slices.Equal(of, want) {
+			t.Errorf("%s: its files are of the intents %q, and the intents that list it are %q", name, of, want)
+		}
+		// Each of those intents has the tactic in its block, and no other has.
+		for _, block := range strings.Split(timeline, "\n\n") {
+			id := strings.Fields(strings.TrimLeft(block[strings.Index(block, "] ")+1:], " "))[0]
+			if !strings.HasPrefix(id, "i2") {
+				continue
+			}
+			if has := strings.Contains(block, "  "+name+"\n"); has != slices.Contains(want, id) {
+				t.Errorf("the block of %s lists %s: %t, want %t:\n%s", id, name, has, slices.Contains(want, id), block)
+			}
+		}
+	}
+	if found != 4 {
+		t.Errorf("findings.json holds %d tactics, want the four the files show", found)
+	}
+	// Without intents a tactic names none, and still lists the output that alone shows it.
+	plain, _ := report(t, evidencetest.Copy(t, "powershell"), "tactics")
+	if !strings.Contains(plain, "  [!] Execution         TA0002, AML.TA0005  staged_20250302_093100.cmd\n") || strings.Contains(plain, "\n      intents  ") {
+		t.Errorf("the tactics of a folder without intents lack the tactic of an output, or name intents:\n%s", plain)
 	}
 }

@@ -13,6 +13,11 @@ All notable changes to this project are recorded in this file. The format follow
   intent, such as `i201_scan.sh`, stood under a tactic in the Tactics section while the block
   of the intent named none: a block listed only the techniques of recognised activities, and a
   tactic that comes from the tools a script runs has no technique.
+- The Tactics section and the timeline agree, each from its side. A tactic lists every file
+  that shows it, an output as well as a script, and names under `intents` the intents of those
+  files; the block of each of those intents lists the tactic. A tactic that only an output
+  showed stood in the block of its intent and in the count of the summary, and not in the
+  Tactics section or among the tactics of `findings.json`.
 
 ## [0.6.1] - 2026-11-18
 

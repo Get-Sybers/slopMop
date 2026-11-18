@@ -83,7 +83,7 @@ Impact
 | Section | Entry | Detail lines |
 | --- | --- | --- |
 | Summary | a count and its breakdown; with a window of time, the row `left out`: the files outside it and what the window left out | none |
-| Tactics | tactic, its ATT&CK and ATLAS identifiers, the scripts that show it | none |
+| Tactics | tactic, its ATT&CK and ATLAS identifiers, the files that show it | `intents`: the intents of those files, every one, in the order of the timeline |
 | Timeline | a block for each intent, or for each period where no file names an intent: the intent or the tactics of the period, and when it ran | under an intent, each tactic of its files by its ATT&CK and ATLAS identifiers; each ATT&CK technique and each ATLAS technique, by its identifier and its name; `watchlist`: the matches of its files |
 | Findings | activity, lines, tactics, techniques | `what`: the lines that show it, each with its place |
 | Targeted, a group per kind | the value, for an address whether it is private or public, whether it is prior or discovered, the places in the scripts | `from`: the output that held a discovered value first; `what`: the script lines that name it |
@@ -123,9 +123,12 @@ Timeline   (a block for each intent, from the first of its files to be created u
 - A block names the intent, or the tactics of the period, and when it ran: one time when that is
   one instant and `-` when none of its files has a time.
 - Under an intent stand the tactics its files show, each on a line under its identifiers of
-  ATT&CK and ATLAS, in the order of `tactics.json`: the tactics the Tactics section gives its
-  scripts, and those of its other files. A period is named by its tactics and does not list
-  them again.
+  ATT&CK and ATLAS, in the order of `tactics.json`. A period is named by its tactics and does
+  not list them again.
+- The Tactics section and the blocks say the same of an intent, each from its side. A tactic
+  lists every file that shows it, a script or what a script wrote, and names the intents of
+  those files; the block of each of those intents lists the tactic, and the block of no other
+  intent does.
 - Then stand the techniques, each on a line: the ATT&CK techniques and then the ATLAS techniques
   of the activities its files show, in the order they are first shown. A technique has the name
   its framework gives it, a sub-technique after the technique it is part of.
@@ -406,6 +409,9 @@ Each line of `evidence` is an object.
 | `text` | the line, as it stands |
 
 Sort: severity from `high` to `low`, then activities, indicators and tactics, each by name.
+
+- A tactic row lists every file that shows the tactic: a script, and an output or any other
+  file that shows it. The tactics of a file are those of its `trace` row.
 
 - An `IPv4` indicator is four numbers from 0 to 255, none with a leading zero, and may end in a
   prefix length. One that begins with `0.` is none, apart from `0.0.0.0`.

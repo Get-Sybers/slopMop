@@ -105,13 +105,13 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tbody>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">CommandAndControl</td><td class="cell">TA0011, AML.TA0014</td><td class="cell">20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py</td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">CredentialAccess</td><td class="cell">TA0006, AML.TA0013</td><td class="cell">20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">DefenseImpairment</td><td class="cell">TA0112, AML.TA0007</td><td class="cell">20261022_092000_step05_evade.sh</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">DefenseImpairment</td><td class="cell">TA0112, AML.TA0007</td><td class="cell">20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl</td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Exfiltration</td><td class="cell">TA0010, AML.TA0010</td><td class="cell">20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py</td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">LateralMovement</td><td class="cell">TA0008, AML.TA0015</td><td class="cell">20261022_092500_step06_stage.sh</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">Persistence</td><td class="cell">TA0003, AML.TA0006</td><td class="cell">20261022_091500_step04_persist.sh</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">Persistence</td><td class="cell">TA0003, AML.TA0006</td><td class="cell">20261022_091500_step04_persist.sh, audit_20261022_093500.jsonl</td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">PrivilegeEscalation</td><td class="cell">TA0004, AML.TA0012</td><td class="cell">20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh</td></tr>
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">Collection</td><td class="cell">TA0009, AML.TA0009</td><td class="cell">20261022_092500_step06_stage.sh</td></tr>
-<tr class="entry"><td class="mark medium">[!]</td><td class="cell">Execution</td><td class="cell">TA0002, AML.TA0005</td><td class="cell">20261022_091500_step04_persist.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py</td></tr>
+<tr class="entry"><td class="mark medium">[!]</td><td class="cell">Execution</td><td class="cell">TA0002, AML.TA0005</td><td class="cell">20261022_091500_step04_persist.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py and 1 more</td></tr>
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">Stealth</td><td class="cell">TA0005, AML.TA0007</td><td class="cell">20261022_092000_step05_evade.sh</td></tr>
 <tr class="entry"><td class="mark low">[i]</td><td class="cell">Discovery</td><td class="cell">TA0007, AML.TA0008</td><td class="cell">20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 1 more</td></tr>
 </tbody>

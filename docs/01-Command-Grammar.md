@@ -44,7 +44,7 @@ The bare words after `report` name sections of the report. No word means every s
 | Section | Holds |
 | --- | --- |
 | `summary` | the counts |
-| `tactics` | each tactic the scripts show, most severe first, with its ATT&CK and ATLAS identifiers |
+| `tactics` | each tactic the files show, most severe first, with its ATT&CK and ATLAS identifiers and the intents that show it |
 | `timeline` | what was done, in order of time: a block for each ARTEX intent i\<number\>, or for each period where no file names an intent, with its tactics and its ATT&CK and ATLAS techniques by name |
 | `findings` | each activity, most severe first, with the lines that show it |
 | `targeted` | the addresses, hostnames and emails the scripts name outright, and what the activities acted on |
@@ -218,7 +218,7 @@ sections chosen:
 
 sections you can add:
   summary                 the counts
-  tactics                 each tactic the scripts show, most severe first, with its ATT&CK and ATLAS identifiers
+  tactics                 each tactic the files show, most severe first, with its ATT&CK and ATLAS identifiers and the intents that show it
   timeline                what was done, in order of time: a block for each ARTEX intent i<number>, or for each period where no file names an intent, with its tactics and its ATT&CK and ATLAS techniques by name
   findings                each activity, most severe first, with the lines that show it
   targeted                what the scripts name and what activities acted on

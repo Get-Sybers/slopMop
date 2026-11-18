@@ -50,7 +50,7 @@ hold all of them.
 | Section | Holds |
 | --- | --- |
 | `summary` | the counts |
-| `tactics` | each tactic the scripts show, most severe first, with its ATT&CK and ATLAS identifiers |
+| `tactics` | each tactic the files show, most severe first, with its ATT&CK and ATLAS identifiers, the files that show it and the ARTEX intents those files are of |
 | `timeline` | what was done, in order of time, as a line of blocks: one for each ARTEX intent `i<number>`, or for each period of files that show the same tactics where no file names an intent, with its tactics and its ATT&CK and ATLAS techniques by name |
 | `findings` | each activity, most severe first, with the lines that show it |
 | `targeted` | the IP addresses, hostnames and email addresses the scripts name outright, without the hosts of vendors that any script reaches for, whether the attacker knew each beforehand, and what each activity acted on: a task with what it runs, an archive, a file |
