@@ -53,39 +53,56 @@ tr.detail td { padding-top: 0; }
 .name { font-weight: 600; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; overflow-wrap: anywhere; }
 .rest { color: var(--soft); font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px;
   overflow-wrap: anywhere; }
-.line { display: grid; grid-template-columns: 11em 11em 8em minmax(0, 1fr); column-gap: 18px;
+.line { display: grid; grid-template-columns: 8em 24em 4.5em 10em 8em minmax(0, 1fr); column-gap: 10px;
   align-items: baseline; padding: 1px 0; font-size: 13px; }
 .head + .line { margin-top: 6px; }
-.line.begins { margin-top: 4px; padding-top: 5px; border-top: 1px solid var(--line); }
+.line.begins, .line:not(.more) + .more { margin-top: 4px; padding-top: 5px; border-top: 1px solid var(--line); }
 .marked .line { margin-left: 40px; }
-.of { display: contents; }
-.topic { grid-column: 1; font-weight: 600; }
-.aside { grid-column: 2; color: var(--soft); font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
-  font-size: 12px; }
-.key { grid-column: 3; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
-.text { grid-column: 4; overflow-wrap: anywhere; }
-.text.wide { grid-column: 3 / -1; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
-.text.none { font-family: inherit; }
+.id { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; white-space: nowrap; }
+.what { overflow-wrap: anywhere; }
+.what + .id { padding-left: 18px; }
+.id:first-child + .what { font-weight: 600; }
+.id.kind, .id.far { color: var(--soft); }
+.id.kind { font-family: inherit; }
+.id.kind + .what { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-weight: 400; }
+.tag { grid-column: 1; font-weight: 600; }
+.more .value { grid-column: 2 / -1; }
 .said { grid-column: 1 / -1; color: var(--soft); }
+.heads { list-style: none; padding: 0 12px; margin: 0 0 6px; }
+.heads span { grid-column: span 2; width: 0; white-space: nowrap; font-size: 12px; text-transform: uppercase;
+  letter-spacing: .04em; color: var(--soft); }
+.heads span + span { padding-left: 18px; }
 @supports (grid-template-columns: subgrid) {
-  .blocks { display: grid; grid-template-columns: repeat(3, max-content) minmax(0, 1fr); column-gap: 18px; }
-  .block { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; }
+  .blocks { display: grid; column-gap: 10px;
+    grid-template-columns: max-content fit-content(44ch) max-content max-content max-content minmax(12ch, 1fr); }
+  .block, .heads { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; }
   .head, .line { grid-column: 1 / -1; }
   .line { grid-template-columns: subgrid; }
 }
-@media (max-width: 760px) {
-  .blocks { display: block; }
+@media (max-width: 1040px) {
+  .heads { display: none; }
   .marked .line { margin-left: 0; }
-  .line { grid-template-columns: 8em minmax(0, 1fr); gap: 2px 12px; }
-  .of { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 10px; grid-column: 1 / -1; }
-  .key { grid-column: 1; }
-  .text { grid-column: 2; }
-  .text.wide { grid-column: 1 / -1; }
+  .line { grid-template-columns: 8em 4.5em 10em 8em minmax(0, 1fr); row-gap: 2px; }
+  .line > :empty { display: none; }
+  .line > .id:first-child, .line > .tag { grid-column: 1; }
+  .line > .id:first-child + .what, .more .value { grid-column: 2 / -1; }
+  .line > :nth-child(3) { grid-column: 2; padding-left: 0; }
+  .line > :nth-child(4) { grid-column: 3; }
+  .line > :nth-child(5) { grid-column: 4; }
+  .line > :nth-child(6) { grid-column: 5; }
+}
+@media (max-width: 640px) {
+  .line { grid-template-columns: 8em 8em minmax(0, 1fr); }
+  .line > :nth-child(5) { grid-column: 2; padding-left: 0; }
+  .line > :nth-child(6) { grid-column: 3; }
 }
 @supports (grid-template-columns: subgrid) {
-  @media (max-width: 760px) {
-    .block { grid-template-columns: max-content minmax(0, 1fr); column-gap: 12px; }
+  @media (max-width: 1040px) {
+    .blocks { grid-template-columns: repeat(4, max-content) minmax(0, 1fr); }
     .line { grid-template-columns: subgrid; }
+  }
+  @media (max-width: 640px) {
+    .blocks { grid-template-columns: max-content max-content minmax(0, 1fr); }
   }
 }
 footer { margin-top: 40px; font-size: 13px; border-top: 1px solid var(--line); padding-top: 10px; }
@@ -157,17 +174,18 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <h2>Intent timeline</h2>
 <p class="note">a block for each intent</p>
 <ol class="blocks marked">
+<li class="heads"><div class="line"><span>ATT&amp;CK technique</span><span>tactic</span><span>ATLAS technique</span></div></li>
 <li class="block"><span class="dot high"></span>
 <div class="head"><span class="mark high">[x]</span><span class="name">i7</span><span class="rest">2026-10-22T09:00:00Z to 2026-10-22T09:05:00Z</span></div>
-<div class="line"><span class="of"><span class="topic">Discovery</span><span class="aside">TA0007, AML.TA0008</span></span><span class="key">T1083</span><span class="text">File and Directory Discovery</span></div>
-<div class="line"><span class="key">AML.T0075</span><span class="text">Enterprise Resource Discovery</span></div>
-<div class="line begins"><span class="of"><span class="topic">CredentialAccess</span><span class="aside">TA0006, AML.TA0013</span></span><span class="key">AML.T0055</span><span class="text">Unsecured Credentials</span></div>
-<div class="line begins"><span class="of"><span class="topic">Exfiltration</span><span class="aside">TA0010, AML.TA0010</span></span><span class="text wide none">no technique</span></div>
-<div class="line begins"><span class="of"><span class="topic">watchlist</span></span><span class="text wide">APT-EXAMPLE: 203.0.113.9</span></div>
+<div class="line"><span class="id kind">tools</span><span class="what">nmap, whoami</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1053.005</span><span class="what">Scheduled Task/Job: Scheduled Task</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id"></span><span class="what"></span></div>
+<div class="line"><span class="id"></span><span class="what"></span><span class="id far">TA0003</span><span class="what">Persistence</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1552.004</span><span class="what">Unsecured Credentials: Private Keys</span><span class="id far">TA0006</span><span class="what">CredentialAccess</span><span class="id">AML.T0055</span><span class="what">Unsecured Credentials</span></div>
+<div class="line more"><span class="tag">watchlist</span><span class="value">APT-EXAMPLE: 203.0.113.9</span></div>
 </li>
 <li class="block"><span class="dot "></span>
 <div class="head"><span class="mark "></span><span class="name">i8</span><span class="rest">2026-10-22T09:10:00Z</span></div>
-<div class="line"><span class="said">no technique</span></div>
+<div class="line more"><span class="said">no technique</span></div>
 </li>
 </ol>
 </section>

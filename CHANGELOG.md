@@ -8,30 +8,36 @@ All notable changes to this project are recorded in this file. The format follow
 
 ### Changed
 
-- The lines of the timeline's blocks are the rows of one table. The tactic, its ATT&CK and
-  ATLAS identifiers, the identifier of a technique and the name of the technique each stand in
-  a column of their own, at the same place in every block: in the text, where the identifiers
-  of a tactic no longer stand in brackets after its name, and in `report.html`, where each
-  block had columns of its own width and a technique's identifier and name ran together. The
-  page writes a tactic in bold and its identifiers in grey, parts the tactics of a block with a
-  rule, writes the line that says no technique was identified in grey, lines up the names of
-  the blocks, and on a narrow screen sets a tactic above its techniques. In `report.md` a
-  tactic is written once, with its techniques as a list under it.
+- A block of the timeline is a table of what was identified and what follows from it. A row is
+  an ATT&CK technique, then the tactic it is of and the ATLAS technique it infers, each by its
+  identifier and its name. A block listed the identifiers and the names of its techniques
+  alone, those of ATLAS after those of ATT&CK, and no tactic.
+- Every block has its rows in the same columns. In `report.html` the columns are headed once,
+  above the first block, and the names of the blocks line up; each block sized its own
+  columns, so the names of the techniques began at a different place from block to block. A
+  narrow screen sets a technique above its tactic and its ATLAS technique. In `report.md` a row
+  is an item of the block.
+- An ATLAS technique follows from an ATT&CK technique, and an activity names none.
+  `internal/mitre/analogues.json` gives an ATT&CK technique the ATLAS technique that stands for
+  it where no technique of ATLAS refers to it; `activities.json` gave it to some of the
+  activities that show the technique. A reverse shell has the ATLAS technique of the socket it
+  opens, `AML.T0072`. The ATLAS techniques of a row of `findings.json`, `intents.csv` and
+  `report.json` stand in the order of their identifiers.
+- The tactics of an activity follow from its techniques, and the tables are refused when they
+  do not: when ATT&CK files a technique of an activity under none of its tactics, or files none
+  of its techniques under one of its tactics.
 
 ### Fixed
 
-- A block of the timeline lists the tactics its files show, each with its ATT&CK and ATLAS
-  identifiers, and each technique beside its parent tactic: the tactic of the activity that
-  shows it, where its framework files the technique under that tactic. A technique of two
-  tactics stands under both, and a tactic with no technique under it says so. A script whose
-  name begins with its intent, such as `i201_scan.sh`, stood under a tactic in the Tactics
-  section while the block of the intent named none: a block listed only the techniques of
-  recognised activities, and a tactic that comes from the tools a script runs has no technique.
+- A tactic that the tools of a script give stands in the block of its intent, in a row with
+  those tools. A script whose name begins with its intent, such as `i201_scan.sh`, stood under
+  a tactic in the Tactics section while the block of the intent named none: a block listed
+  only techniques, and a tool gives a tactic and no technique.
 - The Tactics section and the timeline agree, each from its side. A tactic lists every file
   that shows it, an output as well as a script, and names under `intents` the intents of those
-  files; the block of each of those intents lists the tactic. A tactic that only an output
-  showed stood in the block of its intent and in the count of the summary, and not in the
-  Tactics section or among the tactics of `findings.json`.
+  files; the block of each of those intents has the tactic in a row. A tactic that only an
+  output showed stood in the block of its intent and in the count of the summary, and not in
+  the Tactics section or among the tactics of `findings.json`.
 
 ## [0.6.1] - 2026-11-18
 

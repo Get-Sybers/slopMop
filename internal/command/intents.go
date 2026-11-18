@@ -27,9 +27,9 @@ type intentRun struct {
 	activities      []string
 	// techniques are those of the activities its files show.
 	techniques
-	// hits are the watchlist matches of its files.
-	hits  []string
-	level tactic.Severity
+	// tools are what its files run, and hits their watchlist matches.
+	tools, hits []string
+	level       tactic.Severity
 }
 
 // above is how many folders of the path to the folder read count as part of
@@ -65,6 +65,7 @@ func (p pipeline) collectIntents(folder string, steps []trace.Step) ([]intentRun
 		of[s.File.Path] = ref.ID
 		r.files = append(r.files, s.File.Path)
 		r.tactics = appendUnique(r.tactics, s.Tactics...)
+		r.tools = appendUnique(r.tools, s.Tools...)
 		for _, hit := range s.Activities {
 			r.add(p, hit)
 			r.activities = appendUnique(r.activities, hit.Name)
@@ -157,10 +158,11 @@ func (w reportRun) intentBlocks() []render.Group {
 				period += " to " + last
 			}
 		}
-		entries[i] = render.Entry{Level: string(r.level), Cells: []string{r.ref.ID, period}, Detail: w.named(r.tactics, r.techniques, r.hits)}
+		entries[i] = render.Entry{Level: string(r.level), Cells: []string{r.ref.ID, period}}
+		entries[i].Rows, entries[i].Detail = w.block(r.tactics, r.techniques, r.tools, r.hits)
 		files, recorded = files+len(r.files), recorded+r.recorded
 	}
-	groups := []render.Group{{Blocks: true, Entries: entries}}
+	groups := []render.Group{{Blocks: true, Heads: heads(), Entries: entries}}
 	if other := files - recorded; other > 0 {
 		line := strconv.Itoa(other) + " of " + counted(files, "file is", "files are") +
 			" timed by name or last change: their creation time is not recorded, or is that of a copy, which is after the last change"

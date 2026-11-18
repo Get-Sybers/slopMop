@@ -34,10 +34,12 @@ func hostileReadout(hostile string) Readout {
 		Banner: Banner{Level: LevelHigh, Text: hostile},
 		Sections: []Section{{Title: hostile, Note: hostile, Groups: []Group{
 			{Title: hostile, Columns: []string{hostile}, Entries: []Entry{{Level: LevelHigh, Cells: []string{hostile, hostile}}}},
-			{Entries: []Entry{{Cells: []string{hostile}, Detail: []Detail{{Label: hostile, Note: hostile, Key: hostile, Text: hostile}, {Text: hostile}}}}},
-			{Blocks: true, Entries: []Entry{{Level: LevelHigh, Cells: []string{hostile, hostile}, Detail: []Detail{
-				{Label: hostile, Note: hostile, Key: hostile, Text: hostile}, {Label: hostile, Text: hostile, None: true}, {Text: hostile},
-			}}}},
+			{Entries: []Entry{{Cells: []string{hostile}, Detail: []Detail{{Label: hostile, Text: hostile}, {Text: hostile}}}}},
+			{Blocks: true, Heads: Heads{hostile, hostile, hostile}, Entries: []Entry{{
+				Level: LevelHigh, Cells: []string{hostile, hostile},
+				Rows:   []Row{{{ID: hostile, Name: hostile}, {Kind: hostile, Name: hostile}, {ID: hostile}}},
+				Detail: []Detail{{Label: hostile, Text: hostile}, {Text: hostile}},
+			}}},
 		}}},
 		Hints: []string{hostile},
 	}
@@ -133,7 +135,7 @@ func TestWriteHTMLEscapesEvidence(t *testing.T) {
 			t.Errorf("the page holds %q as markup:\n%s", raw, page)
 		}
 	}
-	if got, want := strings.Count(page, "&lt;script&gt;alert(1)&lt;/script&gt;"), 26; got != want {
+	if got, want := strings.Count(page, "&lt;script&gt;alert(1)&lt;/script&gt;"), 28; got != want {
 		t.Errorf("the text is on the page %d times, want %d:\n%s", got, want, page)
 	}
 }
@@ -179,70 +181,71 @@ func TestWriteHTMLSharesALabel(t *testing.T) {
 	}
 }
 
-// keyed holds every kind of line a detail has: two that share a label and
-// its note, one that says nothing was found, one with no key, and a sentence.
-func keyed(blocks bool) Readout {
-	return Readout{Title: "t", Sections: []Section{{Title: "S", Groups: []Group{{Blocks: blocks, Entries: []Entry{{
-		Level: LevelHigh, Cells: []string{"one"},
-		Detail: []Detail{
-			{Label: "Discovery", Note: "TA0007", Key: "T1083", Text: "first"},
-			{Label: "Discovery", Note: "TA0007", Key: "AML.T0075", Text: "second"},
-			{Label: "Exfiltration", Note: "TA0010", Text: "none found", None: true},
-			{Label: "watchlist", Text: "third"},
-			{Text: "a sentence"},
-		},
-	}}}}}}}
+// rowed is a block with every kind of row: a technique of two tactics, one
+// with an ATLAS technique, a tactic that tools give, and its detail lines.
+func rowed() Readout {
+	return Readout{Title: "t", Sections: []Section{{Title: "S", Groups: []Group{{
+		Blocks: true, Heads: Heads{"technique", "tactic", "ATLAS technique"},
+		Entries: []Entry{{
+			Level: LevelHigh, Cells: []string{"one"},
+			Rows: []Row{
+				{{ID: "T1053.005", Name: "first"}, {ID: "TA0002", Name: "Execution"}},
+				{{}, {ID: "TA0003", Name: "Persistence"}},
+				{{ID: "T1552", Name: "second"}, {ID: "TA0006", Name: "CredentialAccess"}, {ID: "AML.T0055", Name: "third"}},
+				{{Kind: "tools", Name: "nmap, id"}, {ID: "TA0007", Name: "Discovery"}},
+			},
+			Detail: []Detail{{Label: "watchlist", Text: "fourth"}, {Text: "a sentence"}},
+		}},
+	}}}}}
 }
 
-// The lines of a block are cells of the columns its group shares: a label
-// and its note once, a key before its text, a text with no key across both.
+// The rows of a block are lines of six cells, an identifier and a name for
+// each of the three things, so every line fills the columns the blocks share.
 func TestWriteHTMLLinesOfABlock(t *testing.T) {
 	var out bytes.Buffer
-	if err := WriteHTML(&out, keyed(true)); err != nil {
+	if err := WriteHTML(&out, rowed()); err != nil {
 		t.Fatal(err)
 	}
+	const none = `<span class="id"></span><span class="what"></span>`
 	for _, want := range []string{
 		`<ol class="blocks marked">`,
-		`<div class="line"><span class="of"><span class="topic">Discovery</span><span class="aside">TA0007</span></span><span class="key">T1083</span><span class="text">first</span></div>`,
-		`<div class="line"><span class="key">AML.T0075</span><span class="text">second</span></div>`,
-		`<div class="line begins"><span class="of"><span class="topic">Exfiltration</span><span class="aside">TA0010</span></span><span class="text wide none">none found</span></div>`,
-		`<div class="line begins"><span class="of"><span class="topic">watchlist</span></span><span class="text wide">third</span></div>`,
-		`<div class="line begins"><span class="said">a sentence</span></div>`,
+		`<li class="heads"><div class="line"><span>technique</span><span>tactic</span><span>ATLAS technique</span></div></li>`,
+		`<div class="line"><span class="id">T1053.005</span><span class="what">first</span><span class="id far">TA0002</span><span class="what">Execution</span>` + none + `</div>`,
+		`<div class="line"><span class="id"></span><span class="what"></span><span class="id far">TA0003</span><span class="what">Persistence</span>` + none + `</div>`,
+		`<div class="line begins"><span class="id">T1552</span><span class="what">second</span><span class="id far">TA0006</span><span class="what">CredentialAccess</span><span class="id">AML.T0055</span><span class="what">third</span></div>`,
+		`<div class="line begins"><span class="id kind">tools</span><span class="what">nmap, id</span><span class="id far">TA0007</span><span class="what">Discovery</span>` + none + `</div>`,
+		`<div class="line more"><span class="tag">watchlist</span><span class="value">fourth</span></div>`,
+		`<div class="line more"><span class="said">a sentence</span></div>`,
 	} {
 		if !strings.Contains(out.String(), want) {
 			t.Errorf("the page lacks %s:\n%s", want, out.String())
 		}
 	}
-	// A table has a label and a value for a line, so each takes what stands beside it.
+	// A group that names no columns has no line of heads.
+	bare := rowed()
+	bare.Sections[0].Groups[0].Heads = Heads{}
 	out.Reset()
-	if err := WriteHTML(&out, keyed(false)); err != nil {
+	if err := WriteHTML(&out, bare); err != nil {
 		t.Fatal(err)
 	}
-	for _, want := range []string{
-		`<span class="label">Discovery (TA0007)</span><span class="value">T1083  first</span>`,
-		`<span class="label"></span><span class="value">AML.T0075  second</span>`,
-		`<span class="label">Exfiltration (TA0010)</span><span class="value">none found</span>`,
-	} {
-		if !strings.Contains(out.String(), want) {
-			t.Errorf("the page lacks %s:\n%s", want, out.String())
-		}
+	if strings.Contains(out.String(), `class="heads"`) {
+		t.Errorf("the page heads columns that have no name:\n%s", out.String())
 	}
 }
 
-// Markdown lists the lines that have a key under their label, written once,
-// and fills the keys to one width; a text that says nothing was found is plain.
-func TestWriteMarkdownListsKeyedLines(t *testing.T) {
+// Markdown writes a row as an item: the thing it names and what follows from
+// it, with the rows after it that name no thing of their own.
+func TestWriteMarkdownListsRows(t *testing.T) {
 	var out bytes.Buffer
-	if err := WriteMarkdown(&out, keyed(true)); err != nil {
+	if err := WriteMarkdown(&out, rowed()); err != nil {
 		t.Fatal(err)
 	}
 	want := strings.Join([]string{"# t", "", "\\[x\\] high   \\[!\\] medium   \\[i\\] low", "", "## S", "",
 		"- **\\[x\\] high** · `one`",
-		"  - **Discovery (TA0007):**",
-		"    - `T1083      first`",
-		"    - `AML.T0075  second`",
-		"  - **Exfiltration (TA0010):** none found",
-		"  - **watchlist:** `third`",
+		"  - `T1053.005  first` · `TA0002  Execution` · `TA0003  Persistence`",
+		"  - `T1552  second` · `TA0006  CredentialAccess` · `AML.T0055  third`",
+		"  - tools `nmap, id` · `TA0007  Discovery`",
+		"  - **watchlist:** `fourth`",
 		"  - a sentence",
 		"",
 	}, "\n")

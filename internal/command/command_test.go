@@ -345,19 +345,19 @@ func TestReportIntents(t *testing.T) {
 	}
 	_, timeline, _ := strings.Cut(readout, "\nTimeline")
 	for _, id := range []string{"i1041", "i1042", "i998", "i1051"} {
-		block := `\n  \[x\] ` + id + ` +2026-10-22T09:\d\d:\d\dZ to 2026-10-22T09:\d\d:\d\dZ\n      \w+ +TA\d{4}, AML\.TA\d{4}  (?:T\d{4}|no MITRE)`
+		block := `\n  \[x\] ` + id + ` +2026-10-22T09:\d\d:\d\dZ to 2026-10-22T09:\d\d:\d\dZ\n      (?:T\d{4}(?:\.\d{3})?|tools)  .+  TA\d{4}  \w+`
 		if !regexp.MustCompile(block).MatchString(timeline) {
-			t.Errorf("the timeline has no block for %s with its period and its tactics:\n%s", id, timeline)
+			t.Errorf("the timeline has no block for %s with its period and a row that ends in a tactic:\n%s", id, timeline)
 		}
 	}
-	// A tactic the Tactics section gives a file of an intent stands in the
-	// block of the intent, and a technique stands under its tactic.
+	// A row is a technique, then its tactic and its ATLAS technique; a tactic
+	// the Tactics section gives a file for its tools alone stands with them.
 	_, block, _ := strings.Cut(timeline, "] i1042 ")
 	block, _, _ = strings.Cut(block, "\n\n")
 	for _, row := range []string{
-		`\n      Discovery +TA0007, AML\.TA0008  no MITRE ATT&CK technique identified\n`,
-		`\n      CredentialAccess +TA0006, AML\.TA0013  T1003\.008 +OS Credential Dumping: /etc/passwd and /etc/shadow\n +T1552\.004 +Unsecured Credentials: Private Keys\n`,
-		`\n +AML\.T0090 +OS Credential Dumping\n`,
+		`\n      tools +\S.*  TA0007  Discovery\n`,
+		`\n      T1003\.008  OS Credential Dumping: /etc/passwd and /etc/shadow +TA0006  CredentialAccess +AML\.T0090  OS Credential Dumping\n`,
+		`\n      T1552\.004  Unsecured Credentials: Private Keys +TA0006  CredentialAccess +AML\.T0055  Unsecured Credentials\n`,
 	} {
 		if !regexp.MustCompile(row).MatchString(block + "\n") {
 			t.Errorf("the block of i1042 lacks %q:\n%s", row, block)
@@ -395,11 +395,12 @@ func TestReportWithoutIntents(t *testing.T) {
 	readout, saved := report(t, evidencetest.Copy(t, "bash"), "summary", "timeline")
 	_, timeline, _ := strings.Cut(readout, "\nTimeline")
 	for _, block := range []string{
-		"\n  [i] Discovery                       2025-03-01T10:15:00Z\n      Discovery         TA0007, AML.TA0008  no MITRE ATT&CK technique identified\n",
+		"\n  [i] Discovery                       2025-03-01T10:15:00Z\n" +
+			"      tools  nmap                                          TA0007  Discovery\n" +
+			"      no MITRE ATT&CK technique identified\n",
 		"\n  [x] CredentialAccess, Exfiltration  2025-03-01T10:45:00Z\n" +
-			"      CredentialAccess  TA0006, AML.TA0013  T1649      Steal or Forge Authentication Certificates\n" +
-			"      Exfiltration      TA0010, AML.TA0010  T1048      Exfiltration Over Alternative Protocol\n" +
-			"                                            AML.T0025  Exfiltration via Cyber Means\n",
+			"      T1649  Steal or Forge Authentication Certificates    TA0006  CredentialAccess\n" +
+			"      T1048  Exfiltration Over Alternative Protocol        TA0010  Exfiltration        AML.T0025  Exfiltration via Cyber Means\n",
 		"\n  and 10 files that show no tactic, in the saved trace\n",
 	} {
 		if !strings.Contains(timeline, block) {
@@ -520,10 +521,10 @@ func TestIntentsRunFromWhenTheirFilesWereMade(t *testing.T) {
 		t.Errorf("the files with an intent are %v, want every one but plain.sh", of)
 	}
 	groups := reportRun{pipe: pipe, result: analysis{intents: runs}}.timeline()
-	// An activity that names no tactic leaves its technique under the tactic its framework files it under.
+	// An activity that names no tactic leaves its technique with the tactic ATT&CK files it under.
 	i5 := render.Entry{
-		Cells:  []string{"i5", "2026-10-22T09:10:00Z to 2026-10-22T09:12:00Z"},
-		Detail: tacticLines("Discovery", "TA0007, AML.TA0008", "T1046  Network Service Discovery", "T1018  Remote System Discovery"),
+		Cells: []string{"i5", "2026-10-22T09:10:00Z to 2026-10-22T09:12:00Z"},
+		Rows:  []render.Row{row("T1046  Network Service Discovery", "TA0007  Discovery"), row("T1018  Remote System Discovery", "TA0007  Discovery")},
 	}
 	if got := groups[0].Entries[0]; !groups[0].Blocks || !reflect.DeepEqual(got, i5) {
 		t.Errorf("i5 is the block %+v, want %+v", got, i5)
@@ -585,7 +586,7 @@ func TestReportIntentsByCreation(t *testing.T) {
 			}
 		}
 	}
-	if !strings.Contains(readout, "  [x] i7  ") || !regexp.MustCompile(`\n      Persistence +TA0003, AML\.TA0006  T1136\.001 +Create Account: Local Account\n`).MatchString(readout) {
+	if !strings.Contains(readout, "  [x] i7  ") || !regexp.MustCompile(`\n      T1136\.001  Create Account: Local Account +TA0003  Persistence +AML\.T0125  Create Account\n`).MatchString(readout) {
 		t.Errorf("the readout has no block for i7 that names its technique under the tactic of its script:\n%s", readout)
 	}
 	if strings.Contains(readout, "timed by name or last change") {
@@ -1571,22 +1572,36 @@ func TestAssessmentCoversEveryActivity(t *testing.T) {
 	}
 }
 
-// A tactic an activity claims must be one ATT&CK files its techniques
-// under, and every identifier must be one the catalogue lists.
-func TestActivitiesAgreeWithTheCatalogue(t *testing.T) {
+// A technique gives an activity each of its tactics: ATT&CK files every
+// technique under one of them and under each of them a technique, and every
+// identifier is one the catalogue lists. The embedded table is held to that.
+func TestTacticsFollowFromTechniques(t *testing.T) {
 	pipe, err := loadPipeline()
 	if err != nil {
 		t.Fatal(err)
 	}
-	pipe.activities.Each(func(name string, tactics, attack, _ []string) {
-		var official []string
-		for _, id := range attack {
-			official = append(official, pipe.catalogue.Attack.TacticsOf(id)...)
-		}
-		for _, tactic := range tactics {
-			if id := pipe.tactics.Attack(tactic); !slices.Contains(official, id) {
-				t.Errorf("%s claims %s (%s), which ATT&CK does not give to %q", name, tactic, id, attack)
+	for _, tt := range []struct {
+		name            string
+		tactics, attack []string
+		want            string
+	}{
+		{"a technique under its tactic", []string{"CommandAndControl"}, []string{"T1105"}, ""},
+		{"a technique of two tactics", []string{"Persistence", "Execution"}, []string{"T1053.005"}, ""},
+		{"a tactic ATT&CK gives the technique and the activity leaves out", []string{"Persistence"}, []string{"T1053.005"}, ""},
+		{"a technique the catalogue lacks", []string{"Discovery"}, []string{"T0000"}, `the ATT&CK technique "T0000", which the catalogue lacks`},
+		{"a technique under none of the tactics", []string{"Discovery"}, []string{"T1105"}, "the technique T1105, which ATT&CK files under none of its tactics"},
+		{"a tactic no technique gives", []string{"CommandAndControl", "Discovery"}, []string{"T1105"}, "the tactic Discovery, which ATT&CK files none of its techniques"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			err := follows("Made", tt.tactics, tt.attack, pipe.tactics, pipe.catalogue)
+			if (err == nil) != (tt.want == "") || (err != nil && !strings.Contains(err.Error(), tt.want)) {
+				t.Errorf("follows = %v, want %q", err, tt.want)
 			}
+		})
+	}
+	pipe.activities.Each(func(name string, tactics, attack []string) {
+		if err := follows(name, tactics, attack, pipe.tactics, pipe.catalogue); err != nil {
+			t.Error(err)
 		}
 	})
 }

@@ -47,30 +47,50 @@ type Group struct {
 	Columns []string
 	Entries []Entry
 	// Blocks sets each entry apart as a block, one under another: a timeline.
-	// The first cell names the block, and its detail lines are a table whose
-	// columns every block of the group shares.
+	// The first cell names the block, and its rows are a table whose columns
+	// every block of the group shares; Heads names what each column holds.
 	Blocks bool
+	Heads  Heads
 }
 
-// Entry is one line of cells and the detail lines under it.
+// Heads names the three things a row of a block names, for a format that
+// heads its columns.
+type Heads [3]string
+
+// Entry is one line of cells and what stands under it: the rows of a block,
+// and then the detail lines.
 type Entry struct {
 	Level  string
 	Cells  []string
+	Rows   []Row
 	Detail []Detail
+}
+
+// Row is a line of a block. It names a thing and what follows from it, one
+// beside another: a place that names nothing stays empty.
+type Row [3]Named
+
+// Named is a thing by its identifier and its name.
+type Named struct {
+	ID   string
+	Name string
+	// Kind stands where a thing has no identifier and says what it is, such
+	// as tools. Its name is then what the evidence holds.
+	Kind string
+}
+
+// first is what stands before the name: the identifier, or the kind.
+func (n Named) first() string {
+	if n.ID != "" {
+		return shown(n.ID)
+	}
+	return shown(n.Kind)
 }
 
 // Detail is one indented line under an entry; the label may be empty.
 type Detail struct {
 	Label string
-	// Note says more of the label, beside it: the identifiers of what the
-	// label names. The lines that share a label and its note stand under
-	// them, and the two are written once.
-	Note string
-	// Key identifies the text and stands before it, in a column of its own.
-	Key  string
-	Text string
-	// None marks a text that says nothing was found; it is written in grey.
-	None bool
+	Text  string
 }
 
 const (
@@ -208,7 +228,8 @@ func (p *pen) section(s Section) {
 
 func (p *pen) group(g Group, indent string) {
 	var widths []int
-	marked, label, note, key := 0, 0, 0, 0
+	var ids, names [3]int
+	marked, label := 0, 0
 	for _, e := range g.Entries {
 		glyph, _ := mark(e.Level)
 		marked = max(marked, len(glyph))
@@ -218,15 +239,21 @@ func (p *pen) group(g Group, indent string) {
 			}
 			widths[i] = min(widest, max(widths[i], utf8.RuneCountInString(shown(c))))
 		}
-		// The labels, the notes and the keys of a group each stand in one column.
 		for _, d := range e.Detail {
 			if d.Text != "" {
 				label = max(label, utf8.RuneCountInString(d.Label))
-				note = max(note, utf8.RuneCountInString(shown(d.Note)))
-				key = min(widest, max(key, utf8.RuneCountInString(shown(d.Key))))
+			}
+		}
+		// Every row of the group has its identifiers and its names in the same columns.
+		for _, row := range e.Rows {
+			for i, n := range row {
+				ids[i] = max(ids[i], utf8.RuneCountInString(n.first()))
+				names[i] = min(widest, max(names[i], utf8.RuneCountInString(shown(n.Name))))
 			}
 		}
 	}
+	// The labels of a block stand in the column of the first identifiers.
+	label, ids[0] = max(label, ids[0]), max(label, ids[0])
 	under := indent + strings.Repeat(" ", 2*len(gap))
 	named, labelled := "", sgrGrey
 	if g.Blocks {
@@ -254,6 +281,21 @@ func (p *pen) group(g Group, indent string) {
 			}
 		}
 		p.line(parts...)
+		for _, row := range e.Rows {
+			parts := []string{under}
+			for i, n := range row {
+				// A column that no row of the group fills takes no room.
+				if ids[i] == 0 && names[i] == 0 {
+					continue
+				}
+				id, name := n.first(), shown(n.Name)
+				if n.ID == "" {
+					id = p.paint(sgrGrey, id)
+				}
+				parts = append(parts, id, spaces(ids[i], n.first()), gap, name, spaces(names[i], name), gap, gap)
+			}
+			p.line(parts...)
+		}
 		last := ""
 		for _, d := range e.Detail {
 			if d.Text == "" {
@@ -264,25 +306,13 @@ func (p *pen) group(g Group, indent string) {
 				last = ""
 				continue
 			}
-			// A label is written once, with its note; the lines under it
-			// that share both stand in the columns after them.
-			name, of, same := d.Label, shown(d.Note), d.Label+"\x00"+d.Note
-			if same == last {
-				name, of = "", ""
+			// A label is written once; the lines under it that share it stand in its column.
+			name := d.Label
+			if name == last {
+				name = ""
 			}
-			last = same
-			parts := []string{under, p.paint(labelled, name), spaces(label, name), gap}
-			if note > 0 {
-				parts = append(parts, p.paint(sgrGrey, of), spaces(note, of), gap)
-			}
-			if id := shown(d.Key); id != "" {
-				parts = append(parts, id, spaces(key, id), gap)
-			}
-			text := Escape(d.Text)
-			if d.None {
-				text = p.paint(sgrGrey, text)
-			}
-			p.line(append(parts, text)...)
+			last = d.Label
+			p.line(under, p.paint(labelled, name), spaces(label, name), gap, Escape(d.Text))
 		}
 	}
 }

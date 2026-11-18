@@ -53,39 +53,56 @@ tr.detail td { padding-top: 0; }
 .name { font-weight: 600; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; overflow-wrap: anywhere; }
 .rest { color: var(--soft); font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px;
   overflow-wrap: anywhere; }
-.line { display: grid; grid-template-columns: 11em 11em 8em minmax(0, 1fr); column-gap: 18px;
+.line { display: grid; grid-template-columns: 8em 24em 4.5em 10em 8em minmax(0, 1fr); column-gap: 10px;
   align-items: baseline; padding: 1px 0; font-size: 13px; }
 .head + .line { margin-top: 6px; }
-.line.begins { margin-top: 4px; padding-top: 5px; border-top: 1px solid var(--line); }
+.line.begins, .line:not(.more) + .more { margin-top: 4px; padding-top: 5px; border-top: 1px solid var(--line); }
 .marked .line { margin-left: 40px; }
-.of { display: contents; }
-.topic { grid-column: 1; font-weight: 600; }
-.aside { grid-column: 2; color: var(--soft); font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
-  font-size: 12px; }
-.key { grid-column: 3; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
-.text { grid-column: 4; overflow-wrap: anywhere; }
-.text.wide { grid-column: 3 / -1; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
-.text.none { font-family: inherit; }
+.id { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; white-space: nowrap; }
+.what { overflow-wrap: anywhere; }
+.what + .id { padding-left: 18px; }
+.id:first-child + .what { font-weight: 600; }
+.id.kind, .id.far { color: var(--soft); }
+.id.kind { font-family: inherit; }
+.id.kind + .what { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-weight: 400; }
+.tag { grid-column: 1; font-weight: 600; }
+.more .value { grid-column: 2 / -1; }
 .said { grid-column: 1 / -1; color: var(--soft); }
+.heads { list-style: none; padding: 0 12px; margin: 0 0 6px; }
+.heads span { grid-column: span 2; width: 0; white-space: nowrap; font-size: 12px; text-transform: uppercase;
+  letter-spacing: .04em; color: var(--soft); }
+.heads span + span { padding-left: 18px; }
 @supports (grid-template-columns: subgrid) {
-  .blocks { display: grid; grid-template-columns: repeat(3, max-content) minmax(0, 1fr); column-gap: 18px; }
-  .block { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; }
+  .blocks { display: grid; column-gap: 10px;
+    grid-template-columns: max-content fit-content(44ch) max-content max-content max-content minmax(12ch, 1fr); }
+  .block, .heads { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; }
   .head, .line { grid-column: 1 / -1; }
   .line { grid-template-columns: subgrid; }
 }
-@media (max-width: 760px) {
-  .blocks { display: block; }
+@media (max-width: 1040px) {
+  .heads { display: none; }
   .marked .line { margin-left: 0; }
-  .line { grid-template-columns: 8em minmax(0, 1fr); gap: 2px 12px; }
-  .of { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 10px; grid-column: 1 / -1; }
-  .key { grid-column: 1; }
-  .text { grid-column: 2; }
-  .text.wide { grid-column: 1 / -1; }
+  .line { grid-template-columns: 8em 4.5em 10em 8em minmax(0, 1fr); row-gap: 2px; }
+  .line > :empty { display: none; }
+  .line > .id:first-child, .line > .tag { grid-column: 1; }
+  .line > .id:first-child + .what, .more .value { grid-column: 2 / -1; }
+  .line > :nth-child(3) { grid-column: 2; padding-left: 0; }
+  .line > :nth-child(4) { grid-column: 3; }
+  .line > :nth-child(5) { grid-column: 4; }
+  .line > :nth-child(6) { grid-column: 5; }
+}
+@media (max-width: 640px) {
+  .line { grid-template-columns: 8em 8em minmax(0, 1fr); }
+  .line > :nth-child(5) { grid-column: 2; padding-left: 0; }
+  .line > :nth-child(6) { grid-column: 3; }
 }
 @supports (grid-template-columns: subgrid) {
-  @media (max-width: 760px) {
-    .block { grid-template-columns: max-content minmax(0, 1fr); column-gap: 12px; }
+  @media (max-width: 1040px) {
+    .blocks { grid-template-columns: repeat(4, max-content) minmax(0, 1fr); }
     .line { grid-template-columns: subgrid; }
+  }
+  @media (max-width: 640px) {
+    .blocks { grid-template-columns: max-content max-content minmax(0, 1fr); }
   }
 }
 footer { margin-top: 40px; font-size: 13px; border-top: 1px solid var(--line); padding-top: 10px; }
@@ -124,17 +141,19 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 {{- end}}
 {{- if .Blocks}}
 <ol class="blocks{{if .Marked}} marked{{end}}">
+{{- if .Heads}}
+<li class="heads"><div class="line">{{range .Heads}}<span>{{.}}</span>{{end}}</div></li>
+{{- end}}
 {{- range .Rows}}
 <li class="block"><span class="dot {{.Level}}"></span>
 <div class="head">{{if .Marked}}<span class="mark {{.Level}}">{{.Mark}}</span>{{end}}{{range $i, $c := .Cells}}<span class="{{if $i}}rest{{else}}name{{end}}">{{$c}}</span>{{end}}</div>
-{{- range .Detail}}
-<div class="line{{if .Begins}} begins{{end}}">
-{{- if not .Labelled}}<span class="said">{{.Text}}</span>
-{{- else}}
-{{- if .Label}}<span class="of"><span class="topic">{{.Label}}</span>{{if .Note}}<span class="aside">{{.Note}}</span>{{end}}</span>{{end}}
-{{- if .Key}}<span class="key">{{.Key}}</span><span class="text">{{.Text}}</span>
-{{- else}}<span class="text wide{{if .None}} none{{end}}">{{.Text}}</span>
+{{- range .Lines}}
+<div class="line{{if .Begins}} begins{{end}}">{{range $i, $t := .Things}}<span class="id{{if $t.Seen}} kind{{end}}{{if eq $i 1}} far{{end}}">{{$t.First}}</span><span class="what">{{$t.Name}}</span>{{end}}</div>
 {{- end}}
+{{- range .Detail}}
+<div class="line more">
+{{- if .Labelled}}<span class="tag">{{.Label}}</span><span class="value">{{.Text}}</span>
+{{- else}}<span class="said">{{.Text}}</span>
 {{- end}}</div>
 {{- end}}
 </li>

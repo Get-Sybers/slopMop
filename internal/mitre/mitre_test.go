@@ -95,8 +95,53 @@ func TestAtlasFor(t *testing.T) {
 	if got, want := c.AtlasFor([]string{"T1003.001", "T1078.004"}), []string{"AML.T0012", "AML.T0090"}; !slices.Equal(got, want) {
 		t.Errorf("AtlasFor = %q, want %q: the technique each is a part of is referred to", got, want)
 	}
-	if got := c.AtlasFor([]string{"T1105"}); got != nil {
-		t.Errorf("AtlasFor(T1105) = %q, want none", got)
+	if got := c.AtlasFor([]string{"T1053.005"}); got != nil {
+		t.Errorf("AtlasFor(T1053.005) = %q, want none", got)
+	}
+	// What ATLAS leaves unsaid an analogue says, of a technique and of its parts.
+	for _, tt := range []struct{ attack, want string }{
+		{"T1105", "AML.T0072"}, {"T1048", "AML.T0025"}, {"T1048.003", "AML.T0025"}, {"T1087.004", "AML.T0075"},
+	} {
+		if got := c.AtlasFor([]string{tt.attack}); !slices.Equal(got, []string{tt.want}) {
+			t.Errorf("AtlasFor(%s) = %q, want %s", tt.attack, got, tt.want)
+		}
+	}
+	if got, want := c.AtlasFor([]string{"T1213.002"}), []string{"AML.T0036", "AML.T0126"}; !slices.Equal(got, want) {
+		t.Errorf("AtlasFor(T1213.002) = %q, want %q: what ATLAS refers to it and its analogue", got, want)
+	}
+	if got := c.AtlasFor([]string{"T1087.001"}); got != nil {
+		t.Errorf("AtlasFor(T1087.001) = %q, want none: an analogue of one part is not that of another", got)
+	}
+}
+
+// An analogue names techniques the catalogue lists and adds to what ATLAS says.
+func TestPairRejects(t *testing.T) {
+	for name, data := range map[string]string{
+		"not json":                 `[`,
+		"trailing data":            `[] x`,
+		"unknown field":            `[{"attack":"T1105","atlas":"AML.T0072","why":"x"}]`,
+		"unknown ATT&CK technique": `[{"attack":"T0000","atlas":"AML.T0072"}]`,
+		"unknown ATLAS technique":  `[{"attack":"T1105","atlas":"AML.T9999"}]`,
+		"what ATLAS says itself":   `[{"attack":"T1078","atlas":"AML.T0012"}]`,
+		"what its parent has":      `[{"attack":"T1078.004","atlas":"AML.T0012"}]`,
+		"twice":                    `[{"attack":"T1105","atlas":"AML.T0072"},{"attack":"T1105","atlas":"AML.T0072"}]`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			c, err := decode(raw)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := c.pair([]byte(data)); err == nil {
+				t.Error("pair gave no error")
+			}
+		})
+	}
+	c, err := decode(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := c.pair([]byte(`[{"attack":"T1105","atlas":"AML.T0072"}]`)); err != nil {
+		t.Errorf("one analogue: %v", err)
 	}
 }
 

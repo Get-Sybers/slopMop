@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"strings"
-	"unicode/utf8"
 )
 
 // WriteMarkdown writes r to w as Markdown. A group whose entries carry no
@@ -59,9 +58,12 @@ func WriteMarkdown(w io.Writer, r Readout) error {
 	return nil
 }
 
-// detailed reports whether any entry of the group has a detail line to show.
+// detailed reports whether any entry of the group has a row or a detail line to show.
 func (g Group) detailed() bool {
 	for _, e := range g.Entries {
+		if len(e.Rows) > 0 {
+			return true
+		}
 		for _, d := range e.Detail {
 			if d.Text != "" {
 				return true
@@ -122,15 +124,6 @@ func mdTable(b *bytes.Buffer, g Group) {
 }
 
 func mdList(b *bytes.Buffer, g Group) {
-	// The keys of a group are filled to one width, so the texts begin in one column.
-	key := 0
-	for _, e := range g.Entries {
-		for _, d := range e.Detail {
-			if d.Text != "" {
-				key = max(key, utf8.RuneCountInString(d.Key))
-			}
-		}
-	}
 	for _, e := range g.Entries {
 		var parts []string
 		if glyph, _ := mark(e.Level); glyph != "" {
@@ -142,34 +135,49 @@ func mdList(b *bytes.Buffer, g Group) {
 			}
 		}
 		b.WriteString("- " + strings.Join(parts, " · ") + "\n")
-		last := ""
-		for _, d := range e.Detail {
-			label := d.Label
-			if d.Note != "" {
-				label += " (" + d.Note + ")"
+		// A row that names a thing of its own is an item; what the rows after
+		// it name follows from that thing and stands in the same item.
+		var item []string
+		write := func() {
+			if len(item) > 0 {
+				b.WriteString("  - " + strings.Join(item, " · ") + "\n")
 			}
+			item = nil
+		}
+		for _, row := range e.Rows {
+			if row[0] != (Named{}) {
+				write()
+			}
+			for _, n := range row {
+				if n != (Named{}) {
+					item = append(item, mdNamed(n))
+				}
+			}
+		}
+		write()
+		for _, d := range e.Detail {
 			switch {
 			case d.Text == "":
 			case d.Label == "":
 				// A line without a label is a sentence of the tool's own.
 				b.WriteString("  - " + mdText(d.Text) + "\n")
-				last = ""
-			case d.Key != "":
-				// The lines that have a key are a list under their label, which is written once.
-				if label != last {
-					b.WriteString("  - **" + mdText(label) + ":**\n")
-				}
-				b.WriteString("    - " + mdCode(d.Key+spaces(key, d.Key)+gap+d.Text, false) + "\n")
-				last = label
-			case d.None:
-				b.WriteString("  - **" + mdText(label) + ":** " + mdText(d.Text) + "\n")
-				last = ""
 			default:
-				b.WriteString("  - **" + mdText(label) + ":** " + mdCode(d.Text, false) + "\n")
-				last = ""
+				b.WriteString("  - **" + mdText(d.Label) + ":** " + mdCode(d.Text, false) + "\n")
 			}
 		}
 	}
+}
+
+// mdNamed writes a thing: its identifier and its name in one code span, or
+// the word for what it is before its name.
+func mdNamed(n Named) string {
+	switch {
+	case n.Name == "":
+		return mdText(n.ID + n.Kind)
+	case n.ID == "":
+		return strings.TrimSpace(mdText(n.Kind) + " " + mdCode(n.Name, false))
+	}
+	return mdCode(n.ID+gap+n.Name, false)
 }
 
 // mdEscaped lists what Markdown would read as markup in running text.

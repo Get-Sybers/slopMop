@@ -147,7 +147,8 @@ func checkColumns(k exposure.Kind) error {
 }
 
 // loadCatalogue checks that every ATT&CK and ATLAS identifier the tactic
-// and activity tables give is one the catalogue lists.
+// and activity tables give is one the catalogue lists, and that the
+// tactics of an activity follow from its techniques.
 func loadCatalogue(tactics tactic.Table, activities activity.Table) (mitre.Catalogue, error) {
 	catalogue, err := mitre.Load()
 	if err != nil {
@@ -161,25 +162,41 @@ func loadCatalogue(tactics tactic.Table, activities activity.Table) (mitre.Catal
 			return mitre.Catalogue{}, fmt.Errorf("tactics.json gives %s the ATLAS tactic %q, which the catalogue lacks", name, id)
 		}
 	}
-	activities.Each(func(name string, _, attack, atlas []string) {
-		for _, id := range attack {
-			if err == nil && !catalogue.Attack.HasTechnique(id) {
-				err = fmt.Errorf("activities.json gives %s the ATT&CK technique %q, which the catalogue lacks", name, id)
-			}
-		}
-		for _, id := range atlas {
-			if err == nil && !catalogue.Atlas.HasTechnique(id) {
-				err = fmt.Errorf("activities.json gives %s the ATLAS technique %q, which the catalogue lacks", name, id)
-			}
+	activities.Each(func(name string, shown, attack []string) {
+		if err == nil {
+			err = follows(name, shown, attack, tactics, catalogue)
 		}
 	})
 	return catalogue, err
 }
 
-// atlasOf returns the ATLAS techniques of an activity: those it names and
-// those that refer to one of its ATT&CK techniques.
+// follows checks that a technique gives an activity each of its tactics:
+// ATT&CK files every technique of the activity under one of its tactics,
+// and under every tactic of the activity one of its techniques.
+func follows(name string, shown, attack []string, tactics tactic.Table, catalogue mitre.Catalogue) error {
+	under := func(id, tactic string) bool {
+		return slices.Contains(catalogue.Attack.TacticsOf(id), tactics.Attack(tactic))
+	}
+	for _, id := range attack {
+		if !catalogue.Attack.HasTechnique(id) {
+			return fmt.Errorf("activities.json gives %s the ATT&CK technique %q, which the catalogue lacks", name, id)
+		}
+		if !slices.ContainsFunc(shown, func(tactic string) bool { return under(id, tactic) }) {
+			return fmt.Errorf("activities.json gives %s the technique %s, which ATT&CK files under none of its tactics %q", name, id, shown)
+		}
+	}
+	for _, tactic := range shown {
+		if !slices.ContainsFunc(attack, func(id string) bool { return under(id, tactic) }) {
+			return fmt.Errorf("activities.json gives %s the tactic %s, which ATT&CK files none of its techniques %q under", name, tactic, attack)
+		}
+	}
+	return nil
+}
+
+// atlasOf returns the ATLAS techniques of an activity: those its ATT&CK
+// techniques infer.
 func (p pipeline) atlasOf(hit activity.Hit) []string {
-	return appendUnique(slices.Clone(hit.Atlas), p.catalogue.AtlasFor(hit.Attack)...)
+	return p.catalogue.AtlasFor(hit.Attack)
 }
 
 // loadAssessment checks that the impact and action tables name only what

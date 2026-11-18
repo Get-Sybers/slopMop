@@ -28,16 +28,22 @@ func sampleReadout() Readout {
 			{Title: "Impact", Note: "what it means", Groups: []Group{{Entries: []Entry{
 				{Level: LevelMedium, Cells: []string{"Traces hidden"}, Detail: []Detail{{Text: "Files were removed."}, {Label: "basis", Text: "LogDeletion"}}},
 			}}}},
-			{Title: "Intent timeline", Note: "a block for each intent", Groups: []Group{{Blocks: true, Entries: []Entry{
-				{Level: LevelHigh, Cells: []string{"i7", "2026-10-22T09:00:00Z to 2026-10-22T09:05:00Z"}, Detail: []Detail{
-					{Label: "Discovery", Note: "TA0007, AML.TA0008", Key: "T1083", Text: "File and Directory Discovery"},
-					{Label: "Discovery", Note: "TA0007, AML.TA0008", Key: "AML.T0075", Text: "Enterprise Resource Discovery"},
-					{Label: "CredentialAccess", Note: "TA0006, AML.TA0013", Key: "AML.T0055", Text: "Unsecured Credentials"},
-					{Label: "Exfiltration", Note: "TA0010, AML.TA0010", Text: "no technique", None: true},
-					{Label: "watchlist", Text: "APT-EXAMPLE: 203.0.113.9"},
-				}},
-				{Cells: []string{"i8", "2026-10-22T09:10:00Z"}, Detail: []Detail{{Text: "no technique"}}},
-			}}}},
+			{Title: "Intent timeline", Note: "a block for each intent", Groups: []Group{{
+				Blocks: true, Heads: Heads{"ATT&CK technique", "tactic", "ATLAS technique"},
+				Entries: []Entry{
+					{
+						Level: LevelHigh, Cells: []string{"i7", "2026-10-22T09:00:00Z to 2026-10-22T09:05:00Z"},
+						Rows: []Row{
+							{{Kind: "tools", Name: "nmap, whoami"}, {ID: "TA0007", Name: "Discovery"}},
+							{{ID: "T1053.005", Name: "Scheduled Task/Job: Scheduled Task"}, {ID: "TA0002", Name: "Execution"}},
+							{{}, {ID: "TA0003", Name: "Persistence"}},
+							{{ID: "T1552.004", Name: "Unsecured Credentials: Private Keys"}, {ID: "TA0006", Name: "CredentialAccess"}, {ID: "AML.T0055", Name: "Unsecured Credentials"}},
+						},
+						Detail: []Detail{{Label: "watchlist", Text: "APT-EXAMPLE: 203.0.113.9"}},
+					},
+					{Cells: []string{"i8", "2026-10-22T09:10:00Z"}, Detail: []Detail{{Text: "no technique"}}},
+				},
+			}}},
 			{Title: "Mitigation", Groups: []Group{{}}},
 		},
 		Hints: []string{"one section: slopmop <folder> impact"},
@@ -74,7 +80,11 @@ func TestWriteReadoutEscapesEvidence(t *testing.T) {
 		Title:  hostile,
 		Banner: Banner{Level: LevelClear, Text: hostile},
 		Sections: []Section{{Title: hostile, Note: hostile, Groups: []Group{{Title: hostile, Entries: []Entry{
-			{Level: LevelHigh, Cells: []string{hostile, hostile}, Detail: []Detail{{Label: "in", Note: hostile, Key: hostile, Text: hostile}, {Text: hostile}}},
+			{
+				Level: LevelHigh, Cells: []string{hostile, hostile},
+				Rows:   []Row{{{ID: hostile, Name: hostile}, {Kind: hostile, Name: hostile}}},
+				Detail: []Detail{{Label: "in", Text: hostile}, {Text: hostile}},
+			},
 		}}}}},
 		Hints: []string{hostile},
 	}
@@ -85,7 +95,7 @@ func TestWriteReadoutEscapesEvidence(t *testing.T) {
 	if strings.ContainsRune(out.String(), '\x1b') {
 		t.Errorf("an escape character reached the output: %q", out.String())
 	}
-	if got, want := strings.Count(out.String(), "\n"), 11; got != want {
+	if got, want := strings.Count(out.String(), "\n"), 12; got != want {
 		t.Errorf("%d lines, want %d: a line break in a text split a line\n%s", got, want, out.String())
 	}
 }
@@ -126,45 +136,47 @@ func TestWriteReadoutSharesALabel(t *testing.T) {
 	}
 }
 
-// The labels, their notes and the keys of a group each stand in one column,
-// whichever entry a line is under, and a label is written once with its note.
-func TestWriteReadoutLinesUpDetail(t *testing.T) {
+// The rows of every block of a group have their identifiers and their names
+// in the same columns, and a label of a block stands with the first identifiers.
+func TestWriteReadoutLinesUpRows(t *testing.T) {
 	r := Readout{Title: "t", Sections: []Section{{Title: "S", Groups: []Group{{Blocks: true, Entries: []Entry{
-		{Cells: []string{"one"}, Detail: []Detail{
-			{Label: "Discovery", Note: "TA0007", Key: "T1083", Text: "first"},
-			{Label: "Discovery", Note: "TA0007", Key: "AML.T0075", Text: "second"},
-			{Label: "Exfiltration", Note: "TA0010", Text: "none found", None: true},
+		{Cells: []string{"one"}, Rows: []Row{
+			{{ID: "T1053.005", Name: "first"}, {ID: "TA0002", Name: "Execution"}},
+			{{}, {ID: "TA0003", Name: "Persistence"}},
+			{{Kind: "tools", Name: "nmap, id"}, {ID: "TA0007", Name: "Discovery"}},
 		}},
-		{Cells: []string{"two"}, Detail: []Detail{
-			{Label: "CredentialAccess", Note: "TA0006, AML.TA0013", Key: "T1552", Text: "third"},
-			{Label: "watchlist", Text: "fourth"},
-		}},
+		{Cells: []string{"two"}, Rows: []Row{
+			{{ID: "T1552", Name: "a longer name"}, {ID: "TA0006", Name: "CredentialAccess"}, {ID: "AML.T0055", Name: "third"}},
+			{{}, {}, {ID: "AML.T0126", Name: "fourth"}},
+		}, Detail: []Detail{{Label: "watchlist", Text: "fifth"}, {Text: "a sentence"}}},
 	}}}}}}
 	var out bytes.Buffer
 	if err := WriteReadout(&out, r, false); err != nil {
 		t.Fatal(err)
 	}
 	want := strings.Join([]string{"t", "", "S", "  one",
-		"      Discovery         TA0007              T1083      first",
-		"                                            AML.T0075  second",
-		"      Exfiltration      TA0010              none found",
+		"      T1053.005  first            TA0002  Execution",
+		"                                  TA0003  Persistence",
+		"      tools      nmap, id         TA0007  Discovery",
 		"",
 		"  two",
-		"      CredentialAccess  TA0006, AML.TA0013  T1552      third",
-		"      watchlist                             fourth",
+		"      T1552      a longer name    TA0006  CredentialAccess    AML.T0055  third",
+		"                                                              AML.T0126  fourth",
+		"      watchlist  fifth",
+		"      a sentence",
 		"",
 	}, "\n")
 	if out.String() != want {
 		t.Errorf("readout =\n%s\nwant\n%s", out.String(), want)
 	}
+	// A group whose rows name nothing in a place gives the place no room.
+	r.Sections[0].Groups[0].Entries = r.Sections[0].Groups[0].Entries[:1]
 	out.Reset()
 	if err := WriteReadout(&out, r, true); err != nil {
 		t.Fatal(err)
 	}
-	for _, grey := range []string{sgrGrey + "TA0007" + sgrReset, sgrGrey + "none found" + sgrReset} {
-		if !strings.Contains(out.String(), grey) {
-			t.Errorf("the readout in colour lacks %q:\n%q", grey, out.String())
-		}
+	if !strings.Contains(out.String(), sgrGrey+"tools"+sgrReset+"      nmap, id    TA0007  Discovery\n") {
+		t.Errorf("the readout in colour does not write the kind of a thing in grey, in the column of the identifiers:\n%q", out.String())
 	}
 }
 
