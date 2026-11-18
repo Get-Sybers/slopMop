@@ -371,3 +371,59 @@ func TestCollectedAccountsShowDiscovery(t *testing.T) {
 		}
 	}
 }
+
+// A security identifier an output holds first shows what its authority and
+// its relative identifier say it is of, and a listing by relative identifier
+// what it lists. One a script brought shows nothing, nor does one seen before.
+func TestIdentifiersShowDiscovery(t *testing.T) {
+	const domain = "S-1-5-21-1111111111-2222222222-3333333333"
+	folder := t.TempDir()
+	for name, text := range map[string]string{
+		"20261101_090000_step01_look.sh": "#!/bin/bash\nssh ops@10.0.0.5 uptime\necho " + domain + "-519\n",
+		"20261101_090100_groups.txt": strings.Join([]string{
+			`BUILTIN\Administrators   Alias   S-1-5-32-544   Mandatory group, Enabled by default`,
+			`CORP\Domain Admins   Group   ` + domain + `-512   Mandatory group`,
+			`CORP\Enterprise Admins   Group   ` + domain + `-519   Mandatory group`,
+			`CORP\App Owners   Group   ` + domain + `-1109   Mandatory group`,
+			`corp\jdoe   ` + domain + `-1105`,
+			`SID : ` + domain + `-1150`,
+			`Administrator   ` + domain + `-500`,
+			`krbtgt   ` + domain + `-502`,
+		}, "\n") + "\n",
+		"20261101_090200_rids.txt": strings.Join([]string{
+			`user:[svc_sql] rid:[0x451]`,
+			`group:[Domain Admins] rid:[0x200]`,
+			`1105: CORP\jsmith (SidTypeUser)`,
+			`544: BUILTIN\Administrators (SidTypeAlias)`,
+			`S-1-5-32-544`,
+		}, "\n") + "\n",
+	} {
+		if err := os.WriteFile(filepath.Join(folder, name), []byte(text), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	_, saved := report(t, folder, "findings")
+	shown := map[string]string{}
+	for _, row := range rows(t, filepath.Join(saved, "findings.json")) {
+		if name, _ := row["finding"].(string); strings.HasSuffix(name, "Discovery") {
+			var lines []string
+			evidence, _ := row["evidence"].([]any)
+			for _, e := range evidence {
+				line, _ := e.(map[string]any)
+				lines = append(lines, fmt.Sprint(strings.TrimPrefix(strings.TrimSuffix(fmt.Sprint(line["file"]), ".txt"), "20261101_0"), ":", line["line"]))
+			}
+			shown[name] = fmt.Sprint(row["attack"], " ", strings.Join(lines, " "))
+		}
+	}
+	// The group a script named is brought, and the group of the machine is
+	// found once; the identifier of jdoe says less than its name on that line.
+	want := map[string]string{
+		"LocalGroupDiscovery":    "T1069.001 90100_groups:1 90200_rids:4",
+		"DomainGroupDiscovery":   "T1069.002 90100_groups:2 90100_groups:4 90200_rids:2",
+		"DomainAccountDiscovery": "T1087.002 90100_groups:5 90100_groups:8 90200_rids:1 90200_rids:3",
+		"AccountDiscovery":       "T1087 90100_groups:6 90100_groups:7",
+	}
+	if !maps.Equal(shown, want) {
+		t.Errorf("the outputs show\n  %v, want\n  %v", shown, want)
+	}
+}

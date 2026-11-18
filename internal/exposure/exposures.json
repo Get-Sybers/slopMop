@@ -101,6 +101,21 @@
     {"activity": "SystemUserDiscovery", "technique": "T1033", "line": "^(?P<account>[a-z_][a-z0-9_-]{0,31})\\s+(?:pts/\\d+|tty\\d+)\\s"},
     {"activity": "AccountDiscovery", "technique": "T1087"}
   ],
+  "identifiers": [
+    {"activity": "LocalGroupDiscovery", "technique": "T1069.001", "needs": ["s-1-5-32-"], "group": true, "line": "\\b(?P<found>S-1-5-32-\\d{3,4})\\b"},
+    {"activity": "DomainGroupDiscovery", "technique": "T1069.002", "needs": ["s-1-5-21-"], "group": true, "line": "\\b(?P<found>S-1-5-21(?:-\\d{1,10}){3}-(?:498|512|51[4-9]|52[0-25-7]|553|57[12]))\\b"},
+    {"activity": "GroupDiscovery", "technique": "T1069", "needs": ["s-1-5-21-"], "group": true, "line": "\\b(?P<found>S-1-5-21(?:-\\d{1,10}){3}-513)\\b"},
+    {"activity": "DomainAccountDiscovery", "technique": "T1087.002", "needs": ["s-1-5-21-"], "line": "\\b(?P<found>S-1-5-21(?:-\\d{1,10}){3}-502)\\b"},
+    {"activity": "AccountDiscovery", "technique": "T1087", "needs": ["s-1-5-21-"], "line": "\\b(?P<found>S-1-5-21(?:-\\d{1,10}){3}-50[0134])\\b"},
+    {"activity": "LocalGroupDiscovery", "technique": "T1069.001", "needs": ["s-1-5-21-"], "group": true, "line": "(?i)\\balias\\b.*?\\b(?P<found>S-1-5-21(?:-\\d{1,10}){3}-\\d{4,10})\\b"},
+    {"activity": "DomainGroupDiscovery", "technique": "T1069.002", "needs": ["s-1-5-21-"], "group": true, "line": "(?i)\\bgroup\\b.*?\\b(?P<found>S-1-5-21(?:-\\d{1,10}){3}-\\d{4,10})\\b"},
+    {"activity": "AccountDiscovery", "technique": "T1087", "needs": ["s-1-5-21-"], "plain": true, "line": "\\b(?P<found>S-1-5-21(?:-\\d{1,10}){3}-\\d{4,10})\\b"},
+    {"activity": "DomainAccountDiscovery", "technique": "T1087.002", "needs": ["rid:["], "line": "(?i)\\buser:\\[(?P<found>[^\\]\\r\\n]+)\\]\\s+rid:\\[0x[0-9a-f]+\\]"},
+    {"activity": "DomainGroupDiscovery", "technique": "T1069.002", "needs": ["rid:["], "group": true, "line": "(?i)\\bgroup:\\[(?P<found>[^\\]\\r\\n]+)\\]\\s+rid:\\[0x[0-9a-f]+\\]"},
+    {"activity": "DomainAccountDiscovery", "technique": "T1087.002", "needs": ["(sidtypeuser)"], "line": "(?i)\\b\\d{3,10}:\\s+(?P<found>\\S[^()\\r\\n]*?)\\s+\\(SidTypeUser\\)"},
+    {"activity": "DomainGroupDiscovery", "technique": "T1069.002", "needs": ["(sidtypegroup)"], "group": true, "line": "(?i)\\b\\d{3,10}:\\s+(?P<found>\\S[^()\\r\\n]*?)\\s+\\(SidTypeGroup\\)"},
+    {"activity": "LocalGroupDiscovery", "technique": "T1069.001", "needs": ["(sidtypealias)"], "group": true, "line": "(?i)\\b\\d{3,10}:\\s+(?P<found>\\S[^()\\r\\n]*?)\\s+\\(SidTypeAlias\\)"}
+  ],
   "kinds": [
     {
       "name": "password",

@@ -97,13 +97,18 @@ func (s shape) stands(line, value string) bool {
 	return false
 }
 
-// Shows lists what collecting an account can show, each activity once, so a
-// caller that holds the other tables can check its name and its technique.
+// Shows lists what an account or an identifier can show, each activity once,
+// so a caller that holds the other tables can check its name and its technique.
 func (t Table) Shows() []Shown {
 	var out []Shown
 	for _, s := range t.accounts {
 		if !slices.Contains(out, s.Shown) {
 			out = append(out, s.Shown)
+		}
+	}
+	for _, f := range t.identifiers {
+		if !slices.Contains(out, f.Shown) {
+			out = append(out, f.Shown)
 		}
 	}
 	return out

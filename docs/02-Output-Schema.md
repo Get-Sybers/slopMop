@@ -87,7 +87,7 @@ Impact
 | Summary | a count and its breakdown; with a window of time, the row `left out`: the files outside it and what the window left out | none |
 | Tactics | tactic, its ATT&CK and ATLAS identifiers, the files that show it | `intents`: the intents of those files, every one, in the order of the timeline |
 | Timeline | a block for each intent, or for each period where no file names an intent: the intent or the tactics of the period, and when it ran | a row for each ATT&CK technique of its files, which an activity or a command shows: the technique, the tactic it is of and the ATLAS technique it infers, each by its identifier and its name; a row for the tools of a tactic that no technique is named for; that no technique was identified, where none was; `watchlist`: the matches of its files |
-| Findings | activity, lines, tactics, techniques; an activity is also what the accounts an output holds first show, such as `DomainAccountDiscovery` | `what`: the lines that show it, each with its place |
+| Findings | activity, lines, tactics, techniques; an activity is also what the accounts and the security identifiers an output holds first show, such as `DomainAccountDiscovery` and `LocalGroupDiscovery` | `what`: the lines that show it, each with its place |
 | Targeted, a group per kind | the value, for an address whether it is private or public, whether it is prior or discovered, the places in the scripts | `from`: the output that held a discovered value first; `what`: the script lines that name it |
 | Targeted, a group per thing the activities acted on | the thing, such as a task, an archive or a file, and the activities that acted on it; a task also with what it runs; a resource after the activities that acted on it | `what`: the lines that act on it |
 | Exposure, a group per kind, then one per service that has a group of its own | the value; where the evidence says so, what the value is, whose it is and what it is for; whether it was collected or used; the places. A password or another secret is listed by what it is first: what, collected or used, the value, the places | none |
@@ -134,6 +134,9 @@ Timeline   (a block for each intent, from the first of its files to be created u
 - An account the scripts collected is a technique as well, in the block of the output that
   holds it first: its shape says which, a domain, cloud, email or local account, or the user
   of the system, as `exposures.json` lists the shapes.
+- A security identifier is one too, where an output holds it first: its authority and its
+  relative identifier say whether it is of a group of the machine, a group of a domain or an
+  account.
 - A command is a technique too, where `tactics.json` files it under one: its row is that
   technique and the tactic that holds it. A command whose technique is not named is a tool:
   the tools of a tactic are a row of their own, `tools` and the first 6 of them where a

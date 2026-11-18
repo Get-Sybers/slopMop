@@ -42,9 +42,18 @@ All notable changes to this project are recorded in this file. The format follow
   `accounts`. What an output shows so is an activity with the lines that name the accounts, so
   it stands in the findings, in the block and the row of its intent, under its tactic and in
   the mitigations.
+- A security identifier shows a technique in the same way, by its authority and its relative
+  identifier: `T1069.001` for a group of the machine, `T1069.002` for a group of a domain,
+  `T1069` for the group of every user, `T1087.002` for the account of the ticket service and
+  `T1087` for another account. An identifier a domain or a machine gave out is a group where
+  its line calls it one. A listing by relative identifier shows what it lists. The shapes are
+  under `identifiers` in `exposures.json`.
 
 ### Fixed
 
+- The name of a group is no username. A listing of groups gave `Administrators` of
+  `BUILTIN\Administrators` as a username, and a word of a name such as `Enterprise Admins`;
+  a name on a line whose security identifier is of a group is left out.
 - A tactic that the tools of a script give stands in the block of its intent, in a row with
   those tools. A script whose name begins with its intent, such as `i201_scan.sh`, stood under
   a tactic in the Tactics section while the block of the intent named none: a block listed
