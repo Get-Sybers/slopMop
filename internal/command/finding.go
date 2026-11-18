@@ -126,8 +126,7 @@ func (p pipeline) listFindings(a analysis) []finding {
 			key := m.Type + "\x00" + m.Value
 			f, ok := byIndicator[key]
 			if !ok {
-				// A hash or a token is an indicator and a secret; it is masked as one.
-				f = &finding{kind: kindIndicator, label: m.Type, indicator: a.redact(m.Value)}
+				f = &finding{kind: kindIndicator, label: m.Type, indicator: m.Value}
 				if a.watchlist != nil {
 					for _, hit := range a.watchlist.Match([]indicator.Match{m}) {
 						f.attributions = appendUnique(f.attributions, hit.Attribution)

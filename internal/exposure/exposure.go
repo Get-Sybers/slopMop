@@ -13,7 +13,6 @@ import (
 	"regexp"
 	"slices"
 	"sort"
-	"strconv"
 	"strings"
 	"unicode/utf8"
 
@@ -29,9 +28,6 @@ const (
 	maxLine = 8 << 10
 	// near is how many lines after a username a secret is still taken as its own.
 	near = 3
-	// shownStart and maxStars shape a masked secret: its first runes, stars, its last rune.
-	shownStart = 2
-	maxStars   = 8
 )
 
 type document struct {
@@ -43,7 +39,7 @@ type kindEntry struct {
 	Name     string `json:"name"`
 	Title    string `json:"title"`
 	Severity string `json:"severity"`
-	// Secret marks a kind whose values are shown masked.
+	// Secret marks a kind whose values are secrets: each opens something.
 	Secret bool `json:"secret,omitempty"`
 	// Keys are field names, without case or punctuation, whose value is of the kind.
 	Keys []string `json:"keys,omitempty"`
@@ -116,8 +112,6 @@ type Item struct {
 	Service string
 	// Line is the line of the text, from 1.
 	Line int
-	// Open marks a secret whose value here describes it and gives nothing away.
-	Open bool
 }
 
 type rule struct {
@@ -406,21 +400,8 @@ func (t Table) FromIndicator(typ, value string, line int) (Item, bool) {
 	// The header of a key block names the key; the key itself is in the lines below it.
 	if strings.HasPrefix(value, "-----BEGIN ") {
 		item.Value = strings.ToLower(strings.Trim(strings.TrimPrefix(value, "-----BEGIN "), "- "))
-		item.Open = true
 	}
 	return item, true
-}
-
-// Mask shows the first runes and the last rune of a secret and its length,
-// enough to tell one secret from another and not enough to use it.
-func Mask(secret string) string {
-	n := utf8.RuneCountInString(secret)
-	runes := []rune(secret)
-	if n <= shownStart+2 {
-		return strings.Repeat("*", n) + " (" + strconv.Itoa(n) + " chars)"
-	}
-	stars := min(n-shownStart-1, maxStars)
-	return string(runes[:shownStart]) + strings.Repeat("*", stars) + string(runes[n-1:]) + " (" + strconv.Itoa(n) + " chars)"
 }
 
 func normalise(key string) string {

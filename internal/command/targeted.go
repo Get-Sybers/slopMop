@@ -108,9 +108,9 @@ func (t *targets) script(it exposure.Item, kind exposure.Kind, path string) {
 	}
 }
 
-// finish quotes the script lines, with every secret masked, and sorts: the
+// finish quotes the script lines as they stand, and sorts: the
 // kinds in their order, prior before discovered, then by value.
-func (t *targets) finish(texts map[string]string, redact func(string) string) []targeted {
+func (t *targets) finish(texts map[string]string) []targeted {
 	lines := map[string][]string{}
 	for i := range t.all {
 		for _, c := range t.all[i].cites {
@@ -121,7 +121,7 @@ func (t *targets) finish(texts map[string]string, redact func(string) string) []
 				lines[c.file] = strings.Split(texts[c.file], "\n")
 			}
 			if c.line <= len(lines[c.file]) {
-				quoted := redact(shorten(strings.Join(strings.Fields(lines[c.file][c.line-1]), " ")))
+				quoted := shorten(strings.Join(strings.Fields(lines[c.file][c.line-1]), " "))
 				t.all[i].lines = append(t.all[i].lines, quoted+" ("+c.String()+")")
 			}
 		}

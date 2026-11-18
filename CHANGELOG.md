@@ -76,6 +76,12 @@ All notable changes to this project are recorded in this file. The format follow
   copied, and keeps the time of the timeline, as does a file with no creation time; the last
   line of the section counts those files.
 
+### Removed
+
+- `-secrets`. A secret is written as it stands in the evidence, on the screen and in every
+  saved file: in the exposure, in a command quoted as evidence, in a target and among the
+  indicators. It was masked unless `-secrets shown` was given.
+
 ### Fixed
 
 - A version number is not reported as an IPv4 address. Four numbers are an address only when

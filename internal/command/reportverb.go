@@ -125,7 +125,7 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 		return nil, err
 	}
 	options := doc.options(v)
-	for _, name := range []string{inputDir, intelFile, outDir, secrets, coresOption, memoryOption, progressOption, startOption, stopOption} {
+	for _, name := range []string{inputDir, intelFile, outDir, coresOption, memoryOption, progressOption, startOption, stopOption} {
 		if !slices.ContainsFunc(options, func(o cli.Option) bool { return o.Name == name }) {
 			return nil, fmt.Errorf("commands.json: it reads the option %q, which it does not name", name)
 		}
@@ -144,13 +144,6 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 		dir, err := outputDir(folder, a.Options[outDir], e.WorkDir, v.Saved.Prefix)
 		if err != nil {
 			return err
-		}
-		plain := false
-		switch given, ok := a.Options[secrets]; {
-		case ok && given == secretsShown:
-			plain = true
-		case ok && given != secretsMasked:
-			return cli.Usagef("-%s takes %s or %s, not %q", secrets, secretsMasked, secretsShown, given)
 		}
 		cores, err := percentage(a, coresOption)
 		if err != nil {
@@ -179,7 +172,7 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 		}
 		// The line of the meter is taken off before anything else is written.
 		defer meter.Stop()
-		result, err := pipe.read(folder, inventory.MaxDepth, period, a.Options[intelFile], plain, meter)
+		result, err := pipe.read(folder, inventory.MaxDepth, period, a.Options[intelFile], meter)
 		if err != nil {
 			return err
 		}
@@ -560,9 +553,9 @@ func (w reportRun) exposure() []render.Group {
 		for n, c := range e.cites {
 			cites[n] = c.String()
 		}
-		entry := render.Entry{Level: e.kind.Severity, Cells: []string{e.shown(), e.seen, few(cites)}}
+		entry := render.Entry{Level: e.kind.Severity, Cells: []string{e.value, e.seen, few(cites)}}
 		if described {
-			entry.Cells = []string{e.shown(), what, e.seen, few(cites)}
+			entry.Cells = []string{e.value, what, e.seen, few(cites)}
 		}
 		groups[i].Entries = append(groups[i].Entries, entry)
 	}

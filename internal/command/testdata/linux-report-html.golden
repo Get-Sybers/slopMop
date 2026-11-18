@@ -642,15 +642,15 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 </section>
 <section id="section-6">
 <h2>Exposure</h2>
-<p class="note">collected: first seen in an output; used: first seen in a script; a secret is masked</p>
+<p class="note">collected: first seen in an output; used: first seen in a script</p>
 <h3>Passwords and secrets (3)</h3>
 <div class="wrap">
 <table>
 <thead><tr><th></th><th>value</th><th>what</th><th>seen</th><th>found in</th></tr></thead>
 <tbody>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">$6********f (47 chars)</td><td class="cell">hash of deploy</td><td class="cell">collected</td><td class="cell">shadow_20261022_090530.txt:4</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">Fi********1 (15 chars)</td><td class="cell">password of app_rw</td><td class="cell">collected</td><td class="cell">env_20261022_090540.txt:3</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">fi********9 (24 chars)</td><td class="cell">token</td><td class="cell">collected</td><td class="cell">env_20261022_090540.txt:5</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">$6$fixturesalt$fixturehashvalue0123456789abcdef</td><td class="cell">hash of deploy</td><td class="cell">collected</td><td class="cell">shadow_20261022_090530.txt:4</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">Fixture-Pass-01</td><td class="cell">password of app_rw</td><td class="cell">collected</td><td class="cell">env_20261022_090540.txt:3</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">fixture-token-0123456789</td><td class="cell">token</td><td class="cell">collected</td><td class="cell">env_20261022_090540.txt:5</td></tr>
 </tbody>
 </table>
 </div>
@@ -721,7 +721,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Credentials exposed</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.</p>
-<div class="pair"><span class="label">targets</span><span class="value">file /etc/shadow; file ~/.ssh/id_rsa; file ~/.aws/credentials; file ~/.bash_history; url http://169.254.169.254/latest/meta-data/; hash of deploy; password of app_rw; token fi********9 (24 chars)</span></div>
+<div class="pair"><span class="label">targets</span><span class="value">file /etc/shadow; file ~/.ssh/id_rsa; file ~/.aws/credentials; file ~/.bash_history; url http://169.254.169.254/latest/meta-data/; hash of deploy; password of app_rw; token fixture-token-0123456789</span></div>
 <div class="pair"><span class="label">what</span><span class="value">ShadowFileRead: sudo cat /etc/shadow &gt; shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)</span></div>
 <div class="pair"><span class="label"></span><span class="value">PrivateKeyRead: cat ~/.ssh/id_rsa (20261022_090500_step02_creds.sh:4)</span></div>
 <div class="pair"><span class="label"></span><span class="value">CredentialFileRead: cat ~/.aws/credentials (20261022_090500_step02_creds.sh:3)</span></div>
@@ -839,7 +839,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Rotate what was read</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.</p>
-<div class="pair"><span class="label">targets</span><span class="value">file /etc/shadow; file ~/.ssh/id_rsa; file ~/.aws/credentials; file ~/.bash_history; url http://169.254.169.254/latest/meta-data/; hash of deploy; password of app_rw; token fi********9 (24 chars)</span></div>
+<div class="pair"><span class="label">targets</span><span class="value">file /etc/shadow; file ~/.ssh/id_rsa; file ~/.aws/credentials; file ~/.bash_history; url http://169.254.169.254/latest/meta-data/; hash of deploy; password of app_rw; token fixture-token-0123456789</span></div>
 <div class="pair"><span class="label">what</span><span class="value">ShadowFileRead: sudo cat /etc/shadow &gt; shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)</span></div>
 <div class="pair"><span class="label"></span><span class="value">PrivateKeyRead: cat ~/.ssh/id_rsa (20261022_090500_step02_creds.sh:4)</span></div>
 <div class="pair"><span class="label"></span><span class="value">CredentialFileRead: cat ~/.aws/credentials (20261022_090500_step02_creds.sh:3)</span></div>

@@ -43,23 +43,10 @@ type exposed struct {
 	form    string
 	// service is what the value gives access to, or the host of an SSH key.
 	service string
-	// open marks a secret whose value describes it and gives nothing away.
-	open bool
-	// plain marks a secret that the run was asked to write out as it is.
-	plain bool
-	seen  string
-	cites []cite
+	seen    string
+	cites   []cite
 	// count is the number of lines that hold the value.
 	count int
-}
-
-// shown is the value as it is written out: a secret is masked unless the
-// run was asked to show secrets.
-func (e exposed) shown() string {
-	if e.kind.Secret && !e.open && !e.plain {
-		return exposure.Mask(e.value)
-	}
-	return e.value
 }
 
 // what says what a value is, whose it is and what it is for, as far as the
@@ -83,7 +70,7 @@ func (e exposed) label() string {
 	case e.account != "":
 		return e.form + " of " + e.account
 	default:
-		return e.form + " " + e.shown()
+		return e.form + " " + e.value
 	}
 }
 
@@ -98,7 +85,7 @@ func (e exposed) files() []string {
 // collectExposed reads every file in the order of the timeline, so a value
 // is collected or used by where it is seen first. It also gathers what the
 // scripts name outright, which it returns for finish to quote.
-func (p pipeline) collectExposed(steps []trace.Step, texts map[string]string, held map[string][]exposure.Item, plain bool) ([]exposed, *targets) {
+func (p pipeline) collectExposed(steps []trace.Step, texts map[string]string, held map[string][]exposure.Item) ([]exposed, *targets) {
 	kinds := map[string]int{}
 	for i, k := range p.exposures.Kinds() {
 		kinds[k.Name] = i
@@ -117,7 +104,7 @@ func (p pipeline) collectExposed(steps []trace.Step, texts map[string]string, he
 		if !ok {
 			i = len(all)
 			index[key] = i
-			e := exposed{kind: p.exposures.Kinds()[kinds[it.Kind]], value: it.Value, account: it.Account, form: it.Form, service: it.Service, open: it.Open, plain: plain, seen: seenCollected}
+			e := exposed{kind: p.exposures.Kinds()[kinds[it.Kind]], value: it.Value, account: it.Account, form: it.Form, service: it.Service, seen: seenCollected}
 			if s.File.Role == evidence.Script {
 				e.seen = seenUsed
 			}
@@ -287,37 +274,6 @@ func mergeKinds(all []exposed, order map[string]int) []exposed {
 	return kept
 }
 
-// minRedacted is the shortest secret that is masked wherever it stands; a
-// shorter one would mask ordinary words.
-const minRedacted = 6
-
-// redactor returns a function that masks every secret in a text, so a
-// command quoted as evidence does not give away what the exposure masks.
-func redactor(all []exposed) func(string) string {
-	var pairs []string
-	seen := map[string]bool{}
-	for _, e := range all {
-		if e.kind.Secret && !e.open && !e.plain && len(e.value) >= minRedacted && !seen[e.value] {
-			seen[e.value] = true
-			pairs = append(pairs, e.value, exposure.Mask(e.value))
-		}
-	}
-	if len(pairs) == 0 {
-		return func(s string) string { return s }
-	}
-	// The longest secret is tried first, so one that holds another is masked whole.
-	order := make([]int, len(pairs)/2)
-	for i := range order {
-		order[i] = i
-	}
-	sort.SliceStable(order, func(a, b int) bool { return len(pairs[2*order[a]]) > len(pairs[2*order[b]]) })
-	sorted := make([]string, 0, len(pairs))
-	for _, i := range order {
-		sorted = append(sorted, pairs[2*i], pairs[2*i+1])
-	}
-	return strings.NewReplacer(sorted...).Replace
-}
-
 // exposedEvidence gives the assessment what is exposed: every secret, and of
 // the other kinds what the scripts collected, not what the attacker brought.
 func exposedEvidence(all []exposed) map[string][]assess.Exposed {
@@ -343,7 +299,7 @@ func exposedRow(e exposed, columns []render.Column) ([]render.Value, error) {
 	}
 	cells := map[string]render.Value{
 		"kind":     text(e.kind.Name),
-		"value":    text(e.shown()),
+		"value":    text(e.value),
 		"account":  text(e.account),
 		"form":     text(e.form),
 		"service":  text(e.service),

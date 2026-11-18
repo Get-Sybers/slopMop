@@ -1,4 +1,4 @@
-usage: slopmop -inputdir <folder> report [section ...] [-intelfile <file>] [-outdir <folder>] [-secrets masked|shown] [-cores <percent>] [-memory <percent>] [-progress shown|hidden] [-start <time>] [-stop <time>]
+usage: slopmop -inputdir <folder> report [section ...] [-intelfile <file>] [-outdir <folder>] [-cores <percent>] [-memory <percent>] [-progress shown|hidden] [-start <time>] [-stop <time>]
 reads the folder and everything below it, runs nothing, prints the report and saves it
 so far: slopmop report
 
@@ -20,7 +20,6 @@ sections (name any to print only those; none = all):
 options you can add (one dash or two; each takes a value):
   -intelfile <file>       a watchlist, JSON or STIX 2.1, to attribute the indicators to
   -outdir <folder>        where the output is saved; slopmop-<name> in the current directory when not given
-  -secrets masked|shown   how a password, a hash, a token or a key is written; masked when not given
   -cores <percent>        how much of the processors of this machine the run may use, 1 to 100; all of them when not given
   -memory <percent>       how much of the memory of this machine the run tries to stay within, 1 to 100; 75 when not given
   -progress shown|hidden  whether the run says what it is doing as it goes, on the error stream; shown on a terminal when not given

@@ -1,7 +1,7 @@
 kind,value,account,form,service,seen,severity,count,files
-password,$6********f (47 chars),deploy,hash,,collected,high,1,shadow_20261022_090530.txt:4
-password,Fi********1 (15 chars),app_rw,password,,collected,high,1,env_20261022_090540.txt:3
-password,fi********9 (24 chars),,token,,collected,high,1,env_20261022_090540.txt:5
+password,$6$fixturesalt$fixturehashvalue0123456789abcdef,deploy,hash,,collected,high,1,shadow_20261022_090530.txt:4
+password,Fixture-Pass-01,app_rw,password,,collected,high,1,env_20261022_090540.txt:3
+password,fixture-token-0123456789,,token,,collected,high,1,env_20261022_090540.txt:5
 username,alerts@corp.example,,,,collected,medium,1,env_20261022_090540.txt:4
 username,app_rw,,,,collected,medium,2,"passwd_20261022_090020.txt:4, env_20261022_090540.txt:2"
 username,daemon,,,,collected,medium,1,passwd_20261022_090020.txt:2

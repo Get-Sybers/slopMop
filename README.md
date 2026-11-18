@@ -67,7 +67,6 @@ hold all of them.
 | `slopmop -inputdir <folder> report impact remediation` | prints only the sections named |
 | `slopmop -inputdir <folder> report -intelfile <file>` | attributes the indicators a watchlist matches |
 | `slopmop -inputdir <folder> report -outdir <folder>` | saves the output to the folder named |
-| `slopmop -inputdir <folder> report -secrets shown` | writes each password, hash, token and key as it stands |
 | `slopmop -inputdir <folder> report -cores 50 -memory 25` | uses half of the processors of the machine and tries to stay within a quarter of its memory |
 | `slopmop -inputdir <folder> report -start 2026-10-22 -stop 2026-10-23` | reads only the files of that time: by the time in a file's name, or else when it was last modified |
 | `slopmop -inputdir <folder> report -start 2026-10-22T09:30` | looks forward from that time; `-stop` alone looks back from it |
@@ -75,7 +74,8 @@ hold all of them.
 | `slopmop -inputdir <folder> --help` | says what the line holds so far and what can follow it; `--help` works at every point |
 
 The output is saved to `slopmop-<folder name>` in the current directory, never into the folder
-that is read. A password, a hash, a token and a key are written masked.
+that is read. A password, a hash, a token and a key are written as they stand in the evidence,
+so the output folder is to be kept as the evidence is.
 
 | File | Holds |
 | --- | --- |

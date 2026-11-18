@@ -20,7 +20,7 @@ about evidence touch no file, and every static table is a data file validated at
 | `internal/activity` | recognises what a line of evidence does (a role assignment, a mailbox read, a Key Vault secret read) and the tactics of it, using `activities.json` |
 | `internal/indicator` | extracts security indicators (IPs, URLs, hashes, CVEs, GUIDs, Microsoft cloud endpoints, OAuth scopes) using `indicators.json` |
 | `internal/assess` | turns what a run found into its impacts and the remediation they call for, using `impacts.json` and `actions.json` |
-| `internal/exposure` | names what the evidence holds that an attacker can use: usernames, email addresses, passwords and other secrets, devices and IP addresses; masks a secret; no I/O |
+| `internal/exposure` | names what the evidence holds that an attacker can use: usernames, email addresses, passwords and other secrets, tenants, SSH keys, API keys, applications, cloud resources, devices and IP addresses, and the service each is of; no I/O |
 | `internal/intent` | names the ARTEX intent of a path, by the name of the file, its run folder or its session name; no I/O |
 | `internal/device` | reads how many processors and how much memory the machine has, on Linux, Windows and macOS; changes nothing |
 | `internal/parallel` | runs independent pieces of work on every processor; no I/O |
@@ -415,7 +415,7 @@ The same pass gathers the targets: what the scripts name outright.
   under what title.
 - A target is `discovered` when a file that is not a script and stands earlier in the timeline
   holds the same value, and `prior` otherwise.
-- Its script lines are quoted after every secret is known, so each is masked.
+- Its script lines are quoted as they stand.
 
 ## 13. ARTEX intents
 

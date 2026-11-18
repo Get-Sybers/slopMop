@@ -33,8 +33,6 @@ type analysis struct {
 	outside int
 	// exposed is what the evidence holds that an attacker can use.
 	exposed []exposed
-	// redact masks every secret among them in a text that quotes the evidence.
-	redact func(string) string
 	// targeted is what the scripts name outright: the accounts, addresses and hosts they aim at.
 	targeted []targeted
 	// intents are the ARTEX intents the files lie in, and intentOf names the one of each path.
@@ -191,9 +189,8 @@ func loadAssessment(tactics tactic.Table, activities activity.Table, patterns in
 	return table, nil
 }
 
-// read analyses a folder, levels deep, against the watchlist at path, if
-// any. plain writes secrets out as they are; otherwise each is masked.
-func (p pipeline) read(folder string, levels int, period window, path string, plain bool, meter *progress.Meter) (analysis, error) {
+// read analyses a folder, levels deep, against the watchlist at path, if any.
+func (p pipeline) read(folder string, levels int, period window, path string, meter *progress.Meter) (analysis, error) {
 	meter.Stage(stageRead, 0, 0)
 	res, err := inventory.Scope{Depth: levels, From: period.start, Until: period.stop, Watch: meter.Begin}.ReadAll(folder)
 	if err != nil {
@@ -228,8 +225,7 @@ func (p pipeline) read(folder string, levels int, period window, path string, pl
 	for i, f := range res.Files {
 		held[f.Path] = items[i]
 	}
-	found, named := p.collectExposed(timeline.Steps, res.Texts, held, plain)
-	redact := redactor(found)
+	found, named := p.collectExposed(timeline.Steps, res.Texts, held)
 	intents, intentOf := p.collectIntents(folder, timeline.Steps)
 	return analysis{
 		intents:   intents,
@@ -240,8 +236,7 @@ func (p pipeline) read(folder string, levels int, period window, path string, pl
 		window:    period,
 		outside:   res.Outside,
 		exposed:   found,
-		redact:    redact,
-		targeted:  named.finish(res.Texts, redact),
+		targeted:  named.finish(res.Texts),
 	}, nil
 }
 

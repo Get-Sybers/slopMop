@@ -298,15 +298,15 @@ _hardcoded values: prior means no earlier output holds it, discovered means one 
 
 ## Exposure
 
-_collected: first seen in an output; used: first seen in a script; a secret is masked_
+_collected: first seen in an output; used: first seen in a script_
 
 ### Passwords and secrets (3)
 
 |   | value | what | seen | found in |
 | --- | --- | --- | --- | --- |
-| `[x]` | `$6********f (47 chars)` | `hash of deploy` | `collected` | `shadow_20261022_090530.txt:4` |
-| `[x]` | `Fi********1 (15 chars)` | `password of app_rw` | `collected` | `env_20261022_090540.txt:3` |
-| `[x]` | `fi********9 (24 chars)` | `token` | `collected` | `env_20261022_090540.txt:5` |
+| `[x]` | `$6$fixturesalt$fixturehashvalue0123456789abcdef` | `hash of deploy` | `collected` | `shadow_20261022_090530.txt:4` |
+| `[x]` | `Fixture-Pass-01` | `password of app_rw` | `collected` | `env_20261022_090540.txt:3` |
+| `[x]` | `fixture-token-0123456789` | `token` | `collected` | `env_20261022_090540.txt:5` |
 
 ### Usernames (7)
 
@@ -355,7 +355,7 @@ _collected: first seen in an output; used: first seen in a script; a secret is m
   - **basis:** `SudoersModification, SetuidBit, ContainerEscape`
 - **\[x\] high** · `Credentials exposed`
   - Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.
-  - **targets:** `file /etc/shadow; file ~/.ssh/id_rsa; file ~/.aws/credentials; file ~/.bash_history; url http://169.254.169.254/latest/meta-data/; hash of deploy; password of app_rw; token fi********9 (24 chars)`
+  - **targets:** `file /etc/shadow; file ~/.ssh/id_rsa; file ~/.aws/credentials; file ~/.bash_history; url http://169.254.169.254/latest/meta-data/; hash of deploy; password of app_rw; token fixture-token-0123456789`
   - **what:** `ShadowFileRead: sudo cat /etc/shadow > shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)`
   - **what:** `PrivateKeyRead: cat ~/.ssh/id_rsa (20261022_090500_step02_creds.sh:4)`
   - **what:** `CredentialFileRead: cat ~/.aws/credentials (20261022_090500_step02_creds.sh:3)`
@@ -443,7 +443,7 @@ _most urgent first_
   - **basis:** `LateralMovement tools`
 - **\[x\] high** · `Rotate what was read`
   - Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.
-  - **targets:** `file /etc/shadow; file ~/.ssh/id_rsa; file ~/.aws/credentials; file ~/.bash_history; url http://169.254.169.254/latest/meta-data/; hash of deploy; password of app_rw; token fi********9 (24 chars)`
+  - **targets:** `file /etc/shadow; file ~/.ssh/id_rsa; file ~/.aws/credentials; file ~/.bash_history; url http://169.254.169.254/latest/meta-data/; hash of deploy; password of app_rw; token fixture-token-0123456789`
   - **what:** `ShadowFileRead: sudo cat /etc/shadow > shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)`
   - **what:** `PrivateKeyRead: cat ~/.ssh/id_rsa (20261022_090500_step02_creds.sh:4)`
   - **what:** `CredentialFileRead: cat ~/.aws/credentials (20261022_090500_step02_creds.sh:3)`

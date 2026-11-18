@@ -22,18 +22,11 @@ const (
 	inputDir       = "inputdir"
 	intelFile      = "intelfile"
 	outDir         = "outdir"
-	secrets        = "secrets"
 	coresOption    = "cores"
 	memoryOption   = "memory"
 	progressOption = "progress"
 	startOption    = "start"
 	stopOption     = "stop"
-)
-
-// The values of the secrets option.
-const (
-	secretsMasked = "masked"
-	secretsShown  = "shown"
 )
 
 // The values of the progress option.

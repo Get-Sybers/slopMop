@@ -203,7 +203,7 @@ Targeted   (hardcoded values: prior means no earlier output holds it, discovered
     [x] kek  KeyVaultKeyUnwrap
         what  KeyVaultKeyUnwrap: curl -s -X POST -H "Authorization: Bearer $KV" -d @wrapped.json "https://corpvault.vault.azure.net/keys/kek/0a1b2c3d/unwrapkey?api-version=7.4" (20261015_093000_step05_vault.sh:8)
 
-Exposure   (collected: first seen in an output; used: first seen in a script; a secret is masked)
+Exposure   (collected: first seen in an output; used: first seen in a script)
   Usernames (3)
     [!] alice@corp.example                    collected  directory_20261015_090530.txt:1
     [!] bob@corp.example                      collected  directory_20261015_090530.txt:1

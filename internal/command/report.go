@@ -100,7 +100,7 @@ func (p pipeline) report(a analysis, threshold tactic.Severity, wanted map[strin
 				cites[i] = c.String()
 			}
 			rows = append(rows, reportRow{
-				item: e.shown(), section: sectionExposure, level: tactic.Severity(e.kind.Severity),
+				item: e.value, section: sectionExposure, level: tactic.Severity(e.kind.Severity),
 				detail: e.kind.Name + ": " + detail, files: cites,
 			})
 		}
@@ -214,14 +214,9 @@ type cited struct {
 	subjects []activity.Subject
 }
 
-// cited keeps a line of evidence with every secret in it masked.
+// cited keeps a line of evidence, where it stands and what it acts on.
 func (a analysis) cited(path string, e activity.Evidence) cited {
-	subjects := make([]activity.Subject, len(e.Subjects))
-	for i, s := range e.Subjects {
-		subjects[i] = activity.Subject{Label: s.Label, Value: a.redact(s.Value)}
-	}
-	text := a.redact(e.Text)
-	return cited{cite: cite{path, e.Line}, text: text, command: text, subjects: subjects}
+	return cited{cite: cite{path, e.Line}, text: e.Text, command: e.Text, subjects: slices.Clone(e.Subjects)}
 }
 
 // String writes the line and where it stands.
@@ -452,7 +447,7 @@ func (p pipeline) gather(a analysis) (assess.Evidence, []shownActivity, map[stri
 		}
 		for _, c := range s.Commands {
 			if name := p.tactics.Classify(c.Tool); name != "" && len(tools[name]) < maxCited {
-				tools[name] = append(tools[name], cited{cite: cite{path, c.Line}, text: a.redact(c.Tool + ": " + c.Text), command: a.redact(c.Text)})
+				tools[name] = append(tools[name], cited{cite: cite{path, c.Line}, text: c.Tool + ": " + c.Text, command: c.Text})
 			}
 		}
 		for _, hit := range s.IntelHits {

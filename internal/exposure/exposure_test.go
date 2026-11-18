@@ -159,7 +159,7 @@ func TestFromIndicator(t *testing.T) {
 		{"Email", "alice@corp.example", Item{Kind: "email", Value: "alice@corp.example", Line: 3}, true},
 		{"IPv4", "10.20.1.5", Item{Kind: "ip", Value: "10.20.1.5", Line: 3}, true},
 		{"JWT", "eyJhbGciOiJ.eyJzdWIiOiI.sig", Item{Kind: "password", Value: "eyJhbGciOiJ.eyJzdWIiOiI.sig", Form: "token", Line: 3}, true},
-		{"PrivateKey", "-----BEGIN PRIVATE KEY-----", Item{Kind: "password", Value: "private key", Form: "key", Line: 3, Open: true}, true},
+		{"PrivateKey", "-----BEGIN PRIVATE KEY-----", Item{Kind: "password", Value: "private key", Form: "key", Line: 3}, true},
 		{"PrivateKey", "-----BEGIN RSA PRIVATE KEY-----", Item{}, false},
 		{"AWSKey", "AKIAIOSFODNN7EXAMPLE", Item{Kind: "apikey", Value: "AKIAIOSFODNN7EXAMPLE", Form: "key", Service: "AWS", Line: 3}, true}, //nolint:gosec // G101: the key of the AWS documentation, which opens nothing.
 		{"JWT", microsoftToken, Item{Kind: "password", Value: microsoftToken, Form: "token", Service: "Microsoft 365", Line: 3}, true},
@@ -214,24 +214,6 @@ func TestKinds(t *testing.T) {
 	}
 	if want := []string{"password", "username", "email", "tenant", "sshkey", "apikey", "application", "resource", "device", "ip"}; !slices.Equal(names, want) {
 		t.Errorf("kinds = %q, want %q", names, want)
-	}
-}
-
-func TestMask(t *testing.T) {
-	for secret, want := range map[string]string{
-		"":                                 " (0 chars)",
-		"abcd":                             "**** (4 chars)",
-		"Winter2025!":                      "Wi********! (11 chars)",
-		"hunter":                           "hu***r (6 chars)",
-		"pässwörd":                         "pä*****d (8 chars)",
-		"8846f7eaee8fb117ad06bdd830b7586c": "88********c (32 chars)",
-	} {
-		if got := Mask(secret); got != want {
-			t.Errorf("Mask(%q) = %q, want %q", secret, got, want)
-		}
-		if secret != "" && strings.Contains(Mask(secret), secret) {
-			t.Errorf("Mask(%q) holds the secret", secret)
-		}
 	}
 }
 
