@@ -1,15 +1,5 @@
 [
   {
-    "kind": "username",
-    "value": "svc_backup",
-    "origin": "prior",
-    "from": null,
-    "scope": null,
-    "count": 2,
-    "scripts": "20250302_090900_step03_sync_retry.ps1:3, 20250302_090900_step03_sync_retry.ps1:4",
-    "evidence": "$User = 'CORP\\svc_backup' (20250302_090900_step03_sync_retry.ps1:3)\n$Cred = Get-Credential -UserName $User -Message 'sync server' (20250302_090900_step03_sync_retry.ps1:4)"
-  },
-  {
     "kind": "device",
     "value": "CA01.corp.example",
     "origin": "prior",

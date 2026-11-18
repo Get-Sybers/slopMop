@@ -14,11 +14,9 @@ import (
 	"github.com/get-sybers/slopmop/internal/tactic"
 )
 
-// The sections of a report; each is a selector. A notable file's row
-// carries its role as the section.
+// The sections of a report that hold rows; each is a selector.
 const (
 	sectionSummary     = "summary"
-	sectionFiles       = "files"
 	sectionTargeted    = "targeted"
 	sectionExposure    = "exposure"
 	sectionImpact      = "impact"
@@ -43,8 +41,8 @@ type metric struct {
 	detail string
 }
 
-// reportRow is one line of a report: a count, a notable file, an impact or
-// a recommended action.
+// reportRow is one line of a report: a count, a target, an exposed value,
+// an impact, a recommended action or a mitigation.
 type reportRow struct {
 	item    string
 	section string
@@ -54,26 +52,25 @@ type reportRow struct {
 	detail string
 	basis  []string
 	files  []string
-	// attack and atlas are the techniques a file or an impact shows, or
-	// those a mitigation addresses.
+	// attack and atlas are the techniques an impact shows, or those a
+	// mitigation addresses.
 	attack []string
 	atlas  []string
 	// targets name what the row concerns: the account, the file, the host.
 	targets []string
 	// evidence holds the lines that show it, each with its file and line.
 	evidence []string
+	// exposed lists the exposed accounts and credentials the row concerns.
+	exposed []listed
 }
 
 // report assembles the wanted sections in their fixed order.
-func (p pipeline) report(a analysis, threshold tactic.Severity, wanted map[string]bool) ([]reportRow, []shownActivity) {
+func (p pipeline) report(a analysis, wanted map[string]bool) ([]reportRow, []shownActivity) {
 	var rows []reportRow
 	if wanted[sectionSummary] {
 		for _, m := range listMetrics(a) {
 			rows = append(rows, reportRow{item: m.name, section: sectionSummary, count: m.value, detail: m.detail})
 		}
-	}
-	if wanted[sectionFiles] {
-		rows = append(rows, p.notableFiles(a, threshold)...)
 	}
 	if wanted[sectionTargeted] {
 		for _, t := range a.targeted {
@@ -106,6 +103,7 @@ func (p pipeline) report(a analysis, threshold tactic.Severity, wanted map[strin
 		}
 	}
 	found, shown, tools := p.gather(a)
+	held := hold(a.exposed)
 	impacts := p.assessment.Impacts(found)
 	if wanted[sectionImpact] {
 		for _, r := range impacts {
@@ -121,6 +119,7 @@ func (p pipeline) report(a analysis, threshold tactic.Severity, wanted map[strin
 			row.attack, row.atlas = p.techniques(shown, r.Activities)
 			row.atlas = appendUnique(row.atlas, r.Atlas...)
 			row.targets, row.evidence = support(shown, tools, r)
+			row.exposed = held.concerning(r.Exposed, shownIn(found, r), citedBy(shown, tools, r.Activities, r.Basis))
 			rows = append(rows, row)
 		}
 	}
@@ -128,18 +127,63 @@ func (p pipeline) report(a analysis, threshold tactic.Severity, wanted map[strin
 		for _, r := range p.assessment.Remediation(found) {
 			row := reportRow{item: r.Name, section: sectionRemediation, level: r.Level, detail: r.Text, basis: r.Basis, files: r.Files}
 			row.targets, row.evidence = support(shown, tools, r)
+			row.exposed = held.concerning(r.Exposed, shownIn(found, r), citedBy(shown, tools, r.Activities, r.Basis))
 			rows = append(rows, row)
 		}
 	}
 	if wanted[sectionMitigation] {
-		rows = append(rows, p.mitigations(shown, impacts)...)
+		for _, row := range p.mitigations(shown, impacts) {
+			// A mitigation concerns what the files and the lines of its activities hold.
+			var files []string
+			for _, name := range row.basis {
+				files = append(files, found.Activities[name]...)
+			}
+			row.exposed = held.concerning(nil, files, citedBy(shown, nil, row.basis, nil))
+			rows = append(rows, row)
+		}
 	}
 	return rows, shown
 }
 
-// support names what an impact or an action concerns and the lines that
-// show it: the subjects and lines of its activities, the commands of the
-// tools behind its tactics, and the exposed values it lists.
+// citedBy lists the lines that show the named activities and the commands
+// of the tools behind a basis: the accounts they name are what an entry concerns.
+func citedBy(shown []shownActivity, tools map[string][]cited, activities, basis []string) []cite {
+	var lines []cite
+	for _, s := range shown {
+		if slices.Contains(activities, s.hit.Name) {
+			for _, c := range s.cites {
+				lines = append(lines, c.cite)
+			}
+		}
+	}
+	for _, name := range basis {
+		if tactic, isTools := strings.CutSuffix(name, toolsSuffix); isTools {
+			for _, c := range tools[tactic] {
+				lines = append(lines, c.cite)
+			}
+		}
+	}
+	return lines
+}
+
+// shownIn lists the files that show an entry by its activities and by the
+// tools of its tactics: the credentials they hold are what the entry concerns.
+func shownIn(found assess.Evidence, r assess.Result) []string {
+	var files []string
+	for _, name := range r.Activities {
+		files = append(files, found.Activities[name]...)
+	}
+	for _, basis := range r.Basis {
+		if name, isTools := strings.CutSuffix(basis, toolsSuffix); isTools {
+			files = append(files, found.Tactics[name]...)
+		}
+	}
+	return files
+}
+
+// support names what an impact or an action acts on and the lines that show
+// it: the subjects and lines of its activities and the commands of the tools
+// behind its tactics.
 func support(shown []shownActivity, tools map[string][]cited, r assess.Result) (targets, evidence []string) {
 	// The key is the place and the bare command, so the same line is quoted once
 	// even in a structured output where it has no number: an audit record is not
@@ -169,17 +213,6 @@ func support(shown []shownActivity, tools map[string][]cited, r assess.Result) (
 				evidence = append(evidence, c.String())
 				quoted[c.key()] = true
 			}
-		}
-	}
-	for _, l := range r.Exposed {
-		for _, label := range l.Labels {
-			if !strings.Contains(label, " ") {
-				label = l.Kind + " " + label
-			}
-			targets = appendUnique(targets, label)
-		}
-		if l.More > 0 {
-			targets = append(targets, "and "+strconv.Itoa(l.More)+" more of kind "+l.Kind)
 		}
 	}
 	return targets, evidence
@@ -336,64 +369,6 @@ func plural(n int, noun string) string {
 		return "1 " + noun
 	}
 	return strconv.Itoa(n) + " " + noun + "s"
-}
-
-// notableFiles lists, in timeline order, each file that holds a finding at
-// or above the threshold, with what was found and the files linked to it.
-func (p pipeline) notableFiles(a analysis, threshold tactic.Severity) []reportRow {
-	// An output is linked to the scripts that write it.
-	writers := map[string][]string{}
-	writerSeen := seenFiles{}
-	for _, s := range a.timeline.Steps {
-		for _, out := range s.Outputs {
-			if writerSeen.fresh(out, s.File.Path) {
-				writers[out] = append(writers[out], s.File.Path)
-			}
-		}
-	}
-	var rows []reportRow
-	for _, s := range a.timeline.Steps {
-		level := tactic.Severity("")
-		var reasons []string
-		note := func(reason string, severity tactic.Severity) {
-			if severity.Rank() < threshold.Rank() {
-				return
-			}
-			reasons = appendUnique(reasons, reason)
-			if severity.Rank() > level.Rank() {
-				level = severity
-			}
-		}
-		for _, hit := range s.Activities {
-			note(hit.Name, p.highest(hit.Tactics))
-		}
-		for _, tool := range s.Tools {
-			if name := p.tactics.Classify(tool); name != "" {
-				note(tool+" ("+name+")", p.tactics.Severity(name))
-			}
-		}
-		// A watchlist match is high whatever else the file holds.
-		for _, hit := range s.IntelHits {
-			note("watchlist "+hit.Attribution, tactic.High)
-		}
-		if len(reasons) == 0 {
-			continue
-		}
-		linked := s.Outputs
-		if s.File.Role != evidence.Script {
-			linked = writers[s.File.Path]
-		}
-		row := reportRow{
-			item: s.File.Path, section: string(s.File.Role), level: level,
-			detail: strings.Join(reasons, ", "), files: linked,
-		}
-		for _, hit := range s.Activities {
-			row.attack = appendUnique(row.attack, hit.Attack...)
-			row.atlas = appendUnique(row.atlas, p.atlasOf(hit)...)
-		}
-		rows = append(rows, row)
-	}
-	return rows
 }
 
 func (p pipeline) highest(tactics []string) tactic.Severity {
@@ -574,6 +549,14 @@ func reportCells(r reportRow, columns []render.Column) ([]render.Value, error) {
 		"targets": render.NotApplicable(),
 		// One line of evidence is one line of the cell, so a command with a comma stays whole.
 		"evidence": render.NotApplicable(),
+		"exposed":  render.NotApplicable(),
+	}
+	if len(r.exposed) > 0 {
+		lines := make([]string, len(r.exposed))
+		for i, e := range r.exposed {
+			lines[i] = e.line
+		}
+		cells["exposed"] = render.Text(strings.Join(lines, "\n"))
 	}
 	if len(r.targets) > 0 {
 		cells["targets"] = render.Text(strings.Join(r.targets, "; "))

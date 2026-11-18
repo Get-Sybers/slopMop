@@ -9,13 +9,9 @@ import (
 	"github.com/get-sybers/slopmop/internal/trace"
 )
 
-const (
-	// fewPeriods is how many periods the timeline shows: of more, the first
-	// half and the last, since how a run began and how it ended say most.
-	fewPeriods = 40
-	// fewNamed is how many activities and tools a period names.
-	fewNamed = 8
-)
+// fewPeriods is how many periods the timeline shows: of more, the first
+// half and the last, since how a run began and how it ended say most.
+const fewPeriods = 40
 
 // period is a stretch of the timeline: the files, one after another, that
 // show something and show no tactic the first of them does not.
@@ -23,9 +19,9 @@ type period struct {
 	first, last trace.Step
 	// tactics are those of the first file, in the order of the tactic table.
 	tactics []string
-	files   []string
-	// What the files show, each once, in the order it is first shown.
-	activities, tools, hits, intents []string
+	// attack and atlas are the techniques its files show, each once, in the
+	// order it is first shown, and hits the watchlist matches.
+	attack, atlas, hits []string
 }
 
 // periods cuts the timeline into its periods, and counts the files that are
@@ -53,16 +49,12 @@ func (w reportRun) periods() (all []period, quiet int) {
 		}
 		p := &all[len(all)-1]
 		p.last = s
-		p.files = append(p.files, s.File.Path)
-		p.tools = appendUnique(p.tools, s.Tools...)
 		for _, a := range s.Activities {
-			p.activities = appendUnique(p.activities, a.Name)
+			p.attack = appendUnique(p.attack, a.Attack...)
+			p.atlas = appendUnique(p.atlas, w.pipe.atlasOf(a)...)
 		}
 		for _, h := range s.IntelHits {
 			p.hits = appendUnique(p.hits, h.Attribution+": "+h.Value)
-		}
-		if intent := w.result.intentOf[s.File.Path]; intent != "" {
-			p.intents = appendUnique(p.intents, intent)
 		}
 	}
 	return all, quiet
@@ -76,51 +68,66 @@ func counted(n int, one, more string) string {
 	return strconv.Itoa(n) + " " + more
 }
 
-// timeline tells what was done, in the order of time: an entry is a period,
-// not a file. The files are in the saved trace, every one of them.
+// timeline is a line of blocks in the order of time: one for each intent
+// where the files name intents, and one for each period otherwise. A block
+// lists its techniques by name; the saved trace holds every file.
 func (w reportRun) timeline() []render.Group {
+	if len(w.result.intents) > 0 {
+		return w.intentBlocks()
+	}
 	all, quiet := w.periods()
 	if len(all) == 0 {
 		return nil
 	}
-	columns := []string{"from", "until", "files", "tactics"}
 	entries := make([]render.Entry, len(all))
 	for i, p := range all {
-		from, until := stepTime(p.first), stepTime(p.last)
-		if until == from {
-			until = "-"
+		when := stepTime(p.first)
+		if until := stepTime(p.last); until != when {
+			when += " to " + until
 		}
-		tactics := "-"
+		name, level := "-", ""
 		if len(p.tactics) > 0 {
-			tactics = strings.Join(p.tactics, ", ")
+			name, level = strings.Join(p.tactics, ", "), string(w.pipe.highest(p.tactics))
 		}
-		entries[i] = render.Entry{
-			Cells: []string{from, until, strconv.Itoa(len(p.files)), tactics},
-			Detail: []render.Detail{
-				{Label: "intent", Text: fewOf(p.intents, fewNamed, ", ")},
-				{Label: "activities", Text: fewOf(p.activities, fewNamed, ", ")},
-				{Label: "tools", Text: fewOf(p.tools, fewNamed, ", ")},
-				{Label: "watchlist", Text: fewOf(p.hits, fewFiles, ", ")},
-				{Label: "files", Text: few(p.files)},
-			},
-		}
+		entries[i] = render.Entry{Level: level, Cells: []string{name, when}, Detail: w.named(p.attack, p.atlas, p.hits)}
 	}
-	// A line that is no period stands in a group of its own, so its length
-	// does not set the width of the columns.
+	// A line that is no block stands in a group of its own.
 	note := func(text string) render.Group {
 		return render.Group{Entries: []render.Entry{{Cells: []string{text}}}}
 	}
-	groups := []render.Group{{Columns: columns, Entries: entries}}
+	groups := []render.Group{{Blocks: true, Entries: entries}}
 	if more := len(entries) - fewPeriods; more > 0 {
 		half := fewPeriods / 2
 		groups = []render.Group{
-			{Columns: columns, Entries: entries[:half]},
+			{Blocks: true, Entries: entries[:half]},
 			note("and " + counted(more, "more period", "more periods") + " here, in the saved trace"),
-			{Columns: columns, Entries: entries[len(entries)-half:]},
+			{Blocks: true, Entries: entries[len(entries)-half:]},
 		}
 	}
 	if quiet > 0 {
 		groups = append(groups, note("and "+counted(quiet, "file that shows", "files that show")+" no tactic, in the saved trace"))
 	}
 	return groups
+}
+
+// noTechnique stands in a block whose files show no technique.
+const noTechnique = "no MITRE ATT&CK technique identified"
+
+// named lists techniques by identifier and name, those of ATT&CK first, or
+// says that none was identified, and then the watchlist matches, if any.
+func (w reportRun) named(attack, atlas, hits []string) []render.Detail {
+	var out []render.Detail
+	for _, id := range attack {
+		out = append(out, render.Detail{Label: id, Text: or(w.pipe.catalogue.Attack.NameOf(id), "-")})
+	}
+	for _, id := range atlas {
+		out = append(out, render.Detail{Label: id, Text: or(w.pipe.catalogue.Atlas.NameOf(id), "-")})
+	}
+	if len(out) == 0 {
+		out = []render.Detail{{Text: noTechnique}}
+	}
+	if len(hits) > 0 {
+		out = append(out, render.Detail{Label: "watchlist", Text: fewOf(hits, fewFiles, ", ")})
+	}
+	return out
 }

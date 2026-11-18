@@ -752,6 +752,12 @@
         "file": "20261022_092500_step06_stage.sh",
         "line": 3,
         "text": "tar czf out.tgz dir/"
+      },
+      {
+        "time": "2026-10-22T09:25:00Z",
+        "file": "20261022_092500_step06_stage.sh",
+        "line": 7,
+        "text": "find /srv -name '*.bak' -exec gzip {} \\;"
       }
     ]
   },

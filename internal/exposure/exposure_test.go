@@ -51,22 +51,22 @@ func TestExtractLines(t *testing.T) {
 		{"a quoted assignment", `PASS='Winter2025!'`, []string{"password=Winter2025!"}},
 		{"a name that ends as a secret does", `MSOL_PASS="Qw7#fake"`, []string{"password=Qw7#fake for Microsoft 365"}},
 		{"a token and a key by their names", "access_token=abcdef123456\napi_key: K-998877", []string{"password=abcdef123456 (token)", "apikey=K-998877 (key)"}},
-		{"a variable given its value", "U=svc_backup\nP='Winter2025!'\nnxc smb 10.0.0.5 -u \"$U\" -p \"$P\"", []string{"password=Winter2025! of svc_backup", "username=svc_backup"}},
-		{"a variable inside a name", "N=msol\ncertipy find -u \"$N@corp.example\" -p 'Qw7#fake'", []string{"password=Qw7#fake of msol@corp.example", "username=msol@corp.example"}},
+		{"a variable given its value", "U=svc_backup\nP='Winter2025!'\nnxc smb 10.0.0.5 -u \"$U\" -p \"$P\"", []string{"username=svc_backup", "password=Winter2025! of svc_backup for 10.0.0.5"}},
+		{"a variable inside a name", "N=msol\ncertipy find -u \"$N@corp.example\" -p 'Qw7#fake'", []string{"username=msol@corp.example", "password=Qw7#fake of msol@corp.example"}},
 		{"a default value", `USER="${AD_USER:-svc_backup}"`, []string{"username=svc_backup"}},
 		{"a domain before a name", `$User = 'CORP\svc_backup'`, []string{"username=svc_backup"}},
-		{"a login that worked", `SMB  10.20.1.5   445  DC01   [+] corp.example\svc_backup:Winter2025! valid`, []string{"password=Winter2025! of svc_backup", "username=svc_backup", "device=DC01"}},
+		{"a login that worked", `SMB  10.20.1.5   445  DC01   [+] corp.example\svc_backup:Winter2025! valid`, []string{"username=svc_backup", "device=DC01", "password=Winter2025! of svc_backup for DC01"}},
 		{"a login that failed", `SMB  10.20.1.23  445  CA01   [-] corp.example\svc_backup:Winter2025! STATUS_LOGON_FAILURE`, []string{"username=svc_backup", "device=CA01"}},
 		{"a dumped account", `Administrator:500:aad3b435b51404eeaad3b435b51404ee:8846F7EAEE8FB117AD06BDD830B7586C:::`, []string{"password=8846f7eaee8fb117ad06bdd830b7586c of Administrator (hash)", "username=Administrator"}},
 		{"a hash named in prose", `[*] Got hash for 'administrator@corp.example': aad3b435b51404eeaad3b435b51404ee:8846f7eaee8fb117ad06bdd830b7586c`, []string{"password=8846f7eaee8fb117ad06bdd830b7586c of administrator@corp.example (hash)", "username=administrator@corp.example"}},
-		{"a hash passed to a tool", `nxc winrm 10.20.1.23 -u administrator -H 8846f7eaee8fb117ad06bdd830b7586c -x "id"`, []string{"password=8846f7eaee8fb117ad06bdd830b7586c of administrator (hash)", "username=administrator"}},
-		{"a shadow line", `svc:$6$saltsalt$abcdefghijklmnop:19000:0:99999:7:::`, []string{"password=$6$saltsalt$abcdefghijklmnop of svc (hash)"}},
+		{"a hash passed to a tool", `nxc winrm 10.20.1.23 -u administrator -H 8846f7eaee8fb117ad06bdd830b7586c -x "id"`, []string{"username=administrator", "password=8846f7eaee8fb117ad06bdd830b7586c of administrator (hash) for 10.20.1.23"}},
+		{"a shadow line", `svc:$6$saltsalt$abcdefghijklmnop:19000:0:99999:7:::`, []string{"password=$6$saltsalt$abcdefghijklmnop of svc (hash)", "username=svc"}},
 		{"a locked shadow line", `root:*:19000:0:99999:7:::`, nil},
 		{"a passwd line", `svc:x:1001:1001:Service:/home/svc:/bin/bash`, []string{"username=svc"}},
-		{"a password in an address", `mount //files01/share -o x; curl ftp://backup:Hunter22@files01.corp.local/x`, []string{"password=Hunter22 of backup", "device=files01.corp.local"}},
+		{"a password in an address", `mount //files01/share -o x; curl ftp://backup:Hunter22@files01.corp.local/x`, []string{"device=files01.corp.local", "password=Hunter22 of backup for files01.corp.local", "username=backup"}},
 		{"a remote login", `ssh -i k ops@build01 'id'`, []string{"username=ops", "sshkey=k of ops (key file) for build01", "device=build01"}},
 		{"a remote login by address", `ssh ops@198.51.100.7 'cat /etc/hostname'`, []string{"username=ops"}},
-		{"a share", `net use \\FILES01\c$ /user:CORP\helper Passw0rd!x`, []string{"username=helper", "password=Passw0rd!x of helper", "device=FILES01"}},
+		{"a share", `net use \\FILES01\c$ /user:CORP\helper Passw0rd!x`, []string{"username=helper", "device=FILES01", "password=Passw0rd!x of helper for FILES01"}},
 		{"a scan report", `Nmap scan report for dc01.corp.example (10.20.1.5)`, []string{"device=dc01.corp.example"}},
 		{"a home folder", `ls -la /home/deploy/.ssh`, []string{"username=deploy"}},
 		{"a profile folder", `dir C:\Users\j.smith\Desktop`, []string{"username=j.smith"}},
@@ -105,7 +105,7 @@ func TestExtractRecords(t *testing.T) {
 		{"an object", `{"userPrincipalName":"alice@corp.example","password":"Spring2026!","enabled":true,"id":7}`, []string{"username=alice@corp.example", "password=Spring2026! of alice@corp.example"}},
 		{"objects in a list", `{"value":[{"userPrincipalName":"alice@corp.example"},{"userPrincipalName":"bob@corp.example"}]}`, []string{"username=alice@corp.example", "username=bob@corp.example"}},
 		{"a nested object", `{"host":{"hostname":"web01"},"user":{"name":"x"},"client_secret":"s3cr3t-value"}`, []string{"device=web01", "password=s3cr3t-value (secret)"}},
-		{"a command in a string", `{"cmd":"nxc smb 10.0.0.5 -u helper -p 'Autumn2026!'"}`, []string{"password=Autumn2026! of helper", "username=helper"}},
+		{"a command in a string", `{"cmd":"nxc smb 10.0.0.5 -u helper -p 'Autumn2026!'"}`, []string{"username=helper", "password=Autumn2026! of helper for 10.0.0.5"}},
 		{"a list of strings", `["ssh ops@build01 id", 4, null]`, []string{"username=ops", "device=build01"}},
 		{"what is not JSON after all", "{not json\nuser=alice\n", []string{"username=alice"}},
 	}
@@ -196,7 +196,7 @@ func TestFromHardcoded(t *testing.T) {
 		titles[k.Name] = k.Targeted
 	}
 	want := map[string]string{
-		"password": "", "username": "Usernames", "email": "Email addresses", "tenant": "", "sshkey": "", "apikey": "",
+		"password": "", "username": "", "email": "Email addresses", "tenant": "", "sshkey": "", "apikey": "",
 		"application": "", "resource": "", "device": "Hostnames", "ip": "IP addresses",
 	}
 	if !maps.Equal(titles, want) {
@@ -210,6 +210,10 @@ func TestKinds(t *testing.T) {
 		names = append(names, k.Name)
 		if k.Secret != (k.Name == "password" || k.Name == "apikey") {
 			t.Errorf("%s: secret = %t", k.Name, k.Secret)
+		}
+		// An account says who signs in; a credential is what is signed in with.
+		if k.Account != (k.Name == "username" || k.Name == "email") || k.Credential != (k.Secret || k.Name == "sshkey") {
+			t.Errorf("%s: account = %t, credential = %t", k.Name, k.Account, k.Credential)
 		}
 	}
 	if want := []string{"password", "username", "email", "tenant", "sshkey", "apikey", "application", "resource", "device", "ip"}; !slices.Equal(names, want) {
@@ -250,6 +254,17 @@ func TestDecodeRejects(t *testing.T) {
 		"a secret that is targeted":    one(`,"secret":true,"targeted":{"title":"T"}`),
 		"a targeted type twice":        one(`,"targeted":{"title":"T","indicators":[{"type":"Domain"},{"type":"Domain"}]}`),
 		"a targeted type of the kind":  one(`,"indicators":[{"type":"Email"}],"targeted":{"title":"T","indicators":[{"type":"Email"}]}`),
+		"an account that is a secret":  one(`,"account":true,"secret":true`),
+		"an account and a credential":  one(`,"account":true,"credential":true`),
+		"an excepted name in capitals": one(`,"except":["NoPasswd"]`),
+		"a vendor in capitals":         `{"vendors":["Example.com"],` + one(``)[1:],
+		"a vendor with an address":     `{"vendors":["https://example.com"],` + one(``)[1:],
+		"a vendor twice":               `{"vendors":["example.com",".example.com"],` + one(``)[1:],
+		"a vendor that is a dot":       `{"vendors":["."],` + one(``)[1:],
+		"a token with no owner":        `{"token":{"audience":["aud"],"shown":["aud"]},` + one(``)[1:],
+		"a token with an empty claim":  `{"token":{"owner":[""],"audience":["aud"],"shown":["aud"]},` + one(``)[1:],
+		"a service host in capitals":   `{"services":[{"name":"S","hosts":["API.example.com"]}],` + one(``)[1:],
+		"a service host that is a dot": `{"services":[{"name":"S","hosts":["."]}],` + one(``)[1:],
 	}
 	for name, data := range tests {
 		t.Run(name, func(t *testing.T) {

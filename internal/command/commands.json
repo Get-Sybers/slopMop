@@ -18,15 +18,14 @@
       "takes": ["intelfile", "outdir", "cores", "memory", "progress", "start", "stop"],
       "sections": [
         {"name": "summary", "title": "Summary", "summary": "the counts"},
-        {"name": "timeline", "title": "Timeline", "summary": "what was done, in order of time: each period of files that show the same tactics", "note": "from, until, files, tactics"},
-        {"name": "intents", "title": "Intent timeline", "summary": "the timeline by ARTEX intent i<number>: a block for each, with when its files were created and its ATT&CK and ATLAS techniques by name", "note": "a block for each intent, in order of time: from the first of its files to be created until the last, and the techniques its files show"},
-        {"name": "findings", "title": "Findings", "summary": "each activity, indicator and tactic, most severe first"},
-        {"name": "files", "title": "Notable files", "summary": "the files that hold a finding of high severity", "note": "a finding of high severity"},
+        {"name": "tactics", "title": "Tactics", "summary": "each tactic the scripts show, most severe first, with its ATT&CK and ATLAS identifiers", "note": "tactic, identifiers, files"},
+        {"name": "timeline", "title": "Timeline", "summary": "what was done, in order of time: a block for each ARTEX intent i<number>, or for each period where no file names an intent, with its ATT&CK and ATLAS techniques by name", "note": "a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the techniques its files show"},
+        {"name": "findings", "title": "Findings", "summary": "each activity, most severe first, with the lines that show it"},
         {"name": "targeted", "title": "Targeted", "summary": "what the scripts name and what activities acted on", "note": "hardcoded values: prior means no earlier output holds it, discovered means one does; subjects: each entity an activity acted on"},
-        {"name": "exposure", "title": "Exposure", "summary": "the passwords, usernames, emails, tenants, SSH keys, API keys, applications, cloud resources, devices and addresses the files hold, and what is of Microsoft 365 and of Google Cloud", "note": "collected: first seen in an output; used: first seen in a script"},
-        {"name": "impact", "title": "Impact", "summary": "what the findings mean, with what each concerns and the lines that show it"},
-        {"name": "remediation", "title": "Remediation", "summary": "what to do about them and to what, most urgent first", "note": "most urgent first"},
-        {"name": "mitigation", "title": "Mitigation", "summary": "what MITRE ATT&CK and ATLAS say prevents the techniques found", "note": "MITRE ATT&CK and ATLAS, for the techniques found"}
+        {"name": "exposure", "title": "Exposure", "summary": "the passwords, usernames, emails, tenants, SSH keys, API keys, applications, cloud resources, devices and addresses the files hold, and what is of Microsoft 365 and of Google Cloud", "note": "collected: first seen in an output; used: first seen in a script; a token or a value in base64 is written decoded, and the saved exposure file holds it as it stands"},
+        {"name": "impact", "title": "Impact", "summary": "what the findings mean, with the exposed accounts and credentials each concerns"},
+        {"name": "remediation", "title": "Remediation", "summary": "what to do about them, most urgent first, with the exposed accounts and credentials each concerns", "note": "most urgent first"},
+        {"name": "mitigation", "title": "Mitigation", "summary": "what MITRE ATT&CK and ATLAS say prevents the techniques found, with the exposed accounts and credentials each concerns", "note": "MITRE ATT&CK and ATLAS, for the techniques found"}
       ],
       "hints": [
         "one section: slopmop -inputdir <folder> report impact"
@@ -118,6 +117,7 @@
       "columns": [
         {"header": "KIND", "key": "kind"},
         {"header": "VALUE", "key": "value"},
+        {"header": "DECODED", "key": "decoded", "wide": true},
         {"header": "ACCOUNT", "key": "account"},
         {"header": "FORM", "key": "form"},
         {"header": "SERVICE", "key": "service"},
@@ -139,7 +139,8 @@
         {"header": "ATTACK", "key": "attack", "wide": true},
         {"header": "ATLAS", "key": "atlas", "wide": true},
         {"header": "TARGETS", "key": "targets", "wide": true},
-        {"header": "EVIDENCE", "key": "evidence", "wide": true}
+        {"header": "EVIDENCE", "key": "evidence", "wide": true},
+        {"header": "EXPOSED", "key": "exposed", "wide": true}
       ]
     },
     {

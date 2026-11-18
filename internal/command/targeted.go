@@ -63,10 +63,13 @@ type targets struct {
 	// held maps a value to the first output that holds it.
 	held map[string]cite
 	all  []targeted
+	// vendor reports whether a host is one of a vendor that any script
+	// reaches for: such a host is no target.
+	vendor func(host string) bool
 }
 
-func newTargets(kinds []exposure.Kind) *targets {
-	t := &targets{order: map[string]int{}, index: map[string]int{}, held: map[string]cite{}}
+func newTargets(kinds []exposure.Kind, vendor func(host string) bool) *targets {
+	t := &targets{order: map[string]int{}, index: map[string]int{}, held: map[string]cite{}, vendor: vendor}
 	for i, k := range kinds {
 		t.order[k.Name] = i
 	}
@@ -88,7 +91,7 @@ func (t *targets) output(it exposure.Item, path string) {
 
 // script notes that a script names a value of a kind that is listed.
 func (t *targets) script(it exposure.Item, kind exposure.Kind, path string) {
-	if kind.Targeted == "" {
+	if kind.Targeted == "" || t.vendor(it.Value) {
 		return
 	}
 	key := targetKey(it)

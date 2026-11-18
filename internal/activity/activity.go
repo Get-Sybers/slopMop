@@ -37,8 +37,20 @@ const (
 
 type document struct {
 	// Contexts names patterns that say what a whole text is about.
-	Contexts   map[string]string `json:"contexts"`
-	Activities []entry           `json:"activities"`
+	Contexts map[string]string `json:"contexts"`
+	// Labels says how the subjects of a label are listed, for those that
+	// are not listed by their value and then what acted on it.
+	Labels     map[string]Listing `json:"labels,omitempty"`
+	Activities []entry            `json:"activities"`
+}
+
+// Listing says how the subjects of a label are listed: what heads their
+// column, and the labels whose subjects are listed beside each of them.
+type Listing struct {
+	Column string   `json:"column"`
+	Beside []string `json:"beside,omitempty"`
+	// After lists a subject after the activities that acted on it, not before.
+	After bool `json:"after,omitempty"`
 }
 
 type entry struct {
@@ -96,6 +108,7 @@ type Subject struct {
 // Table holds the compiled activity patterns, in the order of the data file.
 type Table struct {
 	contexts   map[string]pattern
+	labels     map[string]Listing
 	activities []compiled
 	// finder looks for the literals of every pattern in one pass over a text.
 	finder *sift.Finder
@@ -202,10 +215,45 @@ func decode(data []byte) (Table, error) {
 		}
 		t.activities = append(t.activities, c)
 	}
+	if err := t.label(doc.Labels); err != nil {
+		return Table{}, fmt.Errorf("activities.json labels: %w", err)
+	}
 	if err := t.number(); err != nil {
 		return Table{}, fmt.Errorf("activities.json: %w", err)
 	}
 	return t, nil
+}
+
+// label keeps how the subjects of each label are listed. Every label it
+// names is one some subject carries.
+func (t *Table) label(entries map[string]Listing) error {
+	used := map[string]bool{}
+	for _, a := range t.activities {
+		for _, sub := range a.subjects {
+			used[sub.label] = true
+		}
+	}
+	for name, e := range entries {
+		switch {
+		case !used[name]:
+			return fmt.Errorf("%q is the label of no subject", name)
+		case e.Column == "":
+			return fmt.Errorf("%q has no column", name)
+		}
+		for _, beside := range e.Beside {
+			if !used[beside] || beside == name {
+				return fmt.Errorf("%q stands beside %q, which is itself or the label of no subject", name, beside)
+			}
+		}
+	}
+	t.labels = entries
+	return nil
+}
+
+// Shown says how the subjects of a label are listed. It is empty for a
+// label that is listed by its value and then what acted on it.
+func (t Table) Shown(label string) Listing {
+	return t.labels[label]
 }
 
 // number gives each literal of the table one number, and each pattern the

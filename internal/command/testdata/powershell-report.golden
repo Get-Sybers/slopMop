@@ -7,65 +7,34 @@ Summary
   indicators  13  1 Base64Blob, 4 Domain, 1 EncodedCommand, 1 GUID, 3 IPv4, 3 SHA1
   activities  1
   tactics     4
-  targeted    7   Usernames 1, Hostnames 3, IP addresses 3
+  targeted    6   Hostnames 3, IP addresses 3
   exposed     10  Usernames 2, Tenants 2, Devices 3, IP addresses 3
 
-Timeline   (from, until, files, tactics)
-  2025-03-02T09:00:00Z  -                     1  Discovery
-      tools       get-date, join-path, get-adcomputer, select-object, export-csv
-      files       20250302_090000_step01_inventory.ps1
-  2025-03-02T09:05:00Z  -                     1  Discovery, LateralMovement
-      tools       import-csv, where-object, get-date, invoke-command, get-adsyncconnector, select-object, get-adsyncscheduler, out-file
-      files       20250302_090500_step02_sync.ps1
-  2025-03-02T09:09:00Z  2025-03-02T09:22:00Z  3  Discovery, CredentialAccess, LateralMovement
-      activities  CertificateExport
-      tools       get-credential, get-date, invoke-command, get-adsyncconnector, select-object, get-adsyncscheduler, out-file, get-childitem, and 5 more
-      files       20250302_090900_step03_sync_retry.ps1, 20250302_091500_step04_certs.ps1, 20250302_092200_step05_export.ps1
-  2025-03-02T09:31:00Z  -                     1  Execution
-      tools       powershell
-      files       staged_20250302_093100.cmd
+Tactics   (tactic, identifiers, files)
+  [x] CredentialAccess  TA0006, AML.TA0013  20250302_090900_step03_sync_retry.ps1, 20250302_092200_step05_export.ps1
+  [x] LateralMovement   TA0008, AML.TA0015  20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1, 20250302_091500_step04_certs.ps1
+  [i] Discovery         TA0007, AML.TA0008  20250302_090000_step01_inventory.ps1, 20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1 and 1 more
+
+Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the techniques its files show)
+  [i] Discovery                                     2025-03-02T09:00:00Z
+      no MITRE ATT&CK technique identified
+
+  [x] Discovery, LateralMovement                    2025-03-02T09:05:00Z
+      no MITRE ATT&CK technique identified
+
+  [x] Discovery, CredentialAccess, LateralMovement  2025-03-02T09:09:00Z to 2025-03-02T09:22:00Z
+      T1649  Steal or Forge Authentication Certificates
+
+  [!] Execution                                     2025-03-02T09:31:00Z
+      no MITRE ATT&CK technique identified
   and 10 files that show no tactic, in the saved trace
 
 Findings
   activities
     [x] CertificateExport  1 line  CredentialAccess  T1649
         what  Export-Certificate -Cert $Store -FilePath ca01_20250302_092210.cer | Out-Null (20250302_092200_step05_export.ps1:5)
-  indicators
-    [x] Domain          CA01.corp.example                                             20250302_091500_step04_certs.ps1, ca_ping_20250302_091540.log, cert_store_20250302_091530.txt
-    [x] Domain          app01.corp.example                                            20250302_092200_step05_export.ps1
-    [x] GUID            6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c                          20250302_091500_step04_certs.ps1, 20250302_092200_step05_export.ps1, sync_10.20.1.17_retry_20250302_090930.txt
-    [x] IPv4            10.20.1.17                                                    20250302_090900_step03_sync_retry.ps1, hosts_20250302_090030.csv, sync_10.20.1.17_20250302_090530.txt
-    [x] IPv4            10.20.1.23                                                    20250302_091500_step04_certs.ps1, hosts_20250302_090030.csv
-    [x] IPv4            10.20.1.5                                                     20250302_091500_step04_certs.ps1, hosts_20250302_090030.csv
-    [x] SHA1            0C9B8A7F6E5D4C3B2A1908F7E6D5C4B3A2918070                      export_summary_20250302_092215.txt
-    [x] SHA1            5F2A9C1E7B3D4A6C8E0F1A2B3C4D5E6F7A8B9C0D                      20250302_092200_step05_export.ps1, cert_store_20250302_091530.txt, export_summary_20250302_092215.txt
-    [x] SHA1            A1B2C3D4E5F60718293A4B5C6D7E8F9012345678                      cert_store_20250302_091530.txt
-    [!] EncodedCommand  -enc U3RhZ2VkIGV4cG9ydCBzdW1tYXJ5                             staged_20250302_093100.cmd
-    [i] Base64Blob      U3RhZ2VkIGV4cG9ydCBzdW1tYXJ5IGZvciBleGZpbHRyYXRpb24gdGVzdGluZy4gVGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHBheWxvYWQu  staged_20250302_093010.b64
-    [i] Domain          contoso.onmicrosoft.com                                       sync_10.20.1.17_retry_20250302_090930.txt
-    [i] Domain          corp.example                                                  20250302_090000_step01_inventory.ps1, sync_10.20.1.17_retry_20250302_090930.txt
-  tactics
-    [x] CredentialAccess  TA0006, AML.TA0013  20250302_090900_step03_sync_retry.ps1, 20250302_092200_step05_export.ps1
-    [x] LateralMovement   TA0008, AML.TA0015  20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1, 20250302_091500_step04_certs.ps1
-    [i] Discovery         TA0007, AML.TA0008  20250302_090000_step01_inventory.ps1, 20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1 and 1 more
-
-Notable files   (a finding of high severity)
-  [x] script  20250302_090500_step02_sync.ps1
-      found   invoke-command (LateralMovement)
-  [x] script  20250302_090900_step03_sync_retry.ps1
-      found   get-credential (CredentialAccess), invoke-command (LateralMovement)
-  [x] script  20250302_091500_step04_certs.ps1
-      found   invoke-command (LateralMovement)
-      linked  cert_store_20250302_091530.txt, ca_ping_20250302_091540.log
-  [x] script  20250302_092200_step05_export.ps1
-      found   CertificateExport, export-certificate (CredentialAccess), new-selfsignedcertificate (CredentialAccess)
-      linked  ca01_20250302_092210.cer, export_summary_20250302_092215.txt
 
 Targeted   (hardcoded values: prior means no earlier output holds it, discovered means one does; subjects: each entity an activity acted on)
-  Usernames (1)
-    [!] svc_backup  prior  20250302_090900_step03_sync_retry.ps1:3, 20250302_090900_step03_sync_retry.ps1:4
-        what  $User = 'CORP\svc_backup' (20250302_090900_step03_sync_retry.ps1:3)
-              $Cred = Get-Credential -UserName $User -Message 'sync server' (20250302_090900_step03_sync_retry.ps1:4)
   Hostnames (3)
     [!] CA01.corp.example   prior  20250302_091500_step04_certs.ps1:7
         what  certutil.exe -config "CA01.corp.example\corp-CA01-CA" -ping > ca_ping_20250302_091540.log 2>&1 (20250302_091500_step04_certs.ps1:7)
@@ -87,7 +56,7 @@ Targeted   (hardcoded values: prior means no earlier output holds it, discovered
     [x] ca01_20250302_092210.cer  CertificateExport
         what  CertificateExport: Export-Certificate -Cert $Store -FilePath ca01_20250302_092210.cer | Out-Null (20250302_092200_step05_export.ps1:5)
 
-Exposure   (collected: first seen in an output; used: first seen in a script)
+Exposure   (collected: first seen in an output; used: first seen in a script; a token or a value in base64 is written decoded, and the saved exposure file holds it as it stands)
   Usernames (2)
     [!] MSOL_0a1b2c3d4e5f  collected  sync_10.20.1.17_retry_20250302_090930.txt:9
     [!] svc_backup         used       20250302_090900_step03_sync_retry.ps1:3, 20250302_090900_step03_sync_retry.ps1:4
@@ -109,70 +78,45 @@ Exposure   (collected: first seen in an output; used: first seen in a script)
 Impact
   [x] Credentials exposed
       Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.
-      targets  file ca01_20250302_092210.cer
-      what     CertificateExport: Export-Certificate -Cert $Store -FilePath ca01_20250302_092210.cer | Out-Null (20250302_092200_step05_export.ps1:5)
-               get-credential: $Cred = Get-Credential -UserName $User -Message 'sync server' (20250302_090900_step03_sync_retry.ps1:4)
-               new-selfsignedcertificate: $new = New-SelfSignedCertificate -DnsName $Dns -CertStoreLocation Cert:\CurrentUser\My -NotAfter (Get-Date).AddYears(1) (20250302_092200_step05_export.ps1:6)
+      exposed  username: svc_backup
       basis    CertificateExport, CredentialAccess tools
   [x] Movement to other systems
       Tools that reach other systems were run. Hosts beyond this one may be affected.
-      what     invoke-command: Invoke-Command -ComputerName $SyncHost -ScriptBlock { (20250302_090500_step02_sync.ps1:4)
-               invoke-command: Invoke-Command @splat -ScriptBlock { (20250302_090900_step03_sync_retry.ps1:10)
-               invoke-command: Invoke-Command -ComputerName $h -ScriptBlock { Get-ChildItem Cert:\LocalMachine\My } >> cert_store_20250302_091530.txt (20250302_091500_step04_certs.ps1:5)
       basis    LateralMovement tools
   [i] Commands generated by an AI agent
       The scripts were written by an AI agent, which is the premise of this tool. Generated commands differ from run to run, so a detection that matches exact text misses them.
       basis    the premise of the tool
-      files    20250302_090000_step01_inventory.ps1, 20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1 and 3 more
   [i] Environment mapped
       Identities, resources or configuration were listed. Later steps were probably aimed with the result.
-      targets  username MSOL_0a1b2c3d4e5f; tenant 6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c; tenant contoso.onmicrosoft.com; device AADC01; device CA01; device DC01; ip 10.20.1.17; ip 10.20.1.23; ip 10.20.1.5
-      what     get-adcomputer: Get-ADComputer -Filter * -Server $Domain -Properties IPv4Address | (20250302_090000_step01_inventory.ps1:10)
-               get-adsyncconnector: Get-ADSyncConnector | Select-Object Name, Type (20250302_090500_step02_sync.ps1:5)
-               get-adsyncscheduler: Get-ADSyncScheduler (20250302_090500_step02_sync.ps1:6)
-               get-adsyncconnector: Get-ADSyncConnector | Select-Object Name, Type (20250302_090900_step03_sync_retry.ps1:11)
-               get-adsyncscheduler: Get-ADSyncScheduler (20250302_090900_step03_sync_retry.ps1:12)
-               get-childitem: Invoke-Command -ComputerName $h -ScriptBlock { Get-ChildItem Cert:\LocalMachine\My } >> cert_store_20250302_091530.txt (20250302_091500_step04_certs.ps1:5)
+      exposed  username: MSOL_0a1b2c3d4e5f
       basis    Discovery tools, exposed username, exposed tenant, exposed device, exposed ip
 
 Remediation   (most urgent first)
   [x] Revoke sessions and reset identities
       Revoke the sessions and tokens of every identity in the evidence and reset its credentials.
-      what     invoke-command: Invoke-Command -ComputerName $SyncHost -ScriptBlock { (20250302_090500_step02_sync.ps1:4)
-               invoke-command: Invoke-Command @splat -ScriptBlock { (20250302_090900_step03_sync_retry.ps1:10)
-               invoke-command: Invoke-Command -ComputerName $h -ScriptBlock { Get-ChildItem Cert:\LocalMachine\My } >> cert_store_20250302_091530.txt (20250302_091500_step04_certs.ps1:5)
       basis    LateralMovement tools
   [x] Rotate what was read
       Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.
-      targets  file ca01_20250302_092210.cer
-      what     CertificateExport: Export-Certificate -Cert $Store -FilePath ca01_20250302_092210.cer | Out-Null (20250302_092200_step05_export.ps1:5)
-               get-credential: $Cred = Get-Credential -UserName $User -Message 'sync server' (20250302_090900_step03_sync_retry.ps1:4)
-               new-selfsignedcertificate: $new = New-SelfSignedCertificate -DnsName $Dns -CertStoreLocation Cert:\CurrentUser\My -NotAfter (Get-Date).AddYears(1) (20250302_092200_step05_export.ps1:6)
+      exposed  username: svc_backup
       basis    CertificateExport, CredentialAccess tools
   [i] Follow what was enumerated
       Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
-      targets  username MSOL_0a1b2c3d4e5f; tenant 6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c; tenant contoso.onmicrosoft.com; device AADC01; device CA01; device DC01; ip 10.20.1.17; ip 10.20.1.23; ip 10.20.1.5
-      what     get-adcomputer: Get-ADComputer -Filter * -Server $Domain -Properties IPv4Address | (20250302_090000_step01_inventory.ps1:10)
-               get-adsyncconnector: Get-ADSyncConnector | Select-Object Name, Type (20250302_090500_step02_sync.ps1:5)
-               get-adsyncscheduler: Get-ADSyncScheduler (20250302_090500_step02_sync.ps1:6)
-               get-adsyncconnector: Get-ADSyncConnector | Select-Object Name, Type (20250302_090900_step03_sync_retry.ps1:11)
-               get-adsyncscheduler: Get-ADSyncScheduler (20250302_090900_step03_sync_retry.ps1:12)
-               get-childitem: Invoke-Command -ComputerName $h -ScriptBlock { Get-ChildItem Cert:\LocalMachine\My } >> cert_store_20250302_091530.txt (20250302_091500_step04_certs.ps1:5)
+      exposed  username: MSOL_0a1b2c3d4e5f
       basis    Discovery tools, exposed username, exposed tenant, exposed device, exposed ip
 
 Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1015 Active Directory Configuration        T1649
       Implement robust Active Directory (AD) configurations using group policies to secure user accounts, control access, and minimize the attack surface.
-      for  CertificateExport: file ca01_20250302_092210.cer
+      for  CertificateExport
   [x] M1041 Encrypt Sensitive Information         T1649
       Protect sensitive information at rest, in transit, and during processing by using strong encryption algorithms.
-      for  CertificateExport: file ca01_20250302_092210.cer
+      for  CertificateExport
   [x] M1042 Disable or Remove Feature or Program  T1649
       Disable or remove unnecessary and potentially vulnerable software, features, or services to reduce the attack surface and prevent abuse by adversaries.
-      for  CertificateExport: file ca01_20250302_092210.cer
+      for  CertificateExport
   [x] M1047 Audit                                 T1649
       Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.
-      for  CertificateExport: file ca01_20250302_092210.cer
+      for  CertificateExport
   [i] AML.M0020 Generative AI Guardrails          AML.T0102
       Guardrails are safety controls placed between users, tools, and generative AI models to evaluate prompts, retrieved context, model outputs, and agent actions before they are accepted, executed, or shown to a user.
       for  Commands generated by an AI agent

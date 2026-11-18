@@ -12,7 +12,7 @@ import (
 // byLine is Extract of a text that is not JSON with every line searched for
 // the needed texts as it is read: what the search of the whole text must equal.
 func (t Table) byLine(text string) []Item {
-	s := &scanner{t: t, vars: vars.Read(text), seen: map[Item]bool{}, services: map[asked]string{}}
+	s := &scanner{t: t, vars: vars.Read(text), seen: map[Item]bool{}, services: map[asked]string{}, accounts: map[string]bool{}}
 	lines := strings.Split(text, "\n")
 	s.columns(lines)
 	for i, line := range lines {
@@ -104,8 +104,9 @@ func TestNamedHoldsOfEveryPair(t *testing.T) {
 	}
 	named, read := 0, 0
 	for _, line := range lines {
-		s := &scanner{t: table, vars: vars.Set{}, seen: map[Item]bool{}, services: map[asked]string{}}
+		s := &scanner{t: table, vars: vars.Set{}, seen: map[Item]bool{}, services: map[asked]string{}, accounts: map[string]bool{}}
 		s.pairs(line, 1)
+		s.settle(line, 1)
 		if len(s.items) > 0 {
 			read++
 			if !s.named(line) {

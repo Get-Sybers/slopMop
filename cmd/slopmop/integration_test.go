@@ -197,10 +197,13 @@ func TestBinary(t *testing.T) {
 		t.Fatalf("report: exit code %d, stderr %q", code, stderr)
 	}
 	saved := "slopmop-" + filepath.Base(nested)
-	for _, want := range []string{"\nTimeline", "\nImpact", "\nMitigation", "stage/" + moved, "-> saved to " + saved + ": report.txt"} {
+	for _, want := range []string{"\nTactics", "\nTimeline", "\nImpact", "\nMitigation", "-> saved to " + saved + ": report.txt"} {
 		if !strings.Contains(stdout, want) {
 			t.Errorf("report: output lacks %q", want)
 		}
+	}
+	if files, err := os.ReadFile(filepath.Join(work, saved, "files.csv")); err != nil || !strings.Contains(string(files), "stage/"+moved) {
+		t.Errorf("report: files.csv does not hold the file of the sub-folder: %v", err)
 	}
 	if strings.Contains(stdout, "\x1b[") {
 		t.Error("report: colour codes in output that is not a terminal")

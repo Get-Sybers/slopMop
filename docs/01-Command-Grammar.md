@@ -44,15 +44,14 @@ The bare words after `report` name sections of the report. No word means every s
 | Section | Holds |
 | --- | --- |
 | `summary` | the counts |
-| `timeline` | what was done, in order of time: each period of files that show the same tactics |
-| `intents` | the timeline by ARTEX intent i\<number\>: a block for each, with when its files were created and its ATT&CK and ATLAS techniques by name |
-| `findings` | each activity, indicator and tactic, most severe first |
-| `files` | the files that hold a finding of high severity |
-| `targeted` | the usernames, addresses, hostnames and emails the scripts name outright |
+| `tactics` | each tactic the scripts show, most severe first, with its ATT&CK and ATLAS identifiers |
+| `timeline` | what was done, in order of time: a block for each ARTEX intent i\<number\>, or for each period where no file names an intent, with its ATT&CK and ATLAS techniques by name |
+| `findings` | each activity, most severe first, with the lines that show it |
+| `targeted` | the addresses, hostnames and emails the scripts name outright, and what the activities acted on |
 | `exposure` | the passwords, usernames, emails, tenants, SSH keys, API keys, applications, cloud resources, devices and addresses the files hold, and what is of Microsoft 365 and of Google Cloud |
-| `impact` | what the findings mean, with what each concerns and the lines that show it |
-| `remediation` | what to do about them and to what, most urgent first |
-| `mitigation` | what MITRE ATT&CK and ATLAS say prevents the techniques found |
+| `impact` | what the findings mean, with the exposed accounts and credentials each concerns |
+| `remediation` | what to do about them, most urgent first, with the exposed accounts and credentials each concerns |
+| `mitigation` | what MITRE ATT&CK and ATLAS say prevents the techniques found, with the exposed accounts and credentials each concerns |
 
 The sections print in the order of the table, whatever order they are named in.
 
@@ -134,7 +133,7 @@ The sections print in the order of the table, whatever order they are named in.
 | `slopmop report` | `report needs -inputdir <folder>` |
 | `slopmop report -inputdir` | `-inputdir needs a value <folder>` |
 | `slopmop -inputdir a -inputdir b report` | `-inputdir given more than once` |
-| `slopmop -inputdir case42 report bogus` | `report has no section "bogus" (sections: summary, timeline, intents, findings, files, targeted, exposure, impact, remediation, mitigation)` |
+| `slopmop -inputdir case42 report bogus` | `report has no section "bogus" (sections: summary, tactics, timeline, findings, targeted, exposure, impact, remediation, mitigation)` |
 | `slopmop -inputdir case42 report -o json` | `unknown option -o (options: -inputdir <folder>, -intelfile <file>, -outdir <folder>, -cores <percent>, -memory <percent>, -progress shown\|hidden, -start <time>, -stop <time>)` |
 | `slopmop -inputdir case42 report -cores 0` | `-cores takes a percentage from 1 to 100, not "0"` |
 | `slopmop -inputdir case42 report -progress loud` | `-progress takes shown or hidden, not "loud"` |
@@ -215,18 +214,17 @@ given:
   -inputdir case42        the folder of scripts and outputs to read
 
 sections chosen:
-  impact                  what the findings mean, with what each concerns and the lines that show it
+  impact                  what the findings mean, with the exposed accounts and credentials each concerns
 
 sections you can add:
   summary                 the counts
-  timeline                what was done, in order of time: each period of files that show the same tactics
-  intents                 the timeline by ARTEX intent i<number>: a block for each, with when its files were created and its ATT&CK and ATLAS techniques by name
-  findings                each activity, indicator and tactic, most severe first
-  files                   the files that hold a finding of high severity
+  tactics                 each tactic the scripts show, most severe first, with its ATT&CK and ATLAS identifiers
+  timeline                what was done, in order of time: a block for each ARTEX intent i<number>, or for each period where no file names an intent, with its ATT&CK and ATLAS techniques by name
+  findings                each activity, most severe first, with the lines that show it
   targeted                what the scripts name and what activities acted on
   exposure                the passwords, usernames, emails, tenants, SSH keys, API keys, applications, cloud resources, devices and addresses the files hold, and what is of Microsoft 365 and of Google Cloud
-  remediation             what to do about them and to what, most urgent first
-  mitigation              what MITRE ATT&CK and ATLAS say prevents the techniques found
+  remediation             what to do about them, most urgent first, with the exposed accounts and credentials each concerns
+  mitigation              what MITRE ATT&CK and ATLAS say prevents the techniques found, with the exposed accounts and credentials each concerns
 
 options you can add (one dash or two; each takes a value):
   -intelfile <file>       a watchlist, JSON or STIX 2.1, to attribute the indicators to

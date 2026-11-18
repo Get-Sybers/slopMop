@@ -4,6 +4,10 @@
     "vault": "(?i)\\.vault\\.(?:azure\\.net|usgovcloudapi\\.net)(?:[/'\\\"\\s]|$)",
     "arm": "(?i)management\\.(?:azure\\.com|usgovcloudapi\\.net)(?:[/'\\\"\\s]|$)"
   },
+  "labels": {
+    "task": {"column": "task name", "beside": ["runs"]},
+    "resource": {"column": "resource", "after": true}
+  },
   "activities": [
     {
       "name": "GlobalAdministratorAssignment",
@@ -434,9 +438,10 @@
         "(?i)\\bSchedule\\.Service\\b"
       ],
       "subjects": [
-        {"label": "task", "pattern": "(?i)\\s/tn\\s+(\"[^\"]+\"|\\S+)"},
+        {"label": "task", "pattern": "(?i)\\s/tn\\s+(\"[^\"]+\"|'[^']+'|\\S+)"},
+        {"label": "task", "pattern": "(?i)\\bRegisterTaskDefinition\\(\\s*[\"']([^\"']+)[\"']"},
         {"label": "task", "pattern": "(?i)-TaskName\\s+(\"[^\"]+\"|'[^']+'|\\S+)"},
-        {"label": "runs", "pattern": "(?i)\\s/tr\\s+(\"(?:[^\"\\\\]|\\\\.)*\"|\\S+)"},
+        {"label": "runs", "pattern": "(?i)\\s/tr\\s+(\"(?:[^\"\\\\]|\\\\.)*\"|'[^']+'|\\S+)"},
         {"label": "runs", "pattern": "(?i)-Execute\\s+(\"[^\"]+\"|'[^']+'|\\S+)"}
       ]
     },
@@ -893,16 +898,34 @@
       "tactics": ["Collection"],
       "attack": ["T1560.001"],
       "patterns": [
-        "\\btar\\s+-?[A-Za-z]*c[A-Za-z]*\\s",
-        "\\btar\\b.*\\s--create\\b",
-        "\\bzip\\s+(?:-\\S+\\s+)*\\S+\\.zip\\b",
-        "\\b7za?\\s+a\\s+(?:-\\S+\\s+)*\\S+\\.7z\\b",
-        "(?i)\\bcompress-archive\\b"
+        "(?:^|[\\s;&|(/\\\\\\\"'`])(?:bsd|g)?tar(?:\\.exe)?\\s+-?[A-Za-z]*c[A-Za-z]*\\s+(?:-(?:\\s|$)|\\S*[/.\\\\$\\\"'~{*])",
+        "(?:^|[\\s;&|(/\\\\\\\"'`])(?:bsd|g)?tar(?:\\.exe)?\\s.*\\s?--create\\b",
+        "(?:^|[\\s;&|(/\\\\\\\"'`])(?:bsd|g)?tar(?:\\.exe)?(?:\\s+-{1,2}[\\w=./-]+)+\\s+-[A-Za-z]*c[A-Za-z]*(?:\\s|$)",
+        "(?:^|[\\s;&|(/\\\\\\\"'`])zip(?:\\.exe)?\\s+(?:-\\S+\\s+)*\\S+\\.zip\\b",
+        "(?:^|[\\s;&|(/\\\\\\\"'`])zip(?:\\.exe)?\\s+-[A-Za-z0-9]*r[A-Za-z0-9]*\\s+\\S",
+        "(?i)(?:^|[\\s;&|(/\\\\\\\"'`])7z[arz]?(?:\\.exe)?[\\\"']?\\s+a\\s+(?:-\\S+\\s+)*[\\\"']?\\S+\\.7z\\b",
+        "(?i)(?:^|[\\s;&|(/\\\\\\\"'`])7z a\\s+\\S",
+        "(?i)(?:^|[\\s;&|(/\\\\\\\"'`])7za a\\s+\\S",
+        "(?i)(?:^|[\\s;&|(/\\\\\\\"'`])7z[arz]?\\.exe[\\\"']?\\s+a\\s+\\S",
+        "(?i)(?:^|[\\s;&|(/\\\\\\\"'`])(?:win)?rar(?:\\.exe)?[\\\"']?\\s+a\\s+(?:-\\S+\\s+)*\\S*[/.\\\\$\\\"'~{*]",
+        "(?:^|[\\s;&|(/\\\\\\\"'`])(?:gzip|bzip2|zstd|pigz|lz4c?)\\s+(?:-[A-Za-z0-9]\\S*\\s+)*(?:-[A-Za-z0-9]\\S*|\\S*[/.\\\\$\\\"'~{*])",
+        "\\|\\s*(?:gzip|bzip2|zstd|pigz)\\b[^|>\\n]*>\\s*\\S",
+        "\\|\\s*xz\\b[^|>\\n]*>\\s*\\S+\\.xz\\b",
+        "(?i)(?:^|[\\s;&|(/\\\\\\\"'`])makecab(?:\\.exe)?\\s+\\S*[/.\\\\$\\\"'~{*]",
+        "(?i)\\bcompress-archive\\b",
+        "(?i)\\bcompress-7zip\\b",
+        "(?i)\\bIO\\.Compression\\.ZipFile\\]::CreateFromDirectory\\(",
+        "\\bshutil\\.make_archive\\(",
+        "\\bzipfile\\.ZipFile\\([^)\\n]*[\\\"'][wax][\\\"']",
+        "\\btarfile\\.open\\([^)\\n]*[\\\"']w"
       ],
+      "unless": "\\b(?:gzip|bzip2|zstd|pigz|lz4c?)\\s+(?:-\\S+\\s+)*-(?:-(?:decompress|uncompress|list|test|help|version)\\b|[A-Za-z]*[dltVh])",
       "subjects": [
-        {"label": "archive", "pattern": "\\btar\\s+-?\\w+\\s+(\\S+)"},
-        {"label": "archive", "pattern": "(\\S+\\.(?:zip|7z))\\b"},
-        {"label": "archive", "pattern": "(?i)-DestinationPath\\s+(\\S+)"}
+        {"label": "archive", "pattern": "(?i)-DestinationPath\\s+(\\\"[^\\\"]+\\\"|'[^']+'|\\S+)"},
+        {"label": "archive", "pattern": "(?i)(\\\"[^\\\"]+\\.(?:tar\\.(?:gz|bz2|xz|zst|lz4)|tgz|tbz2?|txz|tar|zip|7z|rar|gz|bz2|xz|zst|lz4|cab|wim)\\\"|'[^']+\\.(?:tar\\.(?:gz|bz2|xz|zst|lz4)|tgz|tbz2?|txz|tar|zip|7z|rar|gz|bz2|xz|zst|lz4|cab|wim)'|[^\\s\\\"'=|>(,]+\\.(?:tar\\.(?:gz|bz2|xz|zst|lz4)|tgz|tbz2?|txz|tar|zip|7z|rar|gz|bz2|xz|zst|lz4|cab|wim))(?:[\\\"'\\s;|&),]|$)"},
+        {"label": "archive", "pattern": "\\btar(?:\\.exe)?\\s+-?\\w+\\s+([^-\\s]\\S*)"},
+        {"label": "archive", "pattern": "\\bmake_archive\\(\\s*[\\\"']([^\\\"']+)[\\\"']"},
+        {"label": "archive", "pattern": "(?i)CreateFromDirectory\\([^,\\n]+,\\s*(\\\"[^\\\"]+\\\"|'[^']+'|[^,)\\s]+)"}
       ]
     },
     {

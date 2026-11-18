@@ -1,15 +1,5 @@
 [
   {
-    "kind": "username",
-    "value": "ops",
-    "origin": "prior",
-    "from": null,
-    "scope": null,
-    "count": 1,
-    "scripts": "20261022_092500_step06_stage.sh:6",
-    "evidence": "ssh ops@198.51.100.7 'cat /etc/hostname' (20261022_092500_step06_stage.sh:6)"
-  },
-  {
     "kind": "device",
     "value": "files.example.net",
     "origin": "prior",

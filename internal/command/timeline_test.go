@@ -29,10 +29,14 @@ func runOf(t *testing.T, steps []trace.Step, intentOf map[string]string) reportR
 	return reportRun{pipe: pipe, result: analysis{timeline: trace.Timeline{Steps: steps}, intentOf: intentOf}}
 }
 
-// brief writes a period as its files and its tactics, so a test states what
-// it expects on one line.
+// brief writes a period as its first and last file and its tactics, so a
+// test states what it expects on one line.
 func (p period) brief() string {
-	return strings.Join(p.files, "+") + ": " + strings.Join(p.tactics, ",")
+	files := p.first.File.Path
+	if p.last.File.Path != files {
+		files += ".." + p.last.File.Path
+	}
+	return files + ": " + strings.Join(p.tactics, ",")
 }
 
 // A period is the files, one after another, that show no tactic its first
@@ -42,9 +46,9 @@ func TestPeriods(t *testing.T) {
 	recon.Tools = []string{"nmap", "curl"}
 	both := stepAt(5, "creds.sh", "CredentialAccess", "Discovery")
 	both.Tools = []string{"cat", "curl"}
-	both.Activities = []activity.Hit{{Name: "ShadowFileRead"}, {Name: "PrivateKeyRead"}}
+	both.Activities = []activity.Hit{{Name: "ShadowFileRead", Attack: []string{"T1003.008"}}, {Name: "PrivateKeyRead", Attack: []string{"T1552.004"}}}
 	again := stepAt(7, "more.sh", "Discovery")
-	again.Activities = []activity.Hit{{Name: "ShadowFileRead"}, {Name: "ServiceDiscovery"}}
+	again.Activities = []activity.Hit{{Name: "ShadowFileRead", Attack: []string{"T1003.008"}}, {Name: "ServiceDiscovery", Attack: []string{"T1007"}}}
 	listed := stepAt(8, "c2.txt")
 	listed.IntelHits = []intel.Hit{{Attribution: "APT-X", Value: "203.0.113.40"}}
 	steps := []trace.Step{
@@ -56,7 +60,7 @@ func TestPeriods(t *testing.T) {
 	for _, p := range all {
 		got = append(got, p.brief())
 	}
-	want := []string{"recon.sh: Discovery", "creds.sh+more.sh+c2.txt: Discovery,CredentialAccess", "persist.sh: Persistence"}
+	want := []string{"recon.sh: Discovery", "creds.sh..c2.txt: Discovery,CredentialAccess", "persist.sh: Persistence"}
 	if !slices.Equal(got, want) || quiet != 5 {
 		t.Fatalf("periods = %q with %d files in none, want %q with 5", got, quiet, want)
 	}
@@ -65,10 +69,9 @@ func TestPeriods(t *testing.T) {
 		t.Errorf("the second period runs from %s to %s", second.first.File.Path, second.last.File.Path)
 	}
 	for name, pair := range map[string][2][]string{
-		"activities": {second.activities, {"ShadowFileRead", "PrivateKeyRead", "ServiceDiscovery"}},
-		"tools":      {second.tools, {"cat", "curl"}},
+		"techniques": {second.attack, {"T1003.008", "T1552.004", "T1007"}},
+		"ATLAS":      {second.atlas, {"AML.T0090", "AML.T0055"}},
 		"watchlist":  {second.hits, {"APT-X: 203.0.113.40"}},
-		"intents":    {second.intents, {"i12", "i14"}},
 	} {
 		if !slices.Equal(pair[0], pair[1]) {
 			t.Errorf("the %s of the second period are %q, want %q", name, pair[0], pair[1])
@@ -81,19 +84,27 @@ func TestPeriods(t *testing.T) {
 	}
 }
 
-// The section holds a period to an entry, however many files it has, and
-// says how many files are in none.
+// Where no file names an intent, the section holds a block for each period,
+// however many files it has, and says how many files are in none.
 func TestTimelineSection(t *testing.T) {
-	steps := []trace.Step{stepAt(0, "a.sh", "Discovery"), stepAt(1, "quiet.txt"), stepAt(4, "b.sh", "Discovery"), stepAt(9, "c.sh", "Persistence")}
+	found := stepAt(4, "b.sh", "Discovery")
+	found.Activities = []activity.Hit{{Name: "ServiceDiscovery", Attack: []string{"T1007"}}}
+	steps := []trace.Step{stepAt(0, "a.sh", "Discovery"), stepAt(1, "quiet.txt"), found, stepAt(9, "c.sh", "Persistence")}
 	groups := runOf(t, steps, nil).timeline()
-	if len(groups) != 2 || len(groups[0].Entries) != 2 || !slices.Equal(groups[0].Columns, []string{"from", "until", "files", "tactics"}) {
-		t.Fatalf("the section has %d groups, want the periods and a line for the other files", len(groups))
+	if len(groups) != 2 || len(groups[0].Entries) != 2 || !groups[0].Blocks || len(groups[0].Columns) != 0 {
+		t.Fatalf("the section has %d groups, want the blocks of the periods and a line for the other files", len(groups))
 	}
 	cells := func(e render.Entry) string { return strings.Join(e.Cells, " | ") }
-	for i, want := range []string{"2026-10-22T09:00:00Z | 2026-10-22T09:04:00Z | 2 | Discovery", "2026-10-22T09:09:00Z | - | 1 | Persistence"} {
+	for i, want := range []string{"Discovery | 2026-10-22T09:00:00Z to 2026-10-22T09:04:00Z", "Persistence | 2026-10-22T09:09:00Z"} {
 		if got := cells(groups[0].Entries[i]); got != want {
 			t.Errorf("period %d is %q, want %q", i+1, got, want)
 		}
+	}
+	if got, want := groups[0].Entries[0].Detail, []render.Detail{{Label: "T1007", Text: "System Service Discovery"}}; !slices.Equal(got, want) {
+		t.Errorf("the first block lists %v, want %v", got, want)
+	}
+	if got, want := groups[0].Entries[1].Detail, []render.Detail{{Text: noTechnique}}; !slices.Equal(got, want) {
+		t.Errorf("the second block lists %v, want %v", got, want)
 	}
 	if got, want := cells(groups[1].Entries[0]), "and 1 file that shows no tactic, in the saved trace"; got != want {
 		t.Errorf("the last line is %q, want %q", got, want)
@@ -117,8 +128,29 @@ func TestTimelineKeepsTheEnds(t *testing.T) {
 	if got, want := groups[1].Entries[0].Cells[0], "and 7 more periods here, in the saved trace"; got != want {
 		t.Errorf("the line between is %q, want %q", got, want)
 	}
-	first, last := groups[0].Entries[0].Detail, groups[2].Entries[fewPeriods/2-1].Detail
-	if first[len(first)-1].Text != "step0.sh" || last[len(last)-1].Text != "step"+strconv.Itoa(fewPeriods+6)+".sh" {
-		t.Errorf("the ends are %q and %q, want the first and the last file", first[len(first)-1].Text, last[len(last)-1].Text)
+	first, last := groups[0].Entries[0].Cells, groups[2].Entries[fewPeriods/2-1].Cells
+	if first[1] != "2026-10-22T09:00:00Z" || last[1] != "2026-10-22T09:"+strconv.Itoa(fewPeriods+6)+":00Z" {
+		t.Errorf("the ends are at %q and %q, want the first and the last period", first[1], last[1])
+	}
+}
+
+// A watchlist match of a file of an intent is named in the block of the
+// intent, after its techniques.
+func TestIntentBlocksNameWatchlistMatches(t *testing.T) {
+	pipe, err := loadPipeline()
+	if err != nil {
+		t.Fatal(err)
+	}
+	step := trace.Step{File: evidence.File{Path: "i5/a.sh"}, IntelHits: []intel.Hit{{Attribution: "APT-X", Value: "203.0.113.40"}}}
+	runs, _ := pipe.collectIntents(t.TempDir(), []trace.Step{step, {File: evidence.File{Path: "i6/b.sh"}}})
+	groups := reportRun{pipe: pipe, result: analysis{intents: runs}}.timeline()
+	if len(groups) == 0 || len(groups[0].Entries) != 2 {
+		t.Fatalf("the timeline has %d groups, want a block for each of the two intents", len(groups))
+	}
+	if got, want := groups[0].Entries[0].Detail, []render.Detail{{Text: noTechnique}, {Label: "watchlist", Text: "APT-X: 203.0.113.40"}}; !slices.Equal(got, want) {
+		t.Errorf("the block of i5 lists %v, want %v", got, want)
+	}
+	if got, want := groups[0].Entries[1].Detail, []render.Detail{{Text: noTechnique}}; !slices.Equal(got, want) {
+		t.Errorf("the block of i6 lists %v, want %v", got, want)
 	}
 }

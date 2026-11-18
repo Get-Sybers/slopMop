@@ -271,7 +271,30 @@ var linuxCases = []struct {
 	{`7z a out.7z dir`, []string{"ArchiveCreation"}},
 	{`Compress-Archive -Path d -DestinationPath o.zip`, []string{"ArchiveCreation"}},
 	{`tar --create --file out.tar dir`, []string{"ArchiveCreation"}},
+	{`tar -z -c -f out.tar.gz dir`, []string{"ArchiveCreation"}},
+	{`zip -r out dir`, []string{"ArchiveCreation"}},
+	{`"C:\Program Files\7-Zip\7z.exe" a -pX out.7z dir`, []string{"ArchiveCreation"}},
+	{`7za a -tzip out.zip dir`, []string{"ArchiveCreation"}},
+	{`rar a out.rar dir`, []string{"ArchiveCreation"}},
+	{`gzip -9 dump.sql`, []string{"ArchiveCreation"}},
+	{`mysqldump db | gzip > dump.sql.gz`, []string{"ArchiveCreation"}},
+	{`pg_dump db | xz -9 > dump.sql.xz`, []string{"ArchiveCreation"}},
+	{`makecab loot.txt loot.cab`, []string{"ArchiveCreation"}},
+	{`Compress-7Zip -Path d -ArchiveFileName o.7z`, []string{"ArchiveCreation"}},
+	{`[IO.Compression.ZipFile]::CreateFromDirectory($src, $dst)`, []string{"ArchiveCreation"}},
+	{`shutil.make_archive("out", "zip", "dir")`, []string{"ArchiveCreation"}},
+	{`zipfile.ZipFile("out.zip", "w")`, []string{"ArchiveCreation"}},
+	{`tarfile.open("out.tar.gz", "w:gz")`, []string{"ArchiveCreation"}},
+	{`tar cf - /srv | ssh ops@10.0.0.5 'cat > srv.tar'`, []string{"ArchiveCreation"}},
+	{`find /srv -name '*.bak' -exec gzip {} \;`, []string{"ArchiveCreation"}},
 	{`tar xzf out.tgz`, nil},
+	{`# the tar command packs the folder`, nil},
+	{`# compress with gzip before encoding`, nil},
+	{`# WinRAR a popular archiver`, nil},
+	{`gzip -d dump.sql.gz`, nil},
+	{`gzip -dc dump.sql.gz | head`, nil},
+	{`7z x out.7z`, nil},
+	{`unzip out.zip`, nil},
 }
 
 func TestDetectLinux(t *testing.T) {
@@ -573,6 +596,80 @@ func countPatterns(t Table) int {
 		n += len(a.patterns) + len(a.paths)
 	}
 	return n
+}
+
+// An archive is named by the file it is written to, whatever makes it and
+// however the file is quoted.
+func TestArchiveSubjects(t *testing.T) {
+	table, err := LoadActivities()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for line, want := range map[string]string{
+		`tar czf /tmp/loot.tar.gz /srv/finance`:                            "/tmp/loot.tar.gz",
+		`tar -cJf out.tar.xz dir`:                                          "out.tar.xz",
+		`tar cf ./backup dir`:                                              "./backup",
+		`7z a -pInfected1 /tmp/mail.7z /var/mail`:                          "/tmp/mail.7z",
+		`& "C:\Program Files\7-Zip\7z.exe" a "C:\Temp\hr files.zip" C:\HR`: `C:\Temp\hr files.zip`,
+		`zip -r /tmp/docs.zip /home/deploy/docs`:                           "/tmp/docs.zip",
+		`rar a /tmp/hr.rar /srv/hr`:                                        "/tmp/hr.rar",
+		`mysqldump crm | gzip > /tmp/crm.sql.gz`:                           "/tmp/crm.sql.gz",
+		`makecab loot.txt loot.cab`:                                        "loot.cab",
+		`Compress-Archive -Path C:\loot -DestinationPath 'C:\Temp\o.zip'`:  `C:\Temp\o.zip`,
+		`shutil.make_archive("/tmp/out", "zip", "/srv")`:                   "/tmp/out",
+		`tarfile.open("out.tar.bz2", "w:bz2")`:                             "out.tar.bz2",
+	} {
+		hits := table.Detect(line)
+		if len(hits) != 1 || hits[0].Name != "ArchiveCreation" || len(hits[0].Evidence) != 1 {
+			t.Errorf("Detect(%q) = %q, want ArchiveCreation alone on one line", line, names(hits))
+			continue
+		}
+		var got []string
+		for _, sub := range hits[0].Evidence[0].Subjects {
+			if sub.Label == "archive" && !slices.Contains(got, sub.Value) {
+				got = append(got, sub.Value)
+			}
+		}
+		if !slices.Equal(got, []string{want}) {
+			t.Errorf("Detect(%q) names the archives %q, want %q", line, got, want)
+		}
+	}
+}
+
+// A label that is listed with more than its value says what heads its
+// column and which labels stand beside it; any other says nothing.
+func TestShown(t *testing.T) {
+	table, err := LoadActivities()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := table.Shown("task"); got.Column != "task name" || !slices.Equal(got.Beside, []string{"runs"}) || got.After {
+		t.Errorf("Shown(task) = %+v; want the task name first, with what the task runs beside it", got)
+	}
+	if got := table.Shown("resource"); got.Column != "resource" || got.Beside != nil || !got.After {
+		t.Errorf("Shown(resource) = %+v; want the resource after the activities that acted on it", got)
+	}
+	if got := table.Shown("archive"); got.Column != "" || got.Beside != nil || got.After {
+		t.Errorf("Shown(archive) = %+v; want nothing", got)
+	}
+	one := func(labels string) string {
+		return `{"contexts":{},"labels":` + labels + `,"activities":[{"name":"A","tactics":["Discovery"],"attack":["T1087"],"patterns":["abc"],` +
+			`"subjects":[{"label":"task","pattern":"(abc)"},{"label":"runs","pattern":"(abc)"}]}]}`
+	}
+	if _, err := decode([]byte(one(`{"task":{"column":"task name","beside":["runs"]},"runs":{"column":"command","after":true}}`))); err != nil {
+		t.Fatalf("a table with labels: %v", err)
+	}
+	for name, labels := range map[string]string{
+		"a label of no subject":         `{"job":{"column":"job"}}`,
+		"a label with no column":        `{"task":{"beside":["runs"]}}`,
+		"a label that is only after":    `{"task":{"after":true}}`,
+		"a label beside itself":         `{"task":{"column":"task name","beside":["task"]}}`,
+		"a label beside one of nothing": `{"task":{"column":"task name","beside":["host"]}}`,
+	} {
+		if _, err := decode([]byte(one(labels))); err == nil {
+			t.Errorf("%s: decode gave no error", name)
+		}
+	}
 }
 
 func TestRequired(t *testing.T) {

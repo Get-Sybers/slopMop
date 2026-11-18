@@ -27,7 +27,9 @@ type intentRun struct {
 	activities      []string
 	attack          []string
 	atlas           []string
-	level           tactic.Severity
+	// hits are the watchlist matches of its files.
+	hits  []string
+	level tactic.Severity
 }
 
 // above is how many folders of the path to the folder read count as part of
@@ -66,6 +68,9 @@ func (p pipeline) collectIntents(folder string, steps []trace.Step) ([]intentRun
 		for _, hit := range s.Activities {
 			r.attack, r.atlas = appendUnique(r.attack, hit.Attack...), appendUnique(r.atlas, p.atlasOf(hit)...)
 			r.activities = appendUnique(r.activities, hit.Name)
+		}
+		for _, h := range s.IntelHits {
+			r.hits = appendUnique(r.hits, h.Attribution+": "+h.Value)
 		}
 		made, recorded := s.File.Made()
 		if made.IsZero() {
@@ -137,14 +142,11 @@ func (r intentRun) timedBy() string {
 	}
 }
 
-// intents is the timeline by intent: a block for each, in the order the
+// intentBlocks is the timeline by intent: a block for each, in the order the
 // intents began, with when it ran and each of its techniques by name. Every
 // intent has its block, however many there are.
-func (w reportRun) intents() []render.Group {
+func (w reportRun) intentBlocks() []render.Group {
 	all := w.result.intents
-	if len(all) == 0 {
-		return nil
-	}
 	entries := make([]render.Entry, len(all))
 	files, recorded := 0, 0
 	for i, r := range all {
@@ -155,17 +157,7 @@ func (w reportRun) intents() []render.Group {
 				period += " to " + last
 			}
 		}
-		var named []render.Detail
-		for _, id := range r.attack {
-			named = append(named, render.Detail{Label: id, Text: or(w.pipe.catalogue.Attack.NameOf(id), "-")})
-		}
-		for _, id := range r.atlas {
-			named = append(named, render.Detail{Label: id, Text: or(w.pipe.catalogue.Atlas.NameOf(id), "-")})
-		}
-		if len(named) == 0 {
-			named = []render.Detail{{Text: "no technique"}}
-		}
-		entries[i] = render.Entry{Level: string(r.level), Cells: []string{r.ref.ID, period}, Detail: named}
+		entries[i] = render.Entry{Level: string(r.level), Cells: []string{r.ref.ID, period}, Detail: w.named(r.attack, r.atlas, r.hits)}
 		files, recorded = files+len(r.files), recorded+r.recorded
 	}
 	groups := []render.Group{{Blocks: true, Entries: entries}}

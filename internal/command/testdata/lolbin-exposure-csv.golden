@@ -1,5 +1,5 @@
-kind,value,account,form,service,seen,severity,count,files
-username,svc_build,,,,collected,medium,1,recon_20261020_100030.txt:2
-ip,203.0.113.10,,,,used,low,5,"20261020_100500_step02_download.ps1:1, 20261020_101000_step03_exec.ps1:2, build_20261020_101200.xml, 20261020_103000_step07_cleanup.bat:2, proc_20261020_103500.jsonl"
-ip,203.0.113.20,,,,used,low,3,"20261020_102000_step05_dotnet.ps1:2, 20261020_102500_step06_pinvoke.ps1:12, loader_20261020_102600.cs:4"
-ip,203.0.113.30,,,,used,low,1,20261020_102500_step06_pinvoke.ps1:10
+kind,value,decoded,account,form,service,seen,severity,count,files
+username,svc_build,,,,,collected,medium,1,recon_20261020_100030.txt:2
+ip,203.0.113.10,,,,,used,low,5,"20261020_100500_step02_download.ps1:1, 20261020_101000_step03_exec.ps1:2, build_20261020_101200.xml, 20261020_103000_step07_cleanup.bat:2, proc_20261020_103500.jsonl"
+ip,203.0.113.20,,,,,used,low,3,"20261020_102000_step05_dotnet.ps1:2, 20261020_102500_step06_pinvoke.ps1:12, loader_20261020_102600.cs:4"
+ip,203.0.113.30,,,,,used,low,1,20261020_102500_step06_pinvoke.ps1:10

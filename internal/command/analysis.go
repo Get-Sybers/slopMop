@@ -112,8 +112,38 @@ func loadExposures(patterns indicator.Table) (exposure.Table, error) {
 		if tactic.Severity(k.Severity).Rank() == 0 {
 			return exposure.Table{}, fmt.Errorf("exposures.json gives %s the severity %q, which is not low, medium or high", k.Name, k.Severity)
 		}
+		if err := checkColumns(k); err != nil {
+			return exposure.Table{}, err
+		}
 	}
 	return table, nil
+}
+
+// The columns of a group of the exposure, by the names a kind orders them with.
+const (
+	columnValue = "value"
+	columnWhat  = "what"
+	columnSeen  = "seen"
+	columnFound = "found in"
+)
+
+// exposureColumns are the columns of a group of the exposure, in the order
+// of the report.
+func exposureColumns() []string {
+	return []string{columnValue, columnWhat, columnSeen, columnFound}
+}
+
+// checkColumns accepts a kind that orders no column, and one that names
+// every column of its group once.
+func checkColumns(k exposure.Kind) error {
+	every := exposureColumns()
+	if len(k.Columns) == 0 {
+		return nil
+	}
+	if len(k.Columns) != len(every) || slices.ContainsFunc(every, func(c string) bool { return !slices.Contains(k.Columns, c) }) {
+		return fmt.Errorf("exposures.json gives %s the columns %q, which are not each of %q once", k.Name, k.Columns, every)
+	}
+	return nil
 }
 
 // loadCatalogue checks that every ATT&CK and ATLAS identifier the tactic

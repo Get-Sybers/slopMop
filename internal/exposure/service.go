@@ -20,6 +20,9 @@ type serviceEntry struct {
 	Values []valueEntry `json:"values,omitempty"`
 	// Issuers are the hosts that issue the tokens of the service.
 	Issuers []string `json:"issuers,omitempty"`
+	// Hosts are the hosts of the service: one that begins with a dot stands
+	// for every host that ends in it.
+	Hosts []string `json:"hosts,omitempty"`
 }
 
 // valueEntry is an expression and the kinds it is tried on; every kind when none is named.
@@ -39,6 +42,7 @@ type service struct {
 	Service
 	values  []serviceValue
 	issuers []string
+	hosts   []string
 }
 
 type serviceValue struct {
@@ -57,7 +61,12 @@ func (t *Table) addServices(entries []serviceEntry) error {
 			return fmt.Errorf("the service %q is named twice or has no name", e.Name)
 		}
 		names[e.Name] = true
-		s := service{Service: Service{Name: e.Name, Group: e.Group}, issuers: e.Issuers}
+		s := service{Service: Service{Name: e.Name, Group: e.Group}, issuers: e.Issuers, hosts: e.Hosts}
+		for _, host := range e.Hosts {
+			if strings.Trim(host, ".") == "" || host != strings.ToLower(host) {
+				return fmt.Errorf("%s: the host %q is empty or not lower case", e.Name, host)
+			}
+		}
 		for _, word := range e.Words {
 			if _, taken := t.words[word]; taken || word == "" || word != normalise(word) {
 				return fmt.Errorf("%s: the word %q is of two services or is not lower-case letters and digits", e.Name, word)
@@ -143,6 +152,18 @@ func (t Table) serviceOf(kind int, value, given, key string) string {
 	for _, word := range words(key) {
 		if name, ok := t.words[word]; ok {
 			return name
+		}
+	}
+	return ""
+}
+
+// hosted names the service a host is of; it is empty for a host of none.
+func (t Table) hosted(host string) string {
+	for _, s := range t.services {
+		for _, name := range s.hosts {
+			if host == strings.TrimPrefix(name, ".") || (strings.HasPrefix(name, ".") && strings.HasSuffix(host, name)) {
+				return s.Name
+			}
 		}
 	}
 	return ""
