@@ -39,16 +39,18 @@ type document struct {
 	// Contexts names patterns that say what a whole text is about.
 	Contexts map[string]string `json:"contexts"`
 	// Labels says how the subjects of a label are listed, for those that
-	// are listed with more than their value.
-	Labels     map[string]labelEntry `json:"labels,omitempty"`
-	Activities []entry               `json:"activities"`
+	// are not listed by their value and then what acted on it.
+	Labels     map[string]Listing `json:"labels,omitempty"`
+	Activities []entry            `json:"activities"`
 }
 
-// labelEntry heads the column of a label's subjects and names the labels
-// whose subjects are listed beside each of them.
-type labelEntry struct {
+// Listing says how the subjects of a label are listed: what heads their
+// column, and the labels whose subjects are listed beside each of them.
+type Listing struct {
 	Column string   `json:"column"`
 	Beside []string `json:"beside,omitempty"`
+	// After lists a subject after the activities that acted on it, not before.
+	After bool `json:"after,omitempty"`
 }
 
 type entry struct {
@@ -106,7 +108,7 @@ type Subject struct {
 // Table holds the compiled activity patterns, in the order of the data file.
 type Table struct {
 	contexts   map[string]pattern
-	labels     map[string]labelEntry
+	labels     map[string]Listing
 	activities []compiled
 	// finder looks for the literals of every pattern in one pass over a text.
 	finder *sift.Finder
@@ -224,7 +226,7 @@ func decode(data []byte) (Table, error) {
 
 // label keeps how the subjects of each label are listed. Every label it
 // names is one some subject carries.
-func (t *Table) label(entries map[string]labelEntry) error {
+func (t *Table) label(entries map[string]Listing) error {
 	used := map[string]bool{}
 	for _, a := range t.activities {
 		for _, sub := range a.subjects {
@@ -248,12 +250,10 @@ func (t *Table) label(entries map[string]labelEntry) error {
 	return nil
 }
 
-// Shown says how the subjects of a label are listed: what heads their
-// column, and the labels whose subjects stand beside each. Both are empty
-// for a label that is listed by its value alone.
-func (t Table) Shown(label string) (column string, beside []string) {
-	e := t.labels[label]
-	return e.Column, e.Beside
+// Shown says how the subjects of a label are listed. It is empty for a
+// label that is listed by its value and then what acted on it.
+func (t Table) Shown(label string) Listing {
+	return t.labels[label]
 }
 
 // number gives each literal of the table one number, and each pattern the

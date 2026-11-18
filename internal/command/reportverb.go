@@ -449,8 +449,8 @@ func (w reportRun) targeted() []render.Group {
 }
 
 // subjectGroups builds one group per subject label from the shown
-// activities. A label the activity table gives columns lists, beside each
-// subject, what its line names of other labels: a task and what it runs.
+// activities. The activity table says which labels list more than a subject
+// and what acted on it: a task with what it runs, a resource after its activity.
 func (w reportRun) subjectGroups() []render.Group {
 	type entity struct {
 		value      string
@@ -476,8 +476,7 @@ func (w reportRun) subjectGroups() []render.Group {
 			own, taken := map[string][]string{}, map[string]bool{}
 			for _, sub := range c.subjects {
 				own[sub.Label] = append(own[sub.Label], sub.Value)
-				_, beside := w.pipe.activities.Shown(sub.Label)
-				for _, label := range beside {
+				for _, label := range w.pipe.activities.Shown(sub.Label).Beside {
 					taken[label] = true
 				}
 			}
@@ -503,8 +502,7 @@ func (w reportRun) subjectGroups() []render.Group {
 				if len(ent.evidence) < fewFindingLines && !slices.Contains(ent.evidence, line) {
 					ent.evidence = append(ent.evidence, line)
 				}
-				_, beside := w.pipe.activities.Shown(sub.Label)
-				for _, label := range beside {
+				for _, label := range w.pipe.activities.Shown(sub.Label).Beside {
 					with := own[label]
 					if len(with) == 0 {
 						with = before[label]
@@ -522,10 +520,17 @@ func (w reportRun) subjectGroups() []render.Group {
 	var groups []render.Group
 	for _, label := range labelOrder {
 		entities := labels[label]
-		column, beside := w.pipe.activities.Shown(label)
+		listing := w.pipe.activities.Shown(label)
+		// The subject stands first and what acted on it last, unless its label says otherwise.
+		ordered := func(subject []string, by string) []string {
+			if listing.After {
+				return append([]string{by}, subject...)
+			}
+			return append(subject, by)
+		}
 		g := render.Group{
 			Title:   strings.ToUpper(label[:1]) + label[1:] + " (" + strconv.Itoa(len(entities)) + ")",
-			Columns: append(append([]string{or(column, "value")}, beside...), "acted on by"),
+			Columns: ordered(append([]string{or(listing.Column, "value")}, listing.Beside...), "acted on by"),
 		}
 		for i, ent := range entities {
 			if i == fewExposed {
@@ -533,12 +538,12 @@ func (w reportRun) subjectGroups() []render.Group {
 				break
 			}
 			cells := []string{ent.value}
-			for _, with := range beside {
+			for _, with := range listing.Beside {
 				cells = append(cells, or(strings.Join(ent.beside[with], ", "), "-"))
 			}
 			g.Entries = append(g.Entries, render.Entry{
 				Level:  string(ent.level),
-				Cells:  append(cells, strings.Join(ent.activities, ", ")),
+				Cells:  ordered(cells, strings.Join(ent.activities, ", ")),
 				Detail: lined("what", ent.evidence, fewFindingLines, "report.json"),
 			})
 		}

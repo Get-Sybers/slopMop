@@ -643,22 +643,26 @@ func TestShown(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if column, beside := table.Shown("task"); column != "task name" || !slices.Equal(beside, []string{"runs"}) {
-		t.Errorf("Shown(task) = %q, %q; want the task name with what the task runs beside it", column, beside)
+	if got := table.Shown("task"); got.Column != "task name" || !slices.Equal(got.Beside, []string{"runs"}) || got.After {
+		t.Errorf("Shown(task) = %+v; want the task name first, with what the task runs beside it", got)
 	}
-	if column, beside := table.Shown("archive"); column != "" || beside != nil {
-		t.Errorf("Shown(archive) = %q, %q; want nothing", column, beside)
+	if got := table.Shown("resource"); got.Column != "resource" || got.Beside != nil || !got.After {
+		t.Errorf("Shown(resource) = %+v; want the resource after the activities that acted on it", got)
+	}
+	if got := table.Shown("archive"); got.Column != "" || got.Beside != nil || got.After {
+		t.Errorf("Shown(archive) = %+v; want nothing", got)
 	}
 	one := func(labels string) string {
 		return `{"contexts":{},"labels":` + labels + `,"activities":[{"name":"A","tactics":["Discovery"],"attack":["T1087"],"patterns":["abc"],` +
 			`"subjects":[{"label":"task","pattern":"(abc)"},{"label":"runs","pattern":"(abc)"}]}]}`
 	}
-	if _, err := decode([]byte(one(`{"task":{"column":"task name","beside":["runs"]}}`))); err != nil {
-		t.Fatalf("a table with a label: %v", err)
+	if _, err := decode([]byte(one(`{"task":{"column":"task name","beside":["runs"]},"runs":{"column":"command","after":true}}`))); err != nil {
+		t.Fatalf("a table with labels: %v", err)
 	}
 	for name, labels := range map[string]string{
 		"a label of no subject":         `{"job":{"column":"job"}}`,
 		"a label with no column":        `{"task":{"beside":["runs"]}}`,
+		"a label that is only after":    `{"task":{"after":true}}`,
 		"a label beside itself":         `{"task":{"column":"task name","beside":["task"]}}`,
 		"a label beside one of nothing": `{"task":{"column":"task name","beside":["host"]}}`,
 	} {

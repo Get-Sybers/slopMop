@@ -28,6 +28,8 @@ All notable changes to this project are recorded in this file. The format follow
   column that holds every one.
 - The tasks among the targets are listed with the task name and what the task runs. A task name
   in single quotes and one registered through the task service are read.
+- The resources among the targets are listed with the activity first and the resource after
+  it, under the columns `acted on by` and `resource`.
 - A watchlist match is named in the block of its intent or its period.
 
 ### Changed

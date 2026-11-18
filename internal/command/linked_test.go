@@ -101,12 +101,14 @@ func TestReportLinksAndDecodes(t *testing.T) {
 	}
 }
 
-// A task is listed with its name and what it runs, an archive of any
-// archiver by its file, and a host of a vendor not at all.
+// A task is listed with its name and what it runs, a resource after the
+// activity that acted on it, an archive of any archiver by its file, and a
+// host of a vendor not at all.
 func TestReportTargetsOfActivities(t *testing.T) {
 	folder, _, _ := intrusion(t)
 	readout, saved := report(t, folder, "targeted")
 	for _, want := range []string{
+		"\n  Resource (1)\n    [i] GraphDirectoryEnumeration  /users\n",
 		"\n  Task (2)\n" +
 			"    [x] WindowsUpdateCheck     powershell -ep bypass -f C:\\Users\\Public\\u.ps1  ScheduledTaskCreation\n",
 		"    [x] EdgeUpdateTaskMachine  C:\\ProgramData\\svc\\agent.exe                    ScheduledTaskCreation\n",
@@ -127,8 +129,11 @@ func TestReportTargetsOfActivities(t *testing.T) {
 			t.Errorf("the readout holds %q", gone)
 		}
 	}
-	if page := readFile(t, filepath.Join(saved, "report.html")); !strings.Contains(page, "<th>task name</th><th>runs</th><th>acted on by</th>") {
-		t.Errorf("report.html does not head the columns of the tasks with the task name and what it runs")
+	page := readFile(t, filepath.Join(saved, "report.html"))
+	for _, heads := range []string{"<th>task name</th><th>runs</th><th>acted on by</th>", "<th>acted on by</th><th>resource</th>", "<th>value</th><th>acted on by</th>"} {
+		if !strings.Contains(page, heads) {
+			t.Errorf("report.html has no table whose columns are headed %s", heads)
+		}
 	}
 	for _, row := range rows(t, filepath.Join(saved, "targeted.json")) {
 		if value, _ := row["value"].(string); strings.HasSuffix(value, "google.com") || strings.HasSuffix(value, "microsoft.com") {

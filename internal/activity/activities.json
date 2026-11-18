@@ -5,7 +5,8 @@
     "arm": "(?i)management\\.(?:azure\\.com|usgovcloudapi\\.net)(?:[/'\\\"\\s]|$)"
   },
   "labels": {
-    "task": {"column": "task name", "beside": ["runs"]}
+    "task": {"column": "task name", "beside": ["runs"]},
+    "resource": {"column": "resource", "after": true}
   },
   "activities": [
     {

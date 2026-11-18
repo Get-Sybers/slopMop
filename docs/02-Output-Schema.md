@@ -87,7 +87,7 @@ Impact
 | Timeline | a block for each intent, or for each period where no file names an intent: the intent or the tactics of the period, and when it ran | each ATT&CK technique and each ATLAS technique, by its identifier and its name; `watchlist`: the matches of its files |
 | Findings | activity, lines, tactics, techniques | `what`: the lines that show it, each with its place |
 | Targeted, a group per kind | the value, for an address whether it is private or public, whether it is prior or discovered, the places in the scripts | `from`: the output that held a discovered value first; `what`: the script lines that name it |
-| Targeted, a group per thing the activities acted on | the thing, such as a task, an archive or a file, and the activities that acted on it; a task also with what it runs | `what`: the lines that act on it |
+| Targeted, a group per thing the activities acted on | the thing, such as a task, an archive or a file, and the activities that acted on it; a task also with what it runs; a resource after the activities that acted on it | `what`: the lines that act on it |
 | Exposure, a group per kind, then one per service that has a group of its own | the value, whether it was collected or used, the places; where the evidence says so, what the value is, whose it is and what it is for | none |
 | Impact | the impact | its statement; `exposed`: the exposed accounts and credentials it concerns; `basis` |
 | Remediation | the action | its text; `exposed`; `basis` |
@@ -163,8 +163,10 @@ of it.
 - A target is what a line acts on, with its kind: `account svc`, `unit sync.service`,
   `file /etc/sudoers.d/svc`, `url http://203.0.113.40/s.sh`. A variable the script sets is given
   its value and keeps its name: `file /tmp/tool ($F)`. A variable the script never sets is no
-  target. The targets of each kind are a group of the Targeted section. A task is listed with
-  what it runs: the command of its own line, or the action set on the line before it.
+  target. The targets of each kind are a group of the Targeted section, each target and then
+  the activities that acted on it. A task is listed with what it runs: the command of its own
+  line, or the action set on the line before it. A resource is listed after its activities, so
+  the paths an activity read stand together under its name.
 - An impact, an action and a mitigation list the exposed accounts and credentials they concern,
   each on a line under `exposed`, as what it is, whose it is, what it is for and its value:
   `password of admin, dc01.corp.local: Passw0rd!23`, `username: svc`. They quote no command and

