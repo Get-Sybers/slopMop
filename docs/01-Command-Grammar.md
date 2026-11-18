@@ -46,7 +46,7 @@ The bare words after `report` name sections of the report. No word means every s
 | --- | --- |
 | `summary` | the counts |
 | `timeline` | what was done, in order of time: each period of files that show the same tactics |
-| `intents` | each ARTEX intent i\<number\>, in order of time: when its files were created, its ATT&CK and ATLAS techniques and its files |
+| `intents` | the timeline by ARTEX intent i\<number\>: a block for each, with when its files were created and its ATT&CK and ATLAS techniques by name |
 | `findings` | each activity, indicator and tactic, most severe first |
 | `files` | the files that hold a finding of high severity |
 | `targeted` | the usernames, addresses, hostnames and emails the scripts name outright |
@@ -64,8 +64,8 @@ The sections print in the order of the table, whatever order they are named in.
 - It prints the sections named, as the [output schema](02-Output-Schema.md) describes.
 - It saves the report with every section, whichever were named, as plain text, Markdown and
   HTML: `report.txt`, `report.md` and `report.html`.
-- It saves each class of the output schema: `files.csv` and `exposure.csv` as CSV, and
-  `trace.json`, `intents.json`, `findings.json`, `targeted.json` and `report.json` as JSON.
+- It saves each class of the output schema: `files.csv`, `intents.csv` and `exposure.csv` as
+  CSV, and `trace.json`, `findings.json`, `targeted.json` and `report.json` as JSON.
 - A file of an earlier run is replaced. The last lines of the output name the folder.
 - Nothing is written outside the output folder, apart from the folders above it that are
   missing and are made. Each saved file is made new in the folder: a link that stands under one
@@ -224,7 +224,7 @@ sections chosen:
 sections you can add:
   summary                 the counts
   timeline                what was done, in order of time: each period of files that show the same tactics
-  intents                 each ARTEX intent i<number>, in order of time: when its files were created, its ATT&CK and ATLAS techniques and its files
+  intents                 the timeline by ARTEX intent i<number>: a block for each, with when its files were created and its ATT&CK and ATLAS techniques by name
   findings                each activity, indicator and tactic, most severe first
   files                   the files that hold a finding of high severity
   targeted                what the scripts name and what activities acted on

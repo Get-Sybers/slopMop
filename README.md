@@ -52,7 +52,7 @@ hold all of them.
 | --- | --- |
 | `summary` | the counts |
 | `timeline` | what was done, in order of time: each period of files that show the same tactics, and how many files show none |
-| `intents` | the timeline by ARTEX intent `i<number>`: when the files of each intent were created, its ATT&CK and ATLAS techniques and its files |
+| `intents` | the timeline by ARTEX intent `i<number>`: a block for each intent, with when its files were created and its ATT&CK and ATLAS techniques by name |
 | `findings` | each activity, indicator and tactic, most severe first, with the lines that show it |
 | `files` | the files that hold a finding of high severity |
 | `targeted` | the usernames, IP addresses, hostnames and email addresses the scripts name outright, and whether the attacker knew each beforehand |
@@ -84,7 +84,7 @@ that is read. A password, a hash, a token and a key are written masked.
 | `report.txt` | the report, every section, as plain text |
 | `files.csv` | every file with its whole path, role, size, line count, times and SHA-256 |
 | `trace.json` | the timeline |
-| `intents.json` | the ARTEX intents: the period, the techniques and the files of each |
+| `intents.csv` | the ARTEX intents: the period, the techniques and the files of each |
 | `findings.json` | the activities, indicators and tactics, each with when it was seen and its lines of evidence |
 | `targeted.json` | what the scripts name outright |
 | `exposure.csv` | what the files hold |

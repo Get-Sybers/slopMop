@@ -43,7 +43,7 @@ Impact
       basis    CertificateExport, CredentialAccess tools
 
 [x] HIGH - 4 impacts: 2 high, 1 medium, 1 low
--> saved to slopmop-ai_workdir: report.txt, report.md, report.html, files.csv, trace.json, intents.json, findings.json, targeted.json, exposure.csv, report.json
+-> saved to slopmop-ai_workdir: report.txt, report.md, report.html, files.csv, trace.json, intents.csv, findings.json, targeted.json, exposure.csv, report.json
 -> one section: slopmop -inputdir <folder> report impact
 ```
 
@@ -59,6 +59,8 @@ Impact
   most 60 characters; a longer cell runs past it.
 - Detail lines stand indented under an entry, each with a label. Lines that share a label stand
   under it, and the label is written once.
+- A block is an entry set apart from the next by an empty line: its name, then what it holds as
+  a list, an identifier and what the identifier names on each line.
 - Times are UTC.
 - Colour is used only when standard output is a terminal, `NO_COLOR` is unset and `TERM` is not
   `dumb`; on Windows, only inside Windows Terminal. A file or a pipe receives no colour code.
@@ -69,7 +71,7 @@ Impact
 | --- | --- | --- |
 | Summary | a count and its breakdown; with a window of time, the row `left out`: the files outside it and what the window left out | none |
 | Timeline | a period: its first time, its last, the number of its files, its tactics | `intent`, `activities`, `tools`, `watchlist`, `files` |
-| Intent timeline | an intent: when the first of its files was made, when the last was, the intent, its ATT&CK techniques | `atlas`: the ATLAS techniques; `files` |
+| Intent timeline | a block for each intent: the intent and the period it ran for | each ATT&CK technique and each ATLAS technique of the intent, by its identifier and its name |
 | Findings, activities | activity, lines, tactics, techniques | `what`: the lines that show it, each with its place |
 | Findings, indicators | type, value, files | `watchlist`: the attributions |
 | Findings, tactics | tactic, its ATT&CK and ATLAS identifiers, files | none |
@@ -106,9 +108,27 @@ folder of a thousand files is read in the periods it falls into.
 
 ### Intent timeline
 
-The intent timeline tells when each ARTEX intent ran and what it did. An entry is an intent, in
-the order the intents began, and every intent has one: the section is not cut, however many
-intents there are.
+The intent timeline tells when each ARTEX intent ran and what it did. It is a line of blocks,
+one for each intent, in the order the intents began. Every intent has its block: the section is
+not cut, however many intents there are.
+
+```text
+Intent timeline   (a block for each intent, in order of time: from the first of its files to be created until the last, and the techniques its files show)
+  [x] i1041  2026-10-22T09:00:00Z to 2026-10-22T09:00:40Z
+      T1083      File and Directory Discovery
+      T1552.005  Unsecured Credentials: Cloud Instance Metadata API
+      T1007      System Service Discovery
+      AML.T0055  Unsecured Credentials
+
+  [x] i1042  2026-10-22T09:05:00Z to 2026-10-22T09:05:40Z
+      T1003.008  OS Credential Dumping: /etc/passwd and /etc/shadow
+```
+
+- A block names the intent and the period it ran for, one time when the intent is one instant
+  and `-` when none of its files has a time. Under it stand its techniques, each on a line: the
+  ATT&CK techniques and then the ATLAS techniques of the activities its files show, in the
+  order they are first shown. A technique has the name its framework gives it, a sub-technique
+  after the technique it is part of. A block of an intent that shows none says `no technique`.
 
 - A file is an intent's own when its name holds the name of the intent, `i` and a number, or it
   lies in the folder of the intent, as the `intent` class of section 7 sets out.
@@ -116,10 +136,8 @@ intents there are.
   creation time. A file whose creation time is after its last change is a copy, made when it was
   copied: it has the time the timeline gives it, as has a file whose file system records no
   creation time. The last line of the section counts those files.
-- `until` is `-` when the intent is one instant. The techniques of an intent are those of the
-  activities its files show, in the order they are first shown; `-` when they show none.
-- The saved `intents.json` holds each intent with its task, its tactics, its activities and
-  every one of its files.
+- The saved `intents.csv` is the table of the intents: a row for each, with its period, its
+  techniques and every one of its files.
 
 ### Places, targets and evidence
 
@@ -193,7 +211,7 @@ Every run saves ten files to its output folder.
 | `report.html` | the report as one HTML page |
 | `files.csv` | the `file` class |
 | `trace.json` | the `trace` class |
-| `intents.json` | the `intent` class |
+| `intents.csv` | the `intent` class |
 | `findings.json` | the `finding` class |
 | `targeted.json` | the `targeted` class |
 | `exposure.csv` | the `exposure` class |
@@ -206,7 +224,7 @@ entries, the same limits and the same masking, and without the line that names t
 
 - The title is the first heading, a section is a second-level heading and a group a third.
 - A group whose entries have no detail lines is a table with a header row. Any other group is a
-  list, each entry one item with its detail lines as items under it.
+  list, each entry one item with its detail lines as items under it; a block is such an item.
 - Every value and every line of evidence is a code span, so a viewer shows it as written and
   makes no link, no formatting and no HTML of it.
 
@@ -220,6 +238,8 @@ entries, the same limits and the same masking, and without the line that names t
   loads nothing when it is opened.
 - A group is a table with a header row, and the detail lines of an entry stand in a panel under
   its row. Every text of the evidence is escaped.
+- The blocks of a timeline stand one under another on a line, each with a mark on the line in
+  the colour of its severity.
 
 ## 5. JSON
 
@@ -456,20 +476,20 @@ One row per ARTEX intent, in the order the intents began. ARTEX gives each inten
 file belongs to the intent its own name holds, or else to the one whose folder it lies in, at any
 depth, or whose session its path names.
 
-| JSON key | Value |
+| Column | Value |
 | --- | --- |
+| `from` | when the first of its files was made; empty when no file has a time |
+| `until` | when the last of its files was made |
 | `intent` | the identifier, `i` and the number, such as `i1042` |
-| `task` | the task of the run folder; `null` when the path does not give one |
-| `first` | when the first of its files was made; `null` when no file has a time |
-| `last` | when the last of its files was made |
-| `seconds` | the seconds from `first` to `last`; `0` for a single file |
-| `timed_by` | `creation` when every file is timed by its creation time, `name or modified` when none is, `both` otherwise; `null` when no file has a time |
-| `severity` | the highest severity among the tactics of its files; `null` when they show none |
-| `tactics` | the tactics of its files |
 | `attack` | the ATT&CK techniques of the activities its files show |
 | `atlas` | the ATLAS techniques of those activities |
+| `files` | its files, every one, in time order |
+| `task` | the task of the run folder; empty when the path does not give one |
+| `seconds` | the seconds from `from` to `until`; `0` for a single file |
+| `timed_by` | `creation` when every file is timed by its creation time, `name or modified` when none is, `both` otherwise; empty when no file has a time |
+| `severity` | the highest severity among the tactics of its files; empty when they show none |
+| `tactics` | the tactics of its files |
 | `activities` | the activities its files show |
-| `files` | its files, in time order |
 
 - A file name holds the name of an intent when `i` and a number stand in it with no letter and no
   digit before or after them: `i1042_scan.sh`, `cmd-i1042.stdout.txt` and `i1042` do, and

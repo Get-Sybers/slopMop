@@ -30,8 +30,8 @@ All notable changes to this project are recorded in this file. The format follow
   files.
 - A file is read with its creation time, where its file system records one. `files.csv` has the
   column `created`.
-- `intents.json` has `timed_by`: whether the period of an intent is read from creation times,
-  from the times of the timeline, or from both.
+- The table of the intents has `timed_by`: whether the period of an intent is read from
+  creation times, from the times of the timeline, or from both.
 
 ### Changed
 
@@ -45,10 +45,14 @@ All notable changes to this project are recorded in this file. The format follow
 - The `evidence` of a finding in `findings.json` is an array with one object per line: the
   `time` of its file, the `file`, the `line` and the `text`. It was one string.
 - `commands.json` names the format of each saved table, `json` or `csv`.
-- The Intents section is the Intent timeline. An entry is an intent, in the order the intents
-  began: when the first of its files was created, when the last was, the intent and its ATT&CK
-  techniques, with its ATLAS techniques and its files below. Every intent is shown, however
-  many there are; `intents.json` adds the task, the tactics and the activities of each.
+- The Intents section is the Intent timeline: a line of blocks, one for each intent, in the
+  order the intents began. A block names the intent and the period it ran for, and lists each
+  of its ATT&CK and ATLAS techniques by its identifier and its name, a sub-technique after the
+  technique it is part of. Every intent has its block, however many there are.
+- The intents are saved as CSV, `intents.csv`, in place of `intents.json`. A row begins as the
+  table of the intents does, with `from`, `until`, `intent`, `attack`, `atlas` and `files`, and
+  holds every file of the intent; `task`, `seconds`, `timed_by`, `severity`, `tactics` and
+  `activities` follow.
 - An intent runs from the first of its files to be created until the last. It ran from the
   earliest to the latest time of the timeline: the timestamp in a file name, or else the
   modified time. A file whose creation time is after its last change is a copy, made when it was

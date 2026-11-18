@@ -137,48 +137,52 @@ func (r intentRun) timedBy() string {
 	}
 }
 
-// intents is the timeline by intent, in the order the intents began: when
-// each ran, its techniques and the files that are its own. Every intent is
-// an entry, however many there are.
+// intents is the timeline by intent: a block for each, in the order the
+// intents began, with when it ran and each of its techniques by name. Every
+// intent has its block, however many there are.
 func (w reportRun) intents() []render.Group {
 	all := w.result.intents
 	if len(all) == 0 {
 		return nil
 	}
-	columns := []string{"from", "until", "intent", "techniques"}
 	entries := make([]render.Entry, len(all))
 	files, recorded := 0, 0
 	for i, r := range all {
-		from, until := "-", "-"
+		period := "-"
 		if r.timed > 0 {
-			from = render.Stamp(r.from, nil)
-			if last := render.Stamp(r.until, nil); last != from {
-				until = last
+			period = render.Stamp(r.from, nil)
+			if last := render.Stamp(r.until, nil); last != period {
+				period += " to " + last
 			}
 		}
-		techniques := "-"
-		if len(r.attack) > 0 {
-			techniques = strings.Join(r.attack, ", ")
+		var named []render.Detail
+		for _, id := range r.attack {
+			named = append(named, render.Detail{Label: id, Text: or(w.pipe.catalogue.Attack.NameOf(id), "-")})
 		}
-		entries[i] = render.Entry{
-			Level: string(r.level),
-			Cells: []string{from, until, r.ref.ID, techniques},
-			Detail: []render.Detail{
-				{Label: "atlas", Text: strings.Join(r.atlas, ", ")},
-				{Label: "files", Text: few(r.files)},
-			},
+		for _, id := range r.atlas {
+			named = append(named, render.Detail{Label: id, Text: or(w.pipe.catalogue.Atlas.NameOf(id), "-")})
 		}
+		if len(named) == 0 {
+			named = []render.Detail{{Text: "no technique"}}
+		}
+		entries[i] = render.Entry{Level: string(r.level), Cells: []string{r.ref.ID, period}, Detail: named}
 		files, recorded = files+len(r.files), recorded+r.recorded
 	}
-	groups := []render.Group{{Columns: columns, Entries: entries}}
+	groups := []render.Group{{Blocks: true, Entries: entries}}
 	if other := files - recorded; other > 0 {
-		// A line that is no intent stands in a group of its own, so its length
-		// does not set the width of the columns.
 		line := strconv.Itoa(other) + " of " + counted(files, "file is", "files are") +
 			" timed by name or last change: their creation time is not recorded, or is that of a copy, which is after the last change"
 		groups = append(groups, render.Group{Entries: []render.Entry{{Cells: []string{line}}}})
 	}
 	return groups
+}
+
+// or is a text, or another where there is none.
+func or(text, otherwise string) string {
+	if text == "" {
+		return otherwise
+	}
+	return text
 }
 
 // intentRow fills one row of the intent class.
@@ -192,8 +196,8 @@ func intentRow(r intentRun, columns []render.Column) ([]render.Value, error) {
 	cells := map[string]render.Value{
 		"intent":     render.Text(r.ref.ID),
 		"task":       render.NotApplicable(),
-		"first":      when(r.from),
-		"last":       when(r.until),
+		"from":       when(r.from),
+		"until":      when(r.until),
 		"seconds":    render.NotApplicable(),
 		"timed_by":   render.NotApplicable(),
 		"files":      list(r.files),

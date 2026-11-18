@@ -25,6 +25,7 @@ import (
 	"github.com/get-sybers/slopmop/internal/golden"
 	"github.com/get-sybers/slopmop/internal/intent"
 	"github.com/get-sybers/slopmop/internal/inventory"
+	"github.com/get-sybers/slopmop/internal/render"
 	"github.com/get-sybers/slopmop/internal/trace"
 )
 
@@ -149,7 +150,7 @@ func TestReportViews(t *testing.T) {
 func TestReportSaves(t *testing.T) {
 	folder := evidencetest.Copy(t, "linux")
 	shown, saved := report(t, folder, "impact")
-	if want := "-> saved to <out>: report.txt, report.md, report.html, files.csv, trace.json, intents.json, findings.json, targeted.json, exposure.csv, report.json\n"; !strings.Contains(shown, want) {
+	if want := "-> saved to <out>: report.txt, report.md, report.html, files.csv, trace.json, intents.csv, findings.json, targeted.json, exposure.csv, report.json\n"; !strings.Contains(shown, want) {
 		t.Errorf("the readout does not say where it was saved:\n%s", shown)
 	}
 	if strings.Contains(shown, "\nTimeline") {
@@ -276,11 +277,11 @@ func TestReportIntents(t *testing.T) {
 	timedBy, first, last := byTimeline, "2026-10-22T09:00:00Z", "2026-10-22T09:00:40Z"
 	if copied(t, saved) {
 		golden.Check(t, "artex-report-intents", []byte(readout))
-		golden.Check(t, "artex-intents-json", []byte(readFile(t, filepath.Join(saved, "intents.json"))))
+		golden.Check(t, "artex-intents-csv", []byte(readFile(t, filepath.Join(saved, "intents.csv"))))
 	} else {
 		timedBy, first, last = byCreation, "2026-10-22T09:00:03Z", "2026-10-22T09:00:43Z"
 	}
-	table := rows(t, filepath.Join(saved, "intents.json"))
+	table := rows(t, filepath.Join(saved, "intents.csv"))
 	var order []string
 	for _, row := range table {
 		order = append(order, row["intent"].(string))
@@ -289,8 +290,8 @@ func TestReportIntents(t *testing.T) {
 		t.Errorf("intents = %q, want %q: in the order they began", order, want)
 	}
 	row := find(t, table, map[string]string{"intent": "i1041", "task": "7"})
-	if row["first"] != first || row["last"] != last || row["seconds"] != float64(40) {
-		t.Errorf("i1041 runs from %v to %v, %v seconds, want %s to %s, 40", row["first"], row["last"], row["seconds"], first, last)
+	if row["from"] != first || row["until"] != last || row["seconds"] != "40" {
+		t.Errorf("i1041 runs from %v to %v, %v seconds, want %s to %s, 40", row["from"], row["until"], row["seconds"], first, last)
 	}
 	if row["attack"] != "T1083, T1552.005, T1007" || row["atlas"] != "AML.T0055" {
 		t.Errorf("i1041 has ATT&CK %v and ATLAS %v", row["attack"], row["atlas"])
@@ -318,7 +319,7 @@ func TestReportIntents(t *testing.T) {
 		t.Errorf("the timeline does not name the intents of a period:\n%s", timeline)
 	}
 	for name, body := range map[string]string{"report.md": readFile(t, filepath.Join(saved, "report.md")), "report.html": readFile(t, filepath.Join(saved, "report.html"))} {
-		for _, held := range []string{"Intent timeline", "i1042", "T1003.008", "AML.T0090"} {
+		for _, held := range []string{"Intent timeline", "i1042", "T1003.008", "OS Credential Dumping: /etc/passwd and /etc/shadow", "AML.T0090"} {
 			if !strings.Contains(body, held) {
 				t.Errorf("%s does not hold %q", name, held)
 			}
@@ -330,7 +331,7 @@ func TestReportIntents(t *testing.T) {
 func TestReportReadsOneIntent(t *testing.T) {
 	folder := artex(t)
 	_, saved := report(t, filepath.Join(folder, "data", "tasks", "7", "i1042"))
-	table := rows(t, filepath.Join(saved, "intents.json"))
+	table := rows(t, filepath.Join(saved, "intents.csv"))
 	if len(table) != 1 || table[0]["intent"] != "i1042" || table[0]["task"] != "7" {
 		t.Errorf("intents = %v, want i1042 of task 7 alone", table)
 	}
@@ -345,8 +346,8 @@ func TestReportWithoutIntents(t *testing.T) {
 	if strings.Contains(readout, "\n  intents") {
 		t.Errorf("the summary counts intents where there are none:\n%s", readout)
 	}
-	if got := len(rows(t, filepath.Join(saved, "intents.json"))); got != 0 {
-		t.Errorf("intents.json holds %d rows, want none", got)
+	if got := len(rows(t, filepath.Join(saved, "intents.csv"))); got != 0 {
+		t.Errorf("intents.csv holds %d rows, want none", got)
 	}
 }
 
@@ -388,8 +389,8 @@ func TestIntentsWithoutATime(t *testing.T) {
 		t.Errorf("an intent without a time has no row: %v", err)
 	}
 	groups := reportRun{result: analysis{intents: runs}}.intents()
-	if got := groups[0].Entries[4].Cells; !slices.Equal(got, []string{"-", "-", "i30", "-"}) {
-		t.Errorf("i30 is written %q", got)
+	if got := groups[0].Entries[4]; !groups[0].Blocks || !slices.Equal(got.Cells, []string{"i30", "-"}) || !slices.Equal(got.Detail, []render.Detail{{Text: "no technique"}}) {
+		t.Errorf("i30 is written %q with %q, want a block with no period and no technique", got.Cells, got.Detail)
 	}
 }
 
@@ -455,12 +456,16 @@ func TestIntentsRunFromWhenTheirFilesWereMade(t *testing.T) {
 	if _, owned := of["plain.sh"]; owned || len(of) != len(steps)-1 {
 		t.Errorf("the files with an intent are %v, want every one but plain.sh", of)
 	}
-	groups := reportRun{result: analysis{intents: runs}}.intents()
-	if got, want := groups[0].Entries[0].Cells, []string{"2026-10-22T09:10:00Z", "2026-10-22T09:12:00Z", "i5", "T1046, T1018"}; !slices.Equal(got, want) {
-		t.Errorf("i5 is written %q, want %q", got, want)
+	groups := reportRun{pipe: pipe, result: analysis{intents: runs}}.intents()
+	i5 := render.Entry{Cells: []string{"i5", "2026-10-22T09:10:00Z to 2026-10-22T09:12:00Z"}, Detail: []render.Detail{
+		{Label: "T1046", Text: "Network Service Discovery"}, {Label: "T1018", Text: "Remote System Discovery"},
+	}}
+	if got := groups[0].Entries[0]; !groups[0].Blocks || !reflect.DeepEqual(got, i5) {
+		t.Errorf("i5 is the block %+v, want %+v", got, i5)
 	}
-	if got, want := groups[0].Entries[3].Cells, []string{"2026-10-22T09:55:00Z", "-", "i8", "-"}; !slices.Equal(got, want) {
-		t.Errorf("i8 is written %q, want %q", got, want)
+	i8 := render.Entry{Cells: []string{"i8", "2026-10-22T09:55:00Z"}, Detail: []render.Detail{{Text: "no technique"}}}
+	if got := groups[0].Entries[3]; !reflect.DeepEqual(got, i8) {
+		t.Errorf("i8 is the block %+v, want %+v", got, i8)
 	}
 	if note := groups[len(groups)-1].Entries[0].Cells[0]; !strings.HasPrefix(note, "4 of 8 files are timed by name or last change") {
 		t.Errorf("the last line is %q, want it to count the 4 files of 8 that no creation time places", note)
@@ -495,9 +500,9 @@ func TestReportIntentsByCreation(t *testing.T) {
 		}
 	}
 	ended := time.Now().Add(2 * time.Second)
-	table := rows(t, filepath.Join(saved, "intents.json"))
+	table := rows(t, filepath.Join(saved, "intents.csv"))
 	if len(table) != 2 {
-		t.Fatalf("intents.json holds %d intents, want i7 and i8:\n%v", len(table), table)
+		t.Fatalf("intents.csv holds %d intents, want i7 and i8:\n%v", len(table), table)
 	}
 	for i, want := range []struct{ id, attack, files string }{
 		{"i7", "T1136.001", "i7_20200101_000000_persist.sh, cmd-i7.stdout.txt"},
@@ -507,7 +512,7 @@ func TestReportIntentsByCreation(t *testing.T) {
 		if row["intent"] != want.id || row["attack"] != want.attack || row["files"] != want.files || row["timed_by"] != byCreation {
 			t.Errorf("intent %d is %v, want %s with %s and %s, timed by %s", i, row, want.id, want.attack, want.files, byCreation)
 		}
-		for _, key := range []string{"first", "last"} {
+		for _, key := range []string{"from", "until"} {
 			text, _ := row[key].(string)
 			at, err := time.Parse(time.RFC3339, text)
 			if err != nil || at.Before(began) || at.After(ended) {
@@ -515,15 +520,15 @@ func TestReportIntentsByCreation(t *testing.T) {
 			}
 		}
 	}
-	if !strings.Contains(readout, "  i7  T1136.001\n") || !strings.Contains(readout, "      files  i7_20200101_000000_persist.sh, cmd-i7.stdout.txt\n") {
-		t.Errorf("the readout does not give i7 its technique and its files:\n%s", readout)
+	if !strings.Contains(readout, "  [x] i7  ") || !strings.Contains(readout, "      T1136.001  Create Account: Local Account\n") {
+		t.Errorf("the readout has no block for i7 that names its technique:\n%s", readout)
 	}
 	if strings.Contains(readout, "timed by name or last change") {
 		t.Errorf("the readout says a file is not timed by its creation:\n%s", readout)
 	}
 }
 
-// Every intent is shown, however many there are: none is left for the saved file alone.
+// Every intent has its block, however many there are: none is left for the saved file alone.
 func TestIntentsAreAllShown(t *testing.T) {
 	at := time.Date(2026, 10, 22, 9, 0, 0, 0, time.UTC)
 	var runs []intentRun
@@ -532,12 +537,12 @@ func TestIntentsAreAllShown(t *testing.T) {
 		runs = append(runs, intentRun{ref: intent.Ref{ID: "i" + strconv.Itoa(100+i)}, from: when, until: when, timed: 1, recorded: 1, files: []string{"a.sh"}})
 	}
 	groups := reportRun{result: analysis{intents: runs}}.intents()
-	if len(groups) != 1 || len(groups[0].Entries) != len(runs) {
-		t.Fatalf("%d groups with %d entries in the first, want one group of all %d intents", len(groups), len(groups[0].Entries), len(runs))
+	if len(groups) != 1 || !groups[0].Blocks || len(groups[0].Entries) != len(runs) {
+		t.Fatalf("%d groups with %d entries in the first, want one group of a block for each of %d intents", len(groups), len(groups[0].Entries), len(runs))
 	}
 	for i, e := range groups[0].Entries {
-		if e.Cells[2] != runs[i].ref.ID {
-			t.Fatalf("entry %d is %s, want %s: every intent in the order it began", i, e.Cells[2], runs[i].ref.ID)
+		if e.Cells[0] != runs[i].ref.ID {
+			t.Fatalf("block %d is %s, want %s: every intent in the order it began", i, e.Cells[0], runs[i].ref.ID)
 		}
 	}
 }

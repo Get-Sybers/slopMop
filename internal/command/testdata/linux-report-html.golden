@@ -25,6 +25,7 @@ h3 { font-size: 15px; margin: 20px 0 6px; color: var(--soft); }
 .note { margin: 0 0 8px; font-size: 13px; }
 nav { margin-top: 14px; font-size: 14px; }
 nav a { color: inherit; margin-right: 14px; white-space: nowrap; }
+.dot { color: var(--soft); }
 .high { color: var(--high); } .medium { color: var(--medium); }
 .low { color: var(--low); } .clear { color: var(--clear); }
 .wrap { overflow-x: auto; }
@@ -42,6 +43,20 @@ tr.detail td { padding-top: 0; }
 .label { color: var(--soft); font-size: 13px; }
 .value { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px;
   overflow-wrap: anywhere; }
+.blocks { list-style: none; margin: 10px 0 8px 5px; padding: 0 0 0 20px; border-left: 2px solid var(--line); }
+.block { position: relative; margin: 0 0 12px; padding: 8px 12px; background: var(--panel); border-radius: 6px; }
+.dot { position: absolute; left: -27px; top: 13px; width: 12px; height: 12px; border-radius: 50%;
+  background: currentColor; border: 2px solid var(--bg); }
+.head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; }
+.head .mark { font-weight: 600; }
+.name { font-weight: 600; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; overflow-wrap: anywhere; }
+.rest { color: var(--soft); font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px;
+  overflow-wrap: anywhere; }
+.items { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 2px 14px; margin-top: 6px;
+  font-size: 13px; }
+.id { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+.items .value { font-family: inherit; }
+.plain { grid-column: 1 / -1; color: var(--soft); }
 footer { margin-top: 40px; font-size: 13px; border-top: 1px solid var(--line); padding-top: 10px; }
 footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 @media print { nav { display: none; } body { padding: 0; } table { min-width: 0; } }

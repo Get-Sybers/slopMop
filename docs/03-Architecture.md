@@ -10,7 +10,7 @@ about evidence touch no file, and every static table is a data file validated at
 | `cmd/slopmop` | builds the application, runs it, maps the result to an exit code |
 | `internal/cli` | the grammar: options, verbs, the words after a verb, dispatch, generated help; knows no verb |
 | `internal/command` | the verbs: declares them in `commands.json`, binds each to its implementation, and saves the output |
-| `internal/render` | writes the report as plain lines, Markdown and HTML, and a table in the default, wide, quiet and JSON views and as CSV, of which the saved files use JSON and CSV; escapes evidence text |
+| `internal/render` | writes the report as plain lines, Markdown and HTML, with a group of entries as a table or as a line of blocks, and a table in the default, wide, quiet and JSON views and as CSV, of which the saved files use JSON and CSV; escapes evidence text |
 | `internal/inventory` | walks the input directory and builds one record per file; owns all evidence I/O |
 | `internal/evidence` | the file record and its vocabularies (role, note); no I/O |
 | `internal/nametime` | detects the timestamp written into a file name; no I/O |

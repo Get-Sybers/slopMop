@@ -46,6 +46,10 @@ type Group struct {
 	// text has no header row.
 	Columns []string
 	Entries []Entry
+	// Blocks sets each entry apart as a block, one under another: a timeline.
+	// The first cell names the block and its detail lines are a list, each
+	// label the identifier of what its text names.
+	Blocks bool
 }
 
 // Entry is one line of cells and the detail lines under it.
@@ -213,7 +217,14 @@ func (p *pen) group(g Group, indent string) {
 		}
 	}
 	under := indent + strings.Repeat(" ", 2*len(gap))
-	for _, e := range g.Entries {
+	named, labelled := "", sgrGrey
+	if g.Blocks {
+		named, labelled = sgrBold, ""
+	}
+	for n, e := range g.Entries {
+		if g.Blocks && n > 0 {
+			p.line()
+		}
 		parts := []string{indent}
 		if marked > 0 {
 			glyph, sgr := mark(e.Level)
@@ -221,7 +232,11 @@ func (p *pen) group(g Group, indent string) {
 		}
 		for i, c := range e.Cells {
 			c = shown(c)
-			parts = append(parts, c)
+			if i == 0 {
+				parts = append(parts, p.paint(named, c))
+			} else {
+				parts = append(parts, c)
+			}
 			// The last cell is not padded, so a line carries no trailing space.
 			if i < len(e.Cells)-1 {
 				parts = append(parts, strings.Repeat(" ", max(0, widths[i]-utf8.RuneCountInString(c))), gap)
@@ -244,7 +259,7 @@ func (p *pen) group(g Group, indent string) {
 			}
 			last = d.Label
 			pad := strings.Repeat(" ", label-utf8.RuneCountInString(name))
-			p.line(under, p.paint(sgrGrey, name), pad, gap, Escape(d.Text))
+			p.line(under, p.paint(labelled, name), pad, gap, Escape(d.Text))
 		}
 	}
 }

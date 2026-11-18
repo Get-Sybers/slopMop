@@ -24,6 +24,34 @@ func TestLoad(t *testing.T) {
 	}
 }
 
+// A technique has the name of its framework, and a sub-technique that of
+// the technique it is part of before its own.
+func TestNameOf(t *testing.T) {
+	c, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tt := range []struct {
+		name      string
+		framework Framework
+		id, want  string
+	}{
+		{"a technique of ATT&CK", c.Attack, "T1105", "Ingress Tool Transfer"},
+		{"a sub-technique of ATT&CK", c.Attack, "T1136.001", "Create Account: Local Account"},
+		{"a technique of ATLAS", c.Atlas, "AML.T0051", "LLM Prompt Injection"},
+		{"a sub-technique of ATLAS", c.Atlas, "AML.T0051.000", "LLM Prompt Injection: Direct"},
+		{"a technique the framework lacks", c.Attack, "T0000", ""},
+		{"a sub-technique the framework lacks", c.Attack, "T1105.999", ""},
+		{"a technique of the other framework", c.Atlas, "T1105", ""},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.framework.NameOf(tt.id); got != tt.want {
+				t.Errorf("NameOf(%s) = %q, want %q", tt.id, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestMitigationsFor(t *testing.T) {
 	c, err := Load()
 	if err != nil {
