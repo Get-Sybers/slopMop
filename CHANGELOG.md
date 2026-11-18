@@ -9,21 +9,15 @@ All notable changes to this project are recorded in this file. The format follow
 ### Added
 
 - A version is a package on the GitHub Container Registry:
-  `oras pull ghcr.io/get-sybers/slopmop:v<version>` writes the Windows binary, its SHA-256 and
-  its signature into the current folder.
-- The binary is signed. `slopmop-<version>-windows-amd64.exe.asc` is a detached GPG signature,
-  made with the key the `release` environment holds. A publish stops unless `release-key.asc` of
-  the repository, with no other key at hand, verifies it.
-- `scripts/release-setup.sh` sets the `release` environment up, once: its reviewer, the key that
-  signs, whose secret half the environment alone holds, and the token of the registry. It writes
-  the public half of the key to `release-key.asc`.
+  `oras pull ghcr.io/get-sybers/slopmop:v<version>` writes the Windows binary and its SHA-256
+  into the current folder.
 - A version carries an attestation of its provenance:
   `gh attestation verify slopmop-<version>-windows-amd64.exe -R Get-Sybers/slopMop` shows that
   the release workflow of this repository built the file.
 - The release workflow builds the binary from any branch when it is run without `publish`, and
   keeps it with the run for 14 days: a change is tried as a built binary before it is merged.
   Such a build is `v0.0.0`, which is no release. Every run packs the build as a publish packs
-  it, signed with a key made for the run, and pulls it back.
+  it and pulls it back.
 
 ### Changed
 
@@ -33,13 +27,12 @@ All notable changes to this project are recorded in this file. The format follow
   the one raised in the pull request that cuts the release, when it is run with `publish` on
   `main`. The version was typed in when the workflow was run.
 - A version is published once: a publish stops when the tag of the version is there already,
-  when the run begins and again before the build is signed, and when the registry holds the
+  when the run begins and again before the build is packed, and when the registry holds the
   version with another binary.
 - The binary is built and packed by jobs with a token that reads. The publish job is the one
   with a token that writes. It runs in the `release` environment, where a required reviewer
-  approves a publish when the repository settings name one, and takes its secrets from it: it
-  signs with `GPG_PRIVATE_KEY` and pushes with `GHCR_TOKEN`. One job with a token that writes
-  built and published.
+  approves a publish when the repository settings name one, and pushes with `GHCR_TOKEN`, a
+  secret of that environment. One job with a token that writes built and published.
 
 ### Fixed
 

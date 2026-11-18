@@ -13,8 +13,8 @@ make build      # writes bin/slopmop
 make conform    # the gate CI runs
 ```
 
-A version is a package on the GitHub Container Registry that holds the Windows x64 binary, its
-SHA-256 and its GPG signature. [`oras`](https://oras.land) writes the three into the current folder:
+A version is a package on the GitHub Container Registry that holds the Windows x64 binary and its
+SHA-256. [`oras`](https://oras.land) writes the two into the current folder:
 
 ```sh
 oras pull ghcr.io/get-sybers/slopmop:v<version>

@@ -1,8 +1,8 @@
 name: Release
 
 # Builds the Windows binary from any branch and keeps it with the run. With
-# `publish`, on main, the build is signed and pushed to ghcr.io as the package
-# of the newest version CHANGELOG.md names: the version is never an input.
+# `publish`, on main, the build is pushed to ghcr.io as the package of the
+# newest version CHANGELOG.md names: the version is never an input.
 
 on:
   workflow_dispatch:
@@ -134,8 +134,8 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-  # Packs the build as a publish packs it, signed with a key made for the run,
-  # and pulls it back: every run shows the package gives the binary out again.
+  # Packs the build as a publish packs it and pulls it back: every run shows
+  # that the package gives the binary out again.
   package:
     name: package
     needs: build
@@ -170,18 +170,11 @@ jobs:
           mkdir bin && tar xzf "oras_${ORAS_VERSION}_linux_amd64.tar.gz" -C bin oras
           echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
 
-      - name: Sign and pack with a key of this run
-        env:
-          GPG_PASSPHRASE: rehearsal
-        run: |
-          GNUPGHOME="$(mktemp -d)"
-          export GNUPGHOME
-          gpg --batch --quiet --pinentry-mode loopback --passphrase "${GPG_PASSPHRASE}" --quick-generate-key "slopmop rehearsal" ed25519 sign 1d
-          gpg --armor --export > "${RUNNER_TEMP}/rehearsal-key.asc"
-          scripts/package.sh dist "${VERSION}" "${RUNNER_TEMP}/rehearsal-key.asc" "${RUNNER_TEMP}/layout"
+      - name: Pack and pull back
+        run: scripts/package.sh dist "${VERSION}" "${RUNNER_TEMP}/layout"
 
-  # The one job with a token that writes and with the secrets of the `release`
-  # environment: the key that signs and the token of the registry.
+  # The one job with a token that writes, and with the secret of the `release`
+  # environment: GHCR_TOKEN, the token it pushes to the registry with.
   publish:
     name: publish
     if: ${{ inputs.publish }}
@@ -228,19 +221,8 @@ jobs:
           mkdir bin && tar xzf "oras_${ORAS_VERSION}_linux_amd64.tar.gz" -C bin oras
           echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
 
-      # The signature holds when release-key.asc, the public key the repository
-      # gives out, verifies it: the key of the environment is that key.
-      - name: Sign and pack with the key of the environment
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: |
-          [[ -s release-key.asc ]] || { echo "::error::the repository has no release-key.asc"; exit 1; }
-          [[ -n "${GPG_PRIVATE_KEY}" ]] || { echo "::error::the release environment holds no GPG_PRIVATE_KEY"; exit 1; }
-          GNUPGHOME="$(mktemp -d)"
-          export GNUPGHOME
-          gpg --batch --quiet --import <<<"${GPG_PRIVATE_KEY}"
-          scripts/package.sh dist "${VERSION}" release-key.asc "${RUNNER_TEMP}/layout"
+      - name: Pack and pull back
+        run: scripts/package.sh dist "${VERSION}" "${RUNNER_TEMP}/layout"
 
       - name: Attest build provenance
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
@@ -269,7 +251,6 @@ jobs:
             echo "Published \`${image}:${VERSION}\` from \`${GITHUB_SHA}\`"
             echo "- digest \`$(oras manifest fetch --descriptor "${image}:${VERSION}" | jq -r .digest)\`"
             echo "- fetch: \`oras pull ${image}:${VERSION}\`"
-            echo "- signature: \`gpg --verify ${exe}.asc ${exe}\`, with \`release-key.asc\`"
             echo "- provenance: \`gh attestation verify ${exe} -R ${GH_REPO}\`"
           } >> "${GITHUB_STEP_SUMMARY}"
 

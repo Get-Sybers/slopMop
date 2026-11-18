@@ -101,7 +101,7 @@ GitHub release.
 - The version is never an input: it is the newest `## [X.Y.Z]` of `CHANGELOG.md`, raised in the pull
   request that cuts the release. A build that is not a publish is `v0.0.0`, which is no release.
 - A version is published once. A publish stops when the tag of the version is there already: when
-  the run begins, and again before the build is signed.
+  the run begins, and again before the build is packed.
 - The `build` job runs on Windows with a token that reads: the tests, the integration test, then
   `go build -trimpath -buildvcs=true` for windows/amd64. When the binary is built the checkout is
   as it was checked out, and tagged with the version; the tag is the checkout's alone until the
@@ -113,29 +113,20 @@ GitHub release.
   the major version.
 - The job runs the built file against the PowerShell fixture, writes its `.sha256` and keeps the
   two with the run.
-- `scripts/package.sh` signs the binary with the secret key of the keyring, a detached signature
-  in `.asc`, and packs the binary, its checksum and its signature with `oras` as one OCI artifact.
-  A file is a layer under its own name, so `oras pull` writes the three files. The script pulls
-  the artifact back and stops unless the checksum holds and the public key it is given, with no
-  other key at hand, verifies the signature.
-- The `package` job runs the script in every run, with a key made for the run: a pull request
-  shows that the package gives the binary out again.
+- `scripts/package.sh` packs the binary and its checksum with `oras` as one OCI artifact. A file is
+  a layer under its own name, so `oras pull` writes the two files. The time the artifact carries
+  is that of the commit, so the same build packs to the same digest. The script pulls the artifact
+  back and stops unless the checksum holds.
+- The `package` job runs the script in every run: a pull request shows that the package gives the
+  binary out again.
 - The `publish` job is the one job with a token that writes. It runs in the `release` environment,
-  where a required reviewer approves it when the repository settings name one, and it takes its
-  secrets from that environment: `GPG_PRIVATE_KEY`, with `GPG_PASSPHRASE` when the key has one, and
-  `GHCR_TOKEN`, the token it pushes to the registry with.
-- `scripts/release-setup.sh` sets the environment up, once, for an owner of the repository who is
-  signed in to `gh`. It makes the environment with that owner as its reviewer, makes the key that
-  signs in a keyring of its own, hands the secret half to the environment and keeps no copy, writes
-  the public half to `release-key.asc`, and asks for the token of the registry when it is run at a
-  terminal.
-- The publish signs and packs with the key of the environment and verifies with `release-key.asc`,
-  the public key the repository gives out. It stops when the repository has no such file, and when
-  the key of the environment is not that key.
-- The publish attests the provenance of the binary, pushes the package and tags the commit with
-  the version. A version that is in the registry with the same binary is left as it is and the
-  commit is tagged: the run before stopped between the two. One that is there with another binary
-  stops the publish.
+  where a required reviewer approves it when the repository settings name one, and it takes
+  `GHCR_TOKEN`, the token it pushes to the registry with, from the secrets of that environment. It
+  stops when the environment holds no such secret.
+- The publish packs the build, attests the provenance of the binary, pushes the package and tags
+  the commit with the version. A version that is in the registry with the same binary is left as
+  it is and the commit is tagged: the run before stopped between the two. One that is there with
+  another binary stops the publish.
 - GitHub makes a package private when it is first pushed. Its settings make it public, once, and
   `oras pull` then needs no login.
 
