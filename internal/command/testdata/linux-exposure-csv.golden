@@ -1,20 +1,19 @@
-kind,value,account,form,service,seen,severity,count,files
-password,$6$fixturesalt$fixturehashvalue0123456789abcdef,deploy,hash,,collected,high,1,shadow_20261022_090530.txt:4
-password,Fixture-Pass-01,app_rw,password,,collected,high,1,env_20261022_090540.txt:3
-password,fixture-token-0123456789,,token,,collected,high,1,env_20261022_090540.txt:5
-username,alerts@corp.example,,,,collected,medium,1,env_20261022_090540.txt:4
-username,app_rw,,,,collected,medium,2,"passwd_20261022_090020.txt:4, env_20261022_090540.txt:2"
-username,daemon,,,,collected,medium,1,passwd_20261022_090020.txt:2
-username,deploy,,,,collected,medium,1,passwd_20261022_090020.txt:3
-username,root,,,,collected,medium,2,"passwd_20261022_090020.txt:1, audit_20261022_093500.jsonl:2"
-username,svc,,,,collected,medium,1,audit_20261022_093500.jsonl:1
-username,ops,,,,used,medium,1,20261022_092500_step06_stage.sh:6
-email,alerts@corp.example,,,,collected,medium,1,env_20261022_090540.txt:4
-device,build01.corp.internal,,,,collected,low,1,hosts_20261022_090025.txt:3
-device,db01.corp.internal,,,,collected,low,2,"hosts_20261022_090025.txt:2, env_20261022_090540.txt:1"
-ip,10.20.30.5,,,,collected,low,1,hosts_20261022_090025.txt:2
-ip,10.20.30.6,,,,collected,low,1,hosts_20261022_090025.txt:3
-ip,169.254.169.254,,,,used,low,1,20261022_090000_step01_recon.sh:9
-ip,198.51.100.7,,,,used,low,1,20261022_092500_step06_stage.sh:6
-ip,203.0.113.40,,,,used,low,1,20261022_092500_step06_stage.sh:4
-ip,203.0.113.41,,,,used,low,1,20261022_093000_step07_channel.py:6
+kind,value,decoded,account,form,service,seen,severity,count,files
+password,$6$fixturesalt$fixturehashvalue0123456789abcdef,,deploy,hash,,collected,high,1,shadow_20261022_090530.txt:4
+password,Fixture-Pass-01,,app_rw,password,,collected,high,1,env_20261022_090540.txt:3
+password,fixture-token-0123456789,,,token,,collected,high,1,env_20261022_090540.txt:5
+username,app_rw,,,,,collected,medium,2,"passwd_20261022_090020.txt:4, env_20261022_090540.txt:2"
+username,daemon,,,,,collected,medium,1,passwd_20261022_090020.txt:2
+username,deploy,,,,,collected,medium,2,"passwd_20261022_090020.txt:3, shadow_20261022_090530.txt:4"
+username,root,,,,,collected,medium,2,"passwd_20261022_090020.txt:1, audit_20261022_093500.jsonl:2"
+username,ops,,,,,used,medium,1,20261022_092500_step06_stage.sh:6
+username,svc,,,,,used,medium,3,"20261022_091500_step04_persist.sh:7, audit_20261022_093500.jsonl:1, audit_20261022_093500.jsonl:2"
+email,alerts@corp.example,,,,,collected,medium,1,env_20261022_090540.txt:4
+device,build01.corp.internal,,,,,collected,low,1,hosts_20261022_090025.txt:3
+device,db01.corp.internal,,,,,collected,low,2,"hosts_20261022_090025.txt:2, env_20261022_090540.txt:1"
+ip,10.20.30.5,,,,,collected,low,1,hosts_20261022_090025.txt:2
+ip,10.20.30.6,,,,,collected,low,1,hosts_20261022_090025.txt:3
+ip,169.254.169.254,,,,,used,low,1,20261022_090000_step01_recon.sh:9
+ip,198.51.100.7,,,,,used,low,1,20261022_092500_step06_stage.sh:6
+ip,203.0.113.40,,,,,used,low,1,20261022_092500_step06_stage.sh:4
+ip,203.0.113.41,,,,,used,low,1,20261022_093000_step07_channel.py:6

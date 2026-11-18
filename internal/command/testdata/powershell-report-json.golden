@@ -9,7 +9,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "scripts",
@@ -21,7 +22,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "outputs",
@@ -33,7 +35,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators",
@@ -45,7 +48,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators Base64Blob",
@@ -57,7 +61,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators Domain",
@@ -69,7 +74,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators EncodedCommand",
@@ -81,7 +87,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators GUID",
@@ -93,7 +100,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators IPv4",
@@ -105,7 +113,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators SHA1",
@@ -117,7 +126,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities",
@@ -129,7 +139,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities CertificateExport",
@@ -141,7 +152,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "tactics",
@@ -153,31 +165,21 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "targeted",
     "section": "summary",
-    "value": 7,
+    "value": 6,
     "detail": null,
     "basis": null,
     "files": null,
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "targeted username",
-    "section": "summary",
-    "value": 1,
-    "detail": null,
-    "basis": null,
-    "files": null,
-    "attack": null,
-    "atlas": null,
-    "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "targeted device",
@@ -189,7 +191,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "targeted ip",
@@ -201,7 +204,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "exposed",
@@ -213,7 +217,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "exposed username",
@@ -225,7 +230,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "exposed tenant",
@@ -237,7 +243,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "exposed device",
@@ -249,7 +256,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "exposed ip",
@@ -261,67 +269,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "20250302_090500_step02_sync.ps1",
-    "section": "script",
-    "value": "high",
-    "detail": "invoke-command (LateralMovement)",
-    "basis": null,
-    "files": null,
-    "attack": null,
-    "atlas": null,
-    "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "20250302_090900_step03_sync_retry.ps1",
-    "section": "script",
-    "value": "high",
-    "detail": "get-credential (CredentialAccess), invoke-command (LateralMovement)",
-    "basis": null,
-    "files": null,
-    "attack": null,
-    "atlas": null,
-    "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "20250302_091500_step04_certs.ps1",
-    "section": "script",
-    "value": "high",
-    "detail": "invoke-command (LateralMovement)",
-    "basis": null,
-    "files": "cert_store_20250302_091530.txt, ca_ping_20250302_091540.log",
-    "attack": null,
-    "atlas": null,
-    "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "20250302_092200_step05_export.ps1",
-    "section": "script",
-    "value": "high",
-    "detail": "CertificateExport, export-certificate (CredentialAccess), new-selfsignedcertificate (CredentialAccess)",
-    "basis": null,
-    "files": "ca01_20250302_092210.cer, export_summary_20250302_092215.txt",
-    "attack": "T1649",
-    "atlas": null,
-    "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "svc_backup",
-    "section": "targeted",
-    "value": "medium",
-    "detail": "username: prior",
-    "basis": null,
-    "files": "20250302_090900_step03_sync_retry.ps1:3, 20250302_090900_step03_sync_retry.ps1:4",
-    "attack": null,
-    "atlas": null,
-    "targets": null,
-    "evidence": "$User = 'CORP\\svc_backup' (20250302_090900_step03_sync_retry.ps1:3)\n$Cred = Get-Credential -UserName $User -Message 'sync server' (20250302_090900_step03_sync_retry.ps1:4)"
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "CA01.corp.example",
@@ -333,7 +282,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": "certutil.exe -config \"CA01.corp.example\\corp-CA01-CA\" -ping > ca_ping_20250302_091540.log 2>&1 (20250302_091500_step04_certs.ps1:7)"
+    "evidence": "certutil.exe -config \"CA01.corp.example\\corp-CA01-CA\" -ping > ca_ping_20250302_091540.log 2>&1 (20250302_091500_step04_certs.ps1:7)",
+    "exposed": null
   },
   {
     "item": "app01.corp.example",
@@ -345,7 +295,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": "$Dns = 'app01.corp.example' (20250302_092200_step05_export.ps1:3)"
+    "evidence": "$Dns = 'app01.corp.example' (20250302_092200_step05_export.ps1:3)",
+    "exposed": null
   },
   {
     "item": "corp.example",
@@ -357,7 +308,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": "[string]$Domain = 'corp.example', (20250302_090000_step01_inventory.ps1:4)"
+    "evidence": "[string]$Domain = 'corp.example', (20250302_090000_step01_inventory.ps1:4)",
+    "exposed": null
   },
   {
     "item": "10.20.1.17",
@@ -369,7 +321,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": "$SyncHost = '10.20.1.17' (20250302_090900_step03_sync_retry.ps1:2)"
+    "evidence": "$SyncHost = '10.20.1.17' (20250302_090900_step03_sync_retry.ps1:2)",
+    "exposed": null
   },
   {
     "item": "10.20.1.23",
@@ -381,7 +334,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": "$Hosts = @('10.20.1.5', '10.20.1.23') (20250302_091500_step04_certs.ps1:2)"
+    "evidence": "$Hosts = @('10.20.1.5', '10.20.1.23') (20250302_091500_step04_certs.ps1:2)",
+    "exposed": null
   },
   {
     "item": "10.20.1.5",
@@ -393,7 +347,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": "$Hosts = @('10.20.1.5', '10.20.1.23') (20250302_091500_step04_certs.ps1:2)"
+    "evidence": "$Hosts = @('10.20.1.5', '10.20.1.23') (20250302_091500_step04_certs.ps1:2)",
+    "exposed": null
   },
   {
     "item": "MSOL_0a1b2c3d4e5f",
@@ -405,7 +360,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "svc_backup",
@@ -417,7 +373,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c",
@@ -429,7 +386,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "contoso.onmicrosoft.com",
@@ -441,7 +399,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "AADC01",
@@ -453,7 +412,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "CA01",
@@ -465,7 +425,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "DC01",
@@ -477,7 +438,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "10.20.1.17",
@@ -489,7 +451,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "10.20.1.23",
@@ -501,7 +464,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "10.20.1.5",
@@ -513,7 +477,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "Credentials exposed",
@@ -525,7 +490,8 @@
     "attack": "T1649",
     "atlas": null,
     "targets": "file ca01_20250302_092210.cer",
-    "evidence": "CertificateExport: Export-Certificate -Cert $Store -FilePath ca01_20250302_092210.cer | Out-Null (20250302_092200_step05_export.ps1:5)\nget-credential: $Cred = Get-Credential -UserName $User -Message 'sync server' (20250302_090900_step03_sync_retry.ps1:4)\nnew-selfsignedcertificate: $new = New-SelfSignedCertificate -DnsName $Dns -CertStoreLocation Cert:\\CurrentUser\\My -NotAfter (Get-Date).AddYears(1) (20250302_092200_step05_export.ps1:6)"
+    "evidence": "CertificateExport: Export-Certificate -Cert $Store -FilePath ca01_20250302_092210.cer | Out-Null (20250302_092200_step05_export.ps1:5)\nget-credential: $Cred = Get-Credential -UserName $User -Message 'sync server' (20250302_090900_step03_sync_retry.ps1:4)\nnew-selfsignedcertificate: $new = New-SelfSignedCertificate -DnsName $Dns -CertStoreLocation Cert:\\CurrentUser\\My -NotAfter (Get-Date).AddYears(1) (20250302_092200_step05_export.ps1:6)",
+    "exposed": "username: svc_backup"
   },
   {
     "item": "Movement to other systems",
@@ -537,7 +503,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": "invoke-command: Invoke-Command -ComputerName $SyncHost -ScriptBlock { (20250302_090500_step02_sync.ps1:4)\ninvoke-command: Invoke-Command @splat -ScriptBlock { (20250302_090900_step03_sync_retry.ps1:10)\ninvoke-command: Invoke-Command -ComputerName $h -ScriptBlock { Get-ChildItem Cert:\\LocalMachine\\My } >> cert_store_20250302_091530.txt (20250302_091500_step04_certs.ps1:5)"
+    "evidence": "invoke-command: Invoke-Command -ComputerName $SyncHost -ScriptBlock { (20250302_090500_step02_sync.ps1:4)\ninvoke-command: Invoke-Command @splat -ScriptBlock { (20250302_090900_step03_sync_retry.ps1:10)\ninvoke-command: Invoke-Command -ComputerName $h -ScriptBlock { Get-ChildItem Cert:\\LocalMachine\\My } >> cert_store_20250302_091530.txt (20250302_091500_step04_certs.ps1:5)",
+    "exposed": null
   },
   {
     "item": "Commands generated by an AI agent",
@@ -549,7 +516,8 @@
     "attack": null,
     "atlas": "AML.T0102",
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "Environment mapped",
@@ -560,8 +528,9 @@
     "files": "20250302_090000_step01_inventory.ps1, 20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1, 20250302_091500_step04_certs.ps1, hosts_20250302_090030.csv, sync_10.20.1.17_20250302_090530.txt, sync_10.20.1.17_retry_20250302_090930.txt",
     "attack": null,
     "atlas": null,
-    "targets": "username MSOL_0a1b2c3d4e5f; tenant 6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c; tenant contoso.onmicrosoft.com; device AADC01; device CA01; device DC01; ip 10.20.1.17; ip 10.20.1.23; ip 10.20.1.5",
-    "evidence": "get-adcomputer: Get-ADComputer -Filter * -Server $Domain -Properties IPv4Address | (20250302_090000_step01_inventory.ps1:10)\nget-adsyncconnector: Get-ADSyncConnector | Select-Object Name, Type (20250302_090500_step02_sync.ps1:5)\nget-adsyncscheduler: Get-ADSyncScheduler (20250302_090500_step02_sync.ps1:6)\nget-adsyncconnector: Get-ADSyncConnector | Select-Object Name, Type (20250302_090900_step03_sync_retry.ps1:11)\nget-adsyncscheduler: Get-ADSyncScheduler (20250302_090900_step03_sync_retry.ps1:12)\nget-childitem: Invoke-Command -ComputerName $h -ScriptBlock { Get-ChildItem Cert:\\LocalMachine\\My } >> cert_store_20250302_091530.txt (20250302_091500_step04_certs.ps1:5)"
+    "targets": null,
+    "evidence": "get-adcomputer: Get-ADComputer -Filter * -Server $Domain -Properties IPv4Address | (20250302_090000_step01_inventory.ps1:10)\nget-adsyncconnector: Get-ADSyncConnector | Select-Object Name, Type (20250302_090500_step02_sync.ps1:5)\nget-adsyncscheduler: Get-ADSyncScheduler (20250302_090500_step02_sync.ps1:6)\nget-adsyncconnector: Get-ADSyncConnector | Select-Object Name, Type (20250302_090900_step03_sync_retry.ps1:11)\nget-adsyncscheduler: Get-ADSyncScheduler (20250302_090900_step03_sync_retry.ps1:12)\nget-childitem: Invoke-Command -ComputerName $h -ScriptBlock { Get-ChildItem Cert:\\LocalMachine\\My } >> cert_store_20250302_091530.txt (20250302_091500_step04_certs.ps1:5)",
+    "exposed": "username: MSOL_0a1b2c3d4e5f"
   },
   {
     "item": "Revoke sessions and reset identities",
@@ -573,7 +542,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": "invoke-command: Invoke-Command -ComputerName $SyncHost -ScriptBlock { (20250302_090500_step02_sync.ps1:4)\ninvoke-command: Invoke-Command @splat -ScriptBlock { (20250302_090900_step03_sync_retry.ps1:10)\ninvoke-command: Invoke-Command -ComputerName $h -ScriptBlock { Get-ChildItem Cert:\\LocalMachine\\My } >> cert_store_20250302_091530.txt (20250302_091500_step04_certs.ps1:5)"
+    "evidence": "invoke-command: Invoke-Command -ComputerName $SyncHost -ScriptBlock { (20250302_090500_step02_sync.ps1:4)\ninvoke-command: Invoke-Command @splat -ScriptBlock { (20250302_090900_step03_sync_retry.ps1:10)\ninvoke-command: Invoke-Command -ComputerName $h -ScriptBlock { Get-ChildItem Cert:\\LocalMachine\\My } >> cert_store_20250302_091530.txt (20250302_091500_step04_certs.ps1:5)",
+    "exposed": null
   },
   {
     "item": "Rotate what was read",
@@ -585,7 +555,8 @@
     "attack": null,
     "atlas": null,
     "targets": "file ca01_20250302_092210.cer",
-    "evidence": "CertificateExport: Export-Certificate -Cert $Store -FilePath ca01_20250302_092210.cer | Out-Null (20250302_092200_step05_export.ps1:5)\nget-credential: $Cred = Get-Credential -UserName $User -Message 'sync server' (20250302_090900_step03_sync_retry.ps1:4)\nnew-selfsignedcertificate: $new = New-SelfSignedCertificate -DnsName $Dns -CertStoreLocation Cert:\\CurrentUser\\My -NotAfter (Get-Date).AddYears(1) (20250302_092200_step05_export.ps1:6)"
+    "evidence": "CertificateExport: Export-Certificate -Cert $Store -FilePath ca01_20250302_092210.cer | Out-Null (20250302_092200_step05_export.ps1:5)\nget-credential: $Cred = Get-Credential -UserName $User -Message 'sync server' (20250302_090900_step03_sync_retry.ps1:4)\nnew-selfsignedcertificate: $new = New-SelfSignedCertificate -DnsName $Dns -CertStoreLocation Cert:\\CurrentUser\\My -NotAfter (Get-Date).AddYears(1) (20250302_092200_step05_export.ps1:6)",
+    "exposed": "username: svc_backup"
   },
   {
     "item": "Follow what was enumerated",
@@ -596,8 +567,9 @@
     "files": "20250302_090000_step01_inventory.ps1, 20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1, 20250302_091500_step04_certs.ps1, hosts_20250302_090030.csv, sync_10.20.1.17_20250302_090530.txt, sync_10.20.1.17_retry_20250302_090930.txt",
     "attack": null,
     "atlas": null,
-    "targets": "username MSOL_0a1b2c3d4e5f; tenant 6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c; tenant contoso.onmicrosoft.com; device AADC01; device CA01; device DC01; ip 10.20.1.17; ip 10.20.1.23; ip 10.20.1.5",
-    "evidence": "get-adcomputer: Get-ADComputer -Filter * -Server $Domain -Properties IPv4Address | (20250302_090000_step01_inventory.ps1:10)\nget-adsyncconnector: Get-ADSyncConnector | Select-Object Name, Type (20250302_090500_step02_sync.ps1:5)\nget-adsyncscheduler: Get-ADSyncScheduler (20250302_090500_step02_sync.ps1:6)\nget-adsyncconnector: Get-ADSyncConnector | Select-Object Name, Type (20250302_090900_step03_sync_retry.ps1:11)\nget-adsyncscheduler: Get-ADSyncScheduler (20250302_090900_step03_sync_retry.ps1:12)\nget-childitem: Invoke-Command -ComputerName $h -ScriptBlock { Get-ChildItem Cert:\\LocalMachine\\My } >> cert_store_20250302_091530.txt (20250302_091500_step04_certs.ps1:5)"
+    "targets": null,
+    "evidence": "get-adcomputer: Get-ADComputer -Filter * -Server $Domain -Properties IPv4Address | (20250302_090000_step01_inventory.ps1:10)\nget-adsyncconnector: Get-ADSyncConnector | Select-Object Name, Type (20250302_090500_step02_sync.ps1:5)\nget-adsyncscheduler: Get-ADSyncScheduler (20250302_090500_step02_sync.ps1:6)\nget-adsyncconnector: Get-ADSyncConnector | Select-Object Name, Type (20250302_090900_step03_sync_retry.ps1:11)\nget-adsyncscheduler: Get-ADSyncScheduler (20250302_090900_step03_sync_retry.ps1:12)\nget-childitem: Invoke-Command -ComputerName $h -ScriptBlock { Get-ChildItem Cert:\\LocalMachine\\My } >> cert_store_20250302_091530.txt (20250302_091500_step04_certs.ps1:5)",
+    "exposed": "username: MSOL_0a1b2c3d4e5f"
   },
   {
     "item": "M1015 Active Directory Configuration",
@@ -609,7 +581,8 @@
     "attack": "T1649",
     "atlas": null,
     "targets": "CertificateExport: file ca01_20250302_092210.cer",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1041 Encrypt Sensitive Information",
@@ -621,7 +594,8 @@
     "attack": "T1649",
     "atlas": null,
     "targets": "CertificateExport: file ca01_20250302_092210.cer",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1042 Disable or Remove Feature or Program",
@@ -633,7 +607,8 @@
     "attack": "T1649",
     "atlas": null,
     "targets": "CertificateExport: file ca01_20250302_092210.cer",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1047 Audit",
@@ -645,7 +620,8 @@
     "attack": "T1649",
     "atlas": null,
     "targets": "CertificateExport: file ca01_20250302_092210.cer",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "AML.M0020 Generative AI Guardrails",
@@ -657,7 +633,8 @@
     "attack": null,
     "atlas": "AML.T0102",
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "AML.M0022 Generative AI Model Alignment",
@@ -669,6 +646,7 @@
     "attack": null,
     "atlas": "AML.T0102",
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   }
 ]

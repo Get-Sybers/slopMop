@@ -28,7 +28,7 @@ report and saves it. Nothing is remembered between runs.
 ```text
 $ slopmop -inputdir case42/ai_workdir report
 slopmop report   case42/ai_workdir
-[x] HIGH - 4 impacts: 2 high, 1 medium, 1 low
+[x] HIGH - 4 impacts: 2 high, 2 low
 [x] high   [!] medium   [i] low
 
 Summary
@@ -36,30 +36,28 @@ Summary
   indicators  13  1 Base64Blob, 4 Domain, 1 EncodedCommand, 1 GUID, 3 IPv4, 3 SHA1
   activities  1
   tactics     4
-  targeted    7   Usernames 1, Hostnames 3, IP addresses 3
-  exposed     8   Usernames 2, Devices 3, IP addresses 3
+  targeted    6   Hostnames 3, IP addresses 3
+  exposed     10  Usernames 2, Tenants 2, Devices 3, IP addresses 3
 
-Timeline   (from, until, files, tactics)
-  2025-03-02T09:00:00Z  -                     1  Discovery
-      tools       get-date, join-path, get-adcomputer, select-object, export-csv
-      files       20250302_090000_step01_inventory.ps1
+Tactics   (tactic, identifiers, files)
+  [x] CredentialAccess  TA0006, AML.TA0013  20250302_090900_step03_sync_retry.ps1, 20250302_092200_step05_export.ps1
+  [x] LateralMovement   TA0008, AML.TA0015  20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1, 20250302_091500_step04_certs.ps1
 ```
 
-The report has ten sections. Name any after `report` to print only those; the saved files always
+The report has nine sections. Name any after `report` to print only those; the saved files always
 hold all of them.
 
 | Section | Holds |
 | --- | --- |
 | `summary` | the counts |
-| `timeline` | what was done, in order of time: each period of files that show the same tactics, and how many files show none |
-| `intents` | the timeline by ARTEX intent `i<number>`: a block for each intent, with when its files were created and its ATT&CK and ATLAS techniques by name |
-| `findings` | each activity, indicator and tactic, most severe first, with the lines that show it |
-| `files` | the files that hold a finding of high severity |
-| `targeted` | the usernames, IP addresses, hostnames and email addresses the scripts name outright, and whether the attacker knew each beforehand |
-| `exposure` | the passwords and other secrets, usernames, email addresses, tenants, SSH keys with their hosts, API keys with their services, applications, cloud resources, devices and IP addresses the files hold, and what is of Microsoft 365 and of Google Cloud |
-| `impact` | what the findings mean, what each concerns and the lines that show it |
-| `remediation` | what to do and to what, most urgent first |
-| `mitigation` | what MITRE ATT&CK and MITRE ATLAS say prevents the techniques found |
+| `tactics` | each tactic the scripts show, most severe first, with its ATT&CK and ATLAS identifiers |
+| `timeline` | what was done, in order of time, as a line of blocks: one for each ARTEX intent `i<number>`, or for each period of files that show the same tactics where no file names an intent, with its ATT&CK and ATLAS techniques by name |
+| `findings` | each activity, most severe first, with the lines that show it |
+| `targeted` | the IP addresses, hostnames and email addresses the scripts name outright, without the hosts of vendors that any script reaches for, whether the attacker knew each beforehand, and what each activity acted on: a task with what it runs, an archive, a file |
+| `exposure` | the passwords and other secrets with whose each is and what it is used against, usernames, email addresses, tenants, SSH keys with their hosts, API keys with their services, applications, cloud resources, devices and IP addresses the files hold, and what is of Microsoft 365 and of Google Cloud; a token or a value in base64 is written decoded |
+| `impact` | what the findings mean, with the exposed accounts and credentials each concerns |
+| `remediation` | what to do, most urgent first, with the exposed accounts and credentials each concerns |
+| `mitigation` | what MITRE ATT&CK and MITRE ATLAS say prevents the techniques found, with the exposed accounts and credentials each concerns |
 
 | Command | What it does |
 | --- | --- |
@@ -87,8 +85,8 @@ so the output folder is to be kept as the evidence is.
 | `intents.csv` | the ARTEX intents: the period, the techniques and the files of each |
 | `findings.json` | the activities, indicators and tactics, each with when it was seen and its lines of evidence |
 | `targeted.json` | what the scripts name outright |
-| `exposure.csv` | what the files hold |
-| `report.json` | every row of the report |
+| `exposure.csv` | what the files hold, each value as it stands and, where it is encoded, decoded |
+| `report.json` | every row of the report, with what each impact and action acts on and the lines that show it |
 
 ## Layout
 

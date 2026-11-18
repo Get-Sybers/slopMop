@@ -6,18 +6,17 @@ given:
   -inputdir case42        the folder of scripts and outputs to read
 
 sections chosen:
-  impact                  what the findings mean, with what each concerns and the lines that show it
+  impact                  what the findings mean, with the exposed accounts and credentials each concerns
 
 sections you can add:
   summary                 the counts
-  timeline                what was done, in order of time: each period of files that show the same tactics
-  intents                 the timeline by ARTEX intent i<number>: a block for each, with when its files were created and its ATT&CK and ATLAS techniques by name
-  findings                each activity, indicator and tactic, most severe first
-  files                   the files that hold a finding of high severity
+  tactics                 each tactic the scripts show, most severe first, with its ATT&CK and ATLAS identifiers
+  timeline                what was done, in order of time: a block for each ARTEX intent i<number>, or for each period where no file names an intent, with its ATT&CK and ATLAS techniques by name
+  findings                each activity, most severe first, with the lines that show it
   targeted                what the scripts name and what activities acted on
   exposure                the passwords, usernames, emails, tenants, SSH keys, API keys, applications, cloud resources, devices and addresses the files hold, and what is of Microsoft 365 and of Google Cloud
-  remediation             what to do about them and to what, most urgent first
-  mitigation              what MITRE ATT&CK and ATLAS say prevents the techniques found
+  remediation             what to do about them, most urgent first, with the exposed accounts and credentials each concerns
+  mitigation              what MITRE ATT&CK and ATLAS say prevents the techniques found, with the exposed accounts and credentials each concerns
 
 options you can add (one dash or two; each takes a value):
   -intelfile <file>       a watchlist, JSON or STIX 2.1, to attribute the indicators to

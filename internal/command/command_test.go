@@ -167,7 +167,7 @@ func TestReportSaves(t *testing.T) {
 	}
 	// Each format holds every section, and the evidence the text holds.
 	markdown, page := readFile(t, filepath.Join(saved, "report.md")), readFile(t, filepath.Join(saved, "report.html"))
-	for _, title := range []string{"Summary", "Timeline", "Findings", "Notable files", "Targeted", "Exposure", "Impact", "Remediation", "Mitigation"} {
+	for _, title := range []string{"Summary", "Tactics", "Timeline", "Findings", "Targeted", "Exposure", "Impact", "Remediation", "Mitigation"} {
 		if !strings.Contains(markdown, "\n## "+title+"\n") {
 			t.Errorf("report.md lacks the section %s", title)
 		}
@@ -175,8 +175,10 @@ func TestReportSaves(t *testing.T) {
 			t.Errorf("report.html lacks the section %s", title)
 		}
 	}
-	if strings.Contains(markdown, "\n## Intents\n") {
-		t.Errorf("report.md shows the empty Intents section")
+	for _, gone := range []string{"\n## Notable files\n", "\n## Intent timeline\n", "\n### indicators\n"} {
+		if strings.Contains(markdown, gone) {
+			t.Errorf("report.md holds %q, which the report no longer has", gone)
+		}
 	}
 	// The title names the folder as each format escapes it, which differs with the path.
 	title, rest, _ := strings.Cut(markdown, "\n")
@@ -196,7 +198,7 @@ func TestReportSaves(t *testing.T) {
 			}
 		}
 	}
-	for name, least := range map[string]int{"files.csv": 14, "trace.json": 14, "findings.json": 30, "targeted.json": 6, "exposure.csv": 15, "report.json": 60} {
+	for name, least := range map[string]int{"files.csv": 14, "trace.json": 14, "findings.json": 30, "targeted.json": 5, "exposure.csv": 15, "report.json": 60} {
 		if got := len(rows(t, filepath.Join(saved, name))); got < least {
 			t.Errorf("%s holds %d rows, want at least %d", name, got, least)
 		}
@@ -213,16 +215,43 @@ func TestReportSections(t *testing.T) {
 			titles = append(titles, strings.TrimSpace(strings.SplitN(line, "   ", 2)[0]))
 		}
 	}
-	want := []string{"Summary", "Timeline", "Findings", "Notable files", "Targeted", "Exposure", "Impact", "Remediation", "Mitigation"}
+	want := []string{"Summary", "Tactics", "Timeline", "Findings", "Targeted", "Exposure", "Impact", "Remediation", "Mitigation"}
 	if !slices.Equal(titles, want) {
 		t.Errorf("sections = %q, want %q", titles, want)
 	}
-	two, _ := report(t, folder, "mitigation", "files")
-	if files, mitigation := strings.Index(two, "\nNotable files"), strings.Index(two, "\nMitigation"); files < 0 || mitigation < files {
+	two, _ := report(t, folder, "mitigation", "tactics")
+	if tactics, mitigation := strings.Index(two, "\nTactics"), strings.Index(two, "\nMitigation"); tactics < 0 || mitigation < tactics {
 		t.Errorf("the sections are missing or out of order:\n%s", two)
 	}
-	if !strings.Contains(two, "20261020_101500_step04_persist.ps1") || strings.Contains(two, "recon_20261020_100030.txt") {
-		t.Errorf("notable files: want the persistence script and not the recon output:\n%s", two)
+	if !strings.Contains(two, "[x] Persistence ") || !strings.Contains(two, "20261020_101500_step04_persist.ps1") || strings.Contains(two, "\nFindings") {
+		t.Errorf("tactics: want the tactic of the persistence script, and no section that was not asked for:\n%s", two)
+	}
+}
+
+// The findings are the activities alone: a tactic is in its own section,
+// before the timeline, and an indicator is in the saved findings.
+func TestReportFindingsAreActivities(t *testing.T) {
+	readout, saved := report(t, evidencetest.Copy(t, "linux"), "tactics", "findings")
+	tactics, findings, _ := strings.Cut(readout, "\nFindings")
+	if !regexp.MustCompile(`\[x\] CredentialAccess +TA0006, AML\.TA0013 +\S`).MatchString(tactics) || strings.Contains(findings, "TA0006") {
+		t.Errorf("the tactics are not in their own section:\n%s", readout)
+	}
+	if !strings.Contains(findings, "\n  activities\n") || strings.Contains(findings, "\n  indicators\n") || strings.Contains(findings, "\n  tactics\n") {
+		t.Errorf("the findings hold more than the activities:\n%s", findings)
+	}
+	kinds := map[string]int{}
+	for _, row := range rows(t, filepath.Join(saved, "findings.json")) {
+		switch {
+		case row["indicator"] != nil:
+			kinds[kindIndicator]++
+		case row["finding"] == kindTactic:
+			kinds[kindTactic]++
+		default:
+			kinds[kindActivity]++
+		}
+	}
+	if kinds[kindIndicator] == 0 || kinds[kindTactic] == 0 || kinds[kindActivity] == 0 {
+		t.Errorf("findings.json holds %v, want activities, indicators and tactics", kinds)
 	}
 }
 
@@ -267,10 +296,10 @@ func copied(t *testing.T, saved string) bool {
 
 // Each ARTEX intent is a row: its period, and the ATT&CK and ATLAS techniques
 // of what its files do. A file that no folder and no name gives an intent
-// belongs to none.
+// belongs to none. The timeline is a block for each, and nothing else.
 func TestReportIntents(t *testing.T) {
 	folder := artex(t)
-	readout, saved := report(t, folder, "summary", "intents")
+	readout, saved := report(t, folder, "summary", "timeline")
 	// A fixture is a copy, made now and last changed when its manifest says.
 	// Where a last change set to the past takes the creation time with it,
 	// as on macOS, its files are as if made there, 3 seconds after their names.
@@ -314,15 +343,24 @@ func TestReportIntents(t *testing.T) {
 	if want := map[string]int{"i1041": 5, "i1042": 3, "i998": 2, "i1051": 2, "": 2}; !maps.Equal(named, want) {
 		t.Errorf("the trace names %v, want %v", named, want)
 	}
-	timeline, _ := report(t, folder, "timeline")
-	if !strings.Contains(timeline, "      intent      i1041, i1042\n") {
-		t.Errorf("the timeline does not name the intents of a period:\n%s", timeline)
+	_, timeline, _ := strings.Cut(readout, "\nTimeline")
+	for _, id := range []string{"i1041", "i1042", "i998", "i1051"} {
+		if !regexp.MustCompile(`\n  \[x\] ` + id + ` +2026-10-22T09:\d\d:\d\dZ to 2026-10-22T09:\d\d:\d\dZ\n      T\d{4}`).MatchString(timeline) {
+			t.Errorf("the timeline has no block for %s with its period and its techniques:\n%s", id, timeline)
+		}
+	}
+	// A period is written as one stamp or as two with "to" between them, and never in columns.
+	if regexp.MustCompile(`(?m)^  \S+Z  (?:\S+Z|-)  \d+  `).MatchString(timeline) {
+		t.Errorf("the timeline holds a table of periods:\n%s", timeline)
 	}
 	for name, body := range map[string]string{"report.md": readFile(t, filepath.Join(saved, "report.md")), "report.html": readFile(t, filepath.Join(saved, "report.html"))} {
-		for _, held := range []string{"Intent timeline", "i1042", "T1003.008", "OS Credential Dumping: /etc/passwd and /etc/shadow", "AML.T0090"} {
+		for _, held := range []string{"Timeline", "i1042", "T1003.008", "OS Credential Dumping: /etc/passwd and /etc/shadow", "AML.T0090"} {
 			if !strings.Contains(body, held) {
 				t.Errorf("%s does not hold %q", name, held)
 			}
+		}
+		if strings.Contains(body, "Intent timeline") {
+			t.Errorf("%s holds a second timeline", name)
 		}
 	}
 }
@@ -337,11 +375,19 @@ func TestReportReadsOneIntent(t *testing.T) {
 	}
 }
 
-// Evidence that no ARTEX run wrote has no intent, and its summary no count of them.
+// Evidence that no ARTEX run wrote has no intent, and its summary no count
+// of them: its timeline is a block for each period.
 func TestReportWithoutIntents(t *testing.T) {
-	readout, saved := report(t, evidencetest.Copy(t, "bash"), "summary", "intents")
-	if strings.Contains(readout, "Intent timeline") {
-		t.Errorf("the readout shows the empty section of the intents:\n%s", readout)
+	readout, saved := report(t, evidencetest.Copy(t, "bash"), "summary", "timeline")
+	_, timeline, _ := strings.Cut(readout, "\nTimeline")
+	for _, block := range []string{
+		"\n  [i] Discovery                       2025-03-01T10:15:00Z\n      no MITRE ATT&CK technique identified\n",
+		"\n  [x] CredentialAccess, Exfiltration  2025-03-01T10:45:00Z\n      T1048      Exfiltration Over Alternative Protocol\n",
+		"\n  and 10 files that show no tactic, in the saved trace\n",
+	} {
+		if !strings.Contains(timeline, block) {
+			t.Errorf("the timeline lacks %q:\n%s", block, readout)
+		}
 	}
 	if strings.Contains(readout, "\n  intents") {
 		t.Errorf("the summary counts intents where there are none:\n%s", readout)
@@ -388,9 +434,9 @@ func TestIntentsWithoutATime(t *testing.T) {
 	if _, err := intentRow(runs[4], doc.columns("intent")); err != nil {
 		t.Errorf("an intent without a time has no row: %v", err)
 	}
-	groups := reportRun{result: analysis{intents: runs}}.intents()
-	if got := groups[0].Entries[4]; !groups[0].Blocks || !slices.Equal(got.Cells, []string{"i30", "-"}) || !slices.Equal(got.Detail, []render.Detail{{Text: "no technique"}}) {
-		t.Errorf("i30 is written %q with %q, want a block with no period and no technique", got.Cells, got.Detail)
+	groups := reportRun{result: analysis{intents: runs}}.timeline()
+	if got := groups[0].Entries[4]; !groups[0].Blocks || !slices.Equal(got.Cells, []string{"i30", "-"}) || !slices.Equal(got.Detail, []render.Detail{{Text: "no MITRE ATT&CK technique identified"}}) {
+		t.Errorf("i30 is written %q with %q, want a block with no period that says no technique was identified", got.Cells, got.Detail)
 	}
 }
 
@@ -456,14 +502,14 @@ func TestIntentsRunFromWhenTheirFilesWereMade(t *testing.T) {
 	if _, owned := of["plain.sh"]; owned || len(of) != len(steps)-1 {
 		t.Errorf("the files with an intent are %v, want every one but plain.sh", of)
 	}
-	groups := reportRun{pipe: pipe, result: analysis{intents: runs}}.intents()
+	groups := reportRun{pipe: pipe, result: analysis{intents: runs}}.timeline()
 	i5 := render.Entry{Cells: []string{"i5", "2026-10-22T09:10:00Z to 2026-10-22T09:12:00Z"}, Detail: []render.Detail{
 		{Label: "T1046", Text: "Network Service Discovery"}, {Label: "T1018", Text: "Remote System Discovery"},
 	}}
 	if got := groups[0].Entries[0]; !groups[0].Blocks || !reflect.DeepEqual(got, i5) {
 		t.Errorf("i5 is the block %+v, want %+v", got, i5)
 	}
-	i8 := render.Entry{Cells: []string{"i8", "2026-10-22T09:55:00Z"}, Detail: []render.Detail{{Text: "no technique"}}}
+	i8 := render.Entry{Cells: []string{"i8", "2026-10-22T09:55:00Z"}, Detail: []render.Detail{{Text: noTechnique}}}
 	if got := groups[0].Entries[3]; !reflect.DeepEqual(got, i8) {
 		t.Errorf("i8 is the block %+v, want %+v", got, i8)
 	}
@@ -493,7 +539,7 @@ func TestReportIntentsByCreation(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	readout, saved := report(t, folder, "intents")
+	readout, saved := report(t, folder, "timeline")
 	for _, row := range rows(t, filepath.Join(saved, "files.csv")) {
 		if row["created"] == nil {
 			t.Skip("this file system records no creation time")
@@ -536,7 +582,7 @@ func TestIntentsAreAllShown(t *testing.T) {
 		when := at.Add(time.Duration(i) * time.Minute)
 		runs = append(runs, intentRun{ref: intent.Ref{ID: "i" + strconv.Itoa(100+i)}, from: when, until: when, timed: 1, recorded: 1, files: []string{"a.sh"}})
 	}
-	groups := reportRun{result: analysis{intents: runs}}.intents()
+	groups := reportRun{result: analysis{intents: runs}}.timeline()
 	if len(groups) != 1 || !groups[0].Blocks || len(groups[0].Entries) != len(runs) {
 		t.Fatalf("%d groups with %d entries in the first, want one group of a block for each of %d intents", len(groups), len(groups[0].Entries), len(runs))
 	}
@@ -636,11 +682,11 @@ func TestReportNamesFoldersBelowTheLimit(t *testing.T) {
 	if want := "1 folder(s) not read (unreadable or more than 16 levels down): " + kept + "e"; err == nil || err.Error() != want {
 		t.Errorf("error = %v, want %q", err, want)
 	}
-	if !strings.Contains(out, kept+"kept.sh") || strings.Contains(out, "lost.sh") {
-		t.Errorf("output = %q, want kept.sh and not lost.sh", out)
+	if !strings.Contains(out, "\nTimeline") || strings.Contains(out, "lost.sh") {
+		t.Errorf("output = %q, want the timeline of what was read and not lost.sh", out)
 	}
-	if got := len(rows(t, filepath.Join(saved, "files.csv"))); got != 1 {
-		t.Errorf("files.csv holds %d rows, want the one file that was read", got)
+	if files := rows(t, filepath.Join(saved, "files.csv")); len(files) != 1 || files[0]["name"] != kept+"kept.sh" {
+		t.Errorf("files.csv holds %v, want the one file that was read", files)
 	}
 }
 
@@ -715,7 +761,7 @@ func TestReportExposure(t *testing.T) {
 		{map[string]string{"kind": "password", "form": "token"},
 			map[string]any{"account": nil, "value": "fixture-token-0123456789", "files": "env_20261022_090540.txt:5"}},
 		{map[string]string{"kind": "username", "value": "deploy"},
-			map[string]any{"seen": "collected", "severity": "medium", "files": "passwd_20261022_090020.txt:3"}},
+			map[string]any{"seen": "collected", "severity": "medium", "files": "passwd_20261022_090020.txt:3, shadow_20261022_090530.txt:4"}},
 		{map[string]string{"kind": "username", "value": "ops"},
 			map[string]any{"seen": "used", "files": "20261022_092500_step06_stage.sh:6"}},
 		{map[string]string{"kind": "email", "value": "alerts@corp.example"},
@@ -741,11 +787,11 @@ func TestReportExposure(t *testing.T) {
 		}
 	}
 	for _, want := range []string{
-		"exposed     19  Passwords and secrets 3, Usernames 7, Email addresses 1, Devices 2, IP addresses 6",
+		"exposed     18  Passwords and secrets 3, Usernames 6, Email addresses 1, Devices 2, IP addresses 6",
 		"\n  Passwords and secrets (3)\n",
 		"[x] Fixture-Pass-01                                  password of app_rw  collected  env_20261022_090540.txt:3\n",
 		"[x] fixture-token-0123456789                         token               collected  env_20261022_090540.txt:5\n",
-		"\n  Usernames (7)\n",
+		"\n  Usernames (6)\n",
 		"\n  IP addresses (6)\n",
 	} {
 		if !strings.Contains(readout, want) {
@@ -766,12 +812,15 @@ func TestReportShowsSecrets(t *testing.T) {
 			t.Errorf("the readout does not hold %q", s)
 		}
 	}
-	if !strings.Contains(readout, "-p 'Winter2025!'") {
-		t.Errorf("the readout does not quote the command with its password as it stands")
+	if !strings.Contains(readFile(t, filepath.Join(saved, "report.json")), "-p 'Winter2025!'") {
+		t.Errorf("report.json does not quote the command with its password as it stands")
 	}
 	row := find(t, rows(t, filepath.Join(saved, "exposure.csv")), map[string]string{"kind": "password", "account": "svc_backup"})
-	if row["value"] != "Winter2025!" || row["seen"] != "used" {
-		t.Errorf("the exposure holds %v, want the password as it stands, used by the scripts", row)
+	if row["value"] != "Winter2025!" || row["seen"] != "used" || row["service"] != "DC01, AADC01" {
+		t.Errorf("the exposure holds %v, want the password as it stands, used by the scripts against both hosts", row)
+	}
+	if got := strings.Count(readFile(t, filepath.Join(saved, "exposure.csv")), "password,Winter2025!,"); got != 1 {
+		t.Errorf("the exposure lists the password %d times, want one line for the one account", got)
 	}
 	for _, name := range []string{"report.txt", "report.md", "report.html", "exposure.csv", "targeted.json", "report.json"} {
 		if !strings.Contains(readFile(t, filepath.Join(saved, name)), "Winter2025!") {
@@ -783,38 +832,48 @@ func TestReportShowsSecrets(t *testing.T) {
 	}
 }
 
-// An impact, an action and a mitigation name what they concern and quote the
-// lines that show it; a finding quotes its lines.
+// An impact, an action and a mitigation list the exposed accounts and
+// credentials they concern and quote nothing; the saved report keeps what
+// each acts on and the lines that show it. A finding quotes its lines.
 func TestReportNamesWhat(t *testing.T) {
 	readout, saved := report(t, evidencetest.Copy(t, "linux"), "impact", "remediation", "mitigation")
 	table := rows(t, filepath.Join(saved, "report.json"))
 	tests := []struct {
 		section, item string
+		exposed       []string
 		targets       []string
 		evidence      []string
 	}{
-		{"impact", "Persistence established",
+		{"impact", "Persistence established", []string{"username: svc"},
 			[]string{"account svc", "unit sync.service", "file ~/.ssh/authorized_keys", "file ~/.bashrc"},
 			[]string{"AccountCreation: useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)", "AccountCreation: useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)"}},
-		{"impact", "Privileged access obtained",
+		{"impact", "Privileged access obtained", nil,
 			[]string{"file /etc/sudoers.d/svc", "file /tmp/tool ($F)", "mount /:/host"},
 			[]string{"SetuidBit: chmod u+s \"$F\" (20261022_091000_step03_privesc.sh:4)"}},
-		{"impact", "Movement to other systems", nil,
+		{"impact", "Movement to other systems", []string{"username: ops"}, nil,
 			[]string{"ssh: ssh ops@198.51.100.7 'cat /etc/hostname' (20261022_092500_step06_stage.sh:6)"}},
 		{"impact", "Credentials exposed",
-			[]string{"file /etc/shadow", "password of app_rw", "hash of deploy"},
+			[]string{"hash of deploy: $6$fixturesalt$fixturehashvalue0123456789abcdef", "password of app_rw: Fixture-Pass-01", "token: fixture-token-0123456789"},
+			[]string{"file /etc/shadow"},
 			[]string{"ShadowFileRead: sudo cat /etc/shadow > shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)"}},
-		{"remediation", "Remove persistence",
+		{"impact", "Environment mapped", []string{"username: app_rw", "username: daemon", "username: deploy", "username: root", "email: alerts@corp.example"}, nil, nil},
+		{"impact", "Commands generated by an AI agent", nil, nil, nil},
+		{"remediation", "Remove persistence", []string{"username: svc"},
 			[]string{"account svc", "unit sync.service"},
 			[]string{"SystemdUnitCreation: systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)"}},
-		{"remediation", "Rotate what was read", []string{"password of app_rw", "hash of deploy", "file ~/.ssh/id_rsa"}, nil},
-		{"remediation", "Restore security tooling", []string{"service auditd"},
+		{"remediation", "Rotate what was read",
+			[]string{"hash of deploy: $6$fixturesalt$fixturehashvalue0123456789abcdef", "password of app_rw: Fixture-Pass-01", "token: fixture-token-0123456789"},
+			[]string{"file ~/.ssh/id_rsa"}, nil},
+		{"remediation", "Restore security tooling", nil, []string{"service auditd"},
 			[]string{"SecurityToolDisabling: systemctl stop auditd (20261022_092000_step05_evade.sh:4)"}},
-		{"remediation", "Follow what was enumerated", []string{"username deploy", "device db01.corp.internal", "ip 10.20.30.5"}, nil},
-		{"mitigation", "M1032 Multi-factor Authentication", []string{"AccountCreation: account svc"}, nil},
+		{"mitigation", "M1032 Multi-factor Authentication", []string{"username: svc"}, []string{"AccountCreation: account svc"}, nil},
 	}
 	for _, tt := range tests {
 		row := find(t, table, map[string]string{"section": tt.section, "item": tt.item})
+		exposed, _ := row["exposed"].(string)
+		if got := strings.Split(exposed, "\n"); !slices.Equal(got, tt.exposed) && (exposed != "" || len(tt.exposed) > 0) {
+			t.Errorf("%s %s: exposed = %q, want %q", tt.section, tt.item, got, tt.exposed)
+		}
 		targets, _ := row["targets"].(string)
 		for _, want := range tt.targets {
 			if !slices.Contains(strings.Split(targets, "; "), want) {
@@ -833,13 +892,22 @@ func TestReportNamesWhat(t *testing.T) {
 		t.Errorf("targets = %q, want $JOB among them", row["targets"])
 	}
 	for _, want := range []string{
-		"      targets  runs $JOB; unit sync.service; account svc;",
-		"      what     ScheduledJobCreation: (crontab -l; echo \"$JOB\") | crontab - (20261022_091500_step04_persist.sh:3)\n",
-		" more in report.json\n",
-		"      for  AccountCreation: account svc\n",
+		"  [x] Credentials exposed\n      Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.\n" +
+			"      exposed  hash of deploy: $6$fixturesalt$fixturehashvalue0123456789abcdef\n" +
+			"               password of app_rw: Fixture-Pass-01\n" +
+			"               token: fixture-token-0123456789\n" +
+			"      basis    ShadowFileRead, PrivateKeyRead, CredentialFileRead, ShellHistoryRead, CloudMetadataAccess, ClusterSecretRead, exposed password\n",
+		"      exposed  username: svc\n      basis    ScheduledJobCreation, SystemdUnitCreation, AccountCreation, SshKeyPersistence, ShellProfilePersistence, Persistence tools\n",
+		"      exposed  username: svc\n      for      AccountCreation\n",
 	} {
 		if !strings.Contains(readout, want) {
-			t.Errorf("the readout lacks %q", want)
+			t.Errorf("the readout lacks %q:\n%s", want, readout)
+		}
+	}
+	// The sections say what is concerned, and leave the commands to the findings.
+	for _, gone := range []string{"\n      targets  ", "\n      what     ", "\n      files    ", "useradd -m", "crontab -", "20261022_091500_step04_persist.sh"} {
+		if strings.Contains(readout, gone) {
+			t.Errorf("the readout holds %q, which is a command, a script or what one acts on", gone)
 		}
 	}
 	finding := find(t, rows(t, filepath.Join(saved, "findings.json")), map[string]string{"finding": "AccountCreation"})
@@ -918,10 +986,6 @@ func TestReportTargeted(t *testing.T) {
 		row  map[string]string
 		want map[string]any
 	}{
-		{map[string]string{"kind": "username", "value": "svc_backup"},
-			map[string]any{"origin": "prior", "from": nil, "scope": nil, "scripts": "20250301_101800_step02_enum.sh:4, 20250301_101800_step02_enum.sh:8, 20250301_102300_step03_adsync.sh:7"}},
-		{map[string]string{"kind": "username", "value": "MSOL_0a1b2c3d4e5f"},
-			map[string]any{"origin": "discovered", "from": "20250301_101910_step02_users.tsv:2", "evidence": `MSOL_USER="MSOL_0a1b2c3d4e5f" (20250301_103200_step05_certs.sh:3)`}},
 		{map[string]string{"kind": "ip", "value": "10.20.1.0/24"},
 			map[string]any{"origin": "prior", "scope": "private", "evidence": `TARGET_NET="10.20.1.0/24" (20250301_101500_step01_recon.sh:3)`}},
 		{map[string]string{"kind": "ip", "value": "10.20.1.5"},
@@ -942,8 +1006,8 @@ func TestReportTargeted(t *testing.T) {
 		}
 	}
 	for _, row := range table {
-		if row["kind"] == "password" {
-			t.Errorf("a secret is listed as a target: %v", row)
+		if row["kind"] == "password" || row["kind"] == "username" {
+			t.Errorf("a secret or a username is listed as a target: %v", row)
 		}
 		// Every row is a value a script holds: its places are scripts.
 		for _, place := range strings.Split(row["scripts"].(string), ", ") {
@@ -953,15 +1017,17 @@ func TestReportTargeted(t *testing.T) {
 		}
 	}
 	for _, want := range []string{
-		"targeted    13  Usernames 4, Email addresses 1, Hostnames 4, IP addresses 4",
+		"targeted    9   Email addresses 1, Hostnames 4, IP addresses 4",
 		"\n  Hostnames (4)\n",
 		"    [!] 10.20.1.0/24  private  prior       20250301_101500_step01_recon.sh:3\n",
 		"        from  20250301_101530_step01_recon.txt:2\n",
-		"-u svc_backup -p 'Winter2025!' -M msol",
 	} {
 		if !strings.Contains(readout, want) {
 			t.Errorf("the readout lacks %q:\n%s", want, readout)
 		}
+	}
+	if strings.Contains(readout, "\n  Usernames (") {
+		t.Errorf("the targets list usernames:\n%s", readout)
 	}
 	// An address the attacker brought is public; nothing in an output makes it a discovery.
 	_, saved = report(t, evidencetest.Copy(t, "lolbin"))
@@ -1031,6 +1097,33 @@ func TestMergeOwned(t *testing.T) {
 	}
 	if all[1].value != "s2" || all[1].account != "" || all[2].kind.Name != "username" {
 		t.Errorf("merged = %+v, want the secret with no owner and the username kept", all)
+	}
+	// One secret of one account is one line: it names each host it is used
+	// against, under either way of writing the account, and is used or
+	// collected by where it is seen first.
+	all = mergeOwned([]exposed{
+		{kind: secret, value: "s1", form: "password", account: "svc", seen: seenUsed, count: 1},
+		{kind: secret, value: "s1", form: "password", account: "svc", services: []string{"DC01"}, seen: seenCollected, count: 1},
+		{kind: secret, value: "s1", form: "hash", account: "SVC@corp.example", services: []string{"AADC01", "DC01"}, seen: seenCollected, count: 1},
+		{kind: secret, value: "s1", form: "password", account: "bob", services: []string{"DC01"}, seen: seenCollected, count: 1},
+		{kind: secret, value: "s1", form: "password", account: "svc@other.example", seen: seenCollected, count: 1},
+	})
+	if len(all) != 2 || all[0].account != "svc" || all[0].count != 4 || all[0].seen != seenUsed || !slices.Equal(all[0].services, []string{"DC01", "AADC01"}) {
+		t.Errorf("merged = %+v, want one line for svc, used, for DC01 and AADC01", all)
+	}
+	if len(all) == 2 && (all[1].account != "bob" || all[1].count != 1) {
+		t.Errorf("merged = %+v, want the same secret of another account kept apart", all)
+	}
+	for _, tt := range []struct {
+		a, b string
+		want bool
+	}{
+		{"svc", "SVC", true}, {"svc", "svc@corp.example", true}, {"svc@corp.example", "svc", true},
+		{"svc@a.example", "svc@b.example", false}, {"svc", "svc2@corp.example", false}, {"", "svc", false}, {"", "", true},
+	} {
+		if got := sameAccount(tt.a, tt.b); got != tt.want {
+			t.Errorf("sameAccount(%q, %q) = %t, want %t", tt.a, tt.b, got, tt.want)
+		}
 	}
 	if got := (cite{"a.sh", 0}).String(); got != "a.sh" {
 		t.Errorf("a cite without a line = %q", got)
@@ -1383,7 +1476,7 @@ func TestReportVerbRejects(t *testing.T) {
 		{"an unknown section", func(v *verbSpec, _ *commandsDoc) { v.Sections[0].Name = "bogus" }, "which has no implementation"},
 		{"a section left out", func(v *verbSpec, _ *commandsDoc) { v.Sections = v.Sections[1:] }, "does not declare the section"},
 		{"an option it reads and does not name", func(v *verbSpec, _ *commandsDoc) { v.Takes = v.Takes[:1] }, `reads the option "outdir"`},
-		{"a row that fills a column the class lacks", func(_ *verbSpec, doc *commandsDoc) { doc.Classes[4].Columns = doc.Classes[4].Columns[1:] }, "the class exposure declares 8 columns and fills 9"},
+		{"a row that fills a column the class lacks", func(_ *verbSpec, doc *commandsDoc) { doc.Classes[4].Columns = doc.Classes[4].Columns[1:] }, "the class exposure declares 9 columns and fills 10"},
 		{"a column the targeted row lacks", func(_ *verbSpec, doc *commandsDoc) { doc.Classes[3].Columns[2].Key = "bogus" }, `the class targeted declares the column "bogus"`},
 		{"no prefix", func(v *verbSpec, _ *commandsDoc) { v.Saved.Prefix = "" }, "needs a prefix"},
 		{"no tables", func(v *verbSpec, _ *commandsDoc) { v.Saved.Tables = nil }, "needs a prefix"},

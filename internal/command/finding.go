@@ -58,6 +58,11 @@ func (f *finding) seen(at time.Time) {
 	}
 }
 
+// mitre joins the identifiers of a finding, those of ATT&CK first.
+func (f finding) mitre() string {
+	return strings.Join(append(slices.Clone(f.attack), f.atlas...), ", ")
+}
+
 // lines writes each line of evidence with where it stands.
 func (f finding) lines() []string {
 	lines := make([]string, len(f.evidence))

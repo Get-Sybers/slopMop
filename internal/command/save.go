@@ -160,7 +160,7 @@ func (w reportRun) traceTable(columns []render.Column, add func([]render.Value) 
 }
 
 func (w reportRun) findingTable(columns []render.Column, add func([]render.Value) error) error {
-	for _, f := range w.pipe.listFindings(w.result) {
+	for _, f := range w.found {
 		row, err := findingRow(f, columns)
 		if err != nil {
 			return err

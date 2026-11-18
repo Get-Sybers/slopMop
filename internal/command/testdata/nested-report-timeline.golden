@@ -1,23 +1,24 @@
 slopmop report   <folder>
 [x] HIGH - 4 impacts: 2 high, 2 low
+[x] high   [!] medium   [i] low
 
-Timeline   (from, until, files, tactics)
-  2025-03-01T10:15:00Z  -                     1  Discovery
-      tools       nmap
-      files       phase1/20250301_101500_step01_recon.sh
-  2025-03-01T10:18:00Z  2025-03-01T10:23:00Z  2  Discovery, CredentialAccess
-      tools       nxc, tee, ldapsearch, awk, head, date, adconnectdump.py
-      files       phase1/20250301_101800_step02_enum.sh, phase1/20250301_102300_step03_adsync.sh
-  2025-03-01T10:27:00Z  -                     1  Execution
-      tools       awk, head, date, python3
-      files       phase1/20250301_102700_step03_adsync_v2.sh
-  2025-03-01T10:32:00Z  2025-03-01T10:40:00Z  2  CredentialAccess
-      tools       certipy, tee, openssl, cat, secretsdump.py, nxc
-      files       phase1/20250301_103200_step05_certs.sh, phase1/20250301_104000_step06_auth.sh
-  2025-03-01T10:45:00Z  -                     1  CredentialAccess, Exfiltration
-      activities  FileUpload, CertificateExport
-      tools       nxc, curl
-      files       phase1/20250301_104500_step07_exfil.sh
+Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the techniques its files show)
+  [i] Discovery                       2025-03-01T10:15:00Z
+      no MITRE ATT&CK technique identified
+
+  [x] Discovery, CredentialAccess     2025-03-01T10:18:00Z to 2025-03-01T10:23:00Z
+      no MITRE ATT&CK technique identified
+
+  [!] Execution                       2025-03-01T10:27:00Z
+      no MITRE ATT&CK technique identified
+
+  [x] CredentialAccess                2025-03-01T10:32:00Z to 2025-03-01T10:40:00Z
+      no MITRE ATT&CK technique identified
+
+  [x] CredentialAccess, Exfiltration  2025-03-01T10:45:00Z
+      T1048      Exfiltration Over Alternative Protocol
+      T1649      Steal or Forge Authentication Certificates
+      AML.T0025  Exfiltration via Cyber Means
   and 10 files that show no tactic, in the saved trace
 
 -> saved to <out>: report.txt, report.md, report.html, files.csv, trace.json, intents.csv, findings.json, targeted.json, exposure.csv, report.json

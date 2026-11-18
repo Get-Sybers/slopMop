@@ -6,6 +6,82 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Added
+
+- A **Tactics** section, after the summary and before the timeline: each tactic the scripts
+  show, most severe first, with its ATT&CK and ATLAS identifiers and the scripts that show it.
+- A secret is linked to whose it is and what it is used against. One that no rule gives an
+  account is of the one account its line names, or of its one application: the password of
+  `sshpass -p`, of `--password`, of `/p:` and of a secure string beside a credential. A JSON web
+  token is of the account its claims name. A secret with no known service is for the audience
+  of a token, or for the one host its line names: `password of admin, dc01.corp.local`. The
+  name and password of basic authentication are read out of its base64, and those of
+  `curl -u`, of `-U name%password`, of `net user ... /add`, of `chpasswd`, of `ldapsearch -D ...
+  -w` and of `domain/name:password@host` are read as well.
+- An encoded secret is written decoded in the report: a JSON web token as its claims, base64
+  that holds text as the text, a JSON document in base64 as its members, a key block as its type
+  and fingerprint. `exposure.csv` holds the value as it stands and a `decoded` column beside it.
+  A value that is not text when decoded is written as it stands.
+- An impact, an action and a mitigation list the exposed accounts and credentials they concern,
+  under `exposed`: every one of the kinds the entry is about, the credentials in the files that
+  show the entry and the accounts on the lines that show it. `report.json` has an `exposed`
+  column that holds every one.
+- The tasks among the targets are listed with the task name and what the task runs. A task name
+  in single quotes and one registered through the task service are read.
+- A watchlist match is named in the block of its intent or its period.
+
+### Changed
+
+- The timeline is one section of blocks: a block for each ARTEX intent where the files name
+  intents, and a block for each period of the same tactics where none does. The table of
+  periods and the separate `intents` section are gone; `intents.csv` is unchanged. A block
+  whose files show no technique says `no MITRE ATT&CK technique identified`.
+- The findings are the activities. The tactics have their own section, and the indicators are
+  in `findings.json` and counted in the summary; the report lists none.
+- An impact, an action and a mitigation no longer quote commands or name scripts and what a
+  command acts on: the findings quote each command once. `report.json` keeps the `targets` and
+  the `evidence` of each.
+- One secret of one account is one row of the exposure, which names every host the secret is
+  used against, under either way of writing the account, `svc` and `svc@corp.example`. A secret
+  named under two forms is one row.
+- An account that is both a username and an email address is listed as the address. A login to
+  a host, `scp file deploy@bastion01.corp.internal:`, is a username and a device and no longer
+  an email address.
+- A username given to a command as an identifier, as a service principal is, is an application.
+- Archive creation covers 7-Zip under each of its names and with a path, `rar`, `gzip`, `bzip2`,
+  `zstd`, a dump piped through a compressor, `makecab`, `Compress-7Zip`, the .NET `ZipFile`
+  class and the archive calls of Python, and names archives of any of their extensions. An
+  archiver named in a sentence, or at the end of a file name, is no archive.
+
+### Removed
+
+- The **Notable files** section and its rows of `report.json`: the tactics and the findings
+  name the files.
+- The indicators group of the findings in the report.
+- Usernames among the targets: `targeted.json` and the Targeted section hold the email
+  addresses, the hostnames and the IP addresses the scripts name. The exposure holds the
+  usernames.
+
+### Fixed
+
+- A username is no longer read from a sentence that follows a field name, as `verify` was from
+  `# Check user: verify the account exists` and `Mon` from `Last login: Mon Oct 20`. Neither
+  is a date, a version, an identifier, a hash, a file name, a placeholder, the system account,
+  a storage account, the word after `-u` of a command that takes no account, a line break
+  written `\n`, or a folder in a path. The accounts of `id`, `whoami`, `who`, `sudo -l`, a rule
+  of `sudo`, `useradd`, `net user`, `net localgroup`, the account cmdlets, `/u:` and an ARN of
+  AWS are read.
+- A line of `=` signs, of dashes or of any signs alone is no secret and no key, so a heading
+  such as `===== Access Token =====` leaves nothing in the exposure. A sentence after a field
+  name, `password: must be at least 8 characters`, is no password, and `NOPASSWD` of a rule of
+  `sudo` names none.
+- The hostnames among the targets leave out the hosts of vendors that any script reaches for:
+  `www.google.com`, `graph.microsoft.com`, `login.microsoftonline.com`, package registries,
+  the mirrors of distributions and certificate authorities. A host a tenant names under a
+  vendor's domain, such as `contoso.sharepoint.com`, stays.
+- An archive written as the last word of an upload, `curl -T docs.zip https://host/docs.zip`,
+  was read as a `zip` command.
+
 ## [0.6.0] - 2026-11-18
 
 ### Added

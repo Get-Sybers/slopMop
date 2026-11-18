@@ -7,11 +7,11 @@ Summary
   indicators  15  4 Domain, 1 Email, 7 IPv4, 3 URL
   activities  26
   tactics     11
-  targeted    6   Usernames 1, Hostnames 1, IP addresses 4
-  exposed     19  Passwords and secrets 3, Usernames 7, Email addresses 1, Devices 2, IP addresses 6
+  targeted    5   Hostnames 1, IP addresses 4
+  exposed     18  Passwords and secrets 3, Usernames 6, Email addresses 1, Devices 2, IP addresses 6
   intents     4
 
-Intent timeline   (a block for each intent, in order of time: from the first of its files to be created until the last, and the techniques its files show)
+Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the techniques its files show)
   [x] i1041  2026-10-22T09:00:00Z to 2026-10-22T09:00:40Z
       T1083      File and Directory Discovery
       T1552.005  Unsecured Credentials: Cloud Instance Metadata API

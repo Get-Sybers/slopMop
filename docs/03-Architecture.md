@@ -20,7 +20,7 @@ about evidence touch no file, and every static table is a data file validated at
 | `internal/activity` | recognises what a line of evidence does (a role assignment, a mailbox read, a Key Vault secret read) and the tactics of it, using `activities.json` |
 | `internal/indicator` | extracts security indicators (IPs, URLs, hashes, CVEs, GUIDs, Microsoft cloud endpoints, OAuth scopes) using `indicators.json` |
 | `internal/assess` | turns what a run found into its impacts and the remediation they call for, using `impacts.json` and `actions.json` |
-| `internal/exposure` | names what the evidence holds that an attacker can use: usernames, email addresses, passwords and other secrets, tenants, SSH keys, API keys, applications, cloud resources, devices and IP addresses, and the service each is of; no I/O |
+| `internal/exposure` | names what the evidence holds that an attacker can use: usernames, email addresses, passwords and other secrets, tenants, SSH keys, API keys, applications, cloud resources, devices and IP addresses, with whose a secret is and what it is for; decodes a token and what base64 holds; says which hosts are a vendor's; no I/O |
 | `internal/intent` | names the ARTEX intent of a path, by the name of the file, its run folder or its session name; no I/O |
 | `internal/device` | reads how many processors and how much memory the machine has, on Linux, Windows and macOS; changes nothing |
 | `internal/parallel` | runs independent pieces of work on every processor; no I/O |
@@ -61,10 +61,10 @@ progress    -> render
 | `internal/inventory/roles.json` | each role's summary, extensions and shebang patterns | the roles are `script`, `output`, `other` in that order; extensions are lower-case, dotted and in one role; patterns compile; `other` takes neither |
 | `internal/command/commands.json` | the usage line, the options, the verbs with their sections, hints and saved files, and the columns of each class | names, hints and summaries present and unique; a verb names only declared options; columns pass the table check; a saved file is a file name of its own; a saved report names a format that has a writer, once; a saved table names a format that has a writer; every declared verb and section has an implementation and every implementation a declaration; a row fills exactly the declared columns |
 | `internal/tactic/tactics.json` | the tactics, the severity of each, its ATT&CK and ATLAS identifiers and the commands it claims | every tactic has a name, a severity of `low`, `medium` or `high`, both identifiers and at least one command; no command appears in two tactics; `command` rejects an identifier the catalogue lacks |
-| `internal/activity/activities.json` | each activity's name, tactics, ATT&CK and ATLAS techniques and patterns, the contexts some patterns need, and the subjects a matching line acts on | names are present and unique; every activity has a tactic, an ATT&CK technique and a pattern; `command` rejects a technique the catalogue lacks; paths and a known context go together; every pattern compiles and the literal it is found by holds no line break; a subject has a label and a pattern with one group; `command` rejects a tactic that `tactics.json` lacks |
+| `internal/activity/activities.json` | each activity's name, tactics, ATT&CK and ATLAS techniques and patterns, the contexts some patterns need, the subjects a matching line acts on, and how the subjects of a label are listed: what heads their column and which labels stand beside them | names are present and unique; every activity has a tactic, an ATT&CK technique and a pattern; `command` rejects a technique the catalogue lacks; paths and a known context go together; every pattern compiles and the literal it is found by holds no line break; a subject has a label and a pattern with one group; a label that is listed has a column and stands beside labels that subjects carry; `command` rejects a tactic that `tactics.json` lacks |
 | `internal/assess/impacts.json` | each impact's name, severity and statement, what triggers it, the indicator types to list as affected and the kinds of exposure it concerns | names are present and unique; a statement and a severity of `low`, `medium` or `high`; something triggers each; `command` rejects an activity, a tactic, an indicator type or a kind of exposure the other tables lack |
 | `internal/assess/actions.json` | each remediation's name, priority and text, and what triggers it | as for an impact |
-| `internal/exposure/exposures.json` | the services a value can be of, and each kind of exposure: its title, its severity, whether it is a secret, the field names and endings that hold it, the indicator types that are of it, what a value must and must not look like, and its patterns | names, titles and severities present and unique; a field name is lower-case letters and digits and in one kind; an ending has three characters or more; an indicator type is in one kind and `command` rejects one that `indicators.json` lacks; every expression compiles; a pattern has a group named `value` and a lower-case text a line must hold; `command` rejects a severity that is not `low`, `medium` or `high` |
+| `internal/exposure/exposures.json` | the services a value can be of, with their hosts; the hosts of vendors that are no target; the claims of a JSON web token that are read; and each kind of exposure: its title, its severity, whether it is a secret, an account or a credential, the field names and endings that hold it and the names that end so and do not, the indicator types that are of it, what a value must and must not look like, and its patterns | names, titles and severities present and unique; a kind is an account or a credential, not both; a field name is lower-case letters and digits and in one kind; an ending has three characters or more; an indicator type is in one kind and `command` rejects one that `indicators.json` lacks; every expression compiles; a pattern has a group named `value` and a lower-case text a line must hold; a host is lower case and a vendor is listed once; a token names the claims of its owner, its audience and what is shown, or none at all; `command` rejects a severity that is not `low`, `medium` or `high` |
 | `internal/intent/paths.json` | the rules that find an ARTEX intent in a path, in the order they are tried, and the names that are none | a rule has a name of its own and a pattern that compiles with a group named `id` and no group but `id` and `task`; a rejected name is present once |
 | `internal/mitre/catalogue.json` | for ATT&CK and for ATLAS: the version, the tactics, the mitigations with a one-sentence summary, and each technique's name, tactics and mitigations | a version, tactics, techniques and mitigations are present; a technique names only tactics and mitigations that are listed |
 | `internal/indicator/indicators.json` | indicator types and their regex patterns, with what a match must not follow on its line and what must not follow it | every entry has a type and a pattern; every expression compiles |
@@ -403,16 +403,33 @@ The rules are those of `exposures.json`, and the classes are described in the
   variable and a domain, and is left out.
 - The files are read in the order of the timeline. A value is `collected` when the first file
   that holds it is an output and `used` when it is a script.
-- A secret seen without an account is the same secret seen with one, so the two are one row.
+- A value that stands bare after a field name and a space, and is followed by the rest of a
+  sentence, is not the value of the field: a script an agent writes is full of comments, and
+  `Check user: verify the account exists` names no account. A secret is left out so only when
+  it is one plain word.
+- The secrets of a line are recorded when the whole line is read, so that each takes what the
+  line says of it: the one account the line names, or its one application, and the one host
+  the line names. A pattern marks an account that is named in passing, as in a path, so that it
+  owns nothing, and a secret that is of no one, as the password of an exported key is.
+- A JSON web token, bare or in base64, says whose it is and what it is for by its claims;
+  `exposures.json` names the claims. `Table.Decoded` writes a token as its claims, base64 that
+  holds text as the text, a document as its members and a key block as its type and
+  fingerprint; a value whose bytes are not text is left as it stands.
+- Whose a credential is said to be is an account of its own, so a username that only a token
+  or a command names is listed.
+- A secret seen without an account is the same secret seen with one, so the two are one row; a
+  secret of one account that is used against several hosts is one row that names them.
 - A line number is a line of the file. An indicator or an activity found in a decoded report or
   in a decoded payload has none.
 
 The same pass gathers the targets: what the scripts name outright.
 
-- A username, an email address, a device or an address read from a script is a target; so is a
-  domain, which is of no kind in an output. A name that is one folder of a Windows path, after a
-  single backslash, is not a domain; after two it is the host of a share. `exposures.json` says which kinds are listed and
-  under what title.
+- An email address, a device or an address read from a script is a target; so is a domain,
+  which is of no kind in an output. A name that is one folder of a Windows path, after a single
+  backslash, is not a domain; after two it is the host of a share. `exposures.json` says which
+  kinds are listed and under what title.
+- A host of a vendor is no target: `exposures.json` lists the hosts any script reaches for,
+  and `Table.Vendor` says whether a host is one of them.
 - A target is `discovered` when a file that is not a script and stands earlier in the timeline
   holds the same value, and `prior` otherwise.
 - Its script lines are quoted as they stand.
@@ -447,20 +464,26 @@ catalogue of section 15.
   tactics an activity adds do not trigger anything: the activity is named directly, so a
   reflective load is not read as log clearing.
 - The basis and the files of each row say why it is there, so a reader can check the claim.
-- Each row names its targets and quotes its evidence: the subjects and the lines of its
-  activities, the first command of each tool behind its tactics, and the exposed values of the
-  kinds it names. A secret counts whether it was collected or used; a username, an email address,
-  a device and an address count only when collected, because what the attacker brought is not
-  what the environment lost. A mitigation names each activity it answers and its subjects.
-- A line an activity quotes is not quoted again for the tool that ran on it.
+- An exposed value triggers an entry by its kind. A secret counts whether it was collected or
+  used; a username, an email address, a device and an address count only when collected,
+  because what the attacker brought is not what the environment lost.
+- Each row lists the exposed accounts and credentials it concerns: every one of the kinds it
+  names that counts, the credentials held in the files that show its activities and the tools
+  of its tactics, and the accounts named on the lines that show them. A file that holds a
+  credential is its script or its output, so a credential is taken by the file; an account is
+  taken by the line, because a log names many accounts that an entry does not concern. A
+  mitigation lists them by the activities it answers.
+- The saved report keeps, for each row, what its activities act on and the lines that show it:
+  the subjects and the lines of its activities and the first commands of each tool behind its
+  tactics. A line an activity quotes is not quoted again for the tool that ran on it. The
+  readout shows neither: a command is quoted once, with its finding.
 - An impact lists up to five affected values of the indicator types it names, taken from the
   files that show it; an address is cut to its host.
 - A test fails when an activity has no impact or no remediation, so a finding cannot be reported
   and then left out of the assessment.
 - One impact is not found but assumed: the scripts were written by an AI agent, which is the
   premise of the tool. It applies whenever anything is found and stands for an ATLAS technique.
-- A notable file is one whose activities, tool tactics or watchlist matches are of high severity.
-  A watchlist match is `high`.
+- A watchlist match is `high`.
 
 ## 15. MITRE ATT&CK and MITRE ATLAS
 
