@@ -275,3 +275,68 @@ func TestFinderEqualsASearchForEach(t *testing.T) {
 		t.Errorf("the texts are held %d times: the texts do not try the finder", held)
 	}
 }
+
+func TestBackwardsRejects(t *testing.T) {
+	if _, err := sift.Backwards(`(`); err == nil || !strings.HasPrefix(err.Error(), "sift: ") {
+		t.Errorf("Backwards of a broken expression gives %v, want an error of sift", err)
+	}
+}
+
+func TestTurned(t *testing.T) {
+	tests := []struct{ name, text, want string }{
+		{"nothing", "", ""},
+		{"letters", "abc", "cba"},
+		{"runes of several bytes", "aé日z", "z日éa"},
+		{"a byte that is no rune", "a\xffb", "b�a"},
+		{"a rune cut short", "\x82\xacok", "ko��"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := string(sift.Turned([]byte("kept:"), tt.text)); got != "kept:"+tt.want {
+				t.Errorf("Turned(%q) = %q, want %q after what was there", tt.text, got, tt.want)
+			}
+		})
+	}
+}
+
+// An expression turned round finds, at the start of a text turned round,
+// exactly what the expression finds at the end of the text.
+func TestBackwardsEqualsTheEndOfTheText(t *testing.T) {
+	exprs := []string{
+		`abc`, `a|bc`, `ab*c+d?`, `(?i:versions?|\bver\.?|\bbuild)[\s:=_-]*`, `\d\.|[\^~]|[A-Za-z]-`,
+		`(ab|a)(c|bc)`, `a{2,3}b{0,2}`, `\bab\b`, `\Bb`, `^ab`, `ab$`, `(?m)^b|a$`, `\Aab|ab\z`,
+		`[^a]b`, `.b`, `(?s).b`, `a.*?b`, `é日|日a`, `(?i)K|s\b`, `(?:==|>=|<=|~=)\s*`, `ax*`,
+		`\d\.|(?i:versions?|\bver\.?|\bbuild)[\s:=_"'()\[\]<>,#/-]*|(?i:chrome|edg|browser)/|(?:==|>=)\s*|[\^~]|[A-Za-z]-`,
+	}
+	parts := []string{
+		"a", "a", "a", "b", "b", "b", "c", "c", "ab", "bc", "abc",
+		"d", "A", "B", "x", " ", "\n", "\t", ".", "-", "=", "==", ">=", "^", "~", "/", ":", "_", "0", "7",
+		"ver", "Version", "build", "Chrome", "s", "K", "é", "日", "K", "ſ", "\xff", "\xe2\x82", "\x82",
+	}
+	rng := rand.New(rand.NewPCG(5, 8))
+	for _, expr := range exprs {
+		turned, err := sift.Backwards(expr)
+		if err != nil {
+			t.Fatalf("Backwards(%q): %v", expr, err)
+		}
+		forwards, backwards := regexp.MustCompile(`(?:`+expr+`)\z`), regexp.MustCompile(`\A(?:`+turned+`)`)
+		matched := 0
+		for range 2000 {
+			var b strings.Builder
+			for n := rng.IntN(6); n > 0; n-- {
+				b.WriteString(parts[rng.IntN(len(parts))])
+			}
+			text := b.String()
+			want := forwards.MatchString(text)
+			if want {
+				matched++
+			}
+			if got := backwards.Match(sift.Turned(nil, text)); got != want {
+				t.Fatalf("%q turned is %q: on %q it finds %v, and the expression finds %v at the end", expr, turned, text, got, want)
+			}
+		}
+		if matched == 0 || matched == 2000 {
+			t.Errorf("%q matches %d of 2000 texts: the texts do not try it", expr, matched)
+		}
+	}
+}

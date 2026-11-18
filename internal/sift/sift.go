@@ -43,6 +43,50 @@ func Read(expr string) (Plan, error) {
 	return p, nil
 }
 
+// Backwards returns the expression that matches a text read from its last
+// rune to its first exactly where expr matches the text. What must end where
+// a text ends is then looked for from one place, not from every one before it.
+func Backwards(expr string) (string, error) {
+	tree, err := syntax.Parse(expr, syntax.Perl)
+	if err != nil {
+		return "", fmt.Errorf("sift: %w", err)
+	}
+	turn(tree)
+	return tree.String(), nil
+}
+
+// turn puts what re matches in the opposite order, in place.
+func turn(re *syntax.Regexp) {
+	switch re.Op {
+	case syntax.OpLiteral:
+		slices.Reverse(re.Rune)
+	case syntax.OpConcat:
+		slices.Reverse(re.Sub)
+	case syntax.OpBeginLine:
+		re.Op = syntax.OpEndLine
+	case syntax.OpEndLine:
+		re.Op = syntax.OpBeginLine
+	case syntax.OpBeginText:
+		re.Op = syntax.OpEndText
+	case syntax.OpEndText:
+		re.Op = syntax.OpBeginText
+	}
+	for _, sub := range re.Sub {
+		turn(sub)
+	}
+}
+
+// Turned adds the runes of text to out from the last to the first. A byte
+// that is no rune is added as the rune an expression reads it as.
+func Turned(out []byte, text string) []byte {
+	for len(text) > 0 {
+		r, size := utf8.DecodeLastRuneInString(text)
+		out = utf8.AppendRune(out, r)
+		text = text[:len(text)-size]
+	}
+	return out
+}
+
 // Rare returns the set of needed texts that is seldom in a text: the one
 // whose shortest text is longest, or nil when that text is too short to look for.
 func (p Plan) Rare() []string {

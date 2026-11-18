@@ -1,22 +1,48 @@
 package indicator
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/rand/v2"
+	"regexp"
 	"slices"
 	"sort"
 	"strings"
 	"testing"
 )
 
+// asWritten compiles what a match of each type must not follow as the table
+// writes it, to be read from left to right: what Extract, which reads it
+// backwards from the match, must equal.
+func asWritten(t *testing.T) map[string]*regexp.Regexp {
+	t.Helper()
+	var entries []entry
+	if err := json.Unmarshal(raw, &entries); err != nil {
+		t.Fatal(err)
+	}
+	before := map[string]*regexp.Regexp{}
+	for _, e := range entries {
+		if e.NotPrecededBy != "" {
+			before[e.Type] = regexp.MustCompile(`(?:` + e.NotPrecededBy + `)$`)
+		}
+	}
+	if len(before) == 0 {
+		t.Fatal("no type of indicators.json says what it must not follow")
+	}
+	return before
+}
+
 // onePass is Extract as one search of the whole text for each pattern: what
 // the searches by piece must equal.
-func (t Table) onePass(text string) []Match {
+func (t Table) onePass(before map[string]*regexp.Regexp, text string) []Match {
 	seen := map[string]bool{}
 	var matches []Match
 	for _, p := range t.patterns {
 		for _, loc := range p.rx.FindAllStringIndex(text, -1) {
 			if p.notAfter != nil && p.notAfter.MatchString(text[loc[1]:]) {
+				continue
+			}
+			if rx := before[p.typ]; rx != nil && rx.MatchString(leading(text, loc[0])) {
 				continue
 			}
 			if val := text[loc[0]:loc[1]]; !seen[val] {
@@ -131,6 +157,7 @@ func TestExtractByPieceEqualsOnePass(t *testing.T) {
 		fmt.Fprintf(&b, lines[i%len(lines)], i%250, i)
 		b.WriteByte('\n')
 	}
+	before := asWritten(t)
 	for _, tt := range []struct{ name, text string }{
 		{"lines", b.String()},
 		{"no line break at the end", strings.TrimSuffix(b.String(), "\n")},
@@ -141,7 +168,7 @@ func TestExtractByPieceEqualsOnePass(t *testing.T) {
 		{"a small text that folds", "see HTTP\u017f://198.51.100.7/a and ops@\u212a.example\n" + b.String()[:small/2]},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			got, want := table.Extract(tt.text), table.onePass(tt.text)
+			got, want := table.Extract(tt.text), table.onePass(before, tt.text)
 			if len(want) < 100 {
 				t.Fatalf("one pass finds %d indicators: the text does not try the pieces", len(want))
 			}
@@ -165,7 +192,9 @@ func TestExtractEqualsOnePassOnRandomText(t *testing.T) {
 		"User.Read", "Mail.Send", "offline_access", "eyJhbGciOiJIUzI1NiJ9", "AKIA", "IOSFODNN7EXAMPLE", "-enc", "-EncodedCommand",
 		"d41d8cd98f00b204e9800998ecf8427e", "DEADBEEF", "6f9619ff-8b86-d011-b42d-00c04fc964ff", "QUJDREVGR0hJSktMTU5PUA==",
 		"-----BEGIN PRIVATE KEY-----", "\u00e9", "\u65e5", "\u017f", "\u212a", "\x7f",
+		"version", "Version", "ver", "build", "==", ">=", "^", "~", "Chrome/", "-rc1", "+dev", "0.", "_", "#", "[", "<",
 	}
+	before := asWritten(t)
 	rng := rand.New(rand.NewPCG(1, 2))
 	for n := range 400 {
 		var b strings.Builder
@@ -177,7 +206,7 @@ func TestExtractEqualsOnePassOnRandomText(t *testing.T) {
 			b.WriteString(parts[rng.IntN(len(parts))])
 		}
 		text := b.String()
-		if got, want := table.Extract(text), table.onePass(text); !slices.Equal(got, want) {
+		if got, want := table.Extract(text), table.onePass(before, text); !slices.Equal(got, want) {
 			t.Fatalf("text %d of %d bytes: by place %d indicators, one pass %d; the two differ", n, len(text), len(got), len(want))
 		}
 	}

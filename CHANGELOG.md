@@ -17,12 +17,24 @@ All notable changes to this project are recorded in this file. The format follow
   that day is.
 - The summary of a run with a window has the row `left out`, with the number of files outside it
   and what the window left out, on the screen, in the saved reports and in `report.json`.
+- `indicators.json` says what a match of a type must not follow, `not_preceded_by`, as it says
+  what must not follow it. `sift.Backwards` turns that expression round, so it is run from the
+  match backwards: from one place, not from each of the bytes before the match.
 
 ### Changed
 
 - The time of a file has one definition, `evidence.File.Time`, which the timeline, the intents
   and the reading share. `inventory.Scope` says how much of a folder is read: the depth, the
   window and what is told of each file.
+
+### Fixed
+
+- A version number is not reported as an IPv4 address. Four numbers are an address only when
+  none has a leading zero and the first is not 0, `0.0.0.0` apart, and they are left out where
+  the text says they are a version: after `version`, `ver`, `build`, a comparison, `^`, `~`, a
+  package name and a hyphen or the name of a browser, beside a fifth number, and before a
+  suffix such as `-rc1` or `-1ubuntu2`. `0.1.5.3` and `Chrome/120.0.0.0` are no longer
+  indicators.
 
 ## [0.5.5] - 2026-11-17
 

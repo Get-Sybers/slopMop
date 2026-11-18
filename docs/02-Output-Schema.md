@@ -287,6 +287,13 @@ One row per activity, per distinct indicator and per tactic.
 
 Sort: severity from `high` to `low`, then activities, indicators and tactics, each by name.
 
+- An `IPv4` indicator is four numbers from 0 to 255, none with a leading zero, and may end in a
+  prefix length. One that begins with `0.` is none, apart from `0.0.0.0`.
+- A version number is no address. Four such numbers are left out when a fifth stands before or
+  after them, when they follow `version`, `ver`, `build`, a comparison such as `==` or `>=`, `^`,
+  `~`, a name and a hyphen or the name of a browser and a slash, and when a suffix such as `-rc1`,
+  `-beta` or `-1ubuntu2` follows them.
+
 ### targeted
 
 One row per username, IP address, hostname or email address that a script names outright: a value

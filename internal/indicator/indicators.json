@@ -1,5 +1,7 @@
 [
-  {"type": "IPv4", "pattern": "\\b(?:(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:/(?:3[0-2]|[12]?\\d))?\\b", "not_followed_by": "\\.\\d"},
+  {"type": "IPv4", "pattern": "\\b(?:0\\.0\\.0\\.0|(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d?)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})(?:/(?:3[0-2]|[12]?\\d))?\\b",
+   "not_preceded_by": "\\d\\.|(?i:versions?|\\bver\\.?|\\bbuild)[\\s:=_\"'()\\[\\]<>,#/-]*|(?i:chrome|chromium|browser|edg|edga|edgios|opr|opera|firefox|crios|fxios|safari|webkit|trident|vivaldi|electron)/|(?:==|>=|<=|~=)\\s*|[\\^~]|[A-Za-z]-",
+   "not_followed_by": "\\.\\d|(?i:[-+~](?:alpha|beta|rc|dev|pre|snapshot|dfsg|git|\\d+\\.?[a-z]))"},
   {"type": "OAuthScope", "pattern": "(?i:(?:https|api)://[^\\s'\"<>`\\\\)\\]},;]+/\\.default)\\b|\\b(?:offline_access|user_impersonation|full_access_as_app)\\b|\\b[A-Z][A-Za-z0-9]+(?:\\.[A-Z][A-Za-z]+)?\\.(?:Read|ReadWrite|ReadBasic|Send|Manage|Create|Invite|Export|FullControl|AccessAsUser|AccessAsApp|Impersonate)(?:\\.(?:All|Shared|OwnedBy|Directory|AzureAD|AzureADGroup|ConditionalAccess))?\\b", "not_followed_by": "[(\\[]|[.][A-Za-z]"},
   {"type": "GraphEndpoint", "pattern": "(?i)https://(?:graph\\.microsoft\\.com|graph\\.microsoft\\.us|dod-graph\\.microsoft\\.us|microsoftgraph\\.chinacloudapi\\.cn|graph\\.windows\\.net)(?:/[^\\s'\"<>`\\\\)\\]},;]*)?", "not_followed_by": "[A-Za-z0-9@\\-]|[.][A-Za-z0-9]"},
   {"type": "AzureManagementEndpoint", "pattern": "(?i)https://management\\.(?:azure\\.com|usgovcloudapi\\.net|chinacloudapi\\.cn)(?:/[^\\s'\"<>`\\\\)\\]},;]*)?", "not_followed_by": "[A-Za-z0-9@\\-]|[.][A-Za-z0-9]"},
