@@ -52,6 +52,8 @@ func TestJSONValues(t *testing.T) {
 		{"year far above 9999", render.Time(time.Date(123456, 12, 31, 23, 59, 59, 0, cest())), `"123456-12-31T21:59:59Z"`},
 		{"not applicable", render.NotApplicable(), "null"},
 		{"never", render.Never(), "null"},
+		{"lines are one string, a line to each", render.Lines([]string{"id (a.sh:3)", `say "x" (b.jsonl)`}), `"id (a.sh:3)\nsay \"x\" (b.jsonl)"`},
+		{"a line is escaped as text is", render.Lines([]string{"\x1b[2J"}), `"\u001b[2J"`},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

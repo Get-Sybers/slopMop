@@ -56,7 +56,7 @@ Impact
       basis    Discovery tools, exposed username, exposed tenant, exposed device, exposed ip
 
 [x] HIGH - 4 impacts: 2 high, 2 low
--> saved to slopmop-ai_workdir: report.txt, report.md, report.html, files.csv, trace.json, intents.csv, findings.json, targeted.json, exposure.csv, report.json
+-> saved to slopmop-ai_workdir: report.txt, report.md, report.html, files.csv, trace.json, intents.csv, findings.csv, findings.json, targeted.json, exposure.csv, report.json
 -> one section: slopmop -inputdir <folder> report impact
 ```
 
@@ -258,7 +258,7 @@ written otherwise, and only in the report, where it is decoded.
 
 ## 4. The saved files
 
-Every run saves ten files to its output folder.
+Every run saves eleven files to its output folder.
 
 | File | Holds |
 | --- | --- |
@@ -268,7 +268,8 @@ Every run saves ten files to its output folder.
 | `files.csv` | the `file` class |
 | `trace.json` | the `trace` class |
 | `intents.csv` | the `intent` class |
-| `findings.json` | the `finding` class |
+| `findings.csv` | the `finding` class |
+| `findings.json` | the `finding` class, as `findings.csv` holds it |
 | `targeted.json` | the `targeted` class |
 | `exposure.csv` | the `exposure` class |
 | `report.json` | the `report` class |
@@ -333,7 +334,17 @@ $ cat slopmop-ai_workdir/findings.json
         "line": 5,
         "text": "Export-Certificate -Cert $Store -FilePath ca01_20250302_092210.cer | Out-Null"
       }
-    ]
+    ],
+    "what": "Export-Certificate -Cert $Store -FilePath ca01_20250302_092210.cer | Out-Null (20250302_092200_step05_export.ps1:5)",
+    "targets": "file ca01_20250302_092210.cer",
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   }
 ]
 ```
@@ -341,9 +352,9 @@ $ cat slopmop-ai_workdir/findings.json
 - Times are ISO 8601 in UTC to seconds: `2026-10-04T09:14:02Z`.
 - A size is a count of bytes and a hash is whole.
 - A value that does not apply is `null`.
-- A list is one string, joined with `, `. Two lists are joined otherwise, because their items
-  hold commas: `targets` with `; `, and the `evidence` of the `targeted` and `report` classes with
-  a line break.
+- A list is one string, joined with `, `. Three lists are joined otherwise, because their items
+  hold commas: `targets` with `; `, and the `evidence` of the `targeted` and `report` classes and
+  the `what` of the `finding` class with a line break.
 - The `evidence` of the `finding` class is an array of objects, one per line of evidence.
 
 ## 6. CSV
@@ -362,7 +373,10 @@ name,path,role,size,lines,modified,created,sha256,name_time,note
 - A cell that holds a comma or a double quote stands in double quotes, with each double quote in
   it doubled.
 - Times, sizes and hashes are written as in JSON. A value that does not apply is an empty cell.
-- A list is one cell, joined with `, `.
+- A list is one cell, joined with `, `, and `targets` with `; `.
+- The lines of evidence of the `finding` class are one cell, and a row is one line: `what` holds
+  the lines with `; ` between them, and `evidence` the time, the file, the line and the text of
+  each, a space between them, with `; ` between the lines and `-` for a line that is not known.
 - A text that begins with `=`, `+`, `-` or `@` follows an apostrophe. A spreadsheet reads such a
   cell as a formula, and the text is the attacker's.
 
@@ -424,6 +438,16 @@ One row per activity, per distinct indicator and per tactic.
 | `attack` | on an activity, its MITRE ATT&CK techniques; on a tactic, its ATT&CK tactic; `null` on an indicator |
 | `atlas` | on an activity, its MITRE ATLAS techniques; on a tactic, its ATLAS tactic; `null` on an indicator |
 | `evidence` | on an activity, the first 24 lines that show it, in the order of the timeline; `null` otherwise |
+| `what` | on an activity, those lines as the report writes them under `what`, each with its place and every one of them; `null` otherwise |
+| `targets` | on an activity, what those lines act on, each with its kind, as the `targets` of the `report` class: `account svc; unit sync.service`; `null` otherwise |
+| `ip` | the IP addresses the lines name; on an `IPv4` indicator, its value |
+| `host` | the hosts the lines act on or name: a device, and a domain that a script names; on a `Domain` indicator, its value |
+| `url` | the URLs the lines act on or name; on an indicator that is a URL or an endpoint, its value |
+| `account` | the accounts the lines act on or name: an account, a principal, a mailbox, a username and an email address; on an `Email` indicator, its value |
+| `tenant` | the tenants the lines act on or name |
+| `application` | the applications and clients the lines act on or name |
+| `task` | the scheduled tasks and timers the lines act on |
+| `service` | the services and units the lines act on |
 
 Each line of `evidence` is an object.
 
@@ -438,6 +462,21 @@ Sort: severity from `high` to `low`, then activities, indicators and tactics, ea
 
 - A tactic row lists every file that shows the tactic: a script, and an output or any other
   file that shows it. The tactics of a file are those of its `trace` row.
+- The columns from `ip` to `service` say what a finding names, each value once whatever its
+  case, in the order of the lines, and are `null` where it names none; a tactic row names
+  nothing. `commands.json` lists them as the `entities` of the class: each with the labels of
+  the targets, the kinds of exposure and the indicator types it holds.
+- What the lines act on is a target of `targets`, in the column that holds its label. What
+  they name beside is what the `exposure` class holds on those lines and what the indicators of
+  each command are of, read as the `exposure` and the `targeted` classes read them: a loopback
+  address, the host of a vendor and a domain in an output are left out. A password, a key and
+  a token are in no column.
+- A command is read on every line it is continued on, 8 KiB of it at most, with each variable
+  the file sets given its value: `http://$PROXY:8080` is `http://203.0.113.9:8080`. A target is
+  read too, so the address in `url http://203.0.113.40/s.sh` is in `ip`. A value in these
+  columns stands without the name of its variable; `targets` keeps the name.
+- A record of a structured output has no line, so what is quoted of it is read: its first 200
+  bytes, without the word the cut ended in.
 
 - An `IPv4` indicator is four numbers from 0 to 255, none with a leading zero, and may end in a
   prefix length. One that begins with `0.` is none, apart from `0.0.0.0`.

@@ -81,8 +81,9 @@ func tableBuilders() map[string]tableBuilder {
 	}
 }
 
-// checkSaved returns the columns of each table, by class.
-func checkSaved(s savedSpec, doc commandsDoc) (map[string][]render.Column, error) {
+// checkSaved returns the columns of each table, by class. named says which
+// columns of a finding list what it names.
+func checkSaved(s savedSpec, doc commandsDoc, named entities) (map[string][]render.Column, error) {
 	if s.Prefix == "" || len(s.Readouts) == 0 || len(s.Tables) == 0 {
 		return nil, errors.New("commands.json: saved needs a prefix, a readout and a table")
 	}
@@ -118,7 +119,7 @@ func checkSaved(s savedSpec, doc commandsDoc) (map[string][]render.Column, error
 		"file":     func(c []render.Column) ([]render.Value, error) { return fileRow(evidence.File{}, "", c) },
 		"trace":    func(c []render.Column) ([]render.Value, error) { return traceRow(trace.Step{}, "", c) },
 		"intent":   func(c []render.Column) ([]render.Value, error) { return intentRow(intentRun{}, c) },
-		"finding":  func(c []render.Column) ([]render.Value, error) { return findingRow(finding{}, c) },
+		"finding":  func(c []render.Column) ([]render.Value, error) { return findingRow(finding{}, named, c) },
 		"targeted": func(c []render.Column) ([]render.Value, error) { return targetedRow(targeted{}, c) },
 		"exposure": func(c []render.Column) ([]render.Value, error) { return exposedRow(exposed{}, c) },
 		"report":   func(c []render.Column) ([]render.Value, error) { return reportCells(reportRow{}, c) },
@@ -161,7 +162,7 @@ func (w reportRun) traceTable(columns []render.Column, add func([]render.Value) 
 
 func (w reportRun) findingTable(columns []render.Column, add func([]render.Value) error) error {
 	for _, f := range w.found {
-		row, err := findingRow(f, columns)
+		row, err := findingRow(f, w.pipe.entities, columns)
 		if err != nil {
 			return err
 		}

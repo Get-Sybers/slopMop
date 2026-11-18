@@ -129,7 +129,7 @@ func TestReportViews(t *testing.T) {
 		t.Run(fixture, func(t *testing.T) {
 			readout, saved := report(t, folder)
 			golden.Check(t, fixture+"-report", []byte(readout))
-			for _, name := range []string{"files.csv", "trace.json", "findings.json", "targeted.json", "exposure.csv", "report.json"} {
+			for _, name := range []string{"files.csv", "trace.json", "findings.csv", "findings.json", "targeted.json", "exposure.csv", "report.json"} {
 				golden.Check(t, fixture+"-"+strings.Replace(name, ".", "-", 1), []byte(tableText(t, saved, folder, name)))
 			}
 		})
@@ -150,7 +150,7 @@ func TestReportViews(t *testing.T) {
 func TestReportSaves(t *testing.T) {
 	folder := evidencetest.Copy(t, "linux")
 	shown, saved := report(t, folder, "impact")
-	if want := "-> saved to <out>: report.txt, report.md, report.html, files.csv, trace.json, intents.csv, findings.json, targeted.json, exposure.csv, report.json\n"; !strings.Contains(shown, want) {
+	if want := "-> saved to <out>: report.txt, report.md, report.html, files.csv, trace.json, intents.csv, findings.csv, findings.json, targeted.json, exposure.csv, report.json\n"; !strings.Contains(shown, want) {
 		t.Errorf("the readout does not say where it was saved:\n%s", shown)
 	}
 	if strings.Contains(shown, "\nTimeline") {
@@ -162,8 +162,8 @@ func TestReportSaves(t *testing.T) {
 	if text != strings.Join(lines, "\n") {
 		t.Errorf("report.txt is not the full readout:\n%s", text)
 	}
-	if entries, err := os.ReadDir(saved); err != nil || len(entries) != 10 {
-		t.Errorf("the output folder holds %d entries (%v), want 10", len(entries), err)
+	if entries, err := os.ReadDir(saved); err != nil || len(entries) != 11 {
+		t.Errorf("the output folder holds %d entries (%v), want 11", len(entries), err)
 	}
 	// Each format holds every section, and the evidence the text holds.
 	markdown, page := readFile(t, filepath.Join(saved, "report.md")), readFile(t, filepath.Join(saved, "report.html"))
@@ -198,7 +198,7 @@ func TestReportSaves(t *testing.T) {
 			}
 		}
 	}
-	for name, least := range map[string]int{"files.csv": 14, "trace.json": 14, "findings.json": 30, "targeted.json": 5, "exposure.csv": 15, "report.json": 60} {
+	for name, least := range map[string]int{"files.csv": 14, "trace.json": 14, "findings.csv": 30, "findings.json": 30, "targeted.json": 5, "exposure.csv": 15, "report.json": 60} {
 		if got := len(rows(t, filepath.Join(saved, name))); got < least {
 			t.Errorf("%s holds %d rows, want at least %d", name, got, least)
 		}
@@ -645,8 +645,8 @@ func TestReportIsTheSameOnEveryProcessor(t *testing.T) {
 		return held
 	}
 	one, all := saved(1), saved(max(4, runtime.NumCPU()))
-	if len(one) != 10 || len(all) != len(one) {
-		t.Fatalf("%d files on one processor and %d on all, want 10", len(one), len(all))
+	if len(one) != 11 || len(all) != len(one) {
+		t.Fatalf("%d files on one processor and %d on all, want 11", len(one), len(all))
 	}
 	for name, body := range one {
 		if all[name] != body {
@@ -1266,8 +1266,8 @@ func TestReportSaveLeavesNoPart(t *testing.T) {
 		t.Fatal(err)
 	}
 	entries, err := os.ReadDir(saved)
-	if err != nil || len(entries) != 10 {
-		t.Fatalf("the output folder holds %d entries (%v), want 10", len(entries), err)
+	if err != nil || len(entries) != 11 {
+		t.Fatalf("the output folder holds %d entries (%v), want 11", len(entries), err)
 	}
 	for _, e := range entries {
 		if strings.HasSuffix(e.Name(), ".part") {
@@ -1310,8 +1310,8 @@ func TestReportWritesNothingThroughALink(t *testing.T) {
 				if info, err := os.Lstat(file); err != nil || !info.Mode().IsRegular() || info.Size() < 100 {
 					t.Errorf("%s is not a file of its own that holds the output (%v)", filepath.Base(file), err)
 				}
-				if entries, err := os.ReadDir(saved); err != nil || len(entries) != 10 {
-					t.Errorf("the output folder holds %d entries (%v), want 10", len(entries), err)
+				if entries, err := os.ReadDir(saved); err != nil || len(entries) != 11 {
+					t.Errorf("the output folder holds %d entries (%v), want 11", len(entries), err)
 				}
 			})
 		}

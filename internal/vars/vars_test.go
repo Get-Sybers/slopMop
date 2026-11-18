@@ -34,6 +34,14 @@ func TestRead(t *testing.T) {
 			t.Errorf("Value(%q) = %q, %t; want %q, %t", tt.ref, value, ok, tt.value, tt.ok)
 		}
 	}
+	for text, want := range map[string]bool{
+		"$A": true, "${b}": true, "%D%": true, "${X:-fallback}": true, "$missing": true,
+		"$A/x": false, "plain": false, "": false, "x86": false, "$": false,
+	} {
+		if got := Refers(text); got != want {
+			t.Errorf("Refers(%q) = %t, want %t", text, got, want)
+		}
+	}
 	for text, want := range map[string]string{
 		"$A/x and ${b}": "/tmp/last/x and two words", "$missing@host": "$missing@host", "plain": "plain", "${c}$d": "threefour",
 	} {

@@ -81,6 +81,12 @@ func (s Set) Value(ref string) (string, bool) {
 	return "", false
 }
 
+// Refers reports whether a text is one variable and nothing else, with or
+// without a default: what Value reads a value for.
+func Refers(text string) bool {
+	return rxReference.MatchString(text) || rxDefault.MatchString(text)
+}
+
 // rxInside is a variable that stands inside a longer text.
 var rxInside = regexp.MustCompile(`\$\{?([A-Za-z_]\w*)\}?`)
 

@@ -92,6 +92,8 @@ type Hit struct {
 type Evidence struct {
 	// Line is the number of the line in the text, from 1.
 	Line int
+	// Last is the line a command continued over lines ends on, and 0 for a line alone.
+	Last int
 	// Text is the line without the space around it, cut to a fixed length.
 	Text     string
 	Subjects []Subject
@@ -314,6 +316,20 @@ func compile(expr string) (pattern, error) {
 	return p, nil
 }
 
+// Labels lists the labels of the subjects, each once, in the order of the
+// data file, so a caller that files a subject by its label can check it.
+func (t Table) Labels() []string {
+	var labels []string
+	for _, a := range t.activities {
+		for _, sub := range a.subjects {
+			if !slices.Contains(labels, sub.label) {
+				labels = append(labels, sub.label)
+			}
+		}
+	}
+	return labels
+}
+
 // Names lists the activities, in the order of the data file.
 func (t Table) Names() []string {
 	names := make([]string, len(t.activities))
@@ -437,6 +453,9 @@ func (a compiled) evidence(text, joined string, lines map[int]bool, variables va
 		_, end := lineAround(joined, start)
 		line := strings.Join(strings.Fields(joined[start:end]), " ")
 		e := Evidence{Line: number, Text: cut(line)}
+		if more := strings.Count(text[start:end], "\n"); more > 0 {
+			e.Last = number + more
+		}
 		for _, sub := range a.subjects {
 			m := sub.rx.FindStringSubmatch(line)
 			if m == nil {
@@ -470,6 +489,16 @@ func resolve(value string, variables vars.Set) string {
 		return set + " (" + value + ")"
 	}
 	return value
+}
+
+// Plain returns the value without the name of the variable that held it,
+// which resolve writes beside it.
+func (s Subject) Plain() string {
+	open := strings.LastIndex(s.Value, " (")
+	if open < 0 || !strings.HasSuffix(s.Value, ")") || !vars.Refers(s.Value[open+2:len(s.Value)-1]) {
+		return s.Value
+	}
+	return s.Value[:open]
 }
 
 // lines returns the start of each line the pattern matches and unless does

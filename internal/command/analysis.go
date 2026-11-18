@@ -38,6 +38,9 @@ type analysis struct {
 	// intents are the ARTEX intents the files lie in, and intentOf names the one of each path.
 	intents  []intentRun
 	intentOf map[string]string
+	// named is what each line of evidence a finding keeps names; a line that
+	// names nothing is not in it.
+	named map[evidenceAt][]mention
 }
 
 type pipeline struct {
@@ -49,6 +52,9 @@ type pipeline struct {
 	catalogue  mitre.Catalogue
 	exposures  exposure.Table
 	intents    intent.Table
+	// entities says where a finding lists what its lines name; a pipeline
+	// that was given none lists nothing.
+	entities entities
 }
 
 func loadPipeline() (pipeline, error) {
@@ -334,6 +340,8 @@ func (p pipeline) read(folder string, levels int, period window, path string, me
 		outside:   res.Outside,
 		exposed:   found,
 		targeted:  named.finish(res.Texts),
+		// The lines are read here, while the texts are held; the findings are listed without them.
+		named: p.newReader(res.Texts, held).read(timeline.Steps),
 	}, nil
 }
 

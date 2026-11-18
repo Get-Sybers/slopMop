@@ -79,6 +79,18 @@ type verbSpec struct {
 type classSpec struct {
 	Name    string          `json:"name"`
 	Columns []render.Column `json:"columns"`
+	// Entities name the columns that hold what the lines of a row name.
+	Entities []entitySpec `json:"entities,omitempty"`
+}
+
+// entitySpec is a column that holds what the lines of a row name: what they
+// act on under its labels, the values of its kinds of exposure and the
+// indicators of its types.
+type entitySpec struct {
+	Column     string   `json:"column"`
+	Labels     []string `json:"labels,omitempty"`
+	Kinds      []string `json:"kinds,omitempty"`
+	Indicators []string `json:"indicators,omitempty"`
 }
 
 type builder func(v verbSpec, doc commandsDoc) (*cli.Verb, error)
@@ -185,6 +197,16 @@ func (doc commandsDoc) columns(class string) []render.Column {
 	for _, c := range doc.Classes {
 		if c.Name == class {
 			return c.Columns
+		}
+	}
+	return nil
+}
+
+// entities returns the entities of the named class, or none.
+func (doc commandsDoc) entities(class string) []entitySpec {
+	for _, c := range doc.Classes {
+		if c.Name == class {
+			return c.Entities
 		}
 	}
 	return nil

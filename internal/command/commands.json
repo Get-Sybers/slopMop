@@ -41,6 +41,7 @@
           {"class": "file", "format": "csv", "file": "files.csv"},
           {"class": "trace", "format": "json", "file": "trace.json"},
           {"class": "intent", "format": "csv", "file": "intents.csv"},
+          {"class": "finding", "format": "csv", "file": "findings.csv"},
           {"class": "finding", "format": "json", "file": "findings.json"},
           {"class": "targeted", "format": "json", "file": "targeted.json"},
           {"class": "exposure", "format": "csv", "file": "exposure.csv"},
@@ -96,7 +97,27 @@
         {"header": "LAST", "key": "last"},
         {"header": "ATTACK", "key": "attack", "wide": true},
         {"header": "ATLAS", "key": "atlas", "wide": true},
-        {"header": "EVIDENCE", "key": "evidence", "wide": true}
+        {"header": "EVIDENCE", "key": "evidence", "wide": true},
+        {"header": "WHAT", "key": "what", "wide": true},
+        {"header": "TARGETS", "key": "targets", "wide": true},
+        {"header": "IP", "key": "ip", "wide": true},
+        {"header": "HOST", "key": "host", "wide": true},
+        {"header": "URL", "key": "url", "wide": true},
+        {"header": "ACCOUNT", "key": "account", "wide": true},
+        {"header": "TENANT", "key": "tenant", "wide": true},
+        {"header": "APPLICATION", "key": "application", "wide": true},
+        {"header": "TASK", "key": "task", "wide": true},
+        {"header": "SERVICE", "key": "service", "wide": true}
+      ],
+      "entities": [
+        {"column": "ip", "kinds": ["ip"], "indicators": ["IPv4"]},
+        {"column": "host", "labels": ["host"], "kinds": ["device"], "indicators": ["Domain"]},
+        {"column": "url", "labels": ["url"], "indicators": ["URL", "GraphEndpoint", "AzureManagementEndpoint", "EntraLoginEndpoint", "KeyVaultEndpoint"]},
+        {"column": "account", "labels": ["account", "principal", "mailbox"], "kinds": ["username", "email"], "indicators": ["Email"]},
+        {"column": "tenant", "labels": ["tenant"], "kinds": ["tenant"]},
+        {"column": "application", "labels": ["application", "client"], "kinds": ["application"]},
+        {"column": "task", "labels": ["task", "timer"]},
+        {"column": "service", "labels": ["service", "unit"]}
       ]
     },
     {

@@ -35,7 +35,7 @@ func TestReportProgress(t *testing.T) {
 	}
 	stages := []string{
 		"[1/5] reading the folder  0s", "[2/5] analysing the files  0 of 14  0s", "[3/5] gathering what the files hold  0s",
-		"[4/5] assembling the report  0s", "[5/5] saving the report  0 of 10  0s",
+		"[4/5] assembling the report  0s", "[5/5] saving the report  0 of 11  0s",
 	}
 	tests := []struct {
 		name     string

@@ -111,8 +111,8 @@ func TestBinaryWritesOnlyToTheOutputFolder(t *testing.T) {
 					t.Errorf("%s was taken away", path)
 				}
 			}
-			if saved != 10 {
-				t.Errorf("the output folder holds %d files, want 10", saved)
+			if saved != 11 {
+				t.Errorf("the output folder holds %d files, want 11", saved)
 			}
 		})
 	}
@@ -208,7 +208,7 @@ func TestBinary(t *testing.T) {
 	if strings.Contains(stdout, "\x1b[") {
 		t.Error("report: colour codes in output that is not a terminal")
 	}
-	for _, name := range []string{"report.txt", "report.md", "report.html", "files.csv", "trace.json", "intents.csv", "findings.json", "targeted.json", "exposure.csv", "report.json"} {
+	for _, name := range []string{"report.txt", "report.md", "report.html", "files.csv", "trace.json", "intents.csv", "findings.csv", "findings.json", "targeted.json", "exposure.csv", "report.json"} {
 		if info, err := os.Stat(filepath.Join(work, saved, name)); err != nil || info.Size() == 0 {
 			t.Errorf("report: %s was not saved: %v", name, err)
 		}

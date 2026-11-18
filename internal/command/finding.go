@@ -6,9 +6,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/get-sybers/slopmop/internal/activity"
 	"github.com/get-sybers/slopmop/internal/indicator"
 	"github.com/get-sybers/slopmop/internal/render"
 	"github.com/get-sybers/slopmop/internal/tactic"
+	"github.com/get-sybers/slopmop/internal/trace"
 )
 
 const (
@@ -36,6 +38,11 @@ type finding struct {
 	first, last time.Time
 	// evidence holds the lines that show an activity.
 	evidence []dated
+	// targets name what those lines act on, each with its kind.
+	targets []string
+	// named holds what the lines of an activity act on and hold, by the
+	// column that lists it. An indicator names itself and holds none.
+	named map[string][]string
 }
 
 // dated is one line of evidence and the time of its file.
@@ -103,11 +110,6 @@ func (p pipeline) listFindings(a analysis) []finding {
 				f.files = append(f.files, path)
 			}
 			f.seen(at)
-			for _, e := range hit.Evidence {
-				if len(f.evidence) < maxCited {
-					f.evidence = append(f.evidence, dated{cited: a.cited(path, e), at: at})
-				}
-			}
 		}
 		// A tactic is of every file that shows it, a script or what a script
 		// wrote: the timeline gives an intent the tactics of all its files.
@@ -147,6 +149,12 @@ func (p pipeline) listFindings(a analysis) []finding {
 			f.tactics = appendUnique(f.tactics, inherited[path]...)
 		}
 	}
+	kept(a.timeline.Steps, func(s trace.Step, hit activity.Hit, n int) {
+		f, line := byActivity[hit.Name], a.cited(s.File.Path, hit.Evidence[n])
+		f.evidence = append(f.evidence, dated{cited: line, at: s.File.Time()})
+		f.targets = appendUnique(f.targets, line.targets()...)
+		p.entities.file(f, a.named[evidenceAt{s.File.Path, hit.Name, n}])
+	})
 	findings := make([]finding, len(order))
 	for i, f := range order {
 		sort.Strings(f.tactics)
@@ -231,7 +239,9 @@ func when(at time.Time) render.Value {
 	return render.Time(at)
 }
 
-func findingRow(f finding, columns []render.Column) ([]render.Value, error) {
+// findingRow writes a finding as a row. named says which columns list what
+// it names, which the row holds beside the columns of every finding.
+func findingRow(f finding, named entities, columns []render.Column) ([]render.Value, error) {
 	list := func(items []string) render.Value {
 		if len(items) == 0 {
 			return render.NotApplicable()
@@ -250,8 +260,22 @@ func findingRow(f finding, columns []render.Column) ([]render.Value, error) {
 		"attack":      list(f.attack),
 		"atlas":       list(f.atlas),
 		"evidence":    render.NotApplicable(),
+		"what":        render.NotApplicable(),
+		"targets":     render.NotApplicable(),
+	}
+	for _, column := range named.columns {
+		cells[column] = list(f.named[column])
+	}
+	// An indicator names itself, in the column of its type.
+	if column := named.byType[f.label]; column != "" && f.kind == kindIndicator {
+		cells[column] = render.Text(f.indicator)
+	}
+	if len(f.targets) > 0 {
+		cells["targets"] = render.Text(strings.Join(f.targets, "; "))
 	}
 	if len(f.evidence) > 0 {
+		// The lines stand as the report writes them under what, every one of them.
+		cells["what"] = render.Lines(f.lines())
 		items := make([][]render.Field, len(f.evidence))
 		for i, e := range f.evidence {
 			line := render.NotApplicable()

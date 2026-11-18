@@ -6,6 +6,30 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Added
+
+- The findings are saved as CSV as well, `findings.csv`, beside `findings.json`: the same rows
+  under the same columns, a row to a line. A run saves eleven files, and its last line names
+  `findings.csv` among them.
+- A finding has `what`: the lines that show an activity as the report writes them under `what`,
+  each with its place, and every one of them where the report lists the first three.
+  `findings.json` holds them as one string, a line to each, and `findings.csv` as one cell with
+  `; ` between them.
+- A finding has `targets`, what its lines act on, each with its kind, as an impact has in
+  `report.json`.
+- A finding has the columns `ip`, `host`, `url`, `account`, `tenant`, `application`, `task` and
+  `service`, which list what it names of each: what its lines act on, what the exposure holds on
+  those lines, and what the indicators of each command are of. A command is read on every line
+  it is continued on, with each variable the file sets given its value, so an address that a
+  script holds in a variable is in `ip`. An indicator names itself in the column of its type, and
+  a tactic names nothing.
+- `commands.json` lists those columns as the `entities` of the `finding` class, each with the
+  labels of the targets, the kinds of exposure and the indicator types it holds. The tables are
+  refused when an entity is no column, reads nothing, or reads what its table lacks or another
+  entity reads.
+- `render.Lines` is a value of lines of text: one string in JSON and one cell in CSV. A line of
+  evidence of `internal/activity` has `Last`, the line a command continued over lines ends on.
+
 ## [0.6.3] - 2026-11-18
 
 ### Added

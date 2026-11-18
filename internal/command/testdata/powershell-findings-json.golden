@@ -17,7 +17,17 @@
         "line": 5,
         "text": "Export-Certificate -Cert $Store -FilePath ca01_20250302_092210.cer | Out-Null"
       }
-    ]
+    ],
+    "what": "Export-Certificate -Cert $Store -FilePath ca01_20250302_092210.cer | Out-Null (20250302_092200_step05_export.ps1:5)",
+    "targets": "file ca01_20250302_092210.cer",
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "Domain",
@@ -30,7 +40,17 @@
     "last": "2025-03-02T09:15:40Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": "CA01.corp.example",
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "Domain",
@@ -43,7 +63,17 @@
     "last": "2025-03-02T09:22:00Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": "app01.corp.example",
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "GUID",
@@ -56,7 +86,17 @@
     "last": "2025-03-02T09:22:00Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "IPv4",
@@ -69,7 +109,17 @@
     "last": "2025-03-02T09:09:00Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": "10.20.1.17",
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "IPv4",
@@ -82,7 +132,17 @@
     "last": "2025-03-02T09:15:00Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": "10.20.1.23",
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "IPv4",
@@ -95,7 +155,17 @@
     "last": "2025-03-02T09:15:00Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": "10.20.1.5",
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "SHA1",
@@ -108,7 +178,17 @@
     "last": "2025-03-02T09:22:15Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "SHA1",
@@ -121,7 +201,17 @@
     "last": "2025-03-02T09:22:15Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "SHA1",
@@ -134,7 +224,17 @@
     "last": "2025-03-02T09:15:30Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "tactic",
@@ -147,7 +247,17 @@
     "last": "2025-03-02T09:22:00Z",
     "attack": "TA0006",
     "atlas": "AML.TA0013",
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "tactic",
@@ -160,7 +270,17 @@
     "last": "2025-03-02T09:15:00Z",
     "attack": "TA0008",
     "atlas": "AML.TA0015",
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "EncodedCommand",
@@ -173,7 +293,17 @@
     "last": "2025-03-02T09:31:00Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "tactic",
@@ -186,7 +316,17 @@
     "last": "2025-03-02T09:31:00Z",
     "attack": "TA0002",
     "atlas": "AML.TA0005",
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "AccountDiscovery",
@@ -206,7 +346,17 @@
         "line": 9,
         "text": "ConnectorAccount : MSOL_0a1b2c3d4e5f"
       }
-    ]
+    ],
+    "what": "ConnectorAccount : MSOL_0a1b2c3d4e5f (sync_10.20.1.17_retry_20250302_090930.txt:9)",
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": "MSOL_0a1b2c3d4e5f",
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "Base64Blob",
@@ -219,7 +369,17 @@
     "last": "2025-03-02T09:30:10Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "Domain",
@@ -232,7 +392,17 @@
     "last": "2025-03-02T09:09:30Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": "contoso.onmicrosoft.com",
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "Domain",
@@ -245,7 +415,17 @@
     "last": "2025-03-02T09:09:30Z",
     "attack": null,
     "atlas": null,
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": "corp.example",
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   },
   {
     "finding": "tactic",
@@ -258,6 +438,16 @@
     "last": "2025-03-02T09:15:00Z",
     "attack": "TA0007",
     "atlas": "AML.TA0008",
-    "evidence": null
+    "evidence": null,
+    "what": null,
+    "targets": null,
+    "ip": null,
+    "host": null,
+    "url": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "task": null,
+    "service": null
   }
 ]

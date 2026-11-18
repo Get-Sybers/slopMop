@@ -89,7 +89,8 @@ so the output folder is to be kept as the evidence is.
 | `files.csv` | every file with its whole path, role, size, line count, times and SHA-256 |
 | `trace.json` | the timeline |
 | `intents.csv` | the ARTEX intents: the period, the techniques and the files of each |
-| `findings.json` | the activities, indicators and tactics, each with when it was seen and its lines of evidence |
+| `findings.csv` | the activities, indicators and tactics, each with when it was seen, its lines of evidence and the addresses, hosts, URLs, accounts, tenants, applications, tasks and services it names |
+| `findings.json` | the same findings as JSON |
 | `targeted.json` | what the scripts name outright |
 | `exposure.csv` | what the files hold, each value as it stands and, where it is encoded, decoded |
 | `report.json` | every row of the report, with what each impact and action acts on and the lines that show it |

@@ -144,7 +144,6 @@ func (t *targets) finish(texts map[string]string) []targeted {
 
 // shorten cuts a line to maxQuoted bytes, ending in "..." and never inside a rune.
 func shorten(line string) string {
-	const ellipsis = "..."
 	if len(line) <= maxQuoted {
 		return line
 	}
