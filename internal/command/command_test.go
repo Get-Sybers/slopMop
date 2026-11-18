@@ -395,12 +395,11 @@ func TestReportWithoutIntents(t *testing.T) {
 	readout, saved := report(t, evidencetest.Copy(t, "bash"), "summary", "timeline")
 	_, timeline, _ := strings.Cut(readout, "\nTimeline")
 	for _, block := range []string{
-		"\n  [i] Discovery                       2025-03-01T10:15:00Z\n" +
-			"      tools  nmap                                          TA0007  Discovery\n" +
-			"      no MITRE ATT&CK technique identified\n",
+		"\n  [!] Execution                       2025-03-01T10:27:00Z\n" +
+			"      T1059.006  Command and Scripting Interpreter: Python     TA0002  Execution           AML.T0050  Command and Scripting Interpreter\n",
 		"\n  [x] CredentialAccess, Exfiltration  2025-03-01T10:45:00Z\n" +
-			"      T1649  Steal or Forge Authentication Certificates    TA0006  CredentialAccess\n" +
-			"      T1048  Exfiltration Over Alternative Protocol        TA0010  Exfiltration        AML.T0025  Exfiltration via Cyber Means\n",
+			"      T1649      Steal or Forge Authentication Certificates    TA0006  CredentialAccess\n",
+		"      T1048      Exfiltration Over Alternative Protocol        TA0010  Exfiltration        AML.T0025  Exfiltration via Cyber Means\n",
 		"\n  and 10 files that show no tactic, in the saved trace\n",
 	} {
 		if !strings.Contains(timeline, block) {
@@ -1604,6 +1603,42 @@ func TestTacticsFollowFromTechniques(t *testing.T) {
 			t.Error(err)
 		}
 	})
+}
+
+// A command is filed under a technique of its tactic: one the catalogue
+// lists, and that ATT&CK files under the tactic. The embedded table is.
+func TestCommandsAreFiledUnderTheirTactic(t *testing.T) {
+	pipe, err := loadPipeline()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tt := range []struct {
+		name       string
+		techniques []string
+		want       string
+	}{
+		{"techniques of the tactic", []string{"T1021.004", "T1072"}, ""},
+		{"no technique", nil, ""},
+		{"a technique the catalogue lacks", []string{"T0000"}, `the technique "T0000", which the catalogue lacks`},
+		{"a technique of another tactic", []string{"T1021.004", "T1105"}, "under T1105, which ATT&CK does not file under LateralMovement (TA0008)"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			err := filed("LateralMovement", "TA0008", tt.techniques, pipe.catalogue)
+			if (err == nil) != (tt.want == "") || (err != nil && !strings.Contains(err.Error(), tt.want)) {
+				t.Errorf("filed = %v, want %q", err, tt.want)
+			}
+		})
+	}
+	some := 0
+	for _, name := range pipe.tactics.Names() {
+		some += len(pipe.tactics.Techniques(name))
+		if err := filed(name, pipe.tactics.Attack(name), pipe.tactics.Techniques(name), pipe.catalogue); err != nil {
+			t.Error(err)
+		}
+	}
+	if some == 0 || pipe.tactics.Technique("ssh") != "T1021.004" {
+		t.Errorf("the embedded table files commands under %d techniques, ssh under %q", some, pipe.tactics.Technique("ssh"))
+	}
 }
 
 // The mitigation section is derived: each row is a mitigation the framework

@@ -1,4 +1,5 @@
-// Package tactic classifies commands by MITRE ATT&CK tactic.
+// Package tactic says what a command is by its name: the MITRE ATT&CK
+// technique it is, and the tactic that technique is of.
 package tactic
 
 import (
@@ -6,6 +7,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strings"
 )
 
@@ -16,14 +18,21 @@ type entry struct {
 	Tactic   string   `json:"tactic"`
 	Severity Severity `json:"severity"`
 	// ID and Atlas are the tactic's identifiers in ATT&CK and in ATLAS.
-	ID       string   `json:"id"`
-	Atlas    string   `json:"atlas"`
-	Commands []string `json:"commands"`
+	ID    string `json:"id"`
+	Atlas string `json:"atlas"`
+	// Techniques files a command under the ATT&CK technique it is. Commands
+	// holds the commands of the tactic whose technique is not named.
+	Techniques map[string][]string `json:"techniques,omitempty"`
+	Commands   []string            `json:"commands,omitempty"`
 }
 
-// Table maps command names to tactics.
+// Table maps command names to techniques and to tactics.
 type Table struct {
 	byCommand map[string]string
+	// technique is the technique a command is filed under, and filed the
+	// techniques of a tactic that have commands.
+	technique map[string]string
+	filed     map[string][]string
 	severity  map[string]Severity
 	ids       map[string][2]string
 	names     []string
@@ -67,26 +76,58 @@ func (t Table) Has(tactic string) bool {
 
 // LoadTactics reads and validates the embedded tactics.json.
 func LoadTactics() (Table, error) {
-	entries, err := decode(raw)
+	return Parse(raw)
+}
+
+// Parse reads and validates a table written as tactics.json is.
+func Parse(data []byte) (Table, error) {
+	entries, err := decode(data)
 	if err != nil {
 		return Table{}, err
 	}
-	m := make(map[string]string, 512)
-	severity := make(map[string]Severity, len(entries))
-	ids := make(map[string][2]string, len(entries))
-	names := make([]string, 0, len(entries))
+	t := Table{
+		byCommand: make(map[string]string, 512), technique: map[string]string{}, filed: map[string][]string{},
+		severity: make(map[string]Severity, len(entries)), ids: make(map[string][2]string, len(entries)),
+	}
+	// A command stands once in the table, under one technique or under none.
+	place := func(command, tactic, technique string) error {
+		if prev, dup := t.byCommand[command]; dup {
+			return fmt.Errorf("command %q in both %s and %s", command, prev, tactic)
+		}
+		t.byCommand[command] = tactic
+		if technique != "" {
+			t.technique[command] = technique
+		}
+		return nil
+	}
 	for _, e := range entries {
-		severity[e.Tactic] = e.Severity
-		ids[e.Tactic] = [2]string{e.ID, e.Atlas}
-		names = append(names, e.Tactic)
-		for _, c := range e.Commands {
-			if prev, dup := m[c]; dup {
-				return Table{}, fmt.Errorf("command %q in both %s and %s", c, prev, e.Tactic)
+		t.severity[e.Tactic] = e.Severity
+		t.ids[e.Tactic] = [2]string{e.ID, e.Atlas}
+		t.names = append(t.names, e.Tactic)
+		for id := range e.Techniques {
+			t.filed[e.Tactic] = append(t.filed[e.Tactic], id)
+		}
+		slices.Sort(t.filed[e.Tactic])
+		for _, id := range t.filed[e.Tactic] {
+			for _, c := range e.Techniques[id] {
+				if err := place(c, e.Tactic, id); err != nil {
+					return Table{}, err
+				}
 			}
-			m[c] = e.Tactic
+		}
+		for _, c := range e.Commands {
+			if err := place(c, e.Tactic, ""); err != nil {
+				return Table{}, err
+			}
 		}
 	}
-	return Table{byCommand: m, severity: severity, ids: ids, names: names}, nil
+	return t, nil
+}
+
+// Techniques lists the ATT&CK techniques the commands of a tactic are filed
+// under, by identifier, so a caller that holds the catalogue can check them.
+func (t Table) Techniques(tactic string) []string {
+	return t.filed[tactic]
 }
 
 // Names lists the tactics, in the order of the data file.
@@ -124,8 +165,13 @@ func decode(data []byte) ([]entry, error) {
 		if e.ID == "" || e.Atlas == "" {
 			return nil, fmt.Errorf("tactics.json[%d] (%s): an ATT&CK and an ATLAS identifier are both needed", i, e.Tactic)
 		}
-		if len(e.Commands) == 0 {
+		if len(e.Commands) == 0 && len(e.Techniques) == 0 {
 			return nil, fmt.Errorf("tactics.json[%d] (%s): no commands", i, e.Tactic)
+		}
+		for id, commands := range e.Techniques {
+			if id == "" || len(commands) == 0 {
+				return nil, fmt.Errorf("tactics.json[%d] (%s): the technique %q has no name or no command", i, e.Tactic, id)
+			}
 		}
 	}
 	return entries, nil
@@ -133,15 +179,26 @@ func decode(data []byte) ([]entry, error) {
 
 // Classify returns the tactic for a command, or "" when unknown.
 func (t Table) Classify(command string) string {
+	return t.byCommand[t.known(command)]
+}
+
+// Technique returns the ATT&CK technique a command is, or "" when the table
+// names none for it: the tactic of the command then stands without one.
+func (t Table) Technique(command string) string {
+	return t.technique[t.known(command)]
+}
+
+// known returns the name the table holds a command under: the command in
+// lower case, or that name without .exe or .py. An unknown command has none.
+func (t Table) known(command string) string {
 	low := strings.ToLower(command)
-	if tac, ok := t.byCommand[low]; ok {
-		return tac
+	if _, ok := t.byCommand[low]; ok {
+		return low
 	}
 	for _, suffix := range []string{".exe", ".py"} {
-		bare := strings.TrimSuffix(low, suffix)
-		if bare != low {
-			if tac, ok := t.byCommand[bare]; ok {
-				return tac
+		if bare := strings.TrimSuffix(low, suffix); bare != low {
+			if _, ok := t.byCommand[bare]; ok {
+				return bare
 			}
 		}
 	}

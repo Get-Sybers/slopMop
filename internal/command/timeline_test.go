@@ -12,6 +12,7 @@ import (
 	"github.com/get-sybers/slopmop/internal/evidence"
 	"github.com/get-sybers/slopmop/internal/intel"
 	"github.com/get-sybers/slopmop/internal/render"
+	"github.com/get-sybers/slopmop/internal/tactic"
 	"github.com/get-sybers/slopmop/internal/trace"
 )
 
@@ -177,18 +178,39 @@ func row(things ...string) render.Row {
 	return r
 }
 
-// A row is a technique and what follows from it: the tactics of the activity
-// that shows it that ATT&CK files it under, and the ATLAS techniques it
-// infers. A tactic that only tools give is a row with those tools.
+// madeTactics is the command table of a test, so that what is filed in the
+// embedded one does not decide it: a command under a technique, and others
+// under none.
+func madeTactics(t *testing.T) tactic.Table {
+	t.Helper()
+	table, err := tactic.Parse([]byte(`[
+		{"tactic":"Discovery","severity":"low","id":"TA0007","atlas":"AML.TA0008","commands":["look","peek"]},
+		{"tactic":"LateralMovement","severity":"high","id":"TA0008","atlas":"AML.TA0015","techniques":{"T1021.004":["hop"]},"commands":["leap"]},
+		{"tactic":"Execution","severity":"medium","id":"TA0002","atlas":"AML.TA0005","commands":["run"]},
+		{"tactic":"PrivilegeEscalation","severity":"high","id":"TA0004","atlas":"AML.TA0012","commands":["rise"]},
+		{"tactic":"Persistence","severity":"high","id":"TA0003","atlas":"AML.TA0006","commands":["stay"]},
+		{"tactic":"Collection","severity":"medium","id":"TA0009","atlas":"AML.TA0009","commands":["take"]},
+		{"tactic":"CommandAndControl","severity":"high","id":"TA0011","atlas":"AML.TA0014","commands":["call"]}
+	]`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return table
+}
+
+// A row is a technique and what follows from it: the tactic that holds it,
+// and the ATLAS techniques it infers. An activity shows a technique and so
+// does a command that is filed under one; a command under none is a tool.
 func TestBlocksListTechniquesFirst(t *testing.T) {
 	pipe, err := loadPipeline()
 	if err != nil {
 		t.Fatal(err)
 	}
+	pipe.tactics = madeTactics(t)
 	scan := stepAt(0, "i201_scan.sh", "Discovery")
-	scan.Tools = []string{"nmap", "curl", "whoami"}
+	scan.Tools = []string{"look", "curl", "Peek.exe"}
 	move := stepAt(5, "i202-move.sh", "CommandAndControl", "Discovery", "LateralMovement")
-	move.Tools = []string{"ssh", "nltest.exe"}
+	move.Tools = []string{"leap", "hop", "look"}
 	move.Activities = []activity.Hit{{Name: "FileDownload", Tactics: []string{"CommandAndControl"}, Attack: []string{"T1105"}}}
 	// A scheduled task is of two tactics: both stand with its technique.
 	task := stepAt(7, "i203_task.ps1", "Execution", "Persistence", "PrivilegeEscalation")
@@ -202,12 +224,21 @@ func TestBlocksListTechniquesFirst(t *testing.T) {
 	if len(groups) == 0 || len(groups[0].Entries) != 4 {
 		t.Fatalf("the timeline has %d groups, want a block for each of the four intents", len(groups))
 	}
+	// The technique of a command is a technique of the intent, as that of an activity is.
+	if got, want := runs[1].attack, []string{"T1105", "T1021.004"}; !slices.Equal(got, want) {
+		t.Errorf("i202 has the techniques %q, want %q", got, want)
+	}
+	if got, want := runs[1].atlas, []string{"AML.T0072"}; !slices.Equal(got, want) || len(runs[0].attack) != 0 {
+		t.Errorf("i202 has the ATLAS techniques %q, want %q, and i201 the techniques %q, want none", got, want, runs[0].attack)
+	}
 	none := []render.Detail{{Text: noTechnique}}
 	wants := []render.Entry{
-		{Rows: []render.Row{row("tools: nmap, whoami", "TA0007  Discovery")}, Detail: none},
+		{Rows: []render.Row{row("tools: look, Peek.exe", "TA0007  Discovery")}, Detail: none},
+		// A tool whose tactic a technique gives is listed all the same: no technique is named for it.
 		{Rows: []render.Row{
-			row("tools: nltest.exe", "TA0007  Discovery"),
-			row("tools: ssh", "TA0008  LateralMovement"),
+			row("tools: look", "TA0007  Discovery"),
+			row("T1021.004  Remote Services: SSH", "TA0008  LateralMovement"),
+			row("tools: leap", "TA0008  LateralMovement"),
 			row("T1105  Ingress Tool Transfer", "TA0011  CommandAndControl", "AML.T0072  Cyber Communication Channel"),
 		}},
 		// The rows stand in the order of the tactic table, whichever technique was shown first.

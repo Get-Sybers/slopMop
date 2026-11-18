@@ -26,6 +26,14 @@ All notable changes to this project are recorded in this file. The format follow
 - The tactics of an activity follow from its techniques, and the tables are refused when they
   do not: when ATT&CK files a technique of an activity under none of its tactics, or files none
   of its techniques under one of its tactics.
+- A command is a technique. `tactics.json` files a command under the ATT&CK technique it is by
+  its name, and the tactic of the command is the tactic that holds the technique; a command
+  gave a tactic and no technique. 210 of the 481 commands are filed, under 64 techniques, and
+  the tables are refused when ATT&CK does not file a technique under the tactic. A command
+  shows its technique as an activity does: in the block and the row of its intent, in the
+  impact of its tactic and in the mitigations, which have more rows for it.
+- A command whose technique is not named gives its tactic alone, and the timeline lists it as a
+  tool of that tactic. The 166 commands of Discovery are among them.
 
 ### Fixed
 

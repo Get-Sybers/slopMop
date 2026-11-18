@@ -147,8 +147,8 @@ func checkColumns(k exposure.Kind) error {
 }
 
 // loadCatalogue checks that every ATT&CK and ATLAS identifier the tactic
-// and activity tables give is one the catalogue lists, and that the
-// tactics of an activity follow from its techniques.
+// and activity tables give is one the catalogue lists, and that the tactic
+// of a command and the tactics of an activity follow from a technique.
 func loadCatalogue(tactics tactic.Table, activities activity.Table) (mitre.Catalogue, error) {
 	catalogue, err := mitre.Load()
 	if err != nil {
@@ -161,6 +161,9 @@ func loadCatalogue(tactics tactic.Table, activities activity.Table) (mitre.Catal
 		if id := tactics.Atlas(name); !catalogue.Atlas.HasTactic(id) {
 			return mitre.Catalogue{}, fmt.Errorf("tactics.json gives %s the ATLAS tactic %q, which the catalogue lacks", name, id)
 		}
+		if err = filed(name, tactics.Attack(name), tactics.Techniques(name), catalogue); err != nil {
+			return mitre.Catalogue{}, err
+		}
 	}
 	activities.Each(func(name string, shown, attack []string) {
 		if err == nil {
@@ -168,6 +171,20 @@ func loadCatalogue(tactics tactic.Table, activities activity.Table) (mitre.Catal
 		}
 	})
 	return catalogue, err
+}
+
+// filed checks that the techniques the commands of a tactic are filed under
+// are of that tactic: ATT&CK lists each, and files it under the tactic.
+func filed(name, attack string, techniques []string, catalogue mitre.Catalogue) error {
+	for _, id := range techniques {
+		if !catalogue.Attack.HasTechnique(id) {
+			return fmt.Errorf("tactics.json files commands of %s under the technique %q, which the catalogue lacks", name, id)
+		}
+		if !slices.Contains(catalogue.Attack.TacticsOf(id), attack) {
+			return fmt.Errorf("tactics.json files commands of %s under %s, which ATT&CK does not file under %s (%s)", name, id, name, attack)
+		}
+	}
+	return nil
 }
 
 // follows checks that a technique gives an activity each of its tactics:

@@ -16,27 +16,28 @@ Tactics   (tactic, identifiers, files)
   [!] Execution         TA0002, AML.TA0005  20250301_102700_step03_adsync_v2.sh
   [i] Discovery         TA0007, AML.TA0008  20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh
 
-Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools that give a tactic no technique does)
+Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools of a tactic that no technique is named for)
   [i] Discovery                       2025-03-01T10:15:00Z
-      tools  nmap                                          TA0007  Discovery
+      tools      nmap                                          TA0007  Discovery
       no MITRE ATT&CK technique identified
 
   [x] Discovery, CredentialAccess     2025-03-01T10:18:00Z to 2025-03-01T10:23:00Z
-      tools  ldapsearch                                    TA0007  Discovery
-      tools  nxc, adconnectdump.py                         TA0006  CredentialAccess
+      tools      ldapsearch                                    TA0007  Discovery
+      tools      nxc, adconnectdump.py                         TA0006  CredentialAccess
       no MITRE ATT&CK technique identified
 
   [!] Execution                       2025-03-01T10:27:00Z
-      tools  python3                                       TA0002  Execution
-      no MITRE ATT&CK technique identified
+      T1059.006  Command and Scripting Interpreter: Python     TA0002  Execution           AML.T0050  Command and Scripting Interpreter
 
   [x] CredentialAccess                2025-03-01T10:32:00Z to 2025-03-01T10:40:00Z
-      tools  certipy, secretsdump.py, nxc                  TA0006  CredentialAccess
-      no MITRE ATT&CK technique identified
+      T1649      Steal or Forge Authentication Certificates    TA0006  CredentialAccess
+      T1003      OS Credential Dumping                         TA0006  CredentialAccess    AML.T0090  OS Credential Dumping
+      tools      nxc                                           TA0006  CredentialAccess
 
   [x] CredentialAccess, Exfiltration  2025-03-01T10:45:00Z
-      T1649  Steal or Forge Authentication Certificates    TA0006  CredentialAccess
-      T1048  Exfiltration Over Alternative Protocol        TA0010  Exfiltration        AML.T0025  Exfiltration via Cyber Means
+      T1649      Steal or Forge Authentication Certificates    TA0006  CredentialAccess
+      tools      nxc                                           TA0006  CredentialAccess
+      T1048      Exfiltration Over Alternative Protocol        TA0010  Exfiltration        AML.T0025  Exfiltration via Cyber Means
   and 10 files that show no tactic, in the saved trace
 
 Findings
@@ -185,11 +186,15 @@ Remediation   (most urgent first)
       basis    Discovery tools, exposed username, exposed email, exposed tenant, exposed device, exposed ip
 
 Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
-  [x] M1015 Active Directory Configuration                    T1649
+  [x] M1015 Active Directory Configuration                    T1003, T1649
       Implement robust Active Directory (AD) configurations using group policies to secure user accounts, control access, and minimize the attack surface.
-      exposed  hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
+      exposed  password of MSOL_0a1b2c3d4e5f, Microsoft 365, 10.20.1.5: Qw7#fakeMsolSecretValue99
+               hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
                password: Export1!
       for      CertificateExport
+  [x] M1017 User Training                                     T1003
+      User Training involves educating employees and contractors on recognizing, reporting, and preventing cyber threats that rely on human interaction, such as phishing, social engineering, and other manipulative techniques.
+      exposed  hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
   [x] M1018 User Account Management                           T1048
       User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.
       exposed  hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
@@ -200,6 +205,18 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
       exposed  hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
                password: Export1!
       for      FileUpload
+  [x] M1025 Privileged Process Integrity                      T1003
+      Privileged Process Integrity focuses on defending highly privileged processes (e.g., system services, antivirus, or authentication processes) from tampering, injection, or compromise by adversaries.
+      exposed  hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
+  [x] M1026 Privileged Account Management                     T1003
+      Privileged Account Management focuses on implementing policies, controls, and tools to securely manage privileged accounts (e.g., SYSTEM, root, or administrative accounts).
+      exposed  hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
+  [x] M1027 Password Policies                                 T1003
+      Set and enforce secure password policies for accounts to reduce the likelihood of unauthorized access.
+      exposed  hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
+  [x] M1028 Operating System Configuration                    T1003
+      Operating System Configuration involves adjusting system settings and hardening the default configurations of an operating system (OS) to mitigate adversary exploitation and prevent abuse of system functionality.
+      exposed  hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
   [x] M1030 Network Segmentation                              T1048
       Network segmentation involves dividing a network into smaller, isolated segments to control and limit the flow of traffic between devices, systems, and applications.
       exposed  hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
@@ -215,19 +232,28 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
       exposed  hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
                password: Export1!
       for      FileUpload
-  [x] M1041 Encrypt Sensitive Information                     T1649
-      Protect sensitive information at rest, in transit, and during processing by using strong encryption algorithms.
+  [x] M1040 Behavior Prevention on Endpoint                   T1003
+      Behavior Prevention on Endpoint refers to the use of technologies and strategies to detect and block potentially malicious activities by analyzing the behavior of processes, files, API calls, and other endpoint events.
       exposed  hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
+  [x] M1041 Encrypt Sensitive Information                     T1003, T1649
+      Protect sensitive information at rest, in transit, and during processing by using strong encryption algorithms.
+      exposed  password of MSOL_0a1b2c3d4e5f, Microsoft 365, 10.20.1.5: Qw7#fakeMsolSecretValue99
+               hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
                password: Export1!
       for      CertificateExport
   [x] M1042 Disable or Remove Feature or Program              T1649
       Disable or remove unnecessary and potentially vulnerable software, features, or services to reduce the attack surface and prevent abuse by adversaries.
-      exposed  hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
+      exposed  password of MSOL_0a1b2c3d4e5f, Microsoft 365, 10.20.1.5: Qw7#fakeMsolSecretValue99
+               hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
                password: Export1!
       for      CertificateExport
-  [x] M1047 Audit                                             T1649
-      Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.
+  [x] M1043 Credential Access Protection                      T1003
+      Credential Access Protection focuses on implementing measures to prevent adversaries from obtaining credentials, such as passwords, hashes, tokens, or keys, that could be used for unauthorized access.
       exposed  hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
+  [x] M1047 Audit                                             T1059.006, T1649
+      Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.
+      exposed  password of MSOL_0a1b2c3d4e5f, Microsoft 365, 10.20.1.5: Qw7#fakeMsolSecretValue99
+               hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
                password: Export1!
       for      CertificateExport
   [x] M1057 Data Loss Prevention                              T1048
@@ -235,11 +261,20 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
       exposed  hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
                password: Export1!
       for      FileUpload
+  [!] M1033 Limit Software Installation                       T1059.006
+      Prevent users or groups from installing unauthorized or unapproved software to reduce the risk of introducing malicious or vulnerable applications.
+  [!] M1038 Execution Prevention                              T1059.006
+      Prevent the execution of unauthorized or malicious code on systems by implementing application control, script blocking, and other execution prevention mechanisms.
+  [!] M1049 Antivirus/Antimalware                             T1059.006
+      Antivirus/Antimalware solutions utilize signatures, heuristics, and behavioral analysis to detect, block, and remediate malicious software, including viruses, trojans, ransomware, and spyware.
   [x] AML.M0005 Control Access to AI Models and Data at Rest  AML.T0025
       Establish access controls on internal model registries and limit internal access to production models.
       exposed  hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
                password: Export1!
       for      FileUpload
+  [x] AML.M0011 Restrict Library Loading                      AML.T0050, AML.T0090
+      Prevent abuse of library loading mechanisms in the operating system and software to load untrusted code by configuring appropriate library loading mechanisms and investigating potential vulnerable software.
+      exposed  hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
   [i] AML.M0020 Generative AI Guardrails                      AML.T0102
       Guardrails are safety controls placed between users, tools, and generative AI models to evaluate prompts, retrieved context, model outputs, and agent actions before they are accepted, executed, or shown to a user.
       for      Commands generated by an AI agent

@@ -102,7 +102,7 @@ func (p pipeline) report(a analysis, wanted map[string]bool) ([]reportRow, []sho
 			})
 		}
 	}
-	found, shown, tools := p.gather(a)
+	found, shown, tools, run := p.gather(a)
 	held := hold(a.exposed)
 	impacts := p.assessment.Impacts(found)
 	if wanted[sectionImpact] {
@@ -117,6 +117,13 @@ func (p pipeline) report(a analysis, wanted map[string]bool) ([]reportRow, []sho
 			}
 			row := reportRow{item: r.Name, section: sectionImpact, level: r.Level, detail: detail, basis: r.Basis, files: r.Files}
 			row.attack, row.atlas = p.techniques(shown, r.Activities)
+			// The tools behind a tactic of the impact show the techniques they are filed under.
+			for _, basis := range r.Basis {
+				if name, isTools := strings.CutSuffix(basis, toolsSuffix); isTools {
+					row.attack = appendUnique(row.attack, run.under(name)...)
+					row.atlas = appendUnique(row.atlas, p.catalogue.AtlasFor(run.under(name))...)
+				}
+			}
 			row.atlas = appendUnique(row.atlas, r.Atlas...)
 			row.targets, row.evidence = support(shown, tools, r)
 			row.exposed = held.concerning(r.Exposed, shownIn(found, r), citedBy(shown, tools, r.Activities, r.Basis))
@@ -132,11 +139,15 @@ func (p pipeline) report(a analysis, wanted map[string]bool) ([]reportRow, []sho
 		}
 	}
 	if wanted[sectionMitigation] {
-		for _, row := range p.mitigations(shown, impacts) {
-			// A mitigation concerns what the files and the lines of its activities hold.
+		for _, row := range p.mitigations(shown, run, impacts) {
+			// A mitigation concerns what the files and the lines of its activities
+			// hold, and the files that run a command of one of its techniques.
 			var files []string
 			for _, name := range row.basis {
 				files = append(files, found.Activities[name]...)
+			}
+			for _, id := range slices.Concat(row.attack, row.atlas) {
+				files = append(files, run.files[id]...)
 			}
 			row.exposed = held.concerning(nil, files, citedBy(shown, nil, row.basis, nil))
 			rows = append(rows, row)
@@ -281,8 +292,28 @@ func (s shownActivity) subjects() []string {
 	return out
 }
 
+// ran is the techniques the commands of the files are filed under, in the
+// order they first ran: each with the tactics of its commands and the files
+// that run them. An ATLAS technique one of them infers has those files too.
+type ran struct {
+	ids     []string
+	tactics map[string][]string
+	files   map[string][]string
+}
+
+// under lists the techniques of the commands of a tactic.
+func (r ran) under(tactic string) []string {
+	var ids []string
+	for _, id := range r.ids {
+		if slices.Contains(r.tactics[id], tactic) {
+			ids = append(ids, id)
+		}
+	}
+	return ids
+}
+
 // cause is what showed a technique: the activities or impacts, their files
-// and the highest severity among them.
+// and the highest severity among them. A command that shows one has no name.
 type cause struct {
 	names []string
 	files []string
@@ -291,7 +322,7 @@ type cause struct {
 
 // mitigations lists what ATT&CK and then ATLAS say mitigates the techniques
 // that were found. The link from technique to mitigation is the framework's.
-func (p pipeline) mitigations(shown []shownActivity, impacts []assess.Result) []reportRow {
+func (p pipeline) mitigations(shown []shownActivity, run ran, impacts []assess.Result) []reportRow {
 	attack, atlas := map[string]*cause{}, map[string]*cause{}
 	note := func(by map[string]*cause, id, name string, files []string, level tactic.Severity) {
 		c, ok := by[id]
@@ -299,7 +330,9 @@ func (p pipeline) mitigations(shown []shownActivity, impacts []assess.Result) []
 			c = &cause{level: tactic.Low}
 			by[id] = c
 		}
-		c.names = appendUnique(c.names, name)
+		if name != "" {
+			c.names = appendUnique(c.names, name)
+		}
 		c.files = appendUnique(c.files, files...)
 		if level.Rank() > c.level.Rank() {
 			c.level = level
@@ -312,6 +345,13 @@ func (p pipeline) mitigations(shown []shownActivity, impacts []assess.Result) []
 		}
 		for _, id := range p.atlasOf(s.hit) {
 			note(atlas, id, s.hit.Name, s.files, level)
+		}
+	}
+	for _, id := range run.ids {
+		level := p.highest(run.tactics[id])
+		note(attack, id, "", run.files[id], level)
+		for _, inferred := range p.catalogue.AtlasFor([]string{id}) {
+			note(atlas, inferred, "", run.files[id], level)
 		}
 	}
 	// An impact can stand for an ATLAS technique that no single line shows.
@@ -383,11 +423,12 @@ func (p pipeline) highest(tactics []string) tactic.Severity {
 
 // gather indexes what the timeline found by the files it was found in, lists
 // the activities in the order they were first seen, and keeps the commands
-// of the tools behind each tactic.
-func (p pipeline) gather(a analysis) (assess.Evidence, []shownActivity, map[string][]cited) {
+// of the tools behind each tactic and the techniques those tools are.
+func (p pipeline) gather(a analysis) (assess.Evidence, []shownActivity, map[string][]cited, ran) {
 	var shown []shownActivity
 	index := map[string]int{}
 	tools := map[string][]cited{}
+	run := ran{tactics: map[string][]string{}, files: map[string][]string{}}
 	found := assess.Evidence{
 		Activities: map[string][]string{},
 		Tactics:    map[string][]string{},
@@ -416,8 +457,16 @@ func (p pipeline) gather(a analysis) (assess.Evidence, []shownActivity, map[stri
 			}
 		}
 		for _, tool := range s.Tools {
-			if name := p.tactics.Classify(tool); name != "" && tacFiles.fresh(name, path) {
+			name := p.tactics.Classify(tool)
+			if name != "" && tacFiles.fresh(name, path) {
 				found.Tactics[name] = append(found.Tactics[name], path)
+			}
+			if id := p.tactics.Technique(tool); id != "" {
+				run.ids = appendUnique(run.ids, id)
+				run.tactics[id] = appendUnique(run.tactics[id], name)
+				for _, of := range append([]string{id}, p.catalogue.AtlasFor([]string{id})...) {
+					run.files[of] = appendUnique(run.files[of], path)
+				}
 			}
 		}
 		for _, c := range s.Commands {
@@ -437,7 +486,7 @@ func (p pipeline) gather(a analysis) (assess.Evidence, []shownActivity, map[stri
 			found.Indicators[path][m.Type] = append(found.Indicators[path][m.Type], m.Value)
 		}
 	}
-	return found, shown, tools
+	return found, shown, tools, run
 }
 
 // listMetrics counts distinct values across the whole timeline; an activity

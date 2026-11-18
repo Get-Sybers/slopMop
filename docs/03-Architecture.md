@@ -16,7 +16,7 @@ about evidence touch no file, and every static table is a data file validated at
 | `internal/nametime` | detects the timestamp written into a file name; no I/O |
 | `internal/parse` | extracts commands, variables and file references from bash, PowerShell, Python and batch scripts, and decodes the payloads a file carries encoded |
 | `internal/structured` | decodes JSON, XML and HTML reports into their text values and recorded commands using `formats.json` |
-| `internal/tactic` | classifies commands by MITRE ATT&CK tactic and ranks each tactic's severity using `tactics.json` |
+| `internal/tactic` | says what a command is by its name, the ATT&CK technique and the tactic that holds it, and ranks each tactic's severity using `tactics.json` |
 | `internal/activity` | recognises what a line of evidence does (a role assignment, a mailbox read, a Key Vault secret read) and the tactics of it, using `activities.json` |
 | `internal/indicator` | extracts security indicators (IPs, URLs, hashes, CVEs, GUIDs, Microsoft cloud endpoints, OAuth scopes) using `indicators.json` |
 | `internal/assess` | turns what a run found into its impacts and the remediation they call for, using `impacts.json` and `actions.json` |
@@ -60,7 +60,7 @@ progress    -> render
 | --- | --- | --- |
 | `internal/inventory/roles.json` | each role's summary, extensions and shebang patterns | the roles are `script`, `output`, `other` in that order; extensions are lower-case, dotted and in one role; patterns compile; `other` takes neither |
 | `internal/command/commands.json` | the usage line, the options, the verbs with their sections, hints and saved files, and the columns of each class | names, hints and summaries present and unique; a verb names only declared options; columns pass the table check; a saved file is a file name of its own; a saved report names a format that has a writer, once; a saved table names a format that has a writer; every declared verb and section has an implementation and every implementation a declaration; a row fills exactly the declared columns |
-| `internal/tactic/tactics.json` | the tactics, the severity of each, its ATT&CK and ATLAS identifiers and the commands it claims | every tactic has a name, a severity of `low`, `medium` or `high`, both identifiers and at least one command; no command appears in two tactics; `command` rejects an identifier the catalogue lacks |
+| `internal/tactic/tactics.json` | the tactics, the severity of each and its ATT&CK and ATLAS identifiers; under `techniques`, its commands by the ATT&CK technique each one is; under `commands`, its commands whose technique is not named | every tactic has a name, a severity of `low`, `medium` or `high`, both identifiers and at least one command; a technique has a name and a command; a command stands once in the table; `command` rejects an identifier the catalogue lacks and a technique that ATT&CK does not file under the tactic |
 | `internal/activity/activities.json` | each activity's name, tactics, ATT&CK techniques and patterns, the contexts some patterns need, the subjects a matching line acts on, and how the subjects of a label are listed: what heads their column, which labels stand beside them, and whether they stand after the activities that acted on them | names are present and unique; every activity has a tactic, an ATT&CK technique and a pattern; `command` rejects a technique the catalogue lacks, a technique ATT&CK files under none of the tactics of its activity, and a tactic ATT&CK files none of the techniques of its activity under; paths and a known context go together; every pattern compiles and the literal it is found by holds no line break; a subject has a label and a pattern with one group; a label that is listed has a column and stands beside labels that subjects carry; `command` rejects a tactic that `tactics.json` lacks |
 | `internal/assess/impacts.json` | each impact's name, severity and statement, what triggers it, the indicator types to list as affected and the kinds of exposure it concerns | names are present and unique; a statement and a severity of `low`, `medium` or `high`; something triggers each; `command` rejects an activity, a tactic, an indicator type or a kind of exposure the other tables lack |
 | `internal/assess/actions.json` | each remediation's name, priority and text, and what triggers it | as for an impact |
@@ -450,8 +450,9 @@ output of its commands in `cmd-output` below it, and names the worker's session
   folder that is read itself still names its intent and its task.
 - `command` groups the steps of the timeline by intent. The period of an intent runs from the
   first of its files to be made until the last, by `evidence.File.Made`.
-- The techniques of an intent are those of the activities its files show: the ATT&CK techniques
-  of `activities.json` and the ATLAS techniques section 15 gives them.
+- The techniques of an intent are those of the activities its files show and of the commands
+  they run: the ATT&CK techniques of `activities.json` and of `tactics.json`, and the ATLAS
+  techniques section 15 gives them.
 - The intents are ordered by when they began; one without a time comes last.
 
 ## 14. Assessment
@@ -505,11 +506,18 @@ one-sentence summary of each mitigation, not the full text of either framework.
   technique or the technique it is a part of, and those `analogues.json` gives the technique or
   the technique it is a part of. An activity names no ATLAS technique: its ATLAS techniques
   are those of its ATT&CK techniques.
-- A command of `tactics.json` gives a tactic and no technique. What a command is used for is
-  read from the line that runs it, which is an activity.
+- A command of `tactics.json` is filed under the ATT&CK technique it is by its name, and its
+  tactic is the tactic that holds the technique: a tactic is its techniques, and `command`
+  rejects a technique that ATT&CK does not file under that tactic. A command shows its
+  technique as an activity does: in the block and the row of its intent, in the impact of its
+  tactic and in the mitigations.
+- A command whose technique is not named stands under `commands`. It gives its tactic alone,
+  and the timeline lists it as a tool. A command is filed where its name alone says which
+  technique it is, and ATT&CK files that technique under the tactic the table gives it.
 - The mitigation rows of the report are not written here. For the techniques found, the
   catalogue gives the mitigations each framework links to them; a row is one mitigation, the
-  techniques found that it addresses, and the activities and files that showed them.
+  techniques found that it addresses, and the activities and files that showed them. A
+  technique that a command shows has its files and no activity.
 
 ## 16. Fixtures
 

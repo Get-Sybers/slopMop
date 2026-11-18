@@ -70,6 +70,7 @@ func (p pipeline) collectIntents(folder string, steps []trace.Step) ([]intentRun
 			r.add(p, hit)
 			r.activities = appendUnique(r.activities, hit.Name)
 		}
+		r.run(p, s.Tools)
 		for _, h := range s.IntelHits {
 			r.hits = appendUnique(r.hits, h.Attribution+": "+h.Value)
 		}

@@ -29,7 +29,7 @@ type period struct {
 
 // techniques are the ATT&CK techniques some files show, each once, in the
 // order it is first shown, and the ATLAS techniques they infer. Each has its
-// parents: the tactics of the activities that show it that ATT&CK files it under.
+// parents: the tactics of what shows it that ATT&CK files it under.
 type techniques struct {
 	attack, atlas []string
 	parents       map[string][]string
@@ -49,6 +49,23 @@ func (t *techniques) add(p pipeline, hit activity.Hit) {
 		}
 	}
 	t.atlas = appendUnique(t.atlas, p.atlasOf(hit)...)
+}
+
+// run takes in the techniques the commands of a file are. A command is filed
+// under its technique, and the tactic that holds the technique is its parent.
+func (t *techniques) run(p pipeline, tools []string) {
+	for _, tool := range tools {
+		id := p.tactics.Technique(tool)
+		if id == "" {
+			continue
+		}
+		if t.parents == nil {
+			t.parents = map[string][]string{}
+		}
+		t.attack = appendUnique(t.attack, id)
+		t.parents[id] = appendUnique(t.parents[id], p.tactics.Classify(tool))
+		t.atlas = appendUnique(t.atlas, p.catalogue.AtlasFor([]string{id})...)
+	}
 }
 
 // periods cuts the timeline into its periods, and counts the files that are
@@ -80,6 +97,7 @@ func (w reportRun) periods() (all []period, quiet int) {
 		for _, a := range s.Activities {
 			p.add(w.pipe, a)
 		}
+		p.run(w.pipe, s.Tools)
 		for _, h := range s.IntelHits {
 			p.hits = appendUnique(p.hits, h.Attribution+": "+h.Value)
 		}
@@ -151,7 +169,7 @@ func heads() render.Heads {
 
 // block lists what a block shows, in the order of the tactic table. A row is
 // an ATT&CK technique and what follows from it, its tactics and its ATLAS
-// techniques; a tactic that no technique gives is a row with its tools.
+// techniques; the tools of a tactic that no technique is named for are a row.
 func (w reportRun) block(shown []string, found techniques, tools, hits []string) ([]render.Row, []render.Detail) {
 	every := w.pipe.tactics.Names()
 	type part struct {
@@ -188,18 +206,18 @@ func (w reportRun) block(shown []string, found techniques, tools, hits []string)
 		parts = append(parts, part{at, rows})
 	}
 	for at, name := range every {
-		if !slices.Contains(shown, name) || slices.Contains(given, name) {
-			continue
-		}
 		var of []string
 		for _, tool := range tools {
-			if w.pipe.tactics.Classify(tool) == name {
+			if w.pipe.tactics.Classify(tool) == name && w.pipe.tactics.Technique(tool) == "" {
 				of = append(of, tool)
 			}
 		}
 		row := render.Row{1: {ID: w.pipe.tactics.Attack(name), Name: name}}
-		if len(of) > 0 {
+		switch {
+		case len(of) > 0:
 			row[0] = render.Named{Kind: "tools", Name: fewOf(of, fewTools, ", ")}
+		case !slices.Contains(shown, name) || slices.Contains(given, name):
+			continue
 		}
 		parts = append(parts, part{at, []render.Row{row}})
 	}

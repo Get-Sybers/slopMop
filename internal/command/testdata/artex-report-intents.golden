@@ -11,10 +11,11 @@ Summary
   exposed     18  Passwords and secrets 3, Usernames 6, Email addresses 1, Devices 2, IP addresses 6
   intents     4
 
-Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools that give a tactic no technique does)
+Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools of a tactic that no technique is named for)
   [x] i1041  2026-10-22T09:00:00Z to 2026-10-22T09:00:40Z
       T1083      File and Directory Discovery                                    TA0007  Discovery
       T1007      System Service Discovery                                        TA0007  Discovery
+      tools      id, uname, find                                                 TA0007  Discovery
       T1552.005  Unsecured Credentials: Cloud Instance Metadata API              TA0006  CredentialAccess       AML.T0055  Unsecured Credentials
 
   [x] i1042  2026-10-22T09:05:00Z to 2026-10-22T09:05:40Z
@@ -44,7 +45,7 @@ Timeline   (a block for each intent, from the first of its files to be created u
 
   [x] i1051  2026-10-22T09:25:03Z to 2026-10-22T09:35:00Z
       tools      find, id, uname                                                 TA0007  Discovery
-      tools      ssh                                                             TA0008  LateralMovement
+      T1021.004  Remote Services: SSH                                            TA0008  LateralMovement
       T1059.004  Command and Scripting Interpreter: Unix Shell                   TA0002  Execution              AML.T0050  Command and Scripting Interpreter
       T1053.003  Scheduled Task/Job: Cron                                        TA0002  Execution
                                                                                  TA0003  Persistence

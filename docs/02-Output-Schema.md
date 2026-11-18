@@ -86,7 +86,7 @@ Impact
 | --- | --- | --- |
 | Summary | a count and its breakdown; with a window of time, the row `left out`: the files outside it and what the window left out | none |
 | Tactics | tactic, its ATT&CK and ATLAS identifiers, the files that show it | `intents`: the intents of those files, every one, in the order of the timeline |
-| Timeline | a block for each intent, or for each period where no file names an intent: the intent or the tactics of the period, and when it ran | a row for each ATT&CK technique of its files: the technique, the tactic it is of and the ATLAS technique it infers, each by its identifier and its name; a row for each tactic that no technique gives, with the tools that give it; that no technique was identified, where none was; `watchlist`: the matches of its files |
+| Timeline | a block for each intent, or for each period where no file names an intent: the intent or the tactics of the period, and when it ran | a row for each ATT&CK technique of its files, which an activity or a command shows: the technique, the tactic it is of and the ATLAS technique it infers, each by its identifier and its name; a row for the tools of a tactic that no technique is named for; that no technique was identified, where none was; `watchlist`: the matches of its files |
 | Findings | activity, lines, tactics, techniques | `what`: the lines that show it, each with its place |
 | Targeted, a group per kind | the value, for an address whether it is private or public, whether it is prior or discovered, the places in the scripts | `from`: the output that held a discovered value first; `what`: the script lines that name it |
 | Targeted, a group per thing the activities acted on | the thing, such as a task, an archive or a file, and the activities that acted on it; a task also with what it runs; a resource after the activities that acted on it | `what`: the lines that act on it |
@@ -108,7 +108,7 @@ The timeline tells what was done, in the order of time, as a line of blocks. Whe
 name ARTEX intents, a block is an intent; where none does, a block is a period.
 
 ```text
-Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools that give a tactic no technique does)
+Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools of a tactic that no technique is named for)
   [x] i1041  2026-10-22T09:00:00Z to 2026-10-22T09:00:40Z
       T1083      File and Directory Discovery                                    TA0007  Discovery
       T1007      System Service Discovery                                        TA0007  Discovery
@@ -121,18 +121,21 @@ Timeline   (a block for each intent, from the first of its files to be created u
 
 - A block names the intent, or the tactics of the period, and when it ran: one time when that is
   one instant and `-` when none of its files has a time.
-- A technique is what is identified, and it is a row: the ATT&CK technique an activity of the
-  files shows, by its identifier and the name ATT&CK gives it, a sub-technique after the
-  technique it is part of. What follows from the technique stands beside it.
-- The tactic of a technique is the tactic of the activity that shows it, of those ATT&CK files
-  the technique under, by its ATT&CK identifier and its name. A technique of two such tactics
-  has a line for each, as a scheduled task has for Execution and for Persistence.
+- A technique is what is identified, and it is a row: the ATT&CK technique an activity or a
+  command of the files shows, by its identifier and the name ATT&CK gives it, a sub-technique
+  after the technique it is part of. What follows from the technique stands beside it.
+- The tactic of a technique is the tactic of the activity or the command that shows it, of
+  those ATT&CK files the technique under, by its ATT&CK identifier and its name. A technique
+  of two such tactics has a line for each, as a scheduled task has for Execution and for
+  Persistence.
 - The ATLAS technique of a technique is the one whose ATT&CK reference in ATLAS is that
   technique or the technique it is a part of, or the one `analogues.json` gives it. A technique
   with two has a line for each, and one with none leaves the place empty.
-- A tactic is also of the tools a file runs, and a tool gives no technique. A tactic that no
-  technique of the block gives is a row of its own: `tools` and the tools that give it, the
-  first 6 of them, where a technique would stand.
+- A command is a technique too, where `tactics.json` files it under one: its row is that
+  technique and the tactic that holds it. A command whose technique is not named is a tool:
+  the tools of a tactic are a row of their own, `tools` and the first 6 of them where a
+  technique would stand, whether or not a technique gives the tactic as well.
+- A tactic that neither a technique nor a tool of the block gives stands in a row alone.
 - The rows stand in the order of `tactics.json`, a technique at the first of its tactics.
 - A block whose files show no technique says `no MITRE ATT&CK technique identified` under its
   rows.
@@ -562,9 +565,9 @@ One row per line of the report, in six sections.
 | `section` | the section |
 | `value` | a number on a summary row, where an `activities <name>` row counts the lines that show the activity; elsewhere `low`, `medium` or `high`: the severity of a value or an impact, the priority of an action; a mitigation takes the highest severity among the activities it addresses |
 | `detail` | on an impact, its statement and the hosts or addresses affected; on a remediation, what to do; on a mitigation, the first sentence of the framework's own description; on the summary row `left out`, what the window left out: `before 2026-10-22T09:10:00Z or after 2026-10-22T09:20:00Z`; `null` on any other summary row |
-| `basis` | on an impact or an action, the activities, tool tactics and watchlist attributions that call for it; on a mitigation, the activities it answers |
+| `basis` | on an impact or an action, the activities, tool tactics and watchlist attributions that call for it; on a mitigation, the activities it answers, none where only commands show its techniques |
 | `files` | on an impact or an action, the files that show it |
-| `attack` | the ATT&CK techniques an impact shows; on an ATT&CK mitigation, the techniques found that it addresses |
+| `attack` | the ATT&CK techniques an impact shows, by its activities and by the commands of its tool tactics; on an ATT&CK mitigation, the techniques found that it addresses |
 | `atlas` | the ATLAS techniques an impact shows; on an ATLAS mitigation, the techniques found that it addresses |
 | `targets` | on an impact or an action, what its activities act on; on a mitigation, each activity it answers with what that activity acted on |
 | `evidence` | on an impact or an action, the lines that show it, each with its place: up to 24 of each activity and of the tools of each tactic |
@@ -589,8 +592,8 @@ depth, or whose session its path names.
 | `from` | when the first of its files was made; empty when no file has a time |
 | `until` | when the last of its files was made |
 | `intent` | the identifier, `i` and the number, such as `i1042` |
-| `attack` | the ATT&CK techniques of the activities its files show |
-| `atlas` | the ATLAS techniques of those activities |
+| `attack` | the ATT&CK techniques of the activities its files show and of the commands they run |
+| `atlas` | the ATLAS techniques those techniques infer |
 | `files` | its files, every one, in time order |
 | `task` | the task of the run folder; empty when the path does not give one |
 | `seconds` | the seconds from `from` to `until`; `0` for a single file |

@@ -168,13 +168,14 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 </section>
 <section id="section-3">
 <h2>Timeline</h2>
-<p class="note">a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&amp;CK technique, then its tactic and its ATLAS technique, or the tools that give a tactic no technique does</p>
+<p class="note">a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&amp;CK technique, then its tactic and its ATLAS technique, or the tools of a tactic that no technique is named for</p>
 <ol class="blocks marked">
 <li class="heads"><div class="line"><span>ATT&amp;CK technique</span><span>tactic</span><span>ATLAS technique</span></div></li>
 <li class="block"><span class="dot high"></span>
 <div class="head"><span class="mark high">[x]</span><span class="name">Discovery, CredentialAccess</span><span class="rest">2026-10-22T09:00:00Z to 2026-10-22T09:05:00Z</span></div>
 <div class="line"><span class="id">T1083</span><span class="what">File and Directory Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
 <div class="line begins"><span class="id">T1007</span><span class="what">System Service Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id kind">tools</span><span class="what">id, uname, find, kubectl</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
 <div class="line begins"><span class="id">T1552.005</span><span class="what">Unsecured Credentials: Cloud Instance Metadata API</span><span class="id far">TA0006</span><span class="what">CredentialAccess</span><span class="id">AML.T0055</span><span class="what">Unsecured Credentials</span></div>
 <div class="line begins"><span class="id">T1003.008</span><span class="what">OS Credential Dumping: /etc/passwd and /etc/shadow</span><span class="id far">TA0006</span><span class="what">CredentialAccess</span><span class="id">AML.T0090</span><span class="what">OS Credential Dumping</span></div>
 <div class="line begins"><span class="id">T1552.004</span><span class="what">Unsecured Credentials: Private Keys</span><span class="id far">TA0006</span><span class="what">CredentialAccess</span><span class="id">AML.T0055</span><span class="what">Unsecured Credentials</span></div>
@@ -216,12 +217,14 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <li class="block"><span class="dot high"></span>
 <div class="head"><span class="mark high">[x]</span><span class="name">Discovery, LateralMovement, Execution, Collection, CommandAndControl, Exfiltration</span><span class="rest">2026-10-22T09:25:00Z to 2026-10-22T09:30:00Z</span></div>
 <div class="line"><span class="id kind">tools</span><span class="what">find, id, uname</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
-<div class="line begins"><span class="id kind">tools</span><span class="what">ssh</span><span class="id far">TA0008</span><span class="what">LateralMovement</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1021.004</span><span class="what">Remote Services: SSH</span><span class="id far">TA0008</span><span class="what">LateralMovement</span><span class="id"></span><span class="what"></span></div>
 <div class="line begins"><span class="id">T1059.004</span><span class="what">Command and Scripting Interpreter: Unix Shell</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id">AML.T0050</span><span class="what">Command and Scripting Interpreter</span></div>
+<div class="line begins"><span class="id">T1059</span><span class="what">Command and Scripting Interpreter</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id">AML.T0050</span><span class="what">Command and Scripting Interpreter</span></div>
 <div class="line begins"><span class="id">T1560.001</span><span class="what">Archive Collected Data: Archive via Utility</span><span class="id far">TA0009</span><span class="what">Collection</span><span class="id"></span><span class="what"></span></div>
 <div class="line begins"><span class="id">T1105</span><span class="what">Ingress Tool Transfer</span><span class="id far">TA0011</span><span class="what">CommandAndControl</span><span class="id">AML.T0072</span><span class="what">Cyber Communication Channel</span></div>
 <div class="line begins"><span class="id">T1095</span><span class="what">Non-Application Layer Protocol</span><span class="id far">TA0011</span><span class="what">CommandAndControl</span><span class="id">AML.T0072</span><span class="what">Cyber Communication Channel</span></div>
 <div class="line begins"><span class="id">T1048</span><span class="what">Exfiltration Over Alternative Protocol</span><span class="id far">TA0010</span><span class="what">Exfiltration</span><span class="id">AML.T0025</span><span class="what">Exfiltration via Cyber Means</span></div>
+<div class="line begins"><span class="id kind">tools</span><span class="what">nc</span><span class="id far">TA0010</span><span class="what">Exfiltration</span><span class="id"></span><span class="what"></span></div>
 </li>
 <li class="block"><span class="dot high"></span>
 <div class="head"><span class="mark high">[x]</span><span class="name">Execution, Persistence, DefenseImpairment</span><span class="rest">2026-10-22T09:35:00Z</span></div>
@@ -231,6 +234,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <div class="line"><span class="id"></span><span class="what"></span><span class="id far">TA0003</span><span class="what">Persistence</span><span class="id"></span><span class="what"></span></div>
 <div class="line begins"><span class="id">T1053.006</span><span class="what">Scheduled Task/Job: Systemd Timers</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id"></span><span class="what"></span></div>
 <div class="line"><span class="id"></span><span class="what"></span><span class="id far">TA0003</span><span class="what">Persistence</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1059.004</span><span class="what">Command and Scripting Interpreter: Unix Shell</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id">AML.T0050</span><span class="what">Command and Scripting Interpreter</span></div>
 <div class="line begins"><span class="id">T1136.001</span><span class="what">Create Account: Local Account</span><span class="id far">TA0003</span><span class="what">Persistence</span><span class="id">AML.T0125</span><span class="what">Create Account</span></div>
 <div class="line begins"><span class="id">T1685</span><span class="what">Disable or Modify Tools</span><span class="id far">TA0112</span><span class="what">DefenseImpairment</span><span class="id"></span><span class="what"></span></div>
 <div class="line begins"><span class="id">T1685.004</span><span class="what">Disable or Modify Tools: Disable or Modify Linux Audit System Log</span><span class="id far">TA0112</span><span class="what">DefenseImpairment</span><span class="id"></span><span class="what"></span></div>
@@ -862,7 +866,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <p>User Training involves educating employees and contractors on recognizing, reporting, and preventing cyber threats that rely on human interaction, such as phishing, social engineering, and other manipulative techniques.</p>
 <div class="pair"><span class="label">for</span><span class="value">CredentialFileRead</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1018 User Account Management</td><td class="cell">T1048, T1053.002, T1053.003, T1053.006, T1098.004, T1543.002, T1552.007, T1685, T1685.004, T1686</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1018 User Account Management</td><td class="cell">T1021.004, T1048, T1053.002, T1053.003, T1053.006, T1098.004, T1543.002, T1552.007, T1685, T1685.004, T1686</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.</p>
 <div class="pair"><span class="label">for</span><span class="value">FileUpload, ScheduledJobCreation, SshKeyPersistence, SystemdUnitCreation, ClusterSecretRead, SecurityToolDisabling, FirewallDisabling</span></div>
@@ -877,7 +881,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <p>Restricting registry permissions involves configuring access control settings for sensitive registry keys and hives to ensure that only authorized users or processes can make modifications.</p>
 <div class="pair"><span class="label">for</span><span class="value">SecurityToolDisabling, FirewallDisabling</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1026 Privileged Account Management</td><td class="cell">T1003.008, T1053.002, T1053.006, T1136.001, T1543.002, T1548.003, T1552.007, T1611</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1026 Privileged Account Management</td><td class="cell">T1003.008, T1053.002, T1053.006, T1059, T1136.001, T1543.002, T1548.003, T1552.007, T1611</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Privileged Account Management focuses on implementing policies, controls, and tools to securely manage privileged accounts (e.g., SYSTEM, root, or administrative accounts).</p>
 <div class="pair"><span class="label">exposed</span><span class="value">username: svc</span></div>
@@ -908,13 +912,13 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <p>Use intrusion detection signatures to block traffic at network boundaries.</p>
 <div class="pair"><span class="label">for</span><span class="value">FileUpload, ReverseShell, ShellDownloadAndExecute</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1032 Multi-factor Authentication</td><td class="cell">T1136.001</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1032 Multi-factor Authentication</td><td class="cell">T1021.004, T1136.001</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Multi-Factor Authentication (MFA) enhances security by requiring users to provide at least two forms of verification to prove their identity before granting access.</p>
 <div class="pair"><span class="label">exposed</span><span class="value">username: svc</span></div>
 <div class="pair"><span class="label">for</span><span class="value">AccountCreation</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1033 Limit Software Installation</td><td class="cell">T1543.002</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1033 Limit Software Installation</td><td class="cell">T1059, T1543.002</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Prevent users or groups from installing unauthorized or unapproved software to reduce the risk of introducing malicious or vulnerable applications.</p>
 <div class="pair"><span class="label">for</span><span class="value">SystemdUnitCreation</span></div>
@@ -929,7 +933,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <p>Employ network appliances and endpoint software to filter ingress, egress, and lateral network traffic.</p>
 <div class="pair"><span class="label">for</span><span class="value">FileUpload, ReverseShell, ShellDownloadAndExecute, CloudMetadataAccess</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1038 Execution Prevention</td><td class="cell">T1059.004, T1611, T1685</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1038 Execution Prevention</td><td class="cell">T1059, T1059.004, T1611, T1685</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Prevent the execution of unauthorized or malicious code on systems by implementing application control, script blocking, and other execution prevention mechanisms.</p>
 <div class="pair"><span class="label">for</span><span class="value">ShellDownloadAndExecute, ReverseShell, ContainerEscape, SecurityToolDisabling</span></div>
@@ -944,12 +948,12 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <p>Protect sensitive information at rest, in transit, and during processing by using strong encryption algorithms.</p>
 <div class="pair"><span class="label">for</span><span class="value">PrivateKeyRead, LogDeletion</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1042 Disable or Remove Feature or Program</td><td class="cell">T1098.004, T1552.005, T1611, T1685</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1042 Disable or Remove Feature or Program</td><td class="cell">T1021.004, T1059, T1098.004, T1552.005, T1611, T1685</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Disable or remove unnecessary and potentially vulnerable software, features, or services to reduce the attack surface and prevent abuse by adversaries.</p>
 <div class="pair"><span class="label">for</span><span class="value">SshKeyPersistence, CloudMetadataAccess, ContainerEscape, SecurityToolDisabling</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1047 Audit</td><td class="cell">T1053.002, T1053.003, T1095, T1552.001, T1552.004, T1560.001, T1685, T1685.004, T1686</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1047 Audit</td><td class="cell">T1053.002, T1053.003, T1059, T1095, T1552.001, T1552.004, T1560.001, T1685, T1685.004, T1686</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.</p>
 <div class="pair"><span class="label">for</span><span class="value">ScheduledJobCreation, ReverseShell, CredentialFileRead, PrivateKeyRead, ArchiveCreation, SecurityToolDisabling, FirewallDisabling</span></div>
@@ -973,6 +977,22 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Data Loss Prevention (DLP) involves implementing strategies and technologies to identify, categorize, monitor, and control the movement of sensitive data within an organization.</p>
 <div class="pair"><span class="label">for</span><span class="value">FileUpload</span></div>
+</div></td></tr>
+<tr class="entry"><td class="mark medium">[!]</td><td class="cell">M1021 Restrict Web-Based Content</td><td class="cell">T1059</td></tr>
+<tr class="detail"><td colspan="3"><div class="under">
+<p>Restricting web-based content involves enforcing policies and technologies that limit access to potentially malicious websites, unsafe downloads, and unauthorized browser behaviors.</p>
+</div></td></tr>
+<tr class="entry"><td class="mark medium">[!]</td><td class="cell">M1040 Behavior Prevention on Endpoint</td><td class="cell">T1059</td></tr>
+<tr class="detail"><td colspan="3"><div class="under">
+<p>Behavior Prevention on Endpoint refers to the use of technologies and strategies to detect and block potentially malicious activities by analyzing the behavior of processes, files, API calls, and other endpoint events.</p>
+</div></td></tr>
+<tr class="entry"><td class="mark medium">[!]</td><td class="cell">M1045 Code Signing</td><td class="cell">T1059</td></tr>
+<tr class="detail"><td colspan="3"><div class="under">
+<p>Code Signing is a security process that ensures the authenticity and integrity of software by digitally signing executables, scripts, and other code artifacts.</p>
+</div></td></tr>
+<tr class="entry"><td class="mark medium">[!]</td><td class="cell">M1049 Antivirus/Antimalware</td><td class="cell">T1059</td></tr>
+<tr class="detail"><td colspan="3"><div class="under">
+<p>Antivirus/Antimalware solutions utilize signatures, heuristics, and behavioral analysis to detect, block, and remediate malicious software, including viruses, trojans, ransomware, and spyware.</p>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">AML.M0005 Control Access to AI Models and Data at Rest</td><td class="cell">AML.T0025</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">

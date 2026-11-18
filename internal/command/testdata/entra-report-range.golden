@@ -19,11 +19,12 @@ Tactics   (tactic, identifiers, files)
   [!] Collection           TA0009, AML.TA0009  20261015_092000_step04_collect.py
   [i] Discovery            TA0007, AML.TA0008  20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh and 1 more
 
-Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools that give a tactic no technique does)
+Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools of a tactic that no technique is named for)
   [x] InitialAccess, Discovery                                      2026-10-15T09:00:00Z to 2026-10-15T09:05:00Z
       T1078.004  Valid Accounts: Cloud Accounts                                  TA0001  InitialAccess          AML.T0012  Valid Accounts
       T1087.004  Account Discovery: Cloud Account                                TA0007  Discovery              AML.T0075  Enterprise Resource Discovery
       T1069.003  Permission Groups Discovery: Cloud Groups                       TA0007  Discovery              AML.T0075  Enterprise Resource Discovery
+      tools      az, get-mgapplication                                           TA0007  Discovery
       watchlist  STORM-0940: 144.172.64.128
 
   [x] PrivilegeEscalation, Persistence                              2026-10-15T09:10:00Z
@@ -40,10 +41,12 @@ Timeline   (a block for each intent, from the first of its files to be created u
 
   [x] Discovery, CredentialAccess                                   2026-10-15T09:30:00Z
       T1580      Cloud Infrastructure Discovery                                  TA0007  Discovery              AML.T0075  Enterprise Resource Discovery
+      tools      az                                                              TA0007  Discovery
       T1555.006  Credentials from Password Stores: Cloud Secrets Management Stores    TA0006  CredentialAccess
 
   [x] Discovery, CredentialAccess, PrivilegeEscalation, Persistence  2026-10-15T09:35:00Z
       T1580      Cloud Infrastructure Discovery                                  TA0007  Discovery              AML.T0075  Enterprise Resource Discovery
+      tools      az                                                              TA0007  Discovery
       T1555.006  Credentials from Password Stores: Cloud Secrets Management Stores    TA0006  CredentialAccess
       T1098.003  Account Manipulation: Additional Cloud Roles                    TA0004  PrivilegeEscalation
                                                                                  TA0003  Persistence

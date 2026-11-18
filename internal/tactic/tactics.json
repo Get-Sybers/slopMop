@@ -4,9 +4,10 @@
     "severity": "high",
     "id": "TA0001",
     "atlas": "AML.TA0004",
-    "commands": [
-      "evilginx", "evilginx2", "gophish", "modlishka", "muraena"
-    ]
+    "techniques": {
+      "T1566": ["gophish"],
+      "T1566.002": ["evilginx", "evilginx2", "modlishka", "muraena"]
+    }
   },
   {
     "tactic": "Discovery",
@@ -60,33 +61,50 @@
     "severity": "high",
     "id": "TA0006",
     "atlas": "AML.TA0013",
+    "techniques": {
+      "T1003": [
+        "secretsdump.py", "impacket-secretsdump", "mimikatz",
+        "invoke-mimikatz"
+      ],
+      "T1003.003": ["ntdsutil"],
+      "T1003.006": ["invoke-dcsync", "get-adreplaccount"],
+      "T1003.008": ["unshadow"],
+      "T1110": ["hydra", "medusa", "ncrack", "kerbrute"],
+      "T1110.002": ["john", "hashcat"],
+      "T1552.004": [
+        "get-aadintsyncencryptionkey", "export-aadintadfssigningcertificate",
+        "export-aadintadfsencryptioncertificate"
+      ],
+      "T1555": ["lazagne", "get-secret"],
+      "T1555.004": ["vaultcmd", "get-storedcredential"],
+      "T1555.006": [
+        "get-azkeyvaultsecret", "get-azkeyvaultcertificate",
+        "get-azkeyvaultkey", "backup-azkeyvaultsecret",
+        "backup-azkeyvaultkey", "backup-azkeyvaultcertificate"
+      ],
+      "T1557.001": ["ntlmrelayx.py", "impacket-ntlmrelayx"],
+      "T1558": [
+        "gettgtpkinit.py", "getnthash.py", "rubeus.exe", "rubeus",
+        "invoke-rubeus"
+      ],
+      "T1558.003": ["getuserspns.py", "invoke-kerberoast"],
+      "T1558.004": ["getnpusers.py"],
+      "T1649": [
+        "certipy", "certipy-ad", "certi.py", "certify.exe", "certify",
+        "export-pfxcertificate", "export-certificate"
+      ]
+    },
     "commands": [
-      "hydra", "medusa", "ncrack", "john", "hashcat", "kerbrute",
-      "secretsdump.py", "impacket-secretsdump", "mimikatz", "lazagne",
-      "getnpusers.py", "getuserspns.py", "crackmapexec", "netexec", "nxc",
-      "unshadow", "certipy", "certipy-ad", "certi.py", "certify.exe",
-      "certreq", "gettgtpkinit.py",
-      "getnthash.py", "passthecert.py", "pywhisker", "pywhisker.py",
-      "adconnectdump.py", "ntlmrelayx.py", "impacket-ntlmrelayx",
-      "mssqlclient.py", "impacket-mssqlclient", "rubeus.exe", "certify",
-      "rubeus", "procdump", "procdump64", "ntdsutil", "vaultcmd",
-      "adsyncdecrypt", "adconnectdump", "get-aadintsynccredentials",
-      "get-aadintsyncencryptionkey",
-      "export-aadintadfssigningcertificate",
-      "export-aadintadfsencryptioncertificate",
-      "get-aadintaccesstokenforaadgraph",
-      "get-aadintaccesstokenformsgraph", "invoke-mimikatz",
-      "invoke-kerberoast", "invoke-dcsync", "invoke-rubeus",
-      "get-adreplaccount", "get-adsyncaadpasswordsyncconfiguration",
-      "export-pfxcertificate", "export-certificate", "get-pfxcertificate",
+      "crackmapexec", "netexec", "nxc", "certreq", "passthecert.py",
+      "pywhisker", "pywhisker.py", "adconnectdump.py", "mssqlclient.py",
+      "impacket-mssqlclient", "procdump", "procdump64", "adsyncdecrypt",
+      "adconnectdump", "get-aadintsynccredentials",
+      "get-aadintaccesstokenforaadgraph", "get-aadintaccesstokenformsgraph",
+      "get-adsyncaadpasswordsyncconfiguration", "get-pfxcertificate",
       "get-pfxdata", "import-pfxcertificate", "new-selfsignedcertificate",
       "get-certificate", "get-credential", "convertto-securestring",
-      "convertfrom-securestring", "get-secret", "get-azkeyvaultsecret",
-      "get-azkeyvaultcertificate", "get-azkeyvaultkey", "get-azaccesstoken",
-      "get-storedcredential",
-      "backup-azkeyvaultsecret", "backup-azkeyvaultkey",
-      "backup-azkeyvaultcertificate", "get-azstorageaccountkey",
-      "get-msaltoken"
+      "convertfrom-securestring", "get-azaccesstoken",
+      "get-azstorageaccountkey", "get-msaltoken"
     ]
   },
   {
@@ -94,15 +112,23 @@
     "severity": "high",
     "id": "TA0008",
     "atlas": "AML.TA0015",
+    "techniques": {
+      "T1021.001": ["xfreerdp", "rdesktop", "mstsc"],
+      "T1021.002": ["psexec.py", "smbexec.py", "psexec", "psexec64"],
+      "T1021.004": ["ssh", "sshpass", "pssh"],
+      "T1021.006": [
+        "evil-winrm", "invoke-command", "icm", "enter-pssession",
+        "new-pssession", "winrs"
+      ],
+      "T1021.007": [
+        "connect-mggraph", "connect-azaccount", "connect-azuread",
+        "connect-msolservice", "connect-exchangeonline",
+        "connect-aadintazuread", "connect-pnponline", "connect-ippssession"
+      ],
+      "T1072": ["ansible", "ansible-playbook"]
+    },
     "commands": [
-      "ssh", "sshpass", "psexec.py", "wmiexec.py", "smbexec.py",
-      "evil-winrm", "xfreerdp", "rdesktop", "ansible", "ansible-playbook",
-      "pssh", "invoke-command", "icm", "enter-pssession", "new-pssession",
-      "invoke-wmimethod", "invoke-cimmethod", "new-cimsession", "psexec",
-      "psexec64", "winrs", "mstsc", "connect-mggraph", "connect-azaccount",
-      "connect-azuread", "connect-msolservice", "connect-exchangeonline",
-      "connect-aadintazuread", "connect-pnponline",
-      "connect-ippssession"
+      "wmiexec.py", "invoke-wmimethod", "invoke-cimmethod", "new-cimsession"
     ]
   },
   {
@@ -110,18 +136,28 @@
     "severity": "medium",
     "id": "TA0002",
     "atlas": "AML.TA0005",
+    "techniques": {
+      "T1059": [
+        "perl", "ruby", "php", "eval", "cscript", "wscript", "exec",
+        "os.system", "os.popen", "subprocess.run", "subprocess.call",
+        "subprocess.popen", "subprocess.check_call",
+        "subprocess.check_output", "subprocess.getoutput",
+        "subprocess.getstatusoutput"
+      ],
+      "T1059.001": ["pwsh", "powershell", "invoke-expression", "iex"],
+      "T1059.003": ["cmd"],
+      "T1059.004": ["bash", "sh", "zsh"],
+      "T1059.006": ["python", "python3"],
+      "T1059.007": ["node"],
+      "T1127.001": ["msbuild"]
+    },
     "commands": [
-      "python", "python3", "perl", "ruby", "php", "node", "bash", "sh",
-      "zsh", "eval", "msfconsole", "msfvenom", "sqlmap", "gcc", "make",
-      "nohup", "screen", "tmux", "pwsh", "powershell",
-      "invoke-expression", "iex", "start-process", "saps", "start-job",
-      "invoke-item", "add-type", "import-module", "ipmo", "install-module",
-      "cmd", "rundll32", "regsvr32", "mshta", "cscript", "wscript",
-      "msbuild", "installutil", "exec", "os.system", "os.popen",
-      "subprocess.run", "subprocess.call", "subprocess.popen",
-      "subprocess.check_call", "subprocess.check_output",
-      "subprocess.getoutput", "subprocess.getstatusoutput",
-      "msiexec", "regasm", "regsvcs", "cmstp", "odbcconf", "mavinject", "hh", "forfiles", "pcalua", "ieexec", "xwizard", "msdt", "wsl"
+      "msfconsole", "msfvenom", "sqlmap", "gcc", "make", "nohup", "screen",
+      "tmux", "start-process", "saps", "start-job", "invoke-item", "add-type",
+      "import-module", "ipmo", "install-module", "rundll32", "regsvr32",
+      "mshta", "installutil", "msiexec", "regasm", "regsvcs", "cmstp",
+      "odbcconf", "mavinject", "hh", "forfiles", "pcalua", "ieexec",
+      "xwizard", "msdt", "wsl"
     ]
   },
   {
@@ -129,43 +165,61 @@
     "severity": "high",
     "id": "TA0004",
     "atlas": "AML.TA0012",
-    "commands": [
-      "runas", "pkexec", "juicypotato", "printspoofer", "godpotato",
-      "roguepotato", "sweetpotato", "invoke-tokenmanipulation"
-    ]
+    "techniques": {
+      "T1134": ["invoke-tokenmanipulation"],
+      "T1134.001": [
+        "juicypotato", "printspoofer", "godpotato", "roguepotato",
+        "sweetpotato"
+      ],
+      "T1134.002": ["runas"],
+      "T1548": ["pkexec"]
+    }
   },
   {
     "tactic": "Persistence",
     "severity": "high",
     "id": "TA0003",
     "atlas": "AML.TA0006",
+    "techniques": {
+      "T1053.002": ["at"],
+      "T1053.005": [
+        "schtasks", "register-scheduledtask", "new-scheduledtask",
+        "new-scheduledtaskaction", "new-scheduledtasktrigger"
+      ],
+      "T1098": [
+        "usermod", "chpasswd", "passwd", "set-adaccountpassword",
+        "set-aduser"
+      ],
+      "T1098.001": [
+        "add-mgapplicationkey", "add-mgapplicationpassword",
+        "add-mgserviceprincipalkey", "add-mgserviceprincipalpassword",
+        "new-azadappcredential", "new-azadspcredential",
+        "new-azureadapplicationkeycredential",
+        "new-azureadapplicationpasswordcredential",
+        "new-azureadserviceprincipalkeycredential",
+        "new-mgapplicationfederatedidentitycredential"
+      ],
+      "T1098.003": [
+        "add-mgdirectoryrolemember", "add-azureaddirectoryrolemember",
+        "add-msolrolemember", "new-azroleassignment",
+        "new-mgserviceprincipalapproleassignment",
+        "new-azureadserviceapproleassignment", "new-mgoauth2permissiongrant",
+        "new-mgrolemanagementdirectoryroleassignment"
+      ],
+      "T1098.007": ["add-localgroupmember", "add-adgroupmember"],
+      "T1136.001": ["useradd", "adduser", "new-localuser"],
+      "T1136.002": ["new-aduser"],
+      "T1136.003": ["new-mguser", "new-azureaduser", "new-msoluser"],
+      "T1543.003": ["new-service", "set-service"]
+    },
     "commands": [
-      "useradd", "adduser", "usermod", "chpasswd", "passwd",
-      "ssh-keygen", "at", "schtasks", "register-scheduledtask",
-      "new-scheduledtask", "new-scheduledtaskaction",
-      "new-scheduledtasktrigger", "new-service", "set-service",
-      "new-localuser", "add-localgroupmember", "new-aduser",
-      "add-adgroupmember", "set-adaccountpassword", "set-aduser",
-      "new-itemproperty", "set-itemproperty", "new-mguser",
-      "new-azureaduser", "new-msoluser", "add-mgdirectoryrolemember",
-      "add-azureaddirectoryrolemember", "add-msolrolemember",
-      "new-azroleassignment", "new-mgapplication",
-      "new-mgserviceprincipal", "add-mgapplicationkey",
-      "add-mgapplicationpassword", "add-mgserviceprincipalkey",
-      "add-mgserviceprincipalpassword", "update-mgapplication",
-      "update-mgserviceprincipal", "new-azadappcredential",
-      "new-azadspcredential", "new-azureadapplicationkeycredential",
-      "new-azureadapplicationpasswordcredential",
-      "new-azureadserviceprincipalkeycredential", "new-aadintbackdoor",
+      "ssh-keygen", "new-itemproperty", "set-itemproperty",
+      "new-mgapplication", "new-mgserviceprincipal", "update-mgapplication",
+      "update-mgserviceprincipal", "new-aadintbackdoor",
       "convertto-aadintbackdoor", "set-msoldomainauthentication",
-      "set-adsyncaadcompanyfeature",
-      "set-azureadapplication", "new-azureadapplication",
-      "new-azureadserviceprincipal", "new-azadapplication",
-      "new-azadserviceprincipal",
-      "new-mgapplicationfederatedidentitycredential",
-      "new-mgserviceprincipalapproleassignment",
-      "new-azureadserviceapproleassignment", "new-mgoauth2permissiongrant",
-      "new-mgrolemanagementdirectoryroleassignment",
+      "set-adsyncaadcompanyfeature", "set-azureadapplication",
+      "new-azureadapplication", "new-azureadserviceprincipal",
+      "new-azadapplication", "new-azadserviceprincipal",
       "new-mgdomainfederationconfiguration",
       "set-msoldomainfederationsettings"
     ]
@@ -175,9 +229,13 @@
     "severity": "medium",
     "id": "TA0005",
     "atlas": "AML.TA0007",
+    "techniques": {
+      "T1027.004": ["csc", "vbc", "jsc", "ilasm"],
+      "T1070.003": ["clear-history"],
+      "T1070.004": ["shred"]
+    },
     "commands": [
-      "shred", "truncate", "clear-history", "fsutil", "format-hex",
-      "csc", "vbc", "jsc", "ilasm"
+      "truncate", "fsutil", "format-hex"
     ]
   },
   {
@@ -185,12 +243,21 @@
     "severity": "high",
     "id": "TA0112",
     "atlas": "AML.TA0007",
+    "techniques": {
+      "T1222.002": ["chattr"],
+      "T1553.005": ["unblock-file"],
+      "T1685": ["setenforce", "set-mppreference", "add-mppreference"],
+      "T1685.001": ["auditpol"],
+      "T1685.002": [
+        "set-adminauditlogconfig", "set-mailboxauditbypassassociation",
+        "remove-azdiagnosticsetting"
+      ],
+      "T1685.004": ["auditctl"],
+      "T1685.005": ["clear-eventlog", "remove-eventlog"],
+      "T1686": ["iptables", "ufw"]
+    },
     "commands": [
-      "chattr", "setenforce", "iptables", "ufw", "auditctl",
-      "set-mppreference", "add-mppreference", "clear-eventlog",
-      "remove-eventlog", "wevtutil", "set-executionpolicy", "unblock-file",
-      "auditpol", "set-adminauditlogconfig",
-      "set-mailboxauditbypassassociation", "remove-azdiagnosticsetting"
+      "wevtutil", "set-executionpolicy"
     ]
   },
   {
@@ -198,16 +265,21 @@
     "severity": "medium",
     "id": "TA0009",
     "atlas": "AML.TA0009",
+    "techniques": {
+      "T1114.002": [
+        "export-mailbox", "new-mailboxexportrequest", "search-mailbox",
+        "get-mgusermessage"
+      ],
+      "T1213.006": [
+        "mysqldump", "pg_dump", "mongodump", "mysql", "psql", "sqlite3",
+        "redis-cli", "mongosh", "sqlcmd", "invoke-sqlcmd"
+      ],
+      "T1560.001": ["zip", "7z", "gzip", "compress-archive", "makecab"]
+    },
     "commands": [
-      "zip", "7z", "gzip", "mysqldump", "pg_dump", "mongodump",
-      "mysql", "psql", "sqlite3", "redis-cli", "mongosh", "dd", "sqlcmd",
-      "compress-archive", "expand-archive", "invoke-sqlcmd", "robocopy",
-      "xcopy",
-      "export-mailbox", "new-mailboxexportrequest", "search-mailbox",
-      "search-unifiedauditlog", "new-compliancesearch",
-      "start-compliancesearch", "new-compliancesearchaction",
-      "get-mgusermessage",
-      "esentutl", "makecab", "extrac32", "expand"
+      "dd", "expand-archive", "robocopy", "xcopy", "search-unifiedauditlog",
+      "new-compliancesearch", "start-compliancesearch",
+      "new-compliancesearchaction", "esentutl", "extrac32", "expand"
     ]
   },
   {
@@ -215,19 +287,25 @@
     "severity": "high",
     "id": "TA0011",
     "atlas": "AML.TA0014",
-    "commands": [
-      "ngrok", "chisel", "cloudflared", "plink", "frpc", "ligolo-ng",
-      "desktopimgdownldr", "socket.connect", "socket.create_connection"
-    ]
+    "techniques": {
+      "T1095": ["socket.connect", "socket.create_connection"],
+      "T1105": ["desktopimgdownldr"],
+      "T1572": [
+        "ngrok", "chisel", "cloudflared", "plink", "frpc", "ligolo-ng"
+      ]
+    }
   },
   {
     "tactic": "Exfiltration",
     "severity": "high",
     "id": "TA0010",
     "atlas": "AML.TA0010",
+    "techniques": {
+      "T1048": ["scp", "sftp", "ftp", "rsync", "send-mailmessage"],
+      "T1567.002": ["rclone", "gsutil", "azcopy"]
+    },
     "commands": [
-      "nc", "ncat", "netcat", "socat", "scp", "sftp", "ftp", "rsync",
-      "rclone", "gsutil", "azcopy", "send-mailmessage", "new-psdrive"
+      "nc", "ncat", "netcat", "socat", "new-psdrive"
     ]
   },
   {
@@ -235,8 +313,8 @@
     "severity": "high",
     "id": "TA0040",
     "atlas": "AML.TA0011",
-    "commands": [
-      "bcdedit", "vssadmin", "wbadmin"
-    ]
+    "techniques": {
+      "T1490": ["bcdedit", "vssadmin", "wbadmin"]
+    }
   }
 ]

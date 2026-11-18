@@ -282,3 +282,42 @@ func TestTacticsAndTimelineAgree(t *testing.T) {
 		t.Errorf("the tactics of a folder without intents lack the tactic of an output, or name intents:\n%s", plain)
 	}
 }
+
+// A command that is a technique by its name shows the technique wherever a
+// technique stands: in the block and the row of its intent, and in what the
+// impact of its tactic and the mitigations of the technique are said of.
+func TestACommandShowsItsTechnique(t *testing.T) {
+	folder := t.TempDir()
+	if err := os.WriteFile(filepath.Join(folder, "i301_move.sh"), []byte("#!/bin/bash\nssh ops@10.0.0.5 uptime\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	readout, saved := report(t, folder)
+	_, timeline, _ := strings.Cut(readout, "\nTimeline")
+	timeline, _, _ = strings.Cut(timeline, "\n\n")
+	if !regexp.MustCompile(`\n      T1021\.004  Remote Services: SSH +TA0008  LateralMovement$`).MatchString(timeline) {
+		t.Errorf("the block of i301 has no row for the technique of ssh:\n%s", timeline)
+	}
+	if strings.Contains(timeline, "\n      tools ") || strings.Contains(timeline, noTechnique) {
+		t.Errorf("the block lists ssh as a tool, or says no technique was identified:\n%s", timeline)
+	}
+	intents := readFile(t, filepath.Join(saved, "intents.csv"))
+	if !strings.Contains(intents, ",i301,T1021.004,") {
+		t.Errorf("intents.csv does not give i301 the technique of ssh:\n%s", intents)
+	}
+	moved, mitigated := false, 0
+	for _, row := range rows(t, filepath.Join(saved, "report.json")) {
+		attack, _ := row["attack"].(string)
+		switch {
+		case row["section"] == sectionImpact && row["item"] == "Movement to other systems":
+			moved = attack == "T1021.004"
+		case row["section"] == sectionMitigation && strings.Contains(attack, "T1021.004"):
+			mitigated++
+			if row["files"] != "i301_move.sh" || row["basis"] != nil {
+				t.Errorf("the mitigation %v is of the files %v for %v, want of the script and for no activity", row["item"], row["files"], row["basis"])
+			}
+		}
+	}
+	if !moved || mitigated == 0 {
+		t.Errorf("the impact names the technique of ssh: %t, and %d mitigations address it, want both", moved, mitigated)
+	}
+}
