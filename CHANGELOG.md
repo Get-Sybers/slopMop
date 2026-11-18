@@ -6,6 +6,8 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-11-18
+
 ### Added
 
 - A **Tactics** section, after the summary and before the timeline: each tactic the scripts
