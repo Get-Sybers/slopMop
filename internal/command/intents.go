@@ -25,8 +25,8 @@ type intentRun struct {
 	files           []string
 	tactics         []string
 	activities      []string
-	attack          []string
-	atlas           []string
+	// techniques are those of the activities its files show.
+	techniques
 	// hits are the watchlist matches of its files.
 	hits  []string
 	level tactic.Severity
@@ -66,7 +66,7 @@ func (p pipeline) collectIntents(folder string, steps []trace.Step) ([]intentRun
 		r.files = append(r.files, s.File.Path)
 		r.tactics = appendUnique(r.tactics, s.Tactics...)
 		for _, hit := range s.Activities {
-			r.attack, r.atlas = appendUnique(r.attack, hit.Attack...), appendUnique(r.atlas, p.atlasOf(hit)...)
+			r.add(p, hit)
 			r.activities = appendUnique(r.activities, hit.Name)
 		}
 		for _, h := range s.IntelHits {
@@ -143,8 +143,8 @@ func (r intentRun) timedBy() string {
 }
 
 // intentBlocks is the timeline by intent: a block for each, in the order the
-// intents began, with when it ran, the tactics its files show and each of
-// its techniques by name. Every intent has its block, however many there are.
+// intents began, with when it ran, the tactics its files show and each
+// technique under its tactic. Every intent has its block, however many there are.
 func (w reportRun) intentBlocks() []render.Group {
 	all := w.result.intents
 	entries := make([]render.Entry, len(all))
@@ -157,7 +157,7 @@ func (w reportRun) intentBlocks() []render.Group {
 				period += " to " + last
 			}
 		}
-		entries[i] = render.Entry{Level: string(r.level), Cells: []string{r.ref.ID, period}, Detail: w.named(r.tactics, r.attack, r.atlas, r.hits)}
+		entries[i] = render.Entry{Level: string(r.level), Cells: []string{r.ref.ID, period}, Detail: w.named(r.tactics, r.techniques, r.hits)}
 		files, recorded = files+len(r.files), recorded+r.recorded
 	}
 	groups := []render.Group{{Blocks: true, Entries: entries}}

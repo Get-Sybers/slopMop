@@ -16,18 +16,21 @@ Tactics   (tactic, identifiers, files)
   [!] Execution         TA0002, AML.TA0005  staged_20250302_093100.cmd
   [i] Discovery         TA0007, AML.TA0008  20250302_090000_step01_inventory.ps1, 20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1 and 1 more
 
-Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the tactics and the techniques its files show)
+Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with each tactic and the techniques under it)
   [i] Discovery                                     2025-03-02T09:00:00Z
-      no MITRE ATT&CK technique identified
+      Discovery (TA0007, AML.TA0008)         no MITRE ATT&CK technique identified
 
   [x] Discovery, LateralMovement                    2025-03-02T09:05:00Z
-      no MITRE ATT&CK technique identified
+      Discovery (TA0007, AML.TA0008)         no MITRE ATT&CK technique identified
+      LateralMovement (TA0008, AML.TA0015)   no MITRE ATT&CK technique identified
 
   [x] Discovery, CredentialAccess, LateralMovement  2025-03-02T09:09:00Z to 2025-03-02T09:22:00Z
-      T1649  Steal or Forge Authentication Certificates
+      Discovery (TA0007, AML.TA0008)         no MITRE ATT&CK technique identified
+      CredentialAccess (TA0006, AML.TA0013)  T1649  Steal or Forge Authentication Certificates
+      LateralMovement (TA0008, AML.TA0015)   no MITRE ATT&CK technique identified
 
   [!] Execution                                     2025-03-02T09:31:00Z
-      no MITRE ATT&CK technique identified
+      Execution (TA0002, AML.TA0005)         no MITRE ATT&CK technique identified
   and 10 files that show no tactic, in the saved trace
 
 Findings

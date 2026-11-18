@@ -101,10 +101,10 @@ func TestTimelineSection(t *testing.T) {
 			t.Errorf("period %d is %q, want %q", i+1, got, want)
 		}
 	}
-	if got, want := groups[0].Entries[0].Detail, []render.Detail{{Label: "T1007", Text: "System Service Discovery"}}; !slices.Equal(got, want) {
+	if got, want := groups[0].Entries[0].Detail, []render.Detail{{Label: "Discovery (TA0007, AML.TA0008)", Text: "T1007  System Service Discovery"}}; !slices.Equal(got, want) {
 		t.Errorf("the first block lists %v, want %v", got, want)
 	}
-	if got, want := groups[0].Entries[1].Detail, []render.Detail{{Text: noTechnique}}; !slices.Equal(got, want) {
+	if got, want := groups[0].Entries[1].Detail, []render.Detail{{Label: "Persistence (TA0003, AML.TA0006)", Text: noTechnique}}; !slices.Equal(got, want) {
 		t.Errorf("the second block lists %v, want %v", got, want)
 	}
 	if got, want := cells(groups[1].Entries[0]), "and 1 file that shows no tactic, in the saved trace"; got != want {
@@ -156,39 +156,69 @@ func TestIntentBlocksNameWatchlistMatches(t *testing.T) {
 	}
 }
 
-// A tactic is of the tools a file runs, and a technique of an activity: a
-// file that shows a tactic and no technique gives its intent the tactic,
-// with its identifiers, and the block still says that no technique was found.
-func TestIntentBlocksListTactics(t *testing.T) {
+// A technique stands under its parent tactic: the tactic of the activity
+// that shows it, where its framework files it there. A tactic that only a
+// tool gives has no technique under it, and its block says so.
+func TestBlocksListTechniquesUnderTactics(t *testing.T) {
 	pipe, err := loadPipeline()
 	if err != nil {
 		t.Fatal(err)
 	}
 	scan := stepAt(0, "i201_scan.sh", "Discovery")
 	move := stepAt(5, "i202-move.sh", "CommandAndControl", "Discovery", "LateralMovement")
-	move.Activities = []activity.Hit{{Name: "FileDownload", Attack: []string{"T1105"}, Atlas: []string{"AML.T0072"}}}
-	runs, _ := pipe.collectIntents(t.TempDir(), []trace.Step{scan, stepAt(1, "cmd-i201.stdout.txt"), move, stepAt(9, "i203.sh")})
-	groups := reportRun{pipe: pipe, result: analysis{intents: runs}}.timeline()
-	if len(groups) == 0 || len(groups[0].Entries) != 3 {
-		t.Fatalf("the timeline has %d groups, want a block for each of the three intents", len(groups))
+	move.Activities = []activity.Hit{{Name: "FileDownload", Tactics: []string{"CommandAndControl"}, Attack: []string{"T1105"}, Atlas: []string{"AML.T0072"}}}
+	// A scheduled task is of two tactics, and its technique stands under both.
+	task := stepAt(7, "i203_task.ps1", "Execution", "Persistence", "PrivilegeEscalation")
+	task.Activities = []activity.Hit{
+		{Name: "ScheduledTaskCreation", Tactics: []string{"Persistence", "Execution"}, Attack: []string{"T1053.005"}},
+		{Name: "AccountCreation", Tactics: []string{"Persistence"}, Attack: []string{"T1136.001"}},
 	}
+	runs, _ := pipe.collectIntents(t.TempDir(), []trace.Step{scan, stepAt(1, "cmd-i201.stdout.txt"), move, task, stepAt(9, "i204.sh")})
+	groups := reportRun{pipe: pipe, result: analysis{intents: runs}}.timeline()
+	if len(groups) == 0 || len(groups[0].Entries) != 4 {
+		t.Fatalf("the timeline has %d groups, want a block for each of the four intents", len(groups))
+	}
+	const discovery, control = "Discovery (TA0007, AML.TA0008)", "CommandAndControl (TA0011, AML.TA0014)"
+	const execution, escalation, persistence = "Execution (TA0002, AML.TA0005)", "PrivilegeEscalation (TA0004, AML.TA0012)", "Persistence (TA0003, AML.TA0006)"
 	wants := [][]render.Detail{
-		{{Label: "TA0007, AML.TA0008", Text: "Discovery"}, {Text: noTechnique}},
+		{{Label: discovery, Text: noTechnique}},
 		{
-			{Label: "TA0007, AML.TA0008", Text: "Discovery"}, {Label: "TA0008, AML.TA0015", Text: "LateralMovement"},
-			{Label: "TA0011, AML.TA0014", Text: "CommandAndControl"}, {Label: "T1105", Text: "Ingress Tool Transfer"},
-			{Label: "AML.T0072", Text: "Cyber Communication Channel"},
+			{Label: discovery, Text: noTechnique}, {Label: "LateralMovement (TA0008, AML.TA0015)", Text: noTechnique},
+			{Label: control, Text: "T1105      Ingress Tool Transfer"}, {Label: control, Text: "AML.T0072  Cyber Communication Channel"},
+		},
+		{
+			{Label: execution, Text: "T1053.005  Scheduled Task/Job: Scheduled Task"}, {Label: escalation, Text: noTechnique},
+			{Label: persistence, Text: "T1053.005  Scheduled Task/Job: Scheduled Task"}, {Label: persistence, Text: "T1136.001  Create Account: Local Account"},
+			{Label: persistence, Text: "AML.T0125  Create Account"},
 		},
 		{{Text: noTechnique}},
 	}
 	for i, want := range wants {
 		if got := groups[0].Entries[i]; !slices.Equal(got.Detail, want) {
-			t.Errorf("the block of %s lists %v, want %v", got.Cells[0], got.Detail, want)
+			t.Errorf("the block of %s lists\n  %v, want\n  %v", got.Cells[0], got.Detail, want)
 		}
 	}
-	// A period is named by its tactics, so its block does not list them a second time.
+	// A period lists the same under its name: each of its tactics with its identifiers and its techniques.
 	periods := runOf(t, []trace.Step{stepAt(0, "scan.sh", "Discovery")}, nil).timeline()
-	if got, want := periods[0].Entries[0], (render.Entry{Level: "low", Cells: []string{"Discovery", "2026-10-22T09:00:00Z"}, Detail: []render.Detail{{Text: noTechnique}}}); !reflect.DeepEqual(got, want) {
+	if got, want := periods[0].Entries[0], (render.Entry{Level: "low", Cells: []string{"Discovery", "2026-10-22T09:00:00Z"}, Detail: []render.Detail{{Label: discovery, Text: noTechnique}}}); !reflect.DeepEqual(got, want) {
 		t.Errorf("the block of a period is %+v, want %+v", got, want)
 	}
+}
+
+// Every technique of every activity has a parent among the tactics the
+// activity names, in ATT&CK and in ATLAS: no technique is left without one.
+func TestEveryTechniqueHasAParentTactic(t *testing.T) {
+	pipe, err := loadPipeline()
+	if err != nil {
+		t.Fatal(err)
+	}
+	pipe.activities.Each(func(name string, tactics, attack, atlas []string) {
+		var found techniques
+		found.add(pipe, activity.Hit{Name: name, Tactics: tactics, Attack: attack, Atlas: atlas})
+		for _, id := range slices.Concat(found.attack, found.atlas) {
+			if len(found.parents[id]) == 0 {
+				t.Errorf("%s: no tactic of %q is one its framework files %s under", name, tactics, id)
+			}
+		}
+	})
 }

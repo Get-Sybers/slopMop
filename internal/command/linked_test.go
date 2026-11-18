@@ -268,7 +268,7 @@ func TestTacticsAndTimelineAgree(t *testing.T) {
 			if !strings.HasPrefix(id, "i2") {
 				continue
 			}
-			if has := strings.Contains(block, "  "+name+"\n"); has != slices.Contains(want, id) {
+			if has := strings.Contains(block, "\n      "+name+" ("); has != slices.Contains(want, id) {
 				t.Errorf("the block of %s lists %s: %t, want %t:\n%s", id, name, has, slices.Contains(want, id), block)
 			}
 		}

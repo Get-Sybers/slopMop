@@ -2,23 +2,24 @@ slopmop report   <folder>
 [x] HIGH - 4 impacts: 2 high, 2 low
 [x] high   [!] medium   [i] low
 
-Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the tactics and the techniques its files show)
+Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with each tactic and the techniques under it)
   [i] Discovery                       2025-03-01T10:15:00Z
-      no MITRE ATT&CK technique identified
+      Discovery (TA0007, AML.TA0008)         no MITRE ATT&CK technique identified
 
   [x] Discovery, CredentialAccess     2025-03-01T10:18:00Z to 2025-03-01T10:23:00Z
-      no MITRE ATT&CK technique identified
+      Discovery (TA0007, AML.TA0008)         no MITRE ATT&CK technique identified
+      CredentialAccess (TA0006, AML.TA0013)  no MITRE ATT&CK technique identified
 
   [!] Execution                       2025-03-01T10:27:00Z
-      no MITRE ATT&CK technique identified
+      Execution (TA0002, AML.TA0005)         no MITRE ATT&CK technique identified
 
   [x] CredentialAccess                2025-03-01T10:32:00Z to 2025-03-01T10:40:00Z
-      no MITRE ATT&CK technique identified
+      CredentialAccess (TA0006, AML.TA0013)  no MITRE ATT&CK technique identified
 
   [x] CredentialAccess, Exfiltration  2025-03-01T10:45:00Z
-      T1048      Exfiltration Over Alternative Protocol
-      T1649      Steal or Forge Authentication Certificates
-      AML.T0025  Exfiltration via Cyber Means
+      CredentialAccess (TA0006, AML.TA0013)  T1649      Steal or Forge Authentication Certificates
+      Exfiltration (TA0010, AML.TA0010)      T1048      Exfiltration Over Alternative Protocol
+                                             AML.T0025  Exfiltration via Cyber Means
   and 10 files that show no tactic, in the saved trace
 
 -> saved to <out>: report.txt, report.md, report.html, files.csv, trace.json, intents.csv, findings.json, targeted.json, exposure.csv, report.json

@@ -8,11 +8,13 @@ All notable changes to this project are recorded in this file. The format follow
 
 ### Fixed
 
-- The block of an intent in the timeline lists the tactics its files show, each under its
-  ATT&CK and ATLAS identifiers, before its techniques. A script whose name begins with its
-  intent, such as `i201_scan.sh`, stood under a tactic in the Tactics section while the block
-  of the intent named none: a block listed only the techniques of recognised activities, and a
-  tactic that comes from the tools a script runs has no technique.
+- A block of the timeline lists the tactics its files show, each with its ATT&CK and ATLAS
+  identifiers, and each technique beside its parent tactic: the tactic of the activity that
+  shows it, where its framework files the technique under that tactic. A technique of two
+  tactics stands under both, and a tactic with no technique under it says so. A script whose
+  name begins with its intent, such as `i201_scan.sh`, stood under a tactic in the Tactics
+  section while the block of the intent named none: a block listed only the techniques of
+  recognised activities, and a tactic that comes from the tools a script runs has no technique.
 - The Tactics section and the timeline agree, each from its side. A tactic lists every file
   that shows it, an output as well as a script, and names under `intents` the intents of those
   files; the block of each of those intents lists the tactic. A tactic that only an output

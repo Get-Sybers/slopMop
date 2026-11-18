@@ -345,17 +345,22 @@ func TestReportIntents(t *testing.T) {
 	}
 	_, timeline, _ := strings.Cut(readout, "\nTimeline")
 	for _, id := range []string{"i1041", "i1042", "i998", "i1051"} {
-		block := `\n  \[x\] ` + id + ` +2026-10-22T09:\d\d:\d\dZ to 2026-10-22T09:\d\d:\d\dZ\n(?:      TA\d{4}, AML\.TA\d{4} +\w+\n)+      T\d{4}`
+		block := `\n  \[x\] ` + id + ` +2026-10-22T09:\d\d:\d\dZ to 2026-10-22T09:\d\d:\d\dZ\n      \w+ \(TA\d{4}, AML\.TA\d{4}\) +(?:T\d{4}|no MITRE)`
 		if !regexp.MustCompile(block).MatchString(timeline) {
-			t.Errorf("the timeline has no block for %s with its period, its tactics and its techniques:\n%s", id, timeline)
+			t.Errorf("the timeline has no block for %s with its period and its tactics:\n%s", id, timeline)
 		}
 	}
-	// A tactic the Tactics section gives a file of an intent stands in the block of the intent.
+	// A tactic the Tactics section gives a file of an intent stands in the
+	// block of the intent, and a technique stands under its tactic.
 	_, block, _ := strings.Cut(timeline, "] i1042 ")
 	block, _, _ = strings.Cut(block, "\n\n")
-	for _, row := range []string{"\n      TA0007, AML.TA0008  Discovery\n", "\n      TA0006, AML.TA0013  CredentialAccess\n"} {
-		if !strings.Contains(block, row) {
-			t.Errorf("the block of i1042 lacks the tactic row %q:\n%s", row, block)
+	for _, row := range []string{
+		`\n      Discovery \(TA0007, AML\.TA0008\) +no MITRE ATT&CK technique identified\n`,
+		`\n      CredentialAccess \(TA0006, AML\.TA0013\) +T1003\.008  OS Credential Dumping: /etc/passwd and /etc/shadow\n +T1552\.004  Unsecured Credentials: Private Keys\n`,
+		`\n +AML\.T0090  OS Credential Dumping\n`,
+	} {
+		if !regexp.MustCompile(row).MatchString(block + "\n") {
+			t.Errorf("the block of i1042 lacks %q:\n%s", row, block)
 		}
 	}
 	// A period is written as one stamp or as two with "to" between them, and never in columns.
@@ -390,8 +395,11 @@ func TestReportWithoutIntents(t *testing.T) {
 	readout, saved := report(t, evidencetest.Copy(t, "bash"), "summary", "timeline")
 	_, timeline, _ := strings.Cut(readout, "\nTimeline")
 	for _, block := range []string{
-		"\n  [i] Discovery                       2025-03-01T10:15:00Z\n      no MITRE ATT&CK technique identified\n",
-		"\n  [x] CredentialAccess, Exfiltration  2025-03-01T10:45:00Z\n      T1048      Exfiltration Over Alternative Protocol\n",
+		"\n  [i] Discovery                       2025-03-01T10:15:00Z\n      Discovery (TA0007, AML.TA0008)         no MITRE ATT&CK technique identified\n",
+		"\n  [x] CredentialAccess, Exfiltration  2025-03-01T10:45:00Z\n" +
+			"      CredentialAccess (TA0006, AML.TA0013)  T1649      Steal or Forge Authentication Certificates\n" +
+			"      Exfiltration (TA0010, AML.TA0010)      T1048      Exfiltration Over Alternative Protocol\n" +
+			"                                             AML.T0025  Exfiltration via Cyber Means\n",
 		"\n  and 10 files that show no tactic, in the saved trace\n",
 	} {
 		if !strings.Contains(timeline, block) {
@@ -512,8 +520,10 @@ func TestIntentsRunFromWhenTheirFilesWereMade(t *testing.T) {
 		t.Errorf("the files with an intent are %v, want every one but plain.sh", of)
 	}
 	groups := reportRun{pipe: pipe, result: analysis{intents: runs}}.timeline()
+	// An activity that names no tactic leaves its technique under the tactic its framework files it under.
 	i5 := render.Entry{Cells: []string{"i5", "2026-10-22T09:10:00Z to 2026-10-22T09:12:00Z"}, Detail: []render.Detail{
-		{Label: "T1046", Text: "Network Service Discovery"}, {Label: "T1018", Text: "Remote System Discovery"},
+		{Label: "Discovery (TA0007, AML.TA0008)", Text: "T1046  Network Service Discovery"},
+		{Label: "Discovery (TA0007, AML.TA0008)", Text: "T1018  Remote System Discovery"},
 	}}
 	if got := groups[0].Entries[0]; !groups[0].Blocks || !reflect.DeepEqual(got, i5) {
 		t.Errorf("i5 is the block %+v, want %+v", got, i5)
@@ -575,11 +585,8 @@ func TestReportIntentsByCreation(t *testing.T) {
 			}
 		}
 	}
-	if !strings.Contains(readout, "  [x] i7  ") || !regexp.MustCompile(`\n      T1136\.001 +Create Account: Local Account\n`).MatchString(readout) {
-		t.Errorf("the readout has no block for i7 that names its technique:\n%s", readout)
-	}
-	if !strings.Contains(readout, "\n      TA0003, AML.TA0006  Persistence\n") {
-		t.Errorf("the block of i7 does not list the tactic of its script:\n%s", readout)
+	if !strings.Contains(readout, "  [x] i7  ") || !regexp.MustCompile(`\n      Persistence \(TA0003, AML\.TA0006\) +T1136\.001 +Create Account: Local Account\n`).MatchString(readout) {
+		t.Errorf("the readout has no block for i7 that names its technique under the tactic of its script:\n%s", readout)
 	}
 	if strings.Contains(readout, "timed by name or last change") {
 		t.Errorf("the readout says a file is not timed by its creation:\n%s", readout)

@@ -120,83 +120,93 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 </section>
 <section id="section-3">
 <h2>Timeline</h2>
-<p class="note">a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the tactics and the techniques its files show</p>
+<p class="note">a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with each tactic and the techniques under it</p>
 <ol class="blocks">
 <li class="block"><span class="dot high"></span>
 <div class="head"><span class="mark high">[x]</span><span class="name">Discovery, CredentialAccess</span><span class="rest">2026-10-22T09:00:00Z to 2026-10-22T09:05:00Z</span></div>
 <div class="items">
-<span class="id">T1083</span><span class="value">File and Directory Discovery</span>
-<span class="id">T1552.005</span><span class="value">Unsecured Credentials: Cloud Instance Metadata API</span>
-<span class="id">T1007</span><span class="value">System Service Discovery</span>
-<span class="id">T1003.008</span><span class="value">OS Credential Dumping: /etc/passwd and /etc/shadow</span>
-<span class="id">T1552.004</span><span class="value">Unsecured Credentials: Private Keys</span>
-<span class="id">T1552.001</span><span class="value">Unsecured Credentials: Credentials In Files</span>
-<span class="id">T1552.003</span><span class="value">Unsecured Credentials: Shell History</span>
-<span class="id">T1552.007</span><span class="value">Unsecured Credentials: Container API</span>
-<span class="id">AML.T0055</span><span class="value">Unsecured Credentials</span>
-<span class="id">AML.T0090</span><span class="value">OS Credential Dumping</span>
+<span class="id">Discovery (TA0007, AML.TA0008)</span><span class="value">T1083      File and Directory Discovery</span>
+<span class="id"></span><span class="value">T1007      System Service Discovery</span>
+<span class="id">CredentialAccess (TA0006, AML.TA0013)</span><span class="value">T1552.005  Unsecured Credentials: Cloud Instance Metadata API</span>
+<span class="id"></span><span class="value">T1003.008  OS Credential Dumping: /etc/passwd and /etc/shadow</span>
+<span class="id"></span><span class="value">T1552.004  Unsecured Credentials: Private Keys</span>
+<span class="id"></span><span class="value">T1552.001  Unsecured Credentials: Credentials In Files</span>
+<span class="id"></span><span class="value">T1552.003  Unsecured Credentials: Shell History</span>
+<span class="id"></span><span class="value">T1552.007  Unsecured Credentials: Container API</span>
+<span class="id"></span><span class="value">AML.T0055  Unsecured Credentials</span>
+<span class="id"></span><span class="value">AML.T0090  OS Credential Dumping</span>
 </div>
 </li>
 <li class="block"><span class="dot high"></span>
 <div class="head"><span class="mark high">[x]</span><span class="name">Discovery, PrivilegeEscalation</span><span class="rest">2026-10-22T09:10:00Z</span></div>
 <div class="items">
-<span class="id">T1548.003</span><span class="value">Abuse Elevation Control Mechanism: Sudo and Sudo Caching</span>
-<span class="id">T1548.001</span><span class="value">Abuse Elevation Control Mechanism: Setuid and Setgid</span>
-<span class="id">T1611</span><span class="value">Escape to Host</span>
-<span class="id">AML.T0105</span><span class="value">Escape to Host</span>
+<span class="id">Discovery (TA0007, AML.TA0008)</span><span class="value">no MITRE ATT&amp;CK technique identified</span>
+<span class="id">PrivilegeEscalation (TA0004, AML.TA0012)</span><span class="value">T1548.003  Abuse Elevation Control Mechanism: Sudo and Sudo Caching</span>
+<span class="id"></span><span class="value">T1548.001  Abuse Elevation Control Mechanism: Setuid and Setgid</span>
+<span class="id"></span><span class="value">T1611      Escape to Host</span>
+<span class="id"></span><span class="value">AML.T0105  Escape to Host</span>
 </div>
 </li>
 <li class="block"><span class="dot high"></span>
 <div class="head"><span class="mark high">[x]</span><span class="name">Execution, PrivilegeEscalation, Persistence</span><span class="rest">2026-10-22T09:15:00Z</span></div>
 <div class="items">
-<span class="id">T1053.003</span><span class="value">Scheduled Task/Job: Cron</span>
-<span class="id">T1053.002</span><span class="value">Scheduled Task/Job: At</span>
-<span class="id">T1053.006</span><span class="value">Scheduled Task/Job: Systemd Timers</span>
-<span class="id">T1543.002</span><span class="value">Create or Modify System Process: Systemd Service</span>
-<span class="id">T1136.001</span><span class="value">Create Account: Local Account</span>
-<span class="id">T1098.004</span><span class="value">Account Manipulation: SSH Authorized Keys</span>
-<span class="id">T1546.004</span><span class="value">Event Triggered Execution: Unix Shell Configuration Modification</span>
-<span class="id">AML.T0125</span><span class="value">Create Account</span>
-<span class="id">AML.T0142</span><span class="value">Event Triggered Execution</span>
+<span class="id">Execution (TA0002, AML.TA0005)</span><span class="value">T1053.003  Scheduled Task/Job: Cron</span>
+<span class="id"></span><span class="value">T1053.002  Scheduled Task/Job: At</span>
+<span class="id"></span><span class="value">T1053.006  Scheduled Task/Job: Systemd Timers</span>
+<span class="id">PrivilegeEscalation (TA0004, AML.TA0012)</span><span class="value">T1543.002  Create or Modify System Process: Systemd Service</span>
+<span class="id">Persistence (TA0003, AML.TA0006)</span><span class="value">T1053.003  Scheduled Task/Job: Cron</span>
+<span class="id"></span><span class="value">T1053.002  Scheduled Task/Job: At</span>
+<span class="id"></span><span class="value">T1053.006  Scheduled Task/Job: Systemd Timers</span>
+<span class="id"></span><span class="value">T1543.002  Create or Modify System Process: Systemd Service</span>
+<span class="id"></span><span class="value">T1136.001  Create Account: Local Account</span>
+<span class="id"></span><span class="value">T1098.004  Account Manipulation: SSH Authorized Keys</span>
+<span class="id"></span><span class="value">T1546.004  Event Triggered Execution: Unix Shell Configuration Modification</span>
+<span class="id"></span><span class="value">AML.T0125  Create Account</span>
+<span class="id"></span><span class="value">AML.T0142  Event Triggered Execution</span>
 </div>
 </li>
 <li class="block"><span class="dot high"></span>
 <div class="head"><span class="mark high">[x]</span><span class="name">Stealth, DefenseImpairment</span><span class="rest">2026-10-22T09:20:00Z</span></div>
 <div class="items">
-<span class="id">T1685.006</span><span class="value">Disable or Modify Tools: Clear Linux or Mac System Logs</span>
-<span class="id">T1070.003</span><span class="value">Indicator Removal: Clear Command History</span>
-<span class="id">T1690</span><span class="value">Prevent Command History Logging</span>
-<span class="id">T1685</span><span class="value">Disable or Modify Tools</span>
-<span class="id">T1685.004</span><span class="value">Disable or Modify Tools: Disable or Modify Linux Audit System Log</span>
-<span class="id">T1686</span><span class="value">Disable or Modify System Firewall</span>
-<span class="id">T1070.006</span><span class="value">Indicator Removal: Timestomp</span>
-<span class="id">AML.T0138</span><span class="value">Indicator Removal</span>
+<span class="id">Stealth (TA0005, AML.TA0007)</span><span class="value">T1070.003  Indicator Removal: Clear Command History</span>
+<span class="id"></span><span class="value">T1070.006  Indicator Removal: Timestomp</span>
+<span class="id"></span><span class="value">AML.T0138  Indicator Removal</span>
+<span class="id">DefenseImpairment (TA0112, AML.TA0007)</span><span class="value">T1685.006  Disable or Modify Tools: Clear Linux or Mac System Logs</span>
+<span class="id"></span><span class="value">T1690      Prevent Command History Logging</span>
+<span class="id"></span><span class="value">T1685      Disable or Modify Tools</span>
+<span class="id"></span><span class="value">T1685.004  Disable or Modify Tools: Disable or Modify Linux Audit System Log</span>
+<span class="id"></span><span class="value">T1686      Disable or Modify System Firewall</span>
 </div>
 </li>
 <li class="block"><span class="dot high"></span>
 <div class="head"><span class="mark high">[x]</span><span class="name">Discovery, LateralMovement, Execution, Collection, CommandAndControl, Exfiltration</span><span class="rest">2026-10-22T09:25:00Z to 2026-10-22T09:30:00Z</span></div>
 <div class="items">
-<span class="id">T1048</span><span class="value">Exfiltration Over Alternative Protocol</span>
-<span class="id">T1560.001</span><span class="value">Archive Collected Data: Archive via Utility</span>
-<span class="id">T1059.004</span><span class="value">Command and Scripting Interpreter: Unix Shell</span>
-<span class="id">T1105</span><span class="value">Ingress Tool Transfer</span>
-<span class="id">T1095</span><span class="value">Non-Application Layer Protocol</span>
-<span class="id">AML.T0025</span><span class="value">Exfiltration via Cyber Means</span>
-<span class="id">AML.T0072</span><span class="value">Cyber Communication Channel</span>
-<span class="id">AML.T0050</span><span class="value">Command and Scripting Interpreter</span>
+<span class="id">Discovery (TA0007, AML.TA0008)</span><span class="value">no MITRE ATT&amp;CK technique identified</span>
+<span class="id">LateralMovement (TA0008, AML.TA0015)</span><span class="value">no MITRE ATT&amp;CK technique identified</span>
+<span class="id">Execution (TA0002, AML.TA0005)</span><span class="value">T1059.004  Command and Scripting Interpreter: Unix Shell</span>
+<span class="id"></span><span class="value">AML.T0050  Command and Scripting Interpreter</span>
+<span class="id">Collection (TA0009, AML.TA0009)</span><span class="value">T1560.001  Archive Collected Data: Archive via Utility</span>
+<span class="id">CommandAndControl (TA0011, AML.TA0014)</span><span class="value">T1105      Ingress Tool Transfer</span>
+<span class="id"></span><span class="value">T1095      Non-Application Layer Protocol</span>
+<span class="id"></span><span class="value">AML.T0072  Cyber Communication Channel</span>
+<span class="id">Exfiltration (TA0010, AML.TA0010)</span><span class="value">T1048      Exfiltration Over Alternative Protocol</span>
+<span class="id"></span><span class="value">AML.T0025  Exfiltration via Cyber Means</span>
 </div>
 </li>
 <li class="block"><span class="dot high"></span>
 <div class="head"><span class="mark high">[x]</span><span class="name">Execution, Persistence, DefenseImpairment</span><span class="rest">2026-10-22T09:35:00Z</span></div>
 <div class="items">
-<span class="id">T1053.003</span><span class="value">Scheduled Task/Job: Cron</span>
-<span class="id">T1053.002</span><span class="value">Scheduled Task/Job: At</span>
-<span class="id">T1053.006</span><span class="value">Scheduled Task/Job: Systemd Timers</span>
-<span class="id">T1136.001</span><span class="value">Create Account: Local Account</span>
-<span class="id">T1685</span><span class="value">Disable or Modify Tools</span>
-<span class="id">T1685.004</span><span class="value">Disable or Modify Tools: Disable or Modify Linux Audit System Log</span>
-<span class="id">T1686</span><span class="value">Disable or Modify System Firewall</span>
-<span class="id">AML.T0125</span><span class="value">Create Account</span>
+<span class="id">Execution (TA0002, AML.TA0005)</span><span class="value">T1053.003  Scheduled Task/Job: Cron</span>
+<span class="id"></span><span class="value">T1053.002  Scheduled Task/Job: At</span>
+<span class="id"></span><span class="value">T1053.006  Scheduled Task/Job: Systemd Timers</span>
+<span class="id">Persistence (TA0003, AML.TA0006)</span><span class="value">T1053.003  Scheduled Task/Job: Cron</span>
+<span class="id"></span><span class="value">T1053.002  Scheduled Task/Job: At</span>
+<span class="id"></span><span class="value">T1053.006  Scheduled Task/Job: Systemd Timers</span>
+<span class="id"></span><span class="value">T1136.001  Create Account: Local Account</span>
+<span class="id"></span><span class="value">AML.T0125  Create Account</span>
+<span class="id">DefenseImpairment (TA0112, AML.TA0007)</span><span class="value">T1685      Disable or Modify Tools</span>
+<span class="id"></span><span class="value">T1685.004  Disable or Modify Tools: Disable or Modify Linux Audit System Log</span>
+<span class="id"></span><span class="value">T1686      Disable or Modify System Firewall</span>
 </div>
 </li>
 </ol>

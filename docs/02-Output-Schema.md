@@ -84,7 +84,7 @@ Impact
 | --- | --- | --- |
 | Summary | a count and its breakdown; with a window of time, the row `left out`: the files outside it and what the window left out | none |
 | Tactics | tactic, its ATT&CK and ATLAS identifiers, the files that show it | `intents`: the intents of those files, every one, in the order of the timeline |
-| Timeline | a block for each intent, or for each period where no file names an intent: the intent or the tactics of the period, and when it ran | under an intent, each tactic of its files by its ATT&CK and ATLAS identifiers; each ATT&CK technique and each ATLAS technique, by its identifier and its name; `watchlist`: the matches of its files |
+| Timeline | a block for each intent, or for each period where no file names an intent: the intent or the tactics of the period, and when it ran | each tactic of its files, by name with its ATT&CK and ATLAS identifiers, and beside it each technique under it by its identifier and its name, or that none was identified; `watchlist`: the matches of its files |
 | Findings | activity, lines, tactics, techniques | `what`: the lines that show it, each with its place |
 | Targeted, a group per kind | the value, for an address whether it is private or public, whether it is prior or discovered, the places in the scripts | `from`: the output that held a discovered value first; `what`: the script lines that name it |
 | Targeted, a group per thing the activities acted on | the thing, such as a task, an archive or a file, and the activities that acted on it; a task also with what it runs; a resource after the activities that acted on it | `what`: the lines that act on it |
@@ -106,35 +106,36 @@ The timeline tells what was done, in the order of time, as a line of blocks. Whe
 name ARTEX intents, a block is an intent; where none does, a block is a period.
 
 ```text
-Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the tactics and the techniques its files show)
+Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with each tactic and the techniques under it)
   [x] i1041  2026-10-22T09:00:00Z to 2026-10-22T09:00:40Z
-      TA0007, AML.TA0008  Discovery
-      TA0006, AML.TA0013  CredentialAccess
-      T1083               File and Directory Discovery
-      T1552.005           Unsecured Credentials: Cloud Instance Metadata API
-      T1007               System Service Discovery
-      AML.T0055           Unsecured Credentials
+      Discovery (TA0007, AML.TA0008)            T1083      File and Directory Discovery
+                                                T1007      System Service Discovery
+      CredentialAccess (TA0006, AML.TA0013)     T1552.005  Unsecured Credentials: Cloud Instance Metadata API
+                                                AML.T0055  Unsecured Credentials
 
-  [i] i1043  2026-10-22T09:06:00Z
-      TA0007, AML.TA0008  Discovery
-      no MITRE ATT&CK technique identified
+  [x] i1042  2026-10-22T09:05:00Z to 2026-10-22T09:05:40Z
+      Discovery (TA0007, AML.TA0008)            no MITRE ATT&CK technique identified
 ```
 
 - A block names the intent, or the tactics of the period, and when it ran: one time when that is
   one instant and `-` when none of its files has a time.
-- Under an intent stand the tactics its files show, each on a line under its identifiers of
-  ATT&CK and ATLAS, in the order of `tactics.json`. A period is named by its tactics and does
-  not list them again.
+- Under it stand the tactics its files show, each once, by name with its identifiers of ATT&CK
+  and ATLAS, in the order of `tactics.json`. A period, which is named by its tactics, lists
+  them here with their identifiers.
+- Beside a tactic stand the techniques under it, each on a line by its identifier and the name
+  its framework gives it, a sub-technique after the technique it is part of: the ATT&CK
+  techniques and then the ATLAS techniques, in the order they are first shown.
+- A technique stands under its parent tactic: a tactic of the activity that shows it, where
+  ATT&CK, or ATLAS for a technique of ATLAS, files the technique under that tactic. A technique
+  of two such tactics stands under both, as a scheduled task does under Execution and under
+  Persistence.
+- A tactic is of the tools a file runs and of its activities; a technique is of an activity
+  alone. A tactic with no technique under it says `no MITRE ATT&CK technique identified`, and
+  so does a block that shows no tactic at all.
 - The Tactics section and the blocks say the same of an intent, each from its side. A tactic
   lists every file that shows it, a script or what a script wrote, and names the intents of
   those files; the block of each of those intents lists the tactic, and the block of no other
   intent does.
-- Then stand the techniques, each on a line: the ATT&CK techniques and then the ATLAS techniques
-  of the activities its files show, in the order they are first shown. A technique has the name
-  its framework gives it, a sub-technique after the technique it is part of.
-- A tactic is of the tools a file runs and of its activities; a technique is of an activity
-  alone. A block whose files show a tactic and no activity lists the tactic and says
-  `no MITRE ATT&CK technique identified`, as does a block that shows neither.
 - A watchlist match of its files stands last, under `watchlist`.
 
 Blocks of intents:
