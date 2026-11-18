@@ -1,4 +1,45 @@
 {
+  "services": [
+    {
+      "name": "Microsoft 365", "group": true,
+      "words": ["m365", "o365", "office365", "microsoft", "entra", "azuread", "aad", "azure", "msgraph", "msol", "sharepoint", "onedrive"],
+      "issuers": ["sts.windows.net", "login.microsoftonline.com", "login.windows.net"],
+      "values": [
+        {"kinds": ["tenant", "application"], "pattern": "(?i)^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"},
+        {"pattern": "(?i)\\.onmicrosoft\\.com$|\\.sharepoint\\.com$"},
+        {"kinds": ["password", "apikey"], "pattern": "^[01]\\.A[A-Za-z0-9_.-]{60,}$"}
+      ]
+    },
+    {
+      "name": "Google Cloud", "group": true,
+      "words": ["gcp", "google", "gcloud", "gke", "gcs", "firebase"],
+      "issuers": ["accounts.google.com", "googleapis.com", "gserviceaccount.com"],
+      "values": [
+        {"pattern": "(?i)\\.gserviceaccount\\.com$|\\.apps\\.googleusercontent\\.com$|^gs://"},
+        {"kinds": ["password", "apikey"], "pattern": "^(?:AIza[0-9A-Za-z_-]{35}$|ya29\\.|GOCSPX-|1//0[A-Za-z0-9_-]{20,})"},
+        {"kinds": ["resource"], "pattern": "^[a-z][a-z0-9-]{4,28}[a-z0-9]$"}
+      ]
+    },
+    {"name": "AWS", "words": ["aws", "amazon"], "values": [{"pattern": "^(?:AKIA|ASIA)[A-Z0-9]{16}$|^s3://"}]},
+    {"name": "GitHub", "words": ["github", "gh"], "values": [{"pattern": "^(?:gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{22,})$"}]},
+    {"name": "GitLab", "words": ["gitlab"], "values": [{"pattern": "^glpat-[A-Za-z0-9_-]{20,}$"}]},
+    {"name": "Slack", "words": ["slack"], "values": [{"pattern": "^xox[baprs]-[A-Za-z0-9-]{10,}$"}]},
+    {"name": "Stripe", "words": ["stripe"], "values": [{"pattern": "^[sr]k_(?:live|test)_[A-Za-z0-9]{16,}$"}]},
+    {"name": "Anthropic", "words": ["anthropic", "claude"], "values": [{"pattern": "^sk-ant-[A-Za-z0-9_-]{20,}$"}]},
+    {"name": "OpenAI", "words": ["openai"], "values": [{"pattern": "^sk-(?:proj-)?[A-Za-z0-9_-]{20,}$"}]},
+    {"name": "Hugging Face", "words": ["huggingface", "hf"], "values": [{"pattern": "^hf_[A-Za-z0-9]{30,}$"}]},
+    {"name": "SendGrid", "words": ["sendgrid"], "values": [{"pattern": "^SG\\.[A-Za-z0-9_-]{22}\\.[A-Za-z0-9_-]{43}$"}]},
+    {"name": "npm", "words": ["npm"], "values": [{"pattern": "^npm_[A-Za-z0-9]{36}$"}]},
+    {"name": "PyPI", "words": ["pypi"], "values": [{"pattern": "^pypi-[A-Za-z0-9_-]{50,}$"}]},
+    {"name": "DigitalOcean", "words": ["digitalocean"], "values": [{"pattern": "^dop_v1_[a-f0-9]{64}$"}]},
+    {"name": "Twilio", "words": ["twilio"]},
+    {"name": "Datadog", "words": ["datadog"]},
+    {"name": "Cloudflare", "words": ["cloudflare"]},
+    {"name": "Docker Hub", "words": ["docker", "dockerhub"]},
+    {"name": "Telegram", "words": ["telegram"]},
+    {"name": "Discord", "words": ["discord"]},
+    {"name": "Okta", "words": ["okta"]}
+  ],
   "kinds": [
     {
       "name": "password",
@@ -13,14 +54,11 @@
         {"suffix": "secret", "form": "secret"},
         {"suffix": "credential", "form": "secret"},
         {"suffix": "token", "form": "token"},
-        {"suffix": "apikey", "form": "key"},
-        {"suffix": "secretkey", "form": "key"},
-        {"suffix": "accesskey", "form": "key"},
         {"suffix": "privatekey", "form": "key"},
         {"suffix": "nthash", "form": "hash"},
         {"suffix": "ntlmhash", "form": "hash"}
       ],
-      "indicators": [{"type": "JWT", "form": "token"}, {"type": "AWSKey", "form": "key"}, {"type": "PrivateKey", "form": "key"}],
+      "indicators": [{"type": "JWT", "form": "token"}, {"type": "PrivateKey", "form": "key", "unless": "(?:OPENSSH|RSA|DSA|EC) PRIVATE KEY"}],
       "valid": "^\\S.{2,}$",
       "reject": "(?i)^(?:[$%<{(\\[].*|\\*+|x+|!+|-+|null|none|nil|true|false|yes|no|redacted|bearer|basic|\\d{1,5}|\\.+)$",
       "patterns": [
@@ -86,6 +124,76 @@
       ],
       "indicators": [{"type": "Email"}],
       "valid": "(?i)^[a-z0-9][a-z0-9._%+-]{0,63}@(?:[a-z0-9-]+\\.)+[a-z]{2,24}$"
+    },
+    {
+      "name": "tenant",
+      "title": "Tenants",
+      "severity": "medium",
+      "keys": ["tenant", "tenantid", "tenantname", "tenantdomain", "tid", "directoryid"],
+      "suffixes": [{"suffix": "tenantid"}, {"suffix": "tenant"}],
+      "valid": "(?i)^(?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|[a-z0-9][a-z0-9-]*(?:\\.[a-z0-9-]+)+)$",
+      "reject": "(?i)\\.(?:json|txt|ps1|sh|py|log|csv|xml)$",
+      "patterns": [
+        {"service": "Microsoft 365", "needs": ["login.microsoftonline.", "sts.windows.net/", "login.windows.net/"], "pattern": "(?i)(?:login\\.microsoftonline\\.(?:com|us)|login\\.partner\\.microsoftonline\\.cn|sts\\.windows\\.net|login\\.windows\\.net)/(?P<value>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|[a-z0-9-]+(?:\\.[a-z0-9-]+)+)"},
+        {"service": "Microsoft 365", "needs": [".onmicrosoft.com"], "pattern": "(?i)(?:^|[^a-z0-9.-])(?P<value>[a-z0-9][a-z0-9-]*\\.onmicrosoft\\.com)"},
+        {"needs": ["-tenant"], "pattern": "(?i)--?tenant(?:-?id)?[= ]\\s*[\\\"']?(?P<value>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|[a-z0-9-]+(?:\\.[a-z0-9-]+)+)"}
+      ]
+    },
+    {
+      "name": "sshkey",
+      "title": "SSH keys",
+      "severity": "high",
+      "patterns": [
+        {"form": "public key", "needs": ["ssh-rsa ", "ssh-ed25519 ", "ssh-dss ", "ecdsa-sha2-"], "pattern": "(?m)^(?P<host>\\[?[A-Za-z0-9][A-Za-z0-9-]*(?:\\.[A-Za-z0-9-]+)+\\]?(?::\\d+)?)(?:,\\S+)?[ \\t]+(?P<value>(?:ssh-(?:rsa|ed25519|dss)|ecdsa-sha2-nistp(?:256|384|521)) AAAA[A-Za-z0-9+/]{40,}=*)"},
+        {"form": "public key", "needs": ["ssh-rsa ", "ssh-ed25519 ", "ssh-dss ", "ecdsa-sha2-"], "pattern": "(?P<value>(?:ssh-(?:rsa|ed25519|dss)|ecdsa-sha2-nistp(?:256|384|521)) AAAA[A-Za-z0-9+/]{40,}=*)(?:[ \\t]+(?P<account>[A-Za-z0-9._-]+)@(?P<host>[A-Za-z0-9][A-Za-z0-9.-]*))?"},
+        {"form": "private key", "needs": ["private key-----"], "pattern": "-----BEGIN (?P<value>(?:OPENSSH|RSA|DSA|EC) PRIVATE KEY)-----"},
+        {"form": "key file", "needs": [" -i "], "pattern": "\\b(?:ssh|scp|sftp)\\b[^\\n|;&]*?\\s-i\\s+(?P<value>\\\"[^\\\"]+\\\"|'[^']+'|\\S+)[^\\n|;&]*?\\s(?P<account>[A-Za-z_][\\w.-]*)@(?P<host>[A-Za-z0-9][\\w.-]*)"}
+      ]
+    },
+    {
+      "name": "apikey",
+      "title": "API keys",
+      "severity": "high",
+      "secret": true,
+      "suffixes": [
+        {"suffix": "apikey", "form": "key"},
+        {"suffix": "secretkey", "form": "key"},
+        {"suffix": "accesskey", "form": "key"},
+        {"suffix": "accesskeyid", "form": "key"}
+      ],
+      "indicators": [{"type": "AWSKey", "form": "key"}],
+      "valid": "^\\S{8,}$",
+      "reject": "(?i)^(?:[$%<{(\\[].*|\\*+|x+|!+|-+|null|none|nil|true|false|redacted|\\d{1,8}|\\.+)$",
+      "patterns": [
+        {"form": "key", "needs": ["ghp_", "gho_", "ghu_", "ghs_", "ghr_", "github_pat_", "glpat-", "xox", "sk-", "sk_live_", "sk_test_", "rk_live_", "aiza", "sg.", "npm_", "hf_", "dop_v1_", "pypi-", "ya29.", "gocspx-"], "pattern": "(?:^|[^A-Za-z0-9_-])(?P<value>gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{22,}|glpat-[A-Za-z0-9_-]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|sk-(?:ant-|proj-)?[A-Za-z0-9_-]{20,}|[sr]k_(?:live|test)_[A-Za-z0-9]{16,}|AIza[0-9A-Za-z_-]{35}|SG\\.[A-Za-z0-9_-]{22}\\.[A-Za-z0-9_-]{43}|npm_[A-Za-z0-9]{36}|hf_[A-Za-z0-9]{30,}|dop_v1_[a-f0-9]{64}|pypi-[A-Za-z0-9_-]{50,}|ya29\\.[A-Za-z0-9_-]{20,}|GOCSPX-[A-Za-z0-9_-]{20,})"}
+      ]
+    },
+    {
+      "name": "application",
+      "title": "Applications",
+      "severity": "medium",
+      "keys": ["clientid", "appid", "applicationid"],
+      "suffixes": [{"suffix": "clientid"}, {"suffix": "appid"}, {"suffix": "applicationid"}],
+      "valid": "(?i)^(?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|[0-9]+-[a-z0-9]+\\.apps\\.googleusercontent\\.com)$",
+      "patterns": [
+        {"needs": ["-clientid", "-client-id", "-applicationid", "-application-id", "-appid", "-app-id"], "pattern": "(?i)--?(?:client-?id|application-?id|app-?id)[= ]\\s*[\\\"']?(?P<value>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"},
+        {"needs": [".apps.googleusercontent.com"], "pattern": "(?P<value>[0-9]+-[a-z0-9]+\\.apps\\.googleusercontent\\.com)"}
+      ]
+    },
+    {
+      "name": "resource",
+      "title": "Cloud resources",
+      "severity": "low",
+      "suffixes": [{"suffix": "projectid", "form": "project"}, {"suffix": "cloudproject", "form": "project"}],
+      "valid": "^[A-Za-z0-9][A-Za-z0-9._/:-]{2,200}$",
+      "reject": "(?i)^(?:true|false|null|none|\\d+)$",
+      "patterns": [
+        {"form": "project", "service": "Google Cloud", "needs": ["--project"], "pattern": "--project[= ]\\s*[\\\"']?(?P<value>[a-z][a-z0-9-]{4,28}[a-z0-9])"},
+        {"form": "project", "service": "Google Cloud", "needs": ["googleapis.com", "gcloud", "gsutil", "gserviceaccount"], "pattern": "\\bprojects/(?P<value>[a-z][a-z0-9-]{4,28}[a-z0-9])(?:$|[/\\s\\\"'?])"},
+        {"form": "bucket", "service": "Google Cloud", "needs": ["gs://"], "pattern": "(?P<value>gs://[a-z0-9][a-z0-9._-]{1,61}[a-z0-9])"},
+        {"form": "bucket", "service": "AWS", "needs": ["s3://"], "pattern": "(?P<value>s3://[a-z0-9][a-z0-9.-]{1,61}[a-z0-9])"},
+        {"form": "site", "service": "Microsoft 365", "needs": [".sharepoint.com"], "pattern": "(?i)(?:^|[^a-z0-9.-])(?P<value>[a-z0-9][a-z0-9-]*\\.sharepoint\\.com)"}
+      ]
     },
     {
       "name": "device",

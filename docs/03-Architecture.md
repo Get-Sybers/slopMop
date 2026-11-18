@@ -20,7 +20,7 @@ about evidence touch no file, and every static table is a data file validated at
 | `internal/activity` | recognises what a line of evidence does (a role assignment, a mailbox read, a Key Vault secret read) and the tactics of it, using `activities.json` |
 | `internal/indicator` | extracts security indicators (IPs, URLs, hashes, CVEs, GUIDs, Microsoft cloud endpoints, OAuth scopes) using `indicators.json` |
 | `internal/assess` | turns what a run found into its impacts and the remediation they call for, using `impacts.json` and `actions.json` |
-| `internal/exposure` | names what the evidence holds that an attacker can use: usernames, email addresses, passwords and other secrets, devices and IP addresses; masks a secret; no I/O |
+| `internal/exposure` | names what the evidence holds that an attacker can use: usernames, email addresses, passwords and other secrets, tenants, SSH keys, API keys, applications, cloud resources, devices and IP addresses, and the service each is of; no I/O |
 | `internal/intent` | names the ARTEX intent of a path, by the name of the file, its run folder or its session name; no I/O |
 | `internal/device` | reads how many processors and how much memory the machine has, on Linux, Windows and macOS; changes nothing |
 | `internal/parallel` | runs independent pieces of work on every processor; no I/O |
@@ -64,7 +64,7 @@ progress    -> render
 | `internal/activity/activities.json` | each activity's name, tactics, ATT&CK and ATLAS techniques and patterns, the contexts some patterns need, and the subjects a matching line acts on | names are present and unique; every activity has a tactic, an ATT&CK technique and a pattern; `command` rejects a technique the catalogue lacks; paths and a known context go together; every pattern compiles and the literal it is found by holds no line break; a subject has a label and a pattern with one group; `command` rejects a tactic that `tactics.json` lacks |
 | `internal/assess/impacts.json` | each impact's name, severity and statement, what triggers it, the indicator types to list as affected and the kinds of exposure it concerns | names are present and unique; a statement and a severity of `low`, `medium` or `high`; something triggers each; `command` rejects an activity, a tactic, an indicator type or a kind of exposure the other tables lack |
 | `internal/assess/actions.json` | each remediation's name, priority and text, and what triggers it | as for an impact |
-| `internal/exposure/exposures.json` | each kind of exposure: its title, its severity, whether it is a secret, the field names and endings that hold it, the indicator types that are of it, what a value must and must not look like, and its patterns | names, titles and severities present and unique; a field name is lower-case letters and digits and in one kind; an ending has three characters or more; an indicator type is in one kind and `command` rejects one that `indicators.json` lacks; every expression compiles; a pattern has a group named `value` and a lower-case text a line must hold; `command` rejects a severity that is not `low`, `medium` or `high` |
+| `internal/exposure/exposures.json` | the services a value can be of, and each kind of exposure: its title, its severity, whether it is a secret, the field names and endings that hold it, the indicator types that are of it, what a value must and must not look like, and its patterns | names, titles and severities present and unique; a field name is lower-case letters and digits and in one kind; an ending has three characters or more; an indicator type is in one kind and `command` rejects one that `indicators.json` lacks; every expression compiles; a pattern has a group named `value` and a lower-case text a line must hold; `command` rejects a severity that is not `low`, `medium` or `high` |
 | `internal/intent/paths.json` | the rules that find an ARTEX intent in a path, in the order they are tried, and the names that are none | a rule has a name of its own and a pattern that compiles with a group named `id` and no group but `id` and `task`; a rejected name is present once |
 | `internal/mitre/catalogue.json` | for ATT&CK and for ATLAS: the version, the tactics, the mitigations with a one-sentence summary, and each technique's name, tactics and mitigations | a version, tactics, techniques and mitigations are present; a technique names only tactics and mitigations that are listed |
 | `internal/indicator/indicators.json` | indicator types and their regex patterns, with what a match must not follow on its line and what must not follow it | every entry has a type and a pattern; every expression compiles |
@@ -391,6 +391,10 @@ The rules are those of `exposures.json`, and the classes are described in the
   beside a field that says the row is a host.
 - A pattern is tried only on a line that holds one of the texts it needs, and not on a line its
   `unless` matches. A line is searched to 8 KiB.
+- A pattern names the service every value of it is of, or has a group named `host` for the host
+  a value is for. `exposures.json` lists the services: the words of a field name that name each,
+  the expressions its own values match, the hosts that issue its tokens, and whether the report
+  gives it a group of its own. A public key of SSH is kept as its fingerprint.
 - A value must match the kind's `valid` expression and must not match its `reject`: a
   placeholder, a boolean and a bare number are no password. A hash is exempt from `reject`,
   because a crypt hash begins as a placeholder does.
@@ -411,7 +415,7 @@ The same pass gathers the targets: what the scripts name outright.
   under what title.
 - A target is `discovered` when a file that is not a script and stands earlier in the timeline
   holds the same value, and `prior` otherwise.
-- Its script lines are quoted after every secret is known, so each is masked.
+- Its script lines are quoted as they stand.
 
 ## 13. ARTEX intents
 

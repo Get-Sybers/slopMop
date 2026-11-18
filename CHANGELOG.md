@@ -32,6 +32,18 @@ All notable changes to this project are recorded in this file. The format follow
   column `created`.
 - The table of the intents has `timed_by`: whether the period of an intent is read from
   creation times, from the times of the timeline, or from both.
+- The exposure names tenants, SSH keys, API keys, applications and cloud resources, beside the
+  passwords, usernames, email addresses, devices and addresses. A tenant is a directory
+  identifier or a domain of `onmicrosoft.com`. An SSH key is a public key by its fingerprint,
+  the header of a private key, or the key file `ssh -i` is given, each with the user and the
+  host the evidence gives it. An API key is a value in the form a service gives its keys, or
+  under a field that names a key.
+- A value of the exposure has a `service`: what it gives access to, such as `Microsoft 365`,
+  `Google Cloud`, `AWS`, `GitHub` or `OpenAI`, and the host of an SSH key. It is read from the
+  form of the value, from the issuer of a JSON web token and from the name of the field.
+  `exposure.csv` has the column `service`, and `exposures.json` lists the services.
+- The Exposure section lists what is of Microsoft 365 and what is of Google Cloud in a group of
+  each, whatever its kind.
 
 ### Changed
 
@@ -45,6 +57,11 @@ All notable changes to this project are recorded in this file. The format follow
 - The `evidence` of a finding in `findings.json` is an array with one object per line: the
   `time` of its file, the `file`, the `line` and the `text`. It was one string.
 - `commands.json` names the format of each saved table, `json` or `csv`.
+- An API key under a field whose name ends as `apikey`, `secretkey` or `accesskey` does, and
+  an AWS key, is of the kind `apikey` and no longer of `password`. The header of a private key
+  of SSH is of the kind `sshkey`.
+- A value of the exposure is folded into the same value of which the evidence says more, its
+  account or its service, where a secret was folded only into one with an account.
 - The Intents section is the Intent timeline: a line of blocks, one for each intent, in the
   order the intents began. A block names the intent and the period it ran for, and lists each
   of its ATT&CK and ATLAS techniques by its identifier and its name, a sub-technique after the
@@ -58,6 +75,12 @@ All notable changes to this project are recorded in this file. The format follow
   modified time. A file whose creation time is after its last change is a copy, made when it was
   copied, and keeps the time of the timeline, as does a file with no creation time; the last
   line of the section counts those files.
+
+### Removed
+
+- `-secrets`. A secret is written as it stands in the evidence, on the screen and in every
+  saved file: in the exposure, in a command quoted as evidence, in a target and among the
+  indicators. It was masked unless `-secrets shown` was given.
 
 ### Fixed
 

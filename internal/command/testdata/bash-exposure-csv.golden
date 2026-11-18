@@ -1,27 +1,28 @@
-kind,value,account,form,seen,severity,count,files
-password,88********c (32 chars),administrator@corp.example,hash,collected,high,1,20250301_104010_step06_auth.txt:4
-password,Qw********9 (25 chars),MSOL_0a1b2c3d4e5f,password,collected,high,2,"adsync_1740824865.txt:8, 20250301_103200_step05_certs.sh:4"
-password,Zx********s (21 chars),Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com,password,collected,high,1,adsync_1740824865.txt:4
-password,88********c (32 chars),administrator,hash,used,high,3,"20250301_104000_step06_auth.sh:5, 20250301_104500_step07_exfil.sh:3, 20250301_104000_step06_auth.sh:4"
-password,Ex*****! (8 chars),,password,used,high,1,20250301_104500_step07_exfil.sh:3
-password,Qw********9 (25 chars),MSOL_0a1b2c3d4e5f@corp.example,password,used,high,2,"20250301_103200_step05_certs.sh:5, 20250301_103200_step05_certs.sh:6"
-password,Wi********! (11 chars),svc_backup,password,used,high,5,"20250301_101800_step02_enum.sh:5, 20250301_101800_step02_enum.sh:8, 20250301_101845_step02_enum.log:1, 20250301_101845_step02_enum.log:2, 20250301_102300_step03_adsync.sh:7"
-username,MSOL_0a1b2c3d4e5f,,,collected,medium,3,"20250301_101910_step02_users.tsv:2, adsync_1740824865.txt:7, 20250301_103200_step05_certs.sh:3"
-username,Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com,,,collected,medium,1,adsync_1740824865.txt:3
-username,administrator@corp.example,,,collected,medium,2,"20250301_104010_step06_auth.txt:1, 20250301_104010_step06_auth.txt:4"
-username,svc_adsync,,,collected,medium,1,20250301_101910_step02_users.tsv:3
-username,MSOL_0a1b2c3d4e5f@corp.example,,,used,medium,2,"20250301_103200_step05_certs.sh:5, 20250301_103200_step05_certs.sh:6"
-username,administrator,,,used,medium,4,"20250301_104000_step06_auth.sh:3, 20250301_104000_step06_auth.sh:4, 20250301_104000_step06_auth.sh:5, 20250301_104500_step07_exfil.sh:3"
-username,svc_backup,,,used,medium,6,"20250301_101800_step02_enum.sh:4, 20250301_101800_step02_enum.sh:8, 20250301_101845_step02_enum.log:1, 20250301_101845_step02_enum.log:2, 20250301_101845_step02_enum.log:3"
-email,Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com,,,collected,medium,1,adsync_1740824865.txt:3
-email,administrator@corp.example,,,used,medium,3,"20250301_103200_step05_certs.sh:6, 20250301_103240_certipy_find.txt:12, 20250301_104010_step06_auth.txt:1"
-device,AADC01,,,collected,low,5,"20250301_101845_step02_enum.log:2, 20250301_101910_step02_users.tsv:2, 20250301_101910_step02_users.tsv:3, adsync_1740824625.txt:1, adsync_1740824625.txt:2"
-device,CA01,,,collected,low,1,20250301_101845_step02_enum.log:3
-device,DC01,,,collected,low,1,20250301_101845_step02_enum.log:1
-device,aadc01.corp.example,,,collected,low,1,20250301_101530_step01_recon.txt:4
-device,ca01.corp.example,,,collected,low,3,"20250301_101530_step01_recon.txt:6, 20250301_103200_step05_certs.sh:2, 20250301_103240_certipy_find.txt:6"
-device,dc01.corp.example,,,collected,low,1,20250301_101530_step01_recon.txt:2
-ip,10.20.1.17,,,collected,low,6,"20250301_101530_step01_recon.txt:4, 20250301_101800_step02_enum.sh:6, 20250301_101845_step02_enum.log:2, 20250301_102300_step03_adsync.sh:3, adsync_1740824625.txt:1"
-ip,10.20.1.23,,,collected,low,5,"20250301_101530_step01_recon.txt:6, 20250301_101800_step02_enum.sh:6, 20250301_101845_step02_enum.log:3, 20250301_104000_step06_auth.sh:5, 20250301_104500_step07_exfil.sh:3"
-ip,10.20.1.5,,,collected,low,5,"20250301_101530_step01_recon.txt:2, 20250301_101800_step02_enum.sh:2, 20250301_101845_step02_enum.log:1, 20250301_103200_step05_certs.sh:5, 20250301_104000_step06_auth.sh:3"
-ip,10.20.1.0/24,,,used,low,1,20250301_101500_step01_recon.sh:3
+kind,value,account,form,service,seen,severity,count,files
+password,8846f7eaee8fb117ad06bdd830b7586c,administrator@corp.example,hash,,collected,high,1,20250301_104010_step06_auth.txt:4
+password,Qw7#fakeMsolSecretValue99,MSOL_0a1b2c3d4e5f,password,Microsoft 365,collected,high,2,"20250301_103200_step05_certs.sh:4, adsync_1740824865.txt:8"
+password,Zx9!fakeCloudSyncPass,Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com,password,,collected,high,1,adsync_1740824865.txt:4
+password,8846f7eaee8fb117ad06bdd830b7586c,administrator,hash,,used,high,3,"20250301_104000_step06_auth.sh:5, 20250301_104500_step07_exfil.sh:3, 20250301_104000_step06_auth.sh:4"
+password,Export1!,,password,,used,high,1,20250301_104500_step07_exfil.sh:3
+password,Qw7#fakeMsolSecretValue99,MSOL_0a1b2c3d4e5f@corp.example,password,,used,high,2,"20250301_103200_step05_certs.sh:5, 20250301_103200_step05_certs.sh:6"
+password,Winter2025!,svc_backup,password,,used,high,5,"20250301_101800_step02_enum.sh:5, 20250301_101800_step02_enum.sh:8, 20250301_101845_step02_enum.log:1, 20250301_101845_step02_enum.log:2, 20250301_102300_step03_adsync.sh:7"
+username,MSOL_0a1b2c3d4e5f,,,Microsoft 365,collected,medium,3,"20250301_103200_step05_certs.sh:3, 20250301_101910_step02_users.tsv:2, adsync_1740824865.txt:7"
+username,Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com,,,Microsoft 365,collected,medium,1,adsync_1740824865.txt:3
+username,administrator@corp.example,,,,collected,medium,2,"20250301_104010_step06_auth.txt:1, 20250301_104010_step06_auth.txt:4"
+username,svc_adsync,,,,collected,medium,1,20250301_101910_step02_users.tsv:3
+username,MSOL_0a1b2c3d4e5f@corp.example,,,,used,medium,2,"20250301_103200_step05_certs.sh:5, 20250301_103200_step05_certs.sh:6"
+username,administrator,,,,used,medium,4,"20250301_104000_step06_auth.sh:3, 20250301_104000_step06_auth.sh:4, 20250301_104000_step06_auth.sh:5, 20250301_104500_step07_exfil.sh:3"
+username,svc_backup,,,,used,medium,6,"20250301_101800_step02_enum.sh:4, 20250301_101800_step02_enum.sh:8, 20250301_101845_step02_enum.log:1, 20250301_101845_step02_enum.log:2, 20250301_101845_step02_enum.log:3"
+email,Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com,,,Microsoft 365,collected,medium,1,adsync_1740824865.txt:3
+email,administrator@corp.example,,,,used,medium,3,"20250301_103200_step05_certs.sh:6, 20250301_103240_certipy_find.txt:12, 20250301_104010_step06_auth.txt:1"
+tenant,corpexample.onmicrosoft.com,,,Microsoft 365,collected,medium,1,adsync_1740824865.txt:3
+device,AADC01,,,,collected,low,5,"20250301_101845_step02_enum.log:2, 20250301_101910_step02_users.tsv:2, 20250301_101910_step02_users.tsv:3, adsync_1740824625.txt:1, adsync_1740824625.txt:2"
+device,CA01,,,,collected,low,1,20250301_101845_step02_enum.log:3
+device,DC01,,,,collected,low,1,20250301_101845_step02_enum.log:1
+device,aadc01.corp.example,,,,collected,low,1,20250301_101530_step01_recon.txt:4
+device,ca01.corp.example,,,,collected,low,3,"20250301_101530_step01_recon.txt:6, 20250301_103200_step05_certs.sh:2, 20250301_103240_certipy_find.txt:6"
+device,dc01.corp.example,,,,collected,low,1,20250301_101530_step01_recon.txt:2
+ip,10.20.1.17,,,,collected,low,6,"20250301_101530_step01_recon.txt:4, 20250301_101800_step02_enum.sh:6, 20250301_101845_step02_enum.log:2, 20250301_102300_step03_adsync.sh:3, adsync_1740824625.txt:1"
+ip,10.20.1.23,,,,collected,low,5,"20250301_101530_step01_recon.txt:6, 20250301_101800_step02_enum.sh:6, 20250301_101845_step02_enum.log:3, 20250301_104000_step06_auth.sh:5, 20250301_104500_step07_exfil.sh:3"
+ip,10.20.1.5,,,,collected,low,5,"20250301_101530_step01_recon.txt:2, 20250301_101800_step02_enum.sh:2, 20250301_101845_step02_enum.log:1, 20250301_103200_step05_certs.sh:5, 20250301_104000_step06_auth.sh:3"
+ip,10.20.1.0/24,,,,used,low,1,20250301_101500_step01_recon.sh:3

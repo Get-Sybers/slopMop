@@ -1,6 +1,7 @@
 package command
 
 import (
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -40,23 +41,25 @@ type exposed struct {
 	value   string
 	account string
 	form    string
-	// open marks a secret whose value describes it and gives nothing away.
-	open bool
-	// plain marks a secret that the run was asked to write out as it is.
-	plain bool
-	seen  string
-	cites []cite
+	// service is what the value gives access to, or the host of an SSH key.
+	service string
+	seen    string
+	cites   []cite
 	// count is the number of lines that hold the value.
 	count int
 }
 
-// shown is the value as it is written out: a secret is masked unless the
-// run was asked to show secrets.
-func (e exposed) shown() string {
-	if e.kind.Secret && !e.open && !e.plain {
-		return exposure.Mask(e.value)
+// what says what a value is, whose it is and what it is for, as far as the
+// evidence says: "token of svc, GitHub". It is empty for a value alone.
+func (e exposed) what() string {
+	text := e.form
+	if e.account != "" {
+		text = strings.TrimSpace(text + " of " + e.account)
 	}
-	return e.value
+	if e.service != "" && text != "" {
+		return text + ", " + e.service
+	}
+	return text + e.service
 }
 
 // label names the value as a reader acts on it: a secret by whose it is.
@@ -67,7 +70,7 @@ func (e exposed) label() string {
 	case e.account != "":
 		return e.form + " of " + e.account
 	default:
-		return e.form + " " + e.shown()
+		return e.form + " " + e.value
 	}
 }
 
@@ -82,7 +85,7 @@ func (e exposed) files() []string {
 // collectExposed reads every file in the order of the timeline, so a value
 // is collected or used by where it is seen first. It also gathers what the
 // scripts name outright, which it returns for finish to quote.
-func (p pipeline) collectExposed(steps []trace.Step, texts map[string]string, held map[string][]exposure.Item, plain bool) ([]exposed, *targets) {
+func (p pipeline) collectExposed(steps []trace.Step, texts map[string]string, held map[string][]exposure.Item) ([]exposed, *targets) {
 	kinds := map[string]int{}
 	for i, k := range p.exposures.Kinds() {
 		kinds[k.Name] = i
@@ -96,12 +99,12 @@ func (p pipeline) collectExposed(steps []trace.Step, texts map[string]string, he
 		} else {
 			named.output(it, s.File.Path)
 		}
-		key := strings.Join([]string{it.Kind, it.Value, it.Account, it.Form}, "\x00")
+		key := strings.Join([]string{it.Kind, it.Value, it.Account, it.Form, it.Service}, "\x00")
 		i, ok := index[key]
 		if !ok {
 			i = len(all)
 			index[key] = i
-			e := exposed{kind: p.exposures.Kinds()[kinds[it.Kind]], value: it.Value, account: it.Account, form: it.Form, open: it.Open, plain: plain, seen: seenCollected}
+			e := exposed{kind: p.exposures.Kinds()[kinds[it.Kind]], value: it.Value, account: it.Account, form: it.Form, service: it.Service, seen: seenCollected}
 			if s.File.Role == evidence.Script {
 				e.seen = seenUsed
 			}
@@ -138,7 +141,7 @@ func (p pipeline) collectExposed(steps []trace.Step, texts map[string]string, he
 			}
 		}
 	}
-	all = mergeOwned(all)
+	all = mergeKinds(mergeOwned(all), kinds)
 	sort.SliceStable(all, func(i, j int) bool {
 		x, y := all[i], all[j]
 		if x.kind.Name != y.kind.Name {
@@ -174,29 +177,84 @@ func containsCite(cites []cite, c cite) bool {
 	return false
 }
 
-// mergeOwned folds a secret seen without an account into the same secret
-// seen with one: the evidence says whose it is somewhere, so it is not two.
+// mergeOwned folds a value into the same value seen with more said of it:
+// whose it is, or what it is for. The evidence says so somewhere, so it is
+// not two.
 func mergeOwned(all []exposed) []exposed {
-	key := func(e exposed) string { return e.kind.Name + "\x00" + e.value + "\x00" + e.form }
-	unowned := func(e exposed) bool { return e.kind.Secret && e.account == "" }
-	owner := map[string]int{}
+	// A secret is one secret whatever each place calls it; of another kind, what a value is tells two apart.
+	key := func(e exposed) string {
+		if e.kind.Secret {
+			return e.kind.Name + "\x00" + e.value
+		}
+		return e.kind.Name + "\x00" + e.value + "\x00" + e.form
+	}
+	same := map[string][]int{}
 	for i, e := range all {
-		if _, ok := owner[key(e)]; e.kind.Secret && e.account != "" && !ok {
-			owner[key(e)] = i
+		same[key(e)] = append(same[key(e)], i)
+	}
+	// more reports whether b says all that a says, and something a does not.
+	more := func(a, b exposed) bool {
+		return (a.account == "" || a.account == b.account) && (a.service == "" || a.service == b.service) &&
+			(a.account != b.account || a.service != b.service)
+	}
+	into := make([]int, len(all))
+	for i, e := range all {
+		into[i] = slices.IndexFunc(same[key(e)], func(j int) bool { return more(e, all[j]) })
+		if into[i] >= 0 {
+			into[i] = same[key(e)][into[i]]
 		}
 	}
 	kept := make([]exposed, 0, len(all))
 	position := map[int]int{}
 	for i, e := range all {
-		if _, owned := owner[key(e)]; unowned(e) && owned {
-			continue
+		if into[i] < 0 {
+			position[i] = len(kept)
+			kept = append(kept, e)
 		}
-		position[i] = len(kept)
-		kept = append(kept, e)
 	}
 	for i, e := range all {
-		to, owned := owner[key(e)]
-		if !unowned(e) || !owned {
+		to := into[i]
+		if to < 0 {
+			continue
+		}
+		for into[to] >= 0 {
+			to = into[to]
+		}
+		at := position[to]
+		kept[at].count += e.count
+		for _, c := range e.cites {
+			if len(kept[at].cites) < maxCites && !containsCite(kept[at].cites, c) {
+				kept[at].cites = append(kept[at].cites, c)
+			}
+		}
+		// An output that held the value before any script said more of it collected it.
+		if e.seen == seenCollected && i < to {
+			kept[at].seen = seenCollected
+		}
+	}
+	return kept
+}
+
+// mergeKinds folds a secret that two kinds hold into the kind the table
+// lists last: a token that is the key of a service is listed as that key.
+func mergeKinds(all []exposed, order map[string]int) []exposed {
+	last := map[string]int{}
+	for i, e := range all {
+		if at, ok := last[e.value]; e.kind.Secret && (!ok || order[e.kind.Name] > order[all[at].kind.Name]) {
+			last[e.value] = i
+		}
+	}
+	kept := all[:0:0]
+	position := map[int]int{}
+	for i, e := range all {
+		if at, ok := last[e.value]; !e.kind.Secret || !ok || all[at].kind.Name == e.kind.Name {
+			position[i] = len(kept)
+			kept = append(kept, e)
+		}
+	}
+	for i, e := range all {
+		to, ok := last[e.value]
+		if !e.kind.Secret || !ok || all[to].kind.Name == e.kind.Name {
 			continue
 		}
 		at := position[to]
@@ -206,43 +264,14 @@ func mergeOwned(all []exposed) []exposed {
 				kept[at].cites = append(kept[at].cites, c)
 			}
 		}
-		// An output that held the secret before any script named its owner collected it.
+		if kept[at].account == "" {
+			kept[at].account = e.account
+		}
 		if e.seen == seenCollected && i < to {
 			kept[at].seen = seenCollected
 		}
 	}
 	return kept
-}
-
-// minRedacted is the shortest secret that is masked wherever it stands; a
-// shorter one would mask ordinary words.
-const minRedacted = 6
-
-// redactor returns a function that masks every secret in a text, so a
-// command quoted as evidence does not give away what the exposure masks.
-func redactor(all []exposed) func(string) string {
-	var pairs []string
-	seen := map[string]bool{}
-	for _, e := range all {
-		if e.kind.Secret && !e.open && !e.plain && len(e.value) >= minRedacted && !seen[e.value] {
-			seen[e.value] = true
-			pairs = append(pairs, e.value, exposure.Mask(e.value))
-		}
-	}
-	if len(pairs) == 0 {
-		return func(s string) string { return s }
-	}
-	// The longest secret is tried first, so one that holds another is masked whole.
-	order := make([]int, len(pairs)/2)
-	for i := range order {
-		order[i] = i
-	}
-	sort.SliceStable(order, func(a, b int) bool { return len(pairs[2*order[a]]) > len(pairs[2*order[b]]) })
-	sorted := make([]string, 0, len(pairs))
-	for _, i := range order {
-		sorted = append(sorted, pairs[2*i], pairs[2*i+1])
-	}
-	return strings.NewReplacer(sorted...).Replace
 }
 
 // exposedEvidence gives the assessment what is exposed: every secret, and of
@@ -270,9 +299,10 @@ func exposedRow(e exposed, columns []render.Column) ([]render.Value, error) {
 	}
 	cells := map[string]render.Value{
 		"kind":     text(e.kind.Name),
-		"value":    text(e.shown()),
+		"value":    text(e.value),
 		"account":  text(e.account),
 		"form":     text(e.form),
+		"service":  text(e.service),
 		"seen":     text(e.seen),
 		"severity": text(e.kind.Severity),
 		"count":    render.Int(int64(e.count)),

