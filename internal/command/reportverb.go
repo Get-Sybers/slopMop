@@ -122,7 +122,7 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 		return nil, err
 	}
 	options := doc.options(v)
-	for _, name := range []string{inputDir, intelFile, outDir, secrets, coresOption, memoryOption, progressOption} {
+	for _, name := range []string{inputDir, intelFile, outDir, secrets, coresOption, memoryOption, progressOption, fromOption, untilOption} {
 		if !slices.ContainsFunc(options, func(o cli.Option) bool { return o.Name == name }) {
 			return nil, fmt.Errorf("commands.json: it reads the option %q, which it does not name", name)
 		}
@@ -157,6 +157,10 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 		if err != nil {
 			return err
 		}
+		period, err := readWindow(a)
+		if err != nil {
+			return err
+		}
 		restore, err := limit(cores, memory)
 		if err != nil {
 			return err
@@ -168,7 +172,7 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 		}
 		// The line of the meter is taken off before anything else is written.
 		defer meter.Stop()
-		result, err := pipe.read(folder, inventory.MaxDepth, a.Options[intelFile], plain, meter)
+		result, err := pipe.read(folder, inventory.MaxDepth, period, a.Options[intelFile], plain, meter)
 		if err != nil {
 			return err
 		}
@@ -264,6 +268,8 @@ func (w reportRun) summary() []render.Group {
 		case nested && parent == "targeted":
 			aims = append(aims, w.kindTitle(part, true)+" "+strconv.Itoa(r.count))
 		case nested && parent == "activities":
+		case r.detail != "":
+			g.Entries = append(g.Entries, render.Entry{Cells: []string{r.item, strconv.Itoa(r.count), r.detail}})
 		default:
 			g.Entries = append(g.Entries, render.Entry{Cells: []string{r.item, strconv.Itoa(r.count)}})
 		}
@@ -288,7 +294,7 @@ func (w reportRun) summary() []render.Group {
 // ordered by, written as one ISO-8601 UTC stamp whether it came from the file
 // name or the modified time.
 func stepTime(s trace.Step) string {
-	if t := fileTime(s.File); !t.IsZero() {
+	if t := s.File.Time(); !t.IsZero() {
 		return render.Stamp(t, nil)
 	}
 	return "-"

@@ -69,6 +69,7 @@ hold all of them.
 | `slopmop -inputdir <folder> report -outdir <folder>` | saves the output to the folder named |
 | `slopmop -inputdir <folder> report -secrets shown` | writes each password, hash, token and key as it stands |
 | `slopmop -inputdir <folder> report -cores 50 -memory 25` | uses half of the processors of the machine and tries to stay within a quarter of its memory |
+| `slopmop -inputdir <folder> report -from 2026-10-22 -until 2026-10-23` | reads only the files of that time: by the time in a file's name, or else when it was last modified |
 | `slopmop -inputdir <folder> report -progress hidden` | says nothing of how far the run is; on a terminal a run says so on one line when this is not given |
 | `slopmop -inputdir <folder> --help` | says what the line holds so far and what can follow it; `--help` works at every point |
 

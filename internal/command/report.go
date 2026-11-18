@@ -33,9 +33,14 @@ const (
 	toolsSuffix = " tools"
 )
 
+// leftOut is the row of the summary that counts the files outside the window.
+const leftOut = "left out"
+
 type metric struct {
 	name  string
 	value int
+	// detail says what the count is of, where the name alone does not.
+	detail string
 }
 
 // reportRow is one line of a report: a count, a notable file, an impact or
@@ -64,7 +69,7 @@ func (p pipeline) report(a analysis, threshold tactic.Severity, wanted map[strin
 	var rows []reportRow
 	if wanted[sectionSummary] {
 		for _, m := range listMetrics(a) {
-			rows = append(rows, reportRow{item: m.name, section: sectionSummary, count: m.value})
+			rows = append(rows, reportRow{item: m.name, section: sectionSummary, count: m.value, detail: m.detail})
 		}
 	}
 	if wanted[sectionFiles] {
@@ -497,29 +502,33 @@ func listMetrics(a analysis) []metric {
 		}
 	}
 	metrics := []metric{
-		{"files", len(a.timeline.Steps)},
-		{"scripts", roles[evidence.Script]},
-		{"outputs", roles[evidence.Output]},
-		{"indicators", total},
+		{name: "files", value: len(a.timeline.Steps)},
+		{name: "scripts", value: roles[evidence.Script]},
+		{name: "outputs", value: roles[evidence.Output]},
 	}
+	// A run that read a window of time says so, and how many files it left out.
+	if a.window.set() {
+		metrics = append(metrics, metric{name: leftOut, value: a.outside, detail: a.window.String()})
+	}
+	metrics = append(metrics, metric{name: "indicators", value: total})
 	types := make([]string, 0, len(indicators))
 	for typ := range indicators {
 		types = append(types, typ)
 	}
 	sort.Strings(types)
 	for _, typ := range types {
-		metrics = append(metrics, metric{"indicators " + typ, len(indicators[typ])})
+		metrics = append(metrics, metric{name: "indicators " + typ, value: len(indicators[typ])})
 	}
-	metrics = append(metrics, metric{"activities", len(activities)})
+	metrics = append(metrics, metric{name: "activities", value: len(activities)})
 	names := make([]string, 0, len(activities))
 	for name := range activities {
 		names = append(names, name)
 	}
 	sort.Strings(names)
 	for _, name := range names {
-		metrics = append(metrics, metric{"activities " + name, activities[name]})
+		metrics = append(metrics, metric{name: "activities " + name, value: activities[name]})
 	}
-	metrics = append(metrics, metric{"tactics", len(tactics)})
+	metrics = append(metrics, metric{name: "tactics", value: len(tactics)})
 	aimed := make([]string, len(a.targeted))
 	for i, t := range a.targeted {
 		aimed[i] = t.kind.Name
@@ -532,7 +541,7 @@ func listMetrics(a analysis) []metric {
 	metrics = append(metrics, perKind("exposed", held)...)
 	metrics = append(metrics, intentCount(a)...)
 	if a.watchlist != nil {
-		metrics = append(metrics, metric{"intel hits", len(hits)})
+		metrics = append(metrics, metric{name: "intel hits", value: len(hits)})
 	}
 	return metrics
 }
@@ -540,12 +549,12 @@ func listMetrics(a analysis) []metric {
 // perKind counts the kinds of a list that is sorted by kind: the total
 // under name, then one count for each kind in the order it comes.
 func perKind(name string, kinds []string) []metric {
-	metrics := []metric{{name, len(kinds)}}
+	metrics := []metric{{name: name, value: len(kinds)}}
 	for _, kind := range kinds {
 		if last := &metrics[len(metrics)-1]; last.name == name+" "+kind {
 			last.value++
 		} else {
-			metrics = append(metrics, metric{name + " " + kind, 1})
+			metrics = append(metrics, metric{name: name + " " + kind, value: 1})
 		}
 	}
 	return metrics

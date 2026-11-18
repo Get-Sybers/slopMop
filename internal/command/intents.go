@@ -35,15 +35,6 @@ type intentActivity struct {
 	atlas  []string
 }
 
-// fileTime is the time a file is placed at: the stamp in its name, or else
-// when it was last modified. The zero time means it has neither.
-func fileTime(f evidence.File) time.Time {
-	if f.Stamped {
-		return f.Stamp.Time
-	}
-	return f.Modified
-}
-
 // above is how many folders of the path to the folder read count as part of
 // the path of a file: enough to read a run folder itself, tasks/<task>/i<number>.
 const above = 3
@@ -84,14 +75,14 @@ func (p pipeline) collectIntents(folder string, steps []trace.Step) ([]intentRun
 				r.activities = append(r.activities, intentActivity{name: hit.Name, attack: hit.Attack, atlas: atlas})
 			}
 		}
-		when := fileTime(s.File)
+		when := s.File.Time()
 		if when.IsZero() {
 			continue
 		}
-		if !r.timed || when.Before(fileTime(r.first)) {
+		if !r.timed || when.Before(r.first.Time()) {
 			r.first = s.File
 		}
-		if !r.timed || when.After(fileTime(r.last)) {
+		if !r.timed || when.After(r.last.Time()) {
 			r.last = s.File
 		}
 		r.timed = true
@@ -119,7 +110,7 @@ func containsActivity(list []intentActivity, name string) bool {
 // before orders two intents by when they begin; one without a time comes
 // last, and the number of the intent settles a tie.
 func before(a, b intentRun) bool {
-	switch x, y := fileTime(a.first), fileTime(b.first); {
+	switch x, y := a.first.Time(), b.first.Time(); {
 	case a.timed != b.timed:
 		return a.timed
 	case a.timed && !x.Equal(y):
@@ -136,7 +127,7 @@ func (r intentRun) span() (time.Duration, bool) {
 	if !r.timed {
 		return 0, false
 	}
-	return fileTime(r.last).Sub(fileTime(r.first)).Round(time.Second), true
+	return r.last.Time().Sub(r.first.Time()).Round(time.Second), true
 }
 
 // pairs gives each activity with its ATT&CK techniques and the ATLAS
@@ -228,7 +219,7 @@ func intentRow(r intentRun, columns []render.Column) ([]render.Value, error) {
 // stamp read as UTC, or else the modified time, as one ISO-8601 instant so a
 // reader never meets a bare token or epoch in a time column.
 func timeCell(f evidence.File) render.Value {
-	if t := fileTime(f); !t.IsZero() {
+	if t := f.Time(); !t.IsZero() {
 		return render.Time(t)
 	}
 	return render.NotApplicable()
@@ -252,5 +243,5 @@ func intentCount(a analysis) []metric {
 	if len(a.intents) == 0 {
 		return nil
 	}
-	return []metric{{"intents", len(a.intents)}}
+	return []metric{{name: "intents", value: len(a.intents)}}
 }

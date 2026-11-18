@@ -27,6 +27,10 @@ type analysis struct {
 	watchlist *intel.Watchlist
 	// skipped names the sub-folders a recursive read left out.
 	skipped []string
+	// window is the stretch of time the run read, and outside how many files
+	// were not read because their time is not in it.
+	window  window
+	outside int
 	// exposed is what the evidence holds that an attacker can use.
 	exposed []exposed
 	// redact masks every secret among them in a text that quotes the evidence.
@@ -189,9 +193,9 @@ func loadAssessment(tactics tactic.Table, activities activity.Table, patterns in
 
 // read analyses a folder, levels deep, against the watchlist at path, if
 // any. plain writes secrets out as they are; otherwise each is masked.
-func (p pipeline) read(folder string, levels int, path string, plain bool, meter *progress.Meter) (analysis, error) {
+func (p pipeline) read(folder string, levels int, period window, path string, plain bool, meter *progress.Meter) (analysis, error) {
 	meter.Stage(stageRead, 0, 0)
-	res, err := inventory.ReadAllWatched(folder, levels, meter.Begin)
+	res, err := inventory.Scope{Depth: levels, From: period.from, Until: period.until, Watch: meter.Begin}.ReadAll(folder)
 	if err != nil {
 		return analysis{}, err
 	}
@@ -233,6 +237,8 @@ func (p pipeline) read(folder string, levels int, path string, plain bool, meter
 		timeline:  timeline,
 		watchlist: watchlist,
 		skipped:   res.Skipped,
+		window:    period,
+		outside:   res.Outside,
 		exposed:   found,
 		redact:    redact,
 		targeted:  named.finish(res.Texts, redact),

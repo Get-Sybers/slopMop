@@ -6,7 +6,6 @@ import (
 	"slices"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/get-sybers/slopmop/internal/activity"
 	"github.com/get-sybers/slopmop/internal/evidence"
@@ -234,21 +233,14 @@ func sortByTime(files []evidence.File) []evidence.File {
 	sorted := make([]evidence.File, len(files))
 	copy(sorted, files)
 	sort.SliceStable(sorted, func(i, j int) bool {
-		ti := effectiveTime(sorted[i])
-		tj := effectiveTime(sorted[j])
+		ti := sorted[i].Time()
+		tj := sorted[j].Time()
 		if !ti.Equal(tj) {
 			return ti.Before(tj)
 		}
 		return sorted[i].Path < sorted[j].Path
 	})
 	return sorted
-}
-
-func effectiveTime(f evidence.File) time.Time {
-	if f.Stamped {
-		return f.Stamp.Time
-	}
-	return f.Modified
 }
 
 // payloadDepth is how many layers of encoding are read: a payload may

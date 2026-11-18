@@ -67,7 +67,7 @@ Impact
 
 | Section | Entry | Detail lines |
 | --- | --- | --- |
-| Summary | a count and its breakdown | none |
+| Summary | a count and its breakdown; with a window of time, the row `left out`: the files outside it and what the window left out | none |
 | Timeline | a period: its first time, its last, the number of its files, its tactics | `intent`, `activities`, `tools`, `watchlist`, `files` |
 | Intents | the intent, the first and the last time of its files, the span between them, the number of files | `task`; `tactics`; `attack`: the ATT&CK techniques; `atlas`: the ATLAS techniques; `found`: each activity with its ATT&CK techniques and the ATLAS techniques that go with them; `files` |
 | Findings, activities | activity, lines, tactics, techniques | `what`: the lines that show it, each with its place |
@@ -351,7 +351,7 @@ One row per line of the report, in seven sections.
 
 | Section | A row is |
 | --- | --- |
-| `summary` | a count: `files`, `scripts`, `outputs`, `indicators` and one per type, `activities` and one per activity, `tactics`, `targeted` and one per kind, `exposed` and one per kind, `intents` when a file belongs to one, and `intel hits` with `-intelfile` |
+| `summary` | a count: `files`, `scripts`, `outputs`, `left out` with `-from` or `-until`, `indicators` and one per type, `activities` and one per activity, `tactics`, `targeted` and one per kind, `exposed` and one per kind, `intents` when a file belongs to one, and `intel hits` with `-intelfile` |
 | `script`, `output`, `other` | a notable file, under its role: one that holds a finding of high severity |
 | `targeted` | a value a script names outright, as the `targeted` class holds it: `item` is the value, `value` is `medium` for a prior one and `low` for a discovered one, `detail` the kind, the origin, the scope and the place that held it first, `files` the places in the scripts and `evidence` the lines |
 | `exposure` | an exposed value, as the `exposure` class holds it: `item` is the value, `value` the severity, `detail` the kind, whose a secret is and whether it was collected or used, and `files` its places |
@@ -364,7 +364,7 @@ One row per line of the report, in seven sections.
 | `item` | the name of the count, the path of the file, the impact or the action; on a mitigation, its identifier and name, such as `M1038 Execution Prevention` |
 | `section` | the section; a notable file carries its role |
 | `value` | a number on a summary row, where an `activities <name>` row counts the lines that show the activity; elsewhere `low`, `medium` or `high`: the severity of a file or an impact, the priority of an action; a mitigation takes the highest severity among the activities it addresses |
-| `detail` | on a file, what was found: activities, tools with their tactic, watchlist attributions; on an impact, its statement and the hosts or addresses affected; on a remediation, what to do; on a mitigation, the first sentence of the framework's own description; `null` on a summary row |
+| `detail` | on a file, what was found: activities, tools with their tactic, watchlist attributions; on an impact, its statement and the hosts or addresses affected; on a remediation, what to do; on a mitigation, the first sentence of the framework's own description; on the summary row `left out`, what the window left out: `before 2026-10-22T09:10:00Z or after 2026-10-22T09:20:00Z`; `null` on any other summary row |
 | `basis` | on an impact or an action, the activities, tool tactics and watchlist attributions that call for it |
 | `files` | on a script, the files it writes; on another file, the scripts that write it; on an impact or an action, the files that show it |
 | `attack` | the ATT&CK techniques a file or an impact shows; on an ATT&CK mitigation, the techniques found that it addresses |
