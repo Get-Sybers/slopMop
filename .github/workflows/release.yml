@@ -1,7 +1,8 @@
 name: Release
 
 # Publishes the Windows binary as a GitHub release, cut from main by hand.
-# A pull request that changes this file rehearses every step but the publish.
+# A pull request that changes this file rehearses it as v0.0.0: every step
+# runs but the check of the request and the publish.
 
 on:
   workflow_dispatch:
@@ -49,8 +50,7 @@ jobs:
         run: |
           [[ "${VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "version '${VERSION}' is not vX.Y.Z"; exit 1; }
           [[ "${REF}" == "refs/heads/main" ]] || { echo "a release is cut from main, not ${REF}"; exit 1; }
-          awk -v v="${VERSION#v}" '$1 == "##" { on = ($2 == "[" v "]"); next } on' CHANGELOG.md > notes.md
-          grep -q '[^[:space:]]' notes.md || { echo "CHANGELOG.md has no section for ${VERSION}"; exit 1; }
+          grep -q "^## \[${VERSION#v}\]" CHANGELOG.md || { echo "CHANGELOG.md has no section for ${VERSION}"; exit 1; }
 
       - name: Set up Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
@@ -63,13 +63,26 @@ jobs:
       - name: Drive the built binary
         run: go test -count=1 -tags integration ./cmd/...
 
+      # Go stamps the binary from git. The tag is this checkout's alone until
+      # the release is published, and nothing is written here before the build.
       - name: Build
         env:
           GOOS: windows
           GOARCH: amd64
         run: |
           mkdir dist
-          go build -trimpath -o "dist/slopmop-${VERSION}-windows-amd64.exe" ./cmd/slopmop
+          git tag "${VERSION}"
+          go build -trimpath -buildvcs=true -o "dist/slopmop-${VERSION}-windows-amd64.exe" ./cmd/slopmop
+
+      # A clone of the tag, built with the same Go, gives the same file.
+      - name: Check the stamp
+        run: |
+          go version -m "dist/slopmop-${VERSION}-windows-amd64.exe" | awk -v version="${VERSION}" -v commit="${GITHUB_SHA}" '
+            { sub(/\r$/, ""); print }
+            $1 == "mod" && $3 == version { ok++ }
+            $1 == "build" && $2 == "vcs.revision=" commit { ok++ }
+            $1 == "build" && $2 == "vcs.modified=false" { ok++ }
+            END { if (ok != 3) { print "the stamp is not that of " version " at " commit ", unmodified"; exit 1 } }'
 
       # The file that is published is the file that ran here.
       - name: Run the artefact
@@ -94,8 +107,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-        run: >
-          gh release create "${VERSION}" dist/*
-          --target "${GITHUB_SHA}"
-          --title "slopmop ${VERSION}"
-          --notes-file notes.md
+        run: |
+          awk -v v="${VERSION#v}" '$1 == "##" { on = ($2 == "[" v "]"); next } on' CHANGELOG.md > notes.md
+          grep -q '[^[:space:]]' notes.md || { echo "the section of ${VERSION} in CHANGELOG.md is empty"; exit 1; }
+          gh release create "${VERSION}" dist/* --target "${GITHUB_SHA}" --title "slopmop ${VERSION}" --notes-file notes.md
