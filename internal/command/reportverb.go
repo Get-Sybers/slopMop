@@ -559,14 +559,19 @@ func (w reportRun) exposure() []render.Group {
 	at := map[string]int{}
 	total := map[string]int{}
 	// add puts a value in the group of a title, which says what else it is.
-	add := func(title string, e exposed, what string, described bool) {
+	// The columns stand in the order given, or else in the order of the report.
+	add := func(title string, e exposed, what string, described bool, order []string) {
 		i, ok := at[title]
 		if !ok {
 			i = len(groups)
 			at[title] = i
-			columns := []string{"value", "seen", "found in"}
-			if described {
-				columns = []string{"value", "what", "seen", "found in"}
+			columns := order
+			switch {
+			case len(columns) > 0:
+			case described:
+				columns = exposureColumns()
+			default:
+				columns = []string{columnValue, columnSeen, columnFound}
 			}
 			groups = append(groups, render.Group{Columns: columns})
 		}
@@ -579,9 +584,10 @@ func (w reportRun) exposure() []render.Group {
 		for n, c := range e.cites {
 			cites[n] = c.String()
 		}
-		entry := render.Entry{Level: e.kind.Severity, Cells: []string{e.shown(), e.seen, few(cites)}}
-		if described {
-			entry.Cells = []string{e.shown(), what, e.seen, few(cites)}
+		cells := map[string]string{columnValue: e.shown(), columnWhat: what, columnSeen: e.seen, columnFound: few(cites)}
+		entry := render.Entry{Level: e.kind.Severity}
+		for _, column := range groups[i].Columns {
+			entry.Cells = append(entry.Cells, cells[column])
 		}
 		groups[i].Entries = append(groups[i].Entries, entry)
 	}
@@ -591,7 +597,7 @@ func (w reportRun) exposure() []render.Group {
 		described[e.kind.Name] = described[e.kind.Name] || e.kind.Secret || e.what() != ""
 	}
 	for _, e := range w.result.exposed {
-		add(e.kind.Title, e, e.what(), described[e.kind.Name])
+		add(e.kind.Title, e, e.what(), described[e.kind.Name], e.kind.Columns)
 	}
 	// What is of a service that has a group of its own is listed there as well.
 	for _, s := range w.pipe.exposures.Services() {
@@ -603,7 +609,7 @@ func (w reportRun) exposure() []render.Group {
 				if of.form == "" {
 					of.form = e.kind.Name
 				}
-				add(s.Name, e, of.what(), true)
+				add(s.Name, e, of.what(), true, nil)
 			}
 		}
 	}

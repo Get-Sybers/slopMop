@@ -606,11 +606,11 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <h3>Passwords and secrets (3)</h3>
 <div class="wrap">
 <table>
-<thead><tr><th></th><th>value</th><th>what</th><th>seen</th><th>found in</th></tr></thead>
+<thead><tr><th></th><th>what</th><th>seen</th><th>value</th><th>found in</th></tr></thead>
 <tbody>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">$6$fixturesalt$fixturehashvalue0123456789abcdef</td><td class="cell">hash of deploy</td><td class="cell">collected</td><td class="cell">shadow_20261022_090530.txt:4</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">Fixture-Pass-01</td><td class="cell">password of app_rw</td><td class="cell">collected</td><td class="cell">env_20261022_090540.txt:3</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">fixture-token-0123456789</td><td class="cell">token</td><td class="cell">collected</td><td class="cell">env_20261022_090540.txt:5</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">hash of deploy</td><td class="cell">collected</td><td class="cell">$6$fixturesalt$fixturehashvalue0123456789abcdef</td><td class="cell">shadow_20261022_090530.txt:4</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">password of app_rw</td><td class="cell">collected</td><td class="cell">Fixture-Pass-01</td><td class="cell">env_20261022_090540.txt:3</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">token</td><td class="cell">collected</td><td class="cell">fixture-token-0123456789</td><td class="cell">env_20261022_090540.txt:5</td></tr>
 </tbody>
 </table>
 </div>

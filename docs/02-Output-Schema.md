@@ -88,7 +88,7 @@ Impact
 | Findings | activity, lines, tactics, techniques | `what`: the lines that show it, each with its place |
 | Targeted, a group per kind | the value, for an address whether it is private or public, whether it is prior or discovered, the places in the scripts | `from`: the output that held a discovered value first; `what`: the script lines that name it |
 | Targeted, a group per thing the activities acted on | the thing, such as a task, an archive or a file, and the activities that acted on it; a task also with what it runs; a resource after the activities that acted on it | `what`: the lines that act on it |
-| Exposure, a group per kind, then one per service that has a group of its own | the value, whether it was collected or used, the places; where the evidence says so, what the value is, whose it is and what it is for | none |
+| Exposure, a group per kind, then one per service that has a group of its own | the value; where the evidence says so, what the value is, whose it is and what it is for; whether it was collected or used; the places. A password or another secret is listed by what it is first: what, collected or used, the value, the places | none |
 | Impact | the impact | its statement; `exposed`: the exposed accounts and credentials it concerns; `basis` |
 | Remediation | the action | its text; `exposed`; `basis` |
 | Mitigation | the mitigation, the techniques found that it addresses | the framework's own sentence; `exposed`; `for`: the activities it answers |

@@ -30,6 +30,8 @@ All notable changes to this project are recorded in this file. The format follow
   in single quotes and one registered through the task service are read.
 - The resources among the targets are listed with the activity first and the resource after
   it, under the columns `acted on by` and `resource`.
+- The passwords and secrets of the exposure are listed under the columns `what`, `seen`,
+  `value`, `found in`: what a secret is and whose, before the secret itself.
 - A watchlist match is named in the block of its intent or its period.
 
 ### Changed

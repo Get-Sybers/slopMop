@@ -95,6 +95,7 @@
       "title": "Passwords and secrets",
       "severity": "high",
       "secret": true,
+      "columns": ["what", "seen", "value", "found in"],
       "suffixes": [
         {"suffix": "password", "form": "password"},
         {"suffix": "passwd", "form": "password"},

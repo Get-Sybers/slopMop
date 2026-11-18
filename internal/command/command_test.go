@@ -789,8 +789,8 @@ func TestReportExposure(t *testing.T) {
 	for _, want := range []string{
 		"exposed     18  Passwords and secrets 3, Usernames 6, Email addresses 1, Devices 2, IP addresses 6",
 		"\n  Passwords and secrets (3)\n",
-		"[x] Fixture-Pass-01                                  password of app_rw  collected  env_20261022_090540.txt:3\n",
-		"[x] fixture-token-0123456789                         token               collected  env_20261022_090540.txt:5\n",
+		"[x] password of app_rw  collected  Fixture-Pass-01                                  env_20261022_090540.txt:3\n",
+		"[x] token               collected  fixture-token-0123456789                         env_20261022_090540.txt:5\n",
 		"\n  Usernames (6)\n",
 		"\n  IP addresses (6)\n",
 	} {
@@ -1076,6 +1076,39 @@ func TestScopeOf(t *testing.T) {
 	}
 	if long := shorten(strings.Repeat("é", maxQuoted)); len(long) > maxQuoted || !strings.HasSuffix(long, "...") || !strings.HasPrefix(long, "é") {
 		t.Errorf("shorten gave %d bytes ending %q", len(long), long[len(long)-5:])
+	}
+}
+
+// A kind of exposure orders the columns of its group only by naming each
+// of them once; the passwords and secrets say what each is before its value.
+func TestCheckColumns(t *testing.T) {
+	pipe, err := loadPipeline()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, k := range pipe.exposures.Kinds() {
+		want := []string(nil)
+		if k.Name == "password" {
+			want = []string{"what", "seen", "value", "found in"}
+		}
+		if !slices.Equal(k.Columns, want) {
+			t.Errorf("%s orders its columns %q, want %q", k.Name, k.Columns, want)
+		}
+	}
+	for name, columns := range map[string][]string{
+		"a column left out":      {"what", "seen", "value"},
+		"a column twice":         {"what", "seen", "value", "value"},
+		"a column of no group":   {"what", "seen", "value", "files"},
+		"a column more than all": {"what", "seen", "value", "found in", "what"},
+	} {
+		if err := checkColumns(exposure.Kind{Name: "k", Columns: columns}); err == nil {
+			t.Errorf("%s: checkColumns(%q) gave no error", name, columns)
+		}
+	}
+	for _, columns := range [][]string{nil, {"found in", "value", "seen", "what"}} {
+		if err := checkColumns(exposure.Kind{Name: "k", Columns: columns}); err != nil {
+			t.Errorf("checkColumns(%q) = %v, want no error", columns, err)
+		}
 	}
 }
 

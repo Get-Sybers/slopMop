@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"os"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strings"
 	"testing"
@@ -47,9 +48,9 @@ func intrusion(t *testing.T) (folder, token, document string) {
 	return folder, token, document
 }
 
-// A credential is listed once, with whose it is and what it is used
-// against; an encoded one is written decoded in the report and as it stands
-// in the saved table; and a line of signs or a sentence is none.
+// A credential is listed once, by whose it is and what it is used against
+// and then its value; an encoded one is written decoded in the report and as
+// it stands in the saved table; and a line of signs or a sentence is none.
 func TestReportLinksAndDecodes(t *testing.T) {
 	folder, token, document := intrusion(t)
 	readout, saved := report(t, folder, "summary", "exposure")
@@ -83,15 +84,26 @@ func TestReportLinksAndDecodes(t *testing.T) {
 	}
 	for _, want := range []string{
 		"\n  Passwords and secrets (7)\n",
-		"  password of admin, dc01.corp.local ",
-		"  password of root, 10.0.0.5 ",
-		"  password of svc_api, jenkins.corp.local ",
-		"[x] " + claims + "  token of adm@contoso.onmicrosoft.com, Microsoft 365 ",
 		"\n  Microsoft 365 (2)\n    [x] " + claims + "  token of adm@contoso.onmicrosoft.com  ",
 		"\n  Google Cloud (2)\n    [x] " + key + "  key of deployer@acme-prod-4711.iam.gserviceaccount.com  ",
 	} {
 		if !strings.Contains(readout, want) {
 			t.Errorf("the readout lacks %q:\n%s", want, readout)
+		}
+	}
+	// A secret is a line of what it is, whether it was collected or used, its value and its places.
+	for _, cells := range [][]string{
+		{"password of admin, dc01.corp.local", "used", "Passw0rd!23", "20261101_091000_step02_persist.ps1:1"},
+		{"password of root, 10.0.0.5", "used", "Winter2026!", "20261101_092000_step03_collect.sh:7"},
+		{"password of svc_api, jenkins.corp.local", "used", "Sup3rS3cret!", "20261101_092000_step03_collect.sh:9"},
+		{"token of adm@contoso.onmicrosoft.com, Microsoft 365", "used", claims, "20261101_090000_step01_recon.ps1:4"},
+	} {
+		line := `\n    \[x\] `
+		for _, cell := range cells {
+			line += regexp.QuoteMeta(cell) + ` *`
+		}
+		if !regexp.MustCompile(line + `\n`).MatchString(readout) {
+			t.Errorf("the readout has no line of the cells %q in that order:\n%s", cells, readout)
 		}
 	}
 	for _, gone := range []string{token, document, "====", "  verify  ", "  Mon  "} {

@@ -62,6 +62,9 @@ type kindEntry struct {
 	Indicators []indicatorEntry `json:"indicators,omitempty"`
 	// Targeted puts the kind among what a script names outright.
 	Targeted *targetedEntry `json:"targeted,omitempty"`
+	// Columns orders the columns of the kind's group in the report; the
+	// order of the report stands for a kind that gives none.
+	Columns  []string       `json:"columns,omitempty"`
 	Valid    string         `json:"valid,omitempty"`
 	Reject   string         `json:"reject,omitempty"`
 	Patterns []patternEntry `json:"patterns,omitempty"`
@@ -116,6 +119,9 @@ type Kind struct {
 	// Targeted is the title of the kind among what a script names outright;
 	// empty when the kind is not listed there.
 	Targeted string
+	// Columns orders the columns of the kind's group in the report; nil for
+	// the order of the report.
+	Columns []string
 }
 
 // Item is one value found on one line.
@@ -258,7 +264,7 @@ func decode(data []byte) (Table, error) {
 		}
 		k := compiledKind{Kind: Kind{
 			Name: e.Name, Title: e.Title, Severity: e.Severity, Secret: e.Secret,
-			Account: e.Account, Credential: e.Credential || e.Secret,
+			Account: e.Account, Credential: e.Credential || e.Secret, Columns: e.Columns,
 		}}
 		if e.Targeted != nil {
 			if e.Targeted.Title == "" || e.Secret {

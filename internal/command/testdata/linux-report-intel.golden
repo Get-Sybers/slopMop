@@ -234,9 +234,9 @@ Targeted   (hardcoded values: prior means no earlier output holds it, discovered
 
 Exposure   (collected: first seen in an output; used: first seen in a script; a token or a value in base64 is written decoded, and the saved exposure file holds it as it stands)
   Passwords and secrets (3)
-    [x] $6$fixturesalt$fixturehashvalue0123456789abcdef  hash of deploy      collected  shadow_20261022_090530.txt:4
-    [x] Fixture-Pass-01                                  password of app_rw  collected  env_20261022_090540.txt:3
-    [x] fixture-token-0123456789                         token               collected  env_20261022_090540.txt:5
+    [x] hash of deploy      collected  $6$fixturesalt$fixturehashvalue0123456789abcdef  shadow_20261022_090530.txt:4
+    [x] password of app_rw  collected  Fixture-Pass-01                                  env_20261022_090540.txt:3
+    [x] token               collected  fixture-token-0123456789                         env_20261022_090540.txt:5
   Usernames (6)
     [!] app_rw  collected  passwd_20261022_090020.txt:4, env_20261022_090540.txt:2
     [!] daemon  collected  passwd_20261022_090020.txt:2
