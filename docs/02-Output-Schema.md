@@ -69,7 +69,7 @@ Impact
 | --- | --- | --- |
 | Summary | a count and its breakdown; with a window of time, the row `left out`: the files outside it and what the window left out | none |
 | Timeline | a period: its first time, its last, the number of its files, its tactics | `intent`, `activities`, `tools`, `watchlist`, `files` |
-| Intents | the intent, the first and the last time of its files, the span between them, the number of files | `task`; `tactics`; `attack`: the ATT&CK techniques; `atlas`: the ATLAS techniques; `found`: each activity with its ATT&CK techniques and the ATLAS techniques that go with them; `files` |
+| Intent timeline | an intent: when the first of its files was made, when the last was, the intent, its ATT&CK techniques | `atlas`: the ATLAS techniques; `files` |
 | Findings, activities | activity, lines, tactics, techniques | `what`: the lines that show it, each with its place |
 | Findings, indicators | type, value, files | `watchlist`: the attributions |
 | Findings, tactics | tactic, its ATT&CK and ATLAS identifiers, files | none |
@@ -80,7 +80,7 @@ Impact
 | Remediation | the action | its text; `targets`: what to act on; `what`; `basis`; `files` when no line is quoted |
 | Mitigation | the mitigation, the techniques found that it addresses | the framework's own sentence; `for`: each activity it answers and what that activity acted on |
 
-The values are those of the classes of section 6: a period of the timeline is drawn from the
+The values are those of the classes of section 7: a period of the timeline is drawn from the
 `trace` rows of its files, an intent entry is an `intent` row, a finding
 entry is a `finding` row, a targeted entry is a `targeted` row, an exposure entry is an `exposure`
 row and the other sections are `report` rows. An activity's `lines` is its count in the summary of
@@ -103,6 +103,22 @@ folder of a thousand files is read in the periods it falls into.
   of the period show, each once, in the order it is first shown.
 - The saved `trace.json` holds every file with what it shows; the timeline leaves none of that
   out of it.
+
+### Intent timeline
+
+The intent timeline tells when each ARTEX intent ran and what it did. An entry is an intent, in
+the order the intents began.
+
+- A file is an intent's own when its name holds the name of the intent, `i` and a number, or it
+  lies in the folder of the intent, as the `intent` class of section 7 sets out.
+- An intent runs from the first of its files to be made until the last. A file was made at its
+  creation time. A file whose creation time is after its last change is a copy, made when it was
+  copied: it has the time the timeline gives it, as has a file whose file system records no
+  creation time. The last line of the section counts those files.
+- `until` is `-` when the intent is one instant. The techniques of an intent are those of the
+  activities its files show, in the order they are first shown; `-` when they show none.
+- The saved `intents.json` holds every intent, with its task, its tactics, its activities and
+  every one of its files.
 
 ### Places, targets and evidence
 
@@ -127,6 +143,7 @@ that holds every line it omits, because the screen and the saved report share on
 | --- | --- |
 | the files of an entry | the first 3: `a.sh, b.sh, c.sh and 4 more` |
 | the periods of the timeline | the first 20 and the last 20, with the number left out between them |
+| the intents of the intent timeline | the first 20 and the last 20, with the number left out between them |
 | the activities, the tools and the intents of a period | the first 8 |
 | the indicators among the findings | the first 40 |
 | each kind of target and of exposure | the first 40 |
@@ -250,9 +267,9 @@ per row.
 
 ```text
 $ cat slopmop-ai_workdir/files.csv
-name,path,role,size,lines,modified,sha256,name_time,note
-20250302_090000_step01_inventory.ps1,/cases/case42/ai_workdir/20250302_090000_step01_inventory.ps1,script,487,13,2025-03-02T09:00:03Z,2232e80ab6e9391a221315e0b9aaf9dd70739833a376a0e3ee4e671251be09d6,20250302_090000,
-20250302_090500_step02_sync.ps1,/cases/case42/ai_workdir/20250302_090500_step02_sync.ps1,script,385,7,2025-03-02T09:05:03Z,0b6610dfe1ddb50ae17a395528d915bcf73ecd032e1d849117b421c7c7af2d77,20250302_090500,
+name,path,role,size,lines,modified,created,sha256,name_time,note
+20250302_090000_step01_inventory.ps1,/cases/case42/ai_workdir/20250302_090000_step01_inventory.ps1,script,487,13,2025-03-02T09:00:03Z,2026-11-18T01:20:35Z,2232e80ab6e9391a221315e0b9aaf9dd70739833a376a0e3ee4e671251be09d6,20250302_090000,
+20250302_090500_step02_sync.ps1,/cases/case42/ai_workdir/20250302_090500_step02_sync.ps1,script,385,7,2025-03-02T09:05:03Z,2026-11-18T01:20:35Z,0b6610dfe1ddb50ae17a395528d915bcf73ecd032e1d849117b421c7c7af2d77,20250302_090500,
 ```
 
 - The text is UTF-8 without a byte order mark, and a line ends with a line feed.
@@ -279,6 +296,7 @@ One row per file, sorted by name in byte order.
 | `size` | bytes read |
 | `lines` | lines of text; empty when the file has a note |
 | `modified` | the modified time |
+| `created` | the creation time; empty where the file system records none |
 | `sha256` | SHA-256 of the raw bytes; empty when the file is unreadable |
 | `name_time` | the timestamp exactly as it stands in the file name; empty when there is none |
 | `note` | `binary`, `oversize`, `unreadable`, or empty |
@@ -435,15 +453,17 @@ whether a step succeeded.
 
 One row per ARTEX intent, in the order the intents began. ARTEX gives each intent a run folder,
 `tasks/<task>/i<number>`, and names the session of its worker `exp<number>-worker-i<number>`. A
-file belongs to the intent whose folder it lies in, at any depth, or whose session its path names.
+file belongs to the intent its own name holds, or else to the one whose folder it lies in, at any
+depth, or whose session its path names.
 
 | JSON key | Value |
 | --- | --- |
 | `intent` | the identifier, `i` and the number, such as `i1042` |
 | `task` | the task of the run folder; `null` when the path does not give one |
-| `first` | the time of its earliest file, as the `trace` class writes a time; `null` when no file has a time |
-| `last` | the time of its latest file |
+| `first` | when the first of its files was made; `null` when no file has a time |
+| `last` | when the last of its files was made |
 | `seconds` | the seconds from `first` to `last`; `0` for a single file |
+| `timed_by` | `creation` when every file is timed by its creation time, `name or modified` when none is, `both` otherwise; `null` when no file has a time |
 | `severity` | the highest severity among the tactics of its files; `null` when they show none |
 | `tactics` | the tactics of its files |
 | `attack` | the ATT&CK techniques of the activities its files show |
@@ -451,8 +471,14 @@ file belongs to the intent whose folder it lies in, at any depth, or whose sessi
 | `activities` | the activities its files show |
 | `files` | its files, in time order |
 
-- The period is that of the files: the timestamp in a file name, or else the modified time. A
-  copy that does not keep modified times moves the period of files that have no timestamp.
-- A folder named `i386`, `i486`, `i586` or `i686` is no intent.
+- A file name holds the name of an intent when `i` and a number stand in it with no letter and no
+  digit before or after them: `i1042_scan.sh`, `cmd-i1042.stdout.txt` and `i1042` do, and
+  `wifi7.txt` and `i18n.json` do not. The first such name in a file name decides, and the name
+  of a file decides before the folder it lies in.
+- A file is made at its creation time, the `created` of the `file` class. A creation time that is
+  after the last change is that of a copy: such a file, and one with no creation time, has the
+  time of the `trace` class, the timestamp in its name or else its modified time. Evidence that is
+  read where it was written, or copied with its creation times kept, is timed by `creation`.
+- The name `i386`, `i486`, `i586` or `i686` is no intent.
 - When the folder read is a run folder itself, its files belong to that intent.
-- A file outside every run folder belongs to no intent and is in no row.
+- A file that neither its name nor its folders give an intent belongs to none and is in no row.

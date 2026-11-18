@@ -3,43 +3,38 @@ package command
 import (
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
-	"github.com/get-sybers/slopmop/internal/evidence"
 	"github.com/get-sybers/slopmop/internal/intent"
 	"github.com/get-sybers/slopmop/internal/render"
 	"github.com/get-sybers/slopmop/internal/tactic"
 	"github.com/get-sybers/slopmop/internal/trace"
 )
 
-// intentRun is one ARTEX intent: the files of its run folder, the period
-// they cover and the techniques they show.
+// intentRun is one ARTEX intent: the files that are its own, the period in
+// which they were made and the techniques they show.
 type intentRun struct {
 	ref intent.Ref
-	// first and last are the files with the earliest and the latest time.
-	first, last evidence.File
-	timed       bool
-	files       []string
-	tactics     []string
-	activities  []intentActivity
-	attack      []string
-	atlas       []string
-	level       tactic.Severity
-}
-
-// intentActivity is an activity found in an intent, with its techniques.
-type intentActivity struct {
-	name   string
-	attack []string
-	atlas  []string
+	// from and until are when the first and the last of its files were made.
+	from, until time.Time
+	// timed counts its files that have a time, and recorded those whose time
+	// is the creation time their file system keeps.
+	timed, recorded int
+	files           []string
+	tactics         []string
+	activities      []string
+	attack          []string
+	atlas           []string
+	level           tactic.Severity
 }
 
 // above is how many folders of the path to the folder read count as part of
 // the path of a file: enough to read a run folder itself, tasks/<task>/i<number>.
 const above = 3
 
-// collectIntents groups the steps by the intent their path lies in, earliest first.
+// collectIntents groups the steps by the intent their path names, earliest first.
 func (p pipeline) collectIntents(folder string, steps []trace.Step) ([]intentRun, map[string]string) {
 	prefix := ""
 	if whole, err := filepath.Abs(folder); err == nil {
@@ -69,23 +64,23 @@ func (p pipeline) collectIntents(folder string, steps []trace.Step) ([]intentRun
 		r.files = append(r.files, s.File.Path)
 		r.tactics = appendUnique(r.tactics, s.Tactics...)
 		for _, hit := range s.Activities {
-			atlas := p.atlasOf(hit)
-			r.attack, r.atlas = appendUnique(r.attack, hit.Attack...), appendUnique(r.atlas, atlas...)
-			if !containsActivity(r.activities, hit.Name) {
-				r.activities = append(r.activities, intentActivity{name: hit.Name, attack: hit.Attack, atlas: atlas})
-			}
+			r.attack, r.atlas = appendUnique(r.attack, hit.Attack...), appendUnique(r.atlas, p.atlasOf(hit)...)
+			r.activities = appendUnique(r.activities, hit.Name)
 		}
-		when := s.File.Time()
-		if when.IsZero() {
+		made, recorded := s.File.Made()
+		if made.IsZero() {
 			continue
 		}
-		if !r.timed || when.Before(r.first.Time()) {
-			r.first = s.File
+		if r.timed == 0 || made.Before(r.from) {
+			r.from = made
 		}
-		if !r.timed || when.After(r.last.Time()) {
-			r.last = s.File
+		if r.timed == 0 || made.After(r.until) {
+			r.until = made
 		}
-		r.timed = true
+		r.timed++
+		if recorded {
+			r.recorded++
+		}
 	}
 	out := make([]intentRun, len(runs))
 	for i, r := range runs {
@@ -98,23 +93,14 @@ func (p pipeline) collectIntents(folder string, steps []trace.Step) ([]intentRun
 	return out, of
 }
 
-func containsActivity(list []intentActivity, name string) bool {
-	for _, a := range list {
-		if a.name == name {
-			return true
-		}
-	}
-	return false
-}
-
 // before orders two intents by when they begin; one without a time comes
 // last, and the number of the intent settles a tie.
 func before(a, b intentRun) bool {
-	switch x, y := a.first.Time(), b.first.Time(); {
-	case a.timed != b.timed:
-		return a.timed
-	case a.timed && !x.Equal(y):
-		return x.Before(y)
+	switch {
+	case (a.timed > 0) != (b.timed > 0):
+		return a.timed > 0
+	case !a.from.Equal(b.from):
+		return a.from.Before(b.from)
 	case len(a.ref.ID) != len(b.ref.ID):
 		return len(a.ref.ID) < len(b.ref.ID)
 	default:
@@ -124,57 +110,84 @@ func before(a, b intentRun) bool {
 
 // span is the time from the first file of the intent to the last.
 func (r intentRun) span() (time.Duration, bool) {
-	if !r.timed {
+	if r.timed == 0 {
 		return 0, false
 	}
-	return r.last.Time().Sub(r.first.Time()).Round(time.Second), true
+	return r.until.Sub(r.from).Round(time.Second), true
 }
 
-// pairs gives each activity with its ATT&CK techniques and the ATLAS
-// techniques that go with them.
-func (r intentRun) pairs() []string {
-	lines := make([]string, len(r.activities))
-	for i, a := range r.activities {
-		lines[i] = a.name + ": " + or(strings.Join(a.attack, ", "), "no ATT&CK technique") +
-			" with " + or(strings.Join(a.atlas, ", "), "no ATLAS technique")
+// What the period of an intent is read from.
+const (
+	byCreation = "creation"
+	byTimeline = "name or modified"
+	byBoth     = "both"
+)
+
+// timedBy says which time of its files gives the period of an intent.
+func (r intentRun) timedBy() string {
+	switch {
+	case r.timed == 0:
+		return ""
+	case r.recorded == r.timed:
+		return byCreation
+	case r.recorded == 0:
+		return byTimeline
+	default:
+		return byBoth
 	}
-	return lines
 }
 
-func or(text, otherwise string) string {
-	if text == "" {
-		return otherwise
-	}
-	return text
-}
-
-// intents lists each intent in the order it began: its period, and under it
-// its techniques, the activities they come from and its files.
+// intents is the timeline by intent, in the order the intents began: when
+// each ran, its techniques and the files that are its own.
 func (w reportRun) intents() []render.Group {
-	g := render.Group{Columns: []string{"intent", "first", "last", "span", "files"}}
-	for _, r := range w.result.intents {
-		first, last, length := "-", "-", "-"
-		if d, ok := r.span(); ok {
-			first, last = stepTime(trace.Step{File: r.first}), stepTime(trace.Step{File: r.last})
-			length = d.String()
-		}
-		detail := []render.Detail{
-			{Label: "task", Text: r.ref.Task},
-			{Label: "tactics", Text: strings.Join(r.tactics, ", ")},
-			{Label: "attack", Text: strings.Join(r.attack, ", ")},
-			{Label: "atlas", Text: strings.Join(r.atlas, ", ")},
-		}
-		for _, line := range r.pairs() {
-			detail = append(detail, render.Detail{Label: "found", Text: line})
-		}
-		detail = append(detail, render.Detail{Label: "files", Text: few(r.files)})
-		g.Entries = append(g.Entries, render.Entry{
-			Level:  string(r.level),
-			Cells:  []string{r.ref.ID, first, last, length, plural(len(r.files), "file")},
-			Detail: detail,
-		})
+	all := w.result.intents
+	if len(all) == 0 {
+		return nil
 	}
-	return []render.Group{g}
+	columns := []string{"from", "until", "intent", "techniques"}
+	entries := make([]render.Entry, len(all))
+	files, recorded := 0, 0
+	for i, r := range all {
+		from, until := "-", "-"
+		if r.timed > 0 {
+			from = render.Stamp(r.from, nil)
+			if last := render.Stamp(r.until, nil); last != from {
+				until = last
+			}
+		}
+		techniques := "-"
+		if len(r.attack) > 0 {
+			techniques = strings.Join(r.attack, ", ")
+		}
+		entries[i] = render.Entry{
+			Level: string(r.level),
+			Cells: []string{from, until, r.ref.ID, techniques},
+			Detail: []render.Detail{
+				{Label: "atlas", Text: strings.Join(r.atlas, ", ")},
+				{Label: "files", Text: few(r.files)},
+			},
+		}
+		files, recorded = files+len(r.files), recorded+r.recorded
+	}
+	// A line that is no intent stands in a group of its own, so its length
+	// does not set the width of the columns.
+	note := func(text string) render.Group {
+		return render.Group{Entries: []render.Entry{{Cells: []string{text}}}}
+	}
+	groups := []render.Group{{Columns: columns, Entries: entries}}
+	if more := len(entries) - fewPeriods; more > 0 {
+		half := fewPeriods / 2
+		groups = []render.Group{
+			{Columns: columns, Entries: entries[:half]},
+			note("and " + counted(more, "more intent", "more intents") + " here, in intents.json"),
+			{Columns: columns, Entries: entries[len(entries)-half:]},
+		}
+	}
+	if other := files - recorded; other > 0 {
+		groups = append(groups, note(strconv.Itoa(other)+" of "+counted(files, "file is", "files are")+
+			" timed by name or last change: their creation time is not recorded, or is that of a copy, which is after the last change"))
+	}
+	return groups
 }
 
 // intentRow fills one row of the intent class.
@@ -185,19 +198,16 @@ func intentRow(r intentRun, columns []render.Column) ([]render.Value, error) {
 		}
 		return render.Text(strings.Join(items, ", "))
 	}
-	names := make([]string, len(r.activities))
-	for i, a := range r.activities {
-		names[i] = a.name
-	}
 	cells := map[string]render.Value{
 		"intent":     render.Text(r.ref.ID),
 		"task":       render.NotApplicable(),
-		"first":      render.NotApplicable(),
-		"last":       render.NotApplicable(),
+		"first":      when(r.from),
+		"last":       when(r.until),
 		"seconds":    render.NotApplicable(),
+		"timed_by":   render.NotApplicable(),
 		"files":      list(r.files),
 		"tactics":    list(r.tactics),
-		"activities": list(names),
+		"activities": list(r.activities),
 		"attack":     list(r.attack),
 		"atlas":      list(r.atlas),
 		"severity":   render.NotApplicable(),
@@ -206,23 +216,13 @@ func intentRow(r intentRun, columns []render.Column) ([]render.Value, error) {
 		cells["task"] = render.Text(r.ref.Task)
 	}
 	if d, ok := r.span(); ok {
-		cells["first"], cells["last"] = timeCell(r.first), timeCell(r.last)
 		cells["seconds"] = render.Int(int64(d / time.Second))
+		cells["timed_by"] = render.Text(r.timedBy())
 	}
 	if r.level != "" {
 		cells["severity"] = render.Text(string(r.level))
 	}
 	return orderCells("intent", cells, columns)
-}
-
-// timeCell is the time of a file as the trace class writes it: the file-name
-// stamp read as UTC, or else the modified time, as one ISO-8601 instant so a
-// reader never meets a bare token or epoch in a time column.
-func timeCell(f evidence.File) render.Value {
-	if t := f.Time(); !t.IsZero() {
-		return render.Time(t)
-	}
-	return render.NotApplicable()
 }
 
 func (w reportRun) intentTable(columns []render.Column, add func([]render.Value) error) error {

@@ -46,7 +46,7 @@ The bare words after `report` name sections of the report. No word means every s
 | --- | --- |
 | `summary` | the counts |
 | `timeline` | what was done, in order of time: each period of files that show the same tactics |
-| `intents` | each ARTEX intent, by its run folder i\<number\>: its period and its ATT&CK and ATLAS techniques |
+| `intents` | each ARTEX intent i\<number\>, in order of time: when its files were created, its ATT&CK and ATLAS techniques and its files |
 | `findings` | each activity, indicator and tactic, most severe first |
 | `files` | the files that hold a finding of high severity |
 | `targeted` | the usernames, addresses, hostnames and emails the scripts name outright |
@@ -224,7 +224,7 @@ sections chosen:
 sections you can add:
   summary                 the counts
   timeline                what was done, in order of time: each period of files that show the same tactics
-  intents                 each ARTEX intent, by its run folder i<number>: its period and its ATT&CK and ATLAS techniques
+  intents                 each ARTEX intent i<number>, in order of time: when its files were created, its ATT&CK and ATLAS techniques and its files
   findings                each activity, indicator and tactic, most severe first
   files                   the files that hold a finding of high severity
   targeted                what the scripts name and what activities acted on

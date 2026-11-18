@@ -1,5 +1,6 @@
 // Package intent names the ARTEX intent a file of evidence belongs to. ARTEX
-// gives each intent a run folder, tasks/<task>/i<number>, and a session name.
+// gives each intent a run folder, tasks/<task>/i<number>, and a session name,
+// and a file may carry the name of its intent in its own.
 package intent
 
 import (
@@ -93,20 +94,32 @@ func decode(data []byte) (Table, error) {
 	return table, nil
 }
 
-// Of returns the intent a slash-separated path lies in. The first rule that
-// matches decides, by its last match: the folder nearest the file.
+// Of returns the intent a slash-separated path names. The first rule that
+// matches decides, by its last match: the folder nearest the file. The task
+// is the one any rule finds beside that intent.
 func (t Table) Of(path string) (Ref, bool) {
 	for _, r := range t.rules {
 		found := r.rx.FindAllStringSubmatch(path, -1)
 		for i := len(found) - 1; i >= 0; i-- {
-			ref := Ref{ID: found[i][r.id]}
-			if r.task >= 0 {
-				ref.Task = found[i][r.task]
-			}
-			if !slices.Contains(t.reject, ref.ID) {
-				return ref, true
+			if id := found[i][r.id]; !slices.Contains(t.reject, id) {
+				return Ref{ID: id, Task: t.taskOf(path, id)}, true
 			}
 		}
 	}
 	return Ref{}, false
+}
+
+func (t Table) taskOf(path, id string) string {
+	for _, r := range t.rules {
+		if r.task < 0 {
+			continue
+		}
+		found := r.rx.FindAllStringSubmatch(path, -1)
+		for i := len(found) - 1; i >= 0; i-- {
+			if found[i][r.id] == id {
+				return found[i][r.task]
+			}
+		}
+	}
+	return ""
 }

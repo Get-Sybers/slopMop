@@ -28,7 +28,7 @@ func traceRow(s trace.Step, intent string, columns []render.Column) ([]render.Va
 		"step":       render.Int(int64(s.Turn)),
 		"name":       render.Text(s.File.Path),
 		"role":       render.Text(string(s.File.Role)),
-		"time":       timeCell(s.File),
+		"time":       when(s.File.Time()),
 		"intent":     render.NotApplicable(),
 		"tools":      render.NotApplicable(),
 		"tactics":    render.NotApplicable(),

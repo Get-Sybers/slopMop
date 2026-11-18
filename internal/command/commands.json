@@ -20,7 +20,7 @@
       "sections": [
         {"name": "summary", "title": "Summary", "summary": "the counts"},
         {"name": "timeline", "title": "Timeline", "summary": "what was done, in order of time: each period of files that show the same tactics", "note": "from, until, files, tactics"},
-        {"name": "intents", "title": "Intents", "summary": "each ARTEX intent, by its run folder i<number>: its period and its ATT&CK and ATLAS techniques", "note": "an ARTEX run folder i<number>: the first and last time of its files, and the techniques found in them"},
+        {"name": "intents", "title": "Intent timeline", "summary": "each ARTEX intent i<number>, in order of time: when its files were created, its ATT&CK and ATLAS techniques and its files", "note": "from, until, intent, ATT&CK techniques: an intent runs from the first of its files to be created until the last"},
         {"name": "findings", "title": "Findings", "summary": "each activity, indicator and tactic, most severe first"},
         {"name": "files", "title": "Notable files", "summary": "the files that hold a finding of high severity", "note": "a finding of high severity"},
         {"name": "targeted", "title": "Targeted", "summary": "what the scripts name and what activities acted on", "note": "hardcoded values: prior means no earlier output holds it, discovered means one does; subjects: each entity an activity acted on"},
@@ -61,6 +61,7 @@
         {"header": "SIZE", "key": "size"},
         {"header": "LINES", "key": "lines"},
         {"header": "MODIFIED", "key": "modified"},
+        {"header": "CREATED", "key": "created"},
         {"header": "SHA256", "key": "sha256", "wide": true},
         {"header": "NAME TIME", "key": "name_time", "wide": true},
         {"header": "NOTE", "key": "note", "wide": true}
@@ -149,6 +150,7 @@
         {"header": "FIRST", "key": "first"},
         {"header": "LAST", "key": "last"},
         {"header": "SECONDS", "key": "seconds"},
+        {"header": "TIMED BY", "key": "timed_by"},
         {"header": "SEVERITY", "key": "severity"},
         {"header": "TACTICS", "key": "tactics"},
         {"header": "ATTACK", "key": "attack"},

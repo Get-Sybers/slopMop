@@ -17,11 +17,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/get-sybers/slopmop/internal/activity"
 	"github.com/get-sybers/slopmop/internal/cli"
 	"github.com/get-sybers/slopmop/internal/evidence"
 	"github.com/get-sybers/slopmop/internal/evidencetest"
 	"github.com/get-sybers/slopmop/internal/exposure"
 	"github.com/get-sybers/slopmop/internal/golden"
+	"github.com/get-sybers/slopmop/internal/intent"
 	"github.com/get-sybers/slopmop/internal/inventory"
 	"github.com/get-sybers/slopmop/internal/trace"
 )
@@ -224,7 +226,8 @@ func TestReportSections(t *testing.T) {
 }
 
 // artex lays a copy of the linux fixture out as ARTEX does: a run folder for
-// each intent, a session file, and files that belong to no intent.
+// each intent, a session file, a file that names its intent itself, and
+// files that belong to no intent.
 func artex(t *testing.T) string {
 	t.Helper()
 	folder := evidencetest.Copy(t, "linux")
@@ -241,16 +244,42 @@ func artex(t *testing.T) string {
 	if err := os.Rename(filepath.Join(folder, "20261022_092500_step06_stage.sh"), filepath.Join(folder, "data", "noa", "exp3-worker-i1051.sh")); err != nil {
 		t.Fatal(err)
 	}
+	if err := os.Rename(filepath.Join(folder, "audit_20261022_093500.jsonl"), filepath.Join(folder, "i1051_audit_20261022_093500.jsonl")); err != nil {
+		t.Fatal(err)
+	}
 	return folder
 }
 
+// copied reports whether the files a run read are copies by their times: none
+// has a creation time that is not after its last change.
+func copied(t *testing.T, saved string) bool {
+	t.Helper()
+	for _, row := range rows(t, filepath.Join(saved, "files.csv")) {
+		made, _ := row["created"].(string)
+		changed, _ := row["modified"].(string)
+		if made != "" && made <= changed {
+			return false
+		}
+	}
+	return true
+}
+
 // Each ARTEX intent is a row: its period, and the ATT&CK and ATLAS techniques
-// of what its files do. A file outside a run folder belongs to none.
+// of what its files do. A file that no folder and no name gives an intent
+// belongs to none.
 func TestReportIntents(t *testing.T) {
 	folder := artex(t)
 	readout, saved := report(t, folder, "summary", "intents")
-	golden.Check(t, "artex-report-intents", []byte(readout))
-	golden.Check(t, "artex-intents-json", []byte(readFile(t, filepath.Join(saved, "intents.json"))))
+	// A fixture is a copy, made now and last changed when its manifest says.
+	// Where a last change set to the past takes the creation time with it,
+	// as on macOS, its files are as if made there, 3 seconds after their names.
+	timedBy, first, last := byTimeline, "2026-10-22T09:00:00Z", "2026-10-22T09:00:40Z"
+	if copied(t, saved) {
+		golden.Check(t, "artex-report-intents", []byte(readout))
+		golden.Check(t, "artex-intents-json", []byte(readFile(t, filepath.Join(saved, "intents.json"))))
+	} else {
+		timedBy, first, last = byCreation, "2026-10-22T09:00:03Z", "2026-10-22T09:00:43Z"
+	}
 	table := rows(t, filepath.Join(saved, "intents.json"))
 	var order []string
 	for _, row := range table {
@@ -260,14 +289,19 @@ func TestReportIntents(t *testing.T) {
 		t.Errorf("intents = %q, want %q: in the order they began", order, want)
 	}
 	row := find(t, table, map[string]string{"intent": "i1041", "task": "7"})
-	if row["first"] != "2026-10-22T09:00:00Z" || row["last"] != "2026-10-22T09:00:40Z" || row["seconds"] != float64(40) {
-		t.Errorf("i1041 runs from %v to %v, %v seconds, want 2026-10-22T09:00:00Z to 2026-10-22T09:00:40Z, 40", row["first"], row["last"], row["seconds"])
+	if row["first"] != first || row["last"] != last || row["seconds"] != float64(40) {
+		t.Errorf("i1041 runs from %v to %v, %v seconds, want %s to %s, 40", row["first"], row["last"], row["seconds"], first, last)
 	}
 	if row["attack"] != "T1083, T1552.005, T1007" || row["atlas"] != "AML.T0055" {
 		t.Errorf("i1041 has ATT&CK %v and ATLAS %v", row["attack"], row["atlas"])
 	}
-	if session := find(t, table, map[string]string{"intent": "i1051"}); session["task"] != nil || session["files"] != "data/noa/exp3-worker-i1051.sh" {
-		t.Errorf("the session file gives %v, want i1051 with no task", session)
+	if session := find(t, table, map[string]string{"intent": "i1051"}); session["task"] != nil || session["files"] != "data/noa/exp3-worker-i1051.sh, i1051_audit_20261022_093500.jsonl" {
+		t.Errorf("the session file and the file named for the intent give %v, want i1051 with no task and both files", session)
+	}
+	for _, row := range table {
+		if row["timed_by"] != timedBy {
+			t.Errorf("%v is timed by %v, want %s", row["intent"], row["timed_by"], timedBy)
+		}
 	}
 	// The trace names the intent of each file, and leaves the others without one.
 	trace := rows(t, filepath.Join(saved, "trace.json"))
@@ -276,7 +310,7 @@ func TestReportIntents(t *testing.T) {
 		id, _ := step["intent"].(string)
 		named[id]++
 	}
-	if want := map[string]int{"i1041": 5, "i1042": 3, "i998": 2, "i1051": 1, "": 3}; !maps.Equal(named, want) {
+	if want := map[string]int{"i1041": 5, "i1042": 3, "i998": 2, "i1051": 2, "": 2}; !maps.Equal(named, want) {
 		t.Errorf("the trace names %v, want %v", named, want)
 	}
 	timeline, _ := report(t, folder, "timeline")
@@ -284,7 +318,7 @@ func TestReportIntents(t *testing.T) {
 		t.Errorf("the timeline does not name the intents of a period:\n%s", timeline)
 	}
 	for name, body := range map[string]string{"report.md": readFile(t, filepath.Join(saved, "report.md")), "report.html": readFile(t, filepath.Join(saved, "report.html"))} {
-		for _, held := range []string{"Intents", "i1042", "T1003.008", "AML.T0090"} {
+		for _, held := range []string{"Intent timeline", "i1042", "T1003.008", "AML.T0090"} {
 			if !strings.Contains(body, held) {
 				t.Errorf("%s does not hold %q", name, held)
 			}
@@ -305,8 +339,8 @@ func TestReportReadsOneIntent(t *testing.T) {
 // Evidence that no ARTEX run wrote has no intent, and its summary no count of them.
 func TestReportWithoutIntents(t *testing.T) {
 	readout, saved := report(t, evidencetest.Copy(t, "bash"), "summary", "intents")
-	if strings.Contains(readout, "Intents") {
-		t.Errorf("the readout shows the empty Intents section:\n%s", readout)
+	if strings.Contains(readout, "Intent timeline") {
+		t.Errorf("the readout shows the empty section of the intents:\n%s", readout)
 	}
 	if strings.Contains(readout, "\n  intents") {
 		t.Errorf("the summary counts intents where there are none:\n%s", readout)
@@ -340,8 +374,8 @@ func TestIntentsWithoutATime(t *testing.T) {
 	if want := []string{"i31", "i9", "i200", "i7", "i30"}; !slices.Equal(order, want) {
 		t.Errorf("intents = %q, want %q", order, want)
 	}
-	if d, ok := runs[0].span(); !ok || d != 90*time.Second || runs[0].first.Path != "i31/b.sh" || runs[0].last.Path != "i31/a.sh" {
-		t.Errorf("i31 spans %v from %s to %s, want 1m30s from b.sh to a.sh", d, runs[0].first.Path, runs[0].last.Path)
+	if d, ok := runs[0].span(); !ok || d != 90*time.Second || !runs[0].from.Equal(when.Add(-90*time.Second)) || !runs[0].until.Equal(when) {
+		t.Errorf("i31 spans %v from %s to %s, want 1m30s from b.sh to a.sh", d, runs[0].from, runs[0].until)
 	}
 	if _, ok := runs[4].span(); ok || runs[4].level != "" || len(of) != len(steps) {
 		t.Errorf("i30 has a period or a level, or a path has no intent: %+v, %v", runs[4], of)
@@ -354,8 +388,161 @@ func TestIntentsWithoutATime(t *testing.T) {
 		t.Errorf("an intent without a time has no row: %v", err)
 	}
 	groups := reportRun{result: analysis{intents: runs}}.intents()
-	if got := groups[0].Entries[4].Cells; !slices.Equal(got, []string{"i30", "-", "-", "-", "1 file"}) {
+	if got := groups[0].Entries[4].Cells; !slices.Equal(got, []string{"-", "-", "i30", "-"}) {
 		t.Errorf("i30 is written %q", got)
+	}
+}
+
+// The period of an intent runs from the first of its files to be made until
+// the last, and a file belongs to the intent its own name gives it.
+func TestIntentsRunFromWhenTheirFilesWereMade(t *testing.T) {
+	pipe, err := loadPipeline()
+	if err != nil {
+		t.Fatal(err)
+	}
+	at := time.Date(2026, 10, 22, 9, 0, 0, 0, time.UTC)
+	made := func(path string, created, modified time.Duration, attack ...string) trace.Step {
+		s := trace.Step{File: evidence.File{Path: path, Modified: at.Add(modified)}}
+		if created != 0 {
+			s.File.Created = at.Add(created)
+		}
+		if len(attack) > 0 {
+			s.Activities = []activity.Hit{{Name: "Made" + attack[0], Attack: attack}}
+		}
+		return s
+	}
+	steps := []trace.Step{
+		// Made where they lie: none was changed before it was made.
+		made("i5_scan.sh", 10*time.Minute, 30*time.Minute, "T1046"),
+		made("out/cmd-i5.stdout.txt", 12*time.Minute, 12*time.Minute, "T1018", "T1046"),
+		made("i5/notes.txt", 11*time.Minute, 50*time.Minute),
+		// Copies: made after their last change.
+		made("i6_a.sh", 9*time.Hour, 20*time.Minute, "T1003.008"),
+		made("i6_b.txt", 25*time.Minute+time.Second, 25*time.Minute),
+		// One of each.
+		made("i7_a.sh", 40*time.Minute, 41*time.Minute),
+		made("i7_b.sh", 9*time.Hour, 45*time.Minute),
+		// No creation time is recorded.
+		made("i8_a.sh", 0, 55*time.Minute),
+		made("plain.sh", 1*time.Minute, 2*time.Minute, "T1059.004"),
+	}
+	runs, of := pipe.collectIntents(t.TempDir(), steps)
+	type want struct {
+		id          string
+		from, until time.Duration
+		by          string
+		files       []string
+		attack      []string
+	}
+	wants := []want{
+		{"i5", 10 * time.Minute, 12 * time.Minute, byCreation, []string{"i5_scan.sh", "out/cmd-i5.stdout.txt", "i5/notes.txt"}, []string{"T1046", "T1018"}},
+		{"i6", 20 * time.Minute, 25 * time.Minute, byTimeline, []string{"i6_a.sh", "i6_b.txt"}, []string{"T1003.008"}},
+		{"i7", 40 * time.Minute, 45 * time.Minute, byBoth, []string{"i7_a.sh", "i7_b.sh"}, nil},
+		{"i8", 55 * time.Minute, 55 * time.Minute, byTimeline, []string{"i8_a.sh"}, nil},
+	}
+	if len(runs) != len(wants) {
+		t.Fatalf("%d intents, want %d", len(runs), len(wants))
+	}
+	for i, w := range wants {
+		r := runs[i]
+		if r.ref.ID != w.id || !r.from.Equal(at.Add(w.from)) || !r.until.Equal(at.Add(w.until)) || r.timedBy() != w.by {
+			t.Errorf("intent %d is %s from %s until %s by %s, want %s from %s until %s by %s", i, r.ref.ID, r.from, r.until, r.timedBy(), w.id, at.Add(w.from), at.Add(w.until), w.by)
+		}
+		if !slices.Equal(r.files, w.files) || !slices.Equal(r.attack, w.attack) {
+			t.Errorf("%s owns the files %q and the techniques %q, want %q and %q", w.id, r.files, r.attack, w.files, w.attack)
+		}
+	}
+	if _, owned := of["plain.sh"]; owned || len(of) != len(steps)-1 {
+		t.Errorf("the files with an intent are %v, want every one but plain.sh", of)
+	}
+	groups := reportRun{result: analysis{intents: runs}}.intents()
+	if got, want := groups[0].Entries[0].Cells, []string{"2026-10-22T09:10:00Z", "2026-10-22T09:12:00Z", "i5", "T1046, T1018"}; !slices.Equal(got, want) {
+		t.Errorf("i5 is written %q, want %q", got, want)
+	}
+	if got, want := groups[0].Entries[3].Cells, []string{"2026-10-22T09:55:00Z", "-", "i8", "-"}; !slices.Equal(got, want) {
+		t.Errorf("i8 is written %q, want %q", got, want)
+	}
+	if note := groups[len(groups)-1].Entries[0].Cells[0]; !strings.HasPrefix(note, "4 of 8 files are timed by name or last change") {
+		t.Errorf("the last line is %q, want it to count the 4 files of 8 that no creation time places", note)
+	}
+}
+
+// Files made where they are read give their intents the time they were
+// made, whatever their names and their last changes say.
+func TestReportIntentsByCreation(t *testing.T) {
+	folder := t.TempDir()
+	began := time.Now().Add(-2 * time.Second)
+	later := time.Now().Add(time.Hour)
+	for _, f := range []struct{ name, text string }{
+		{"i7_20200101_000000_persist.sh", "#!/bin/bash\nuseradd -m -s /bin/bash svc\n"},
+		{"cmd-i7.stdout.txt", "uid=0(root) gid=0(root)\n"},
+		{"i8_creds.sh", "#!/bin/bash\ncat /etc/shadow\n"},
+		{"notes.txt", "nothing of an intent\n"},
+	} {
+		path := filepath.Join(folder, f.name)
+		if err := os.WriteFile(path, []byte(f.text), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		// A file made where it lies is changed after it is made.
+		if err := os.Chtimes(path, later, later); err != nil {
+			t.Fatal(err)
+		}
+	}
+	readout, saved := report(t, folder, "intents")
+	for _, row := range rows(t, filepath.Join(saved, "files.csv")) {
+		if row["created"] == nil {
+			t.Skip("this file system records no creation time")
+		}
+	}
+	ended := time.Now().Add(2 * time.Second)
+	table := rows(t, filepath.Join(saved, "intents.json"))
+	if len(table) != 2 {
+		t.Fatalf("intents.json holds %d intents, want i7 and i8:\n%v", len(table), table)
+	}
+	for i, want := range []struct{ id, attack, files string }{
+		{"i7", "T1136.001", "i7_20200101_000000_persist.sh, cmd-i7.stdout.txt"},
+		{"i8", "T1003.008", "i8_creds.sh"},
+	} {
+		row := table[i]
+		if row["intent"] != want.id || row["attack"] != want.attack || row["files"] != want.files || row["timed_by"] != byCreation {
+			t.Errorf("intent %d is %v, want %s with %s and %s, timed by %s", i, row, want.id, want.attack, want.files, byCreation)
+		}
+		for _, key := range []string{"first", "last"} {
+			text, _ := row[key].(string)
+			at, err := time.Parse(time.RFC3339, text)
+			if err != nil || at.Before(began) || at.After(ended) {
+				t.Errorf("%s %s = %q (%v), want when the test made its files, from %s until %s", want.id, key, text, err, began.UTC(), ended.UTC())
+			}
+		}
+	}
+	if !strings.Contains(readout, "  i7  T1136.001\n") || !strings.Contains(readout, "      files  i7_20200101_000000_persist.sh, cmd-i7.stdout.txt\n") {
+		t.Errorf("the readout does not give i7 its technique and its files:\n%s", readout)
+	}
+	if strings.Contains(readout, "timed by name or last change") {
+		t.Errorf("the readout says a file is not timed by its creation:\n%s", readout)
+	}
+}
+
+// Of more intents than the timeline of intents shows, the first and the last are shown.
+func TestIntentsShowTheFirstAndTheLast(t *testing.T) {
+	at := time.Date(2026, 10, 22, 9, 0, 0, 0, time.UTC)
+	var runs []intentRun
+	for i := range fewPeriods + 5 {
+		when := at.Add(time.Duration(i) * time.Minute)
+		runs = append(runs, intentRun{ref: intent.Ref{ID: "i" + strconv.Itoa(100+i)}, from: when, until: when, timed: 1, recorded: 1, files: []string{"a.sh"}})
+	}
+	groups := reportRun{result: analysis{intents: runs}}.intents()
+	if len(groups) != 3 || len(groups[0].Entries) != fewPeriods/2 || len(groups[2].Entries) != fewPeriods/2 {
+		t.Fatalf("%d groups, want the first %d intents, a line and the last %d", len(groups), fewPeriods/2, fewPeriods/2)
+	}
+	if got, want := groups[1].Entries[0].Cells[0], "and 5 more intents here, in intents.json"; got != want {
+		t.Errorf("the line between them is %q, want %q", got, want)
+	}
+	if first, last := groups[0].Entries[0].Cells[2], groups[2].Entries[fewPeriods/2-1].Cells[2]; first != "i100" || last != "i144" {
+		t.Errorf("the intents shown run from %s to %s, want i100 to i144", first, last)
+	}
+	if all := (reportRun{result: analysis{intents: runs[:fewPeriods]}}).intents(); len(all) != 1 || len(all[0].Entries) != fewPeriods {
+		t.Errorf("%d intents are not shown whole", fewPeriods)
 	}
 }
 

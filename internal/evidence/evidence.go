@@ -32,10 +32,12 @@ type File struct {
 	// Lines is meaningful only when Note is empty.
 	Lines    int
 	Modified time.Time
-	Stamp    nametime.Stamp
-	Stamped  bool
-	SHA256   string
-	Note     Note
+	// Created is when the file was made, where its file system records it.
+	Created time.Time
+	Stamp   nametime.Stamp
+	Stamped bool
+	SHA256  string
+	Note    Note
 }
 
 // Time is when a file is placed in the timeline: the time in its name, or
@@ -45,6 +47,16 @@ func (f File) Time() time.Time {
 		return f.Stamp.Time
 	}
 	return f.Modified
+}
+
+// Made is when a file was made, and whether its file system says so. A
+// creation time after the last change is that of a copy, made when it was
+// copied: then, and where none is recorded, the time is that of the timeline.
+func (f File) Made() (at time.Time, recorded bool) {
+	if !f.Created.IsZero() && !f.Created.After(f.Modified) {
+		return f.Created, true
+	}
+	return f.Time(), false
 }
 
 // Within reports whether the time of a file is from one instant until

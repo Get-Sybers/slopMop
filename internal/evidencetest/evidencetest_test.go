@@ -104,6 +104,8 @@ func TestPortable(t *testing.T) {
 	}{
 		{"a file and one in a sub-folder", "name,path,role\na.sh," + filepath.Join(folder, "a.sh") + ",script\nsub/b.txt," + inner + ",output\n",
 			"name,path,role\na.sh,<folder>/a.sh,script\nsub/b.txt,<folder>/sub/b.txt,output\n", false},
+		{"a creation time", "name,path,created,note\na.sh," + filepath.Join(folder, "a.sh") + ",2026-11-18T01:02:03Z,\nb.sh," + filepath.Join(folder, "b.sh") + ",,binary\n",
+			"name,path,created,note\na.sh,<folder>/a.sh,<created>,\nb.sh,<folder>/b.sh,<created>,binary\n", false},
 		{"a path that is not below the folder", "name,path\na.sh," + filepath.Join(folder, "other", "a.sh") + "\n", "name,path\na.sh,<folder>/a.sh\n", true},
 	}
 	for _, tt := range tests {

@@ -21,7 +21,7 @@ about evidence touch no file, and every static table is a data file validated at
 | `internal/indicator` | extracts security indicators (IPs, URLs, hashes, CVEs, GUIDs, Microsoft cloud endpoints, OAuth scopes) using `indicators.json` |
 | `internal/assess` | turns what a run found into its impacts and the remediation they call for, using `impacts.json` and `actions.json` |
 | `internal/exposure` | names what the evidence holds that an attacker can use: usernames, email addresses, passwords and other secrets, devices and IP addresses; masks a secret; no I/O |
-| `internal/intent` | names the ARTEX intent a path lies in, by its run folder or its session name; no I/O |
+| `internal/intent` | names the ARTEX intent of a path, by the name of the file, its run folder or its session name; no I/O |
 | `internal/device` | reads how many processors and how much memory the machine has, on Linux, Windows and macOS; changes nothing |
 | `internal/parallel` | runs independent pieces of work on every processor; no I/O |
 | `internal/progress` | says on the error stream what a run is doing: the stage, how far through it is and the file it has been at for longest |
@@ -65,7 +65,7 @@ progress    -> render
 | `internal/assess/impacts.json` | each impact's name, severity and statement, what triggers it, the indicator types to list as affected and the kinds of exposure it concerns | names are present and unique; a statement and a severity of `low`, `medium` or `high`; something triggers each; `command` rejects an activity, a tactic, an indicator type or a kind of exposure the other tables lack |
 | `internal/assess/actions.json` | each remediation's name, priority and text, and what triggers it | as for an impact |
 | `internal/exposure/exposures.json` | each kind of exposure: its title, its severity, whether it is a secret, the field names and endings that hold it, the indicator types that are of it, what a value must and must not look like, and its patterns | names, titles and severities present and unique; a field name is lower-case letters and digits and in one kind; an ending has three characters or more; an indicator type is in one kind and `command` rejects one that `indicators.json` lacks; every expression compiles; a pattern has a group named `value` and a lower-case text a line must hold; `command` rejects a severity that is not `low`, `medium` or `high` |
-| `internal/intent/paths.json` | the rules that find an ARTEX intent in a path, in the order they are tried, and the folder names that are none | a rule has a name of its own and a pattern that compiles with a group named `id` and no group but `id` and `task`; a rejected name is present once |
+| `internal/intent/paths.json` | the rules that find an ARTEX intent in a path, in the order they are tried, and the names that are none | a rule has a name of its own and a pattern that compiles with a group named `id` and no group but `id` and `task`; a rejected name is present once |
 | `internal/mitre/catalogue.json` | for ATT&CK and for ATLAS: the version, the tactics, the mitigations with a one-sentence summary, and each technique's name, tactics and mitigations | a version, tactics, techniques and mitigations are present; a technique names only tactics and mitigations that are listed |
 | `internal/indicator/indicators.json` | indicator types and their regex patterns, with what a match must not follow on its line and what must not follow it | every entry has a type and a pattern; every expression compiles |
 | `internal/structured/formats.json` | the extensions of each structured format, the field names that hold a command, and the HTML elements that hold a command, are kept verbatim or are dropped | the formats are `json`, `xml`, `html` in that order; extensions are lower-case, dotted and in one format; names are lower-case letters and digits, listed once, and an element is in one list |
@@ -125,7 +125,12 @@ work writes only its own result, and the results are taken in a fixed order.
   is read from the name, and the time a file was last modified from its directory entry, so a
   file outside the window costs no reading. `Result.Outside` counts those files.
 - `evidence.File.Time` is the one definition of the time of a file, and `Within` of whether it is
-  in a window; the timeline, the intents and the reading all use them.
+  in a window; the timeline and the reading use them.
+- A file is read with its creation time, where its file system records one: Windows and macOS
+  give it with the rest of what is known of a file, and Linux gives it to `statx`, which is
+  called on the open file. `evidence.File.Made` is when a file was made: its creation time,
+  unless that is after its last change, which is the mark of a copy; then, and where none is
+  recorded, it is `Time`. The intents use it.
 - A read takes a depth. At depth 0 only the files directly in the folder are listed and sub-folders
   are skipped. `report` reads at `inventory.MaxDepth`, 16 levels of sub-folder. Each
   sub-folder is opened through the same root. A symbolic link to a folder is not walked, so a walk
@@ -412,15 +417,17 @@ The same pass gathers the targets: what the scripts name outright.
 
 ARTEX runs each intent of its plan in a folder of its own, `tasks/<task>/i<number>`, with the
 output of its commands in `cmd-output` below it, and names the worker's session
-`exp<number>-worker-i<number>`. `intent.Table.Of` reads the intent from a path by the rules of
-`paths.json`.
+`exp<number>-worker-i<number>`. A file may carry the name of its intent in its own name as well.
+`intent.Table.Of` reads the intent from a path by the rules of `paths.json`.
 
-- The rules are tried in order: the run folder under `tasks`, then the session name, then any
-  folder named `i` and a number. Within a rule the last match decides, the folder nearest the file.
+- The rules are tried in order: the name of the file, then the run folder under `tasks`, then the
+  session name, then any folder named `i` and a number. Within a rule the last match decides,
+  the folder nearest the file; a file name is matched once, by the first name of an intent in
+  it. The task is the one of the run folder of that intent, whichever rule named the intent.
 - The last three folders of the path to the input folder count as part of each path, so a run
   folder that is read itself still names its intent and its task.
-- `command` groups the steps of the timeline by intent. The period of an intent runs from its
-  earliest file to its latest, by the time the timeline orders them with.
+- `command` groups the steps of the timeline by intent. The period of an intent runs from the
+  first of its files to be made until the last, by `evidence.File.Made`.
 - The techniques of an intent are those of the activities its files show: the ATT&CK techniques
   of `activities.json` and the ATLAS techniques section 15 gives them.
 - The intents are ordered by when they began; one without a time comes last.
