@@ -10,6 +10,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/get-sybers/slopmop/internal/evidencetest"
 )
@@ -201,26 +202,34 @@ func TestReportConcernsWhatIsExposed(t *testing.T) {
 }
 
 // The Tactics section and the timeline say the same of an intent: a tactic
-// lists every file that shows it, a script or an output, and names the
-// intents of those files, and the block of each of them lists the tactic.
+// lists every file that shows it, script or output, and the intents of those
+// files in the order they began, and the block of each lists the tactic.
 func TestTacticsAndTimelineAgree(t *testing.T) {
 	folder := t.TempDir()
-	for name, text := range map[string]string{ //nolint:gosec // G101: file names and commands of a made-up folder, no credential.
-		"i201_scan.sh":        "#!/bin/bash\nnmap -sV 10.0.0.0/24 -oN scan.txt\n",
-		"cmd-i201.stdout.txt": "Nmap scan report for dc01.corp.example (10.0.0.5)\n+ cat /etc/shadow\n",
-		"i202-move.sh":        "#!/bin/bash\ncurl -s https://files.corp.example/x -o /tmp/x\nssh ops@10.0.0.5 id\n",
-		"i203_creds.sh":       "#!/bin/bash\ncat /etc/shadow\n",
-		"i204.sh":             "#!/bin/bash\necho done\n",
-		"notes.sh":            "#!/bin/bash\nwhoami\n",
+	first := time.Date(2026, 10, 22, 9, 0, 0, 0, time.UTC)
+	for i, f := range []struct{ name, text string }{
+		{"i203_creds.sh", "#!/bin/bash\ncat /etc/shadow\n"},
+		{"i201_scan.sh", "#!/bin/bash\nnmap -sV 10.0.0.0/24 -oN scan.txt\n"},
+		{"cmd-i201.stdout.txt", "Nmap scan report for dc01.corp.example (10.0.0.5)\n+ cat /etc/shadow\n"},
+		{"i202-move.sh", "#!/bin/bash\ncurl -s https://files.corp.example/x -o /tmp/x\nssh ops@10.0.0.5 id\n"},
+		{"i204.sh", "#!/bin/bash\necho done\n"},
+		{"notes.sh", "#!/bin/bash\nwhoami\n"},
 	} {
-		if err := os.WriteFile(filepath.Join(folder, name), []byte(text), 0o600); err != nil {
+		path := filepath.Join(folder, f.name)
+		if err := os.WriteFile(path, []byte(f.text), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		// A time of its own for each file, a minute apart: when a file is
+		// written says nothing a test can rely on. i203 begins before i201.
+		at := first.Add(time.Duration(i) * time.Minute)
+		if err := os.Chtimes(path, at, at); err != nil {
 			t.Fatal(err)
 		}
 	}
 	readout, saved := report(t, folder, "tactics", "timeline")
 	tactics, timeline, _ := strings.Cut(readout, "\nTimeline")
 	for _, want := range []string{
-		"  [x] CredentialAccess   TA0006, AML.TA0013  cmd-i201.stdout.txt, i203_creds.sh\n      intents  i201, i203\n",
+		"  [x] CredentialAccess   TA0006, AML.TA0013  cmd-i201.stdout.txt, i203_creds.sh\n      intents  i203, i201\n",
 		"  [x] LateralMovement    TA0008, AML.TA0015  i202-move.sh\n      intents  i202\n",
 		"  [i] Discovery          TA0007, AML.TA0008  i201_scan.sh, i202-move.sh, notes.sh\n      intents  i201, i202\n",
 	} {
