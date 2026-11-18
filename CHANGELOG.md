@@ -86,6 +86,8 @@ All notable changes to this project are recorded in this file. The format follow
 
 ### Fixed
 
+- The release workflow checks `intents.csv`, the file a run saves, before it publishes. It
+  looked for `intents.json`, which is saved no longer, so no release could be cut.
 - A version number is not reported as an IPv4 address. Four numbers are an address only when
   none has a leading zero and the first is not 0, `0.0.0.0` apart, and they are left out where
   the text says they are a version: after `version`, `ver`, `build`, a comparison, `^`, `~`, a
