@@ -13,23 +13,14 @@ make build      # writes bin/slopmop
 make conform    # the gate CI runs
 ```
 
-A version is a package on the GitHub Container Registry that holds the Windows x64 binary and its
-SHA-256. [`oras`](https://oras.land) writes the two into the current folder:
+Each GitHub release carries a Windows x64 binary, `slopmop-<version>-windows-amd64.exe`, and its
+SHA-256. The binary is not code-signed. A release after 0.6.2 carries an attestation of its
+provenance, and its stamp names its version and its commit:
 
 ```sh
-oras pull ghcr.io/get-sybers/slopmop:v<version>
-```
-
-The binary is not code-signed. It carries an attestation of its provenance, and its stamp names its
-version and its commit:
-
-```sh
-sha256sum --check slopmop-<version>-windows-amd64.exe.sha256
 gh attestation verify slopmop-<version>-windows-amd64.exe -R Get-Sybers/slopMop
 go version -m slopmop-<version>-windows-amd64.exe
 ```
-
-The versions up to 0.6.2 are GitHub releases, each with the binary and its SHA-256.
 
 ## Use
 
