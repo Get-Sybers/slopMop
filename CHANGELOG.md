@@ -6,6 +6,8 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+## [0.6.3] - 2026-11-18
+
 ### Added
 
 - The release workflow builds the binary from any branch when it is run without `publish`, and
@@ -17,6 +19,9 @@ All notable changes to this project are recorded in this file. The format follow
 
 ### Changed
 
+- `report.html` is set in Verdana, every text of it. The headings and the notes were in the
+  interface face of the machine, and the values, the identifiers and the names of files in a
+  monospace face. A machine that has no Verdana sets the page in its own sans-serif face.
 - The release workflow takes no version. It publishes the newest version `CHANGELOG.md` names,
   the one raised in the pull request that cuts the release, when it is run with `publish` on
   `main`. The version was typed in when the workflow was run.
