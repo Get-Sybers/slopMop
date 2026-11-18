@@ -44,8 +44,8 @@ The bare words after `report` name sections of the report. No word means every s
 | Section | Holds |
 | --- | --- |
 | `summary` | the counts |
-| `tactics` | each tactic the scripts show, most severe first, with its ATT&CK and ATLAS identifiers |
-| `timeline` | what was done, in order of time: a block for each ARTEX intent i\<number\>, or for each period where no file names an intent, with its ATT&CK and ATLAS techniques by name |
+| `tactics` | each tactic the files show, most severe first, with its ATT&CK and ATLAS identifiers and the intents that show it |
+| `timeline` | what was done, in order of time: a block for each ARTEX intent i\<number\>, or for each period where no file names an intent, with each ATT&CK technique its files show and the tactic and ATLAS technique that follow from it |
 | `findings` | each activity, most severe first, with the lines that show it |
 | `targeted` | the addresses, hostnames and emails the scripts name outright, and what the activities acted on |
 | `exposure` | the passwords, usernames, emails, tenants, SSH keys, API keys, applications, cloud resources, devices and addresses the files hold, and what is of Microsoft 365 and of Google Cloud |
@@ -218,8 +218,8 @@ sections chosen:
 
 sections you can add:
   summary                 the counts
-  tactics                 each tactic the scripts show, most severe first, with its ATT&CK and ATLAS identifiers
-  timeline                what was done, in order of time: a block for each ARTEX intent i<number>, or for each period where no file names an intent, with its ATT&CK and ATLAS techniques by name
+  tactics                 each tactic the files show, most severe first, with its ATT&CK and ATLAS identifiers and the intents that show it
+  timeline                what was done, in order of time: a block for each ARTEX intent i<number>, or for each period where no file names an intent, with each ATT&CK technique its files show and the tactic and ATLAS technique that follow from it
   findings                each activity, most severe first, with the lines that show it
   targeted                what the scripts name and what activities acted on
   exposure                the passwords, usernames, emails, tenants, SSH keys, API keys, applications, cloud resources, devices and addresses the files hold, and what is of Microsoft 365 and of Google Cloud

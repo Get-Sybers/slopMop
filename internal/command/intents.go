@@ -25,11 +25,11 @@ type intentRun struct {
 	files           []string
 	tactics         []string
 	activities      []string
-	attack          []string
-	atlas           []string
-	// hits are the watchlist matches of its files.
-	hits  []string
-	level tactic.Severity
+	// techniques are those of the activities its files show.
+	techniques
+	// tools are what its files run, and hits their watchlist matches.
+	tools, hits []string
+	level       tactic.Severity
 }
 
 // above is how many folders of the path to the folder read count as part of
@@ -65,10 +65,12 @@ func (p pipeline) collectIntents(folder string, steps []trace.Step) ([]intentRun
 		of[s.File.Path] = ref.ID
 		r.files = append(r.files, s.File.Path)
 		r.tactics = appendUnique(r.tactics, s.Tactics...)
+		r.tools = appendUnique(r.tools, s.Tools...)
 		for _, hit := range s.Activities {
-			r.attack, r.atlas = appendUnique(r.attack, hit.Attack...), appendUnique(r.atlas, p.atlasOf(hit)...)
+			r.add(p, hit)
 			r.activities = appendUnique(r.activities, hit.Name)
 		}
+		r.run(p, s.Tools)
 		for _, h := range s.IntelHits {
 			r.hits = appendUnique(r.hits, h.Attribution+": "+h.Value)
 		}
@@ -143,8 +145,8 @@ func (r intentRun) timedBy() string {
 }
 
 // intentBlocks is the timeline by intent: a block for each, in the order the
-// intents began, with when it ran and each of its techniques by name. Every
-// intent has its block, however many there are.
+// intents began, with when it ran, the tactics its files show and each
+// technique under its tactic. Every intent has its block, however many there are.
 func (w reportRun) intentBlocks() []render.Group {
 	all := w.result.intents
 	entries := make([]render.Entry, len(all))
@@ -157,10 +159,11 @@ func (w reportRun) intentBlocks() []render.Group {
 				period += " to " + last
 			}
 		}
-		entries[i] = render.Entry{Level: string(r.level), Cells: []string{r.ref.ID, period}, Detail: w.named(r.attack, r.atlas, r.hits)}
+		entries[i] = render.Entry{Level: string(r.level), Cells: []string{r.ref.ID, period}}
+		entries[i].Rows, entries[i].Detail = w.block(r.tactics, r.techniques, r.tools, r.hits)
 		files, recorded = files+len(r.files), recorded+r.recorded
 	}
-	groups := []render.Group{{Blocks: true, Entries: entries}}
+	groups := []render.Group{{Blocks: true, Heads: heads(), Entries: entries}}
 	if other := files - recorded; other > 0 {
 		line := strconv.Itoa(other) + " of " + counted(files, "file is", "files are") +
 			" timed by name or last change: their creation time is not recorded, or is that of a copy, which is after the last change"

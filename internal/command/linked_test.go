@@ -2,12 +2,16 @@ package command
 
 import (
 	"encoding/base64"
+	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"regexp"
 	"slices"
 	"strings"
 	"testing"
+
+	"github.com/get-sybers/slopmop/internal/evidencetest"
 )
 
 // intrusion writes a folder of scripts and outputs that sign in, persist,
@@ -193,5 +197,233 @@ func TestReportConcernsWhatIsExposed(t *testing.T) {
 		if strings.Contains(readout, gone) {
 			t.Errorf("the readout holds %q, which is a command, a script or what one acts on:\n%s", gone, readout)
 		}
+	}
+}
+
+// The Tactics section and the timeline say the same of an intent: a tactic
+// lists every file that shows it, a script or an output, and names the
+// intents of those files, and the block of each of them lists the tactic.
+func TestTacticsAndTimelineAgree(t *testing.T) {
+	folder := t.TempDir()
+	for name, text := range map[string]string{ //nolint:gosec // G101: file names and commands of a made-up folder, no credential.
+		"i201_scan.sh":        "#!/bin/bash\nnmap -sV 10.0.0.0/24 -oN scan.txt\n",
+		"cmd-i201.stdout.txt": "Nmap scan report for dc01.corp.example (10.0.0.5)\n+ cat /etc/shadow\n",
+		"i202-move.sh":        "#!/bin/bash\ncurl -s https://files.corp.example/x -o /tmp/x\nssh ops@10.0.0.5 id\n",
+		"i203_creds.sh":       "#!/bin/bash\ncat /etc/shadow\n",
+		"i204.sh":             "#!/bin/bash\necho done\n",
+		"notes.sh":            "#!/bin/bash\nwhoami\n",
+	} {
+		if err := os.WriteFile(filepath.Join(folder, name), []byte(text), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	readout, saved := report(t, folder, "tactics", "timeline")
+	tactics, timeline, _ := strings.Cut(readout, "\nTimeline")
+	for _, want := range []string{
+		"  [x] CredentialAccess   TA0006, AML.TA0013  cmd-i201.stdout.txt, i203_creds.sh\n      intents  i201, i203\n",
+		"  [x] LateralMovement    TA0008, AML.TA0015  i202-move.sh\n      intents  i202\n",
+		"  [i] Discovery          TA0007, AML.TA0008  i201_scan.sh, i202-move.sh, notes.sh\n      intents  i201, i202\n",
+	} {
+		if !strings.Contains(tactics, want) {
+			t.Errorf("the tactics lack %q:\n%s", want, tactics)
+		}
+	}
+	// What the saved files hold agrees as the readout does: the intents of
+	// the files of a tactic are the intents whose row lists the tactic.
+	intentOf := map[string]string{}
+	for _, row := range rows(t, filepath.Join(saved, "trace.json")) {
+		if id, _ := row["intent"].(string); id != "" {
+			intentOf[row["name"].(string)] = id
+		}
+	}
+	listed := map[string][]string{}
+	for _, row := range rows(t, filepath.Join(saved, "intents.csv")) {
+		shown, _ := row["tactics"].(string)
+		for _, name := range strings.Split(shown, ", ") {
+			if name != "" {
+				listed[name] = append(listed[name], row["intent"].(string))
+			}
+		}
+	}
+	found := 0
+	for _, row := range rows(t, filepath.Join(saved, "findings.json")) {
+		if row["finding"] != kindTactic {
+			continue
+		}
+		found++
+		name := row["tactic"].(string)
+		var of []string
+		for _, file := range strings.Split(row["files"].(string), ", ") {
+			if id := intentOf[file]; id != "" && !slices.Contains(of, id) {
+				of = append(of, id)
+			}
+		}
+		slices.Sort(of)
+		want := slices.Clone(listed[name])
+		slices.Sort(want)
+		if !slices.Equal(of, want) {
+			t.Errorf("%s: its files are of the intents %q, and the intents that list it are %q", name, of, want)
+		}
+		// Each of those intents has the tactic in its block, and no other has.
+		for _, block := range strings.Split(timeline, "\n\n") {
+			id := strings.Fields(strings.TrimLeft(block[strings.Index(block, "] ")+1:], " "))[0]
+			if !strings.HasPrefix(id, "i2") {
+				continue
+			}
+			if has := regexp.MustCompile(`  TA\d{4}  ` + name + `(?:  |\n|$)`).MatchString(block); has != slices.Contains(want, id) {
+				t.Errorf("the block of %s lists %s: %t, want %t:\n%s", id, name, has, slices.Contains(want, id), block)
+			}
+		}
+	}
+	if found != 4 {
+		t.Errorf("findings.json holds %d tactics, want the four the files show", found)
+	}
+	// Without intents a tactic names none, and still lists the output that alone shows it.
+	plain, _ := report(t, evidencetest.Copy(t, "powershell"), "tactics")
+	if !strings.Contains(plain, "  [!] Execution         TA0002, AML.TA0005  staged_20250302_093100.cmd\n") || strings.Contains(plain, "\n      intents  ") {
+		t.Errorf("the tactics of a folder without intents lack the tactic of an output, or name intents:\n%s", plain)
+	}
+}
+
+// A command that is a technique by its name shows the technique wherever a
+// technique stands: in the block and the row of its intent, and in what the
+// impact of its tactic and the mitigations of the technique are said of.
+func TestACommandShowsItsTechnique(t *testing.T) {
+	folder := t.TempDir()
+	if err := os.WriteFile(filepath.Join(folder, "i301_move.sh"), []byte("#!/bin/bash\nssh ops@10.0.0.5 uptime\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	readout, saved := report(t, folder)
+	_, timeline, _ := strings.Cut(readout, "\nTimeline")
+	timeline, _, _ = strings.Cut(timeline, "\n\n")
+	if !regexp.MustCompile(`\n      T1021\.004  Remote Services: SSH +TA0008  LateralMovement$`).MatchString(timeline) {
+		t.Errorf("the block of i301 has no row for the technique of ssh:\n%s", timeline)
+	}
+	if strings.Contains(timeline, "\n      tools ") || strings.Contains(timeline, noTechnique) {
+		t.Errorf("the block lists ssh as a tool, or says no technique was identified:\n%s", timeline)
+	}
+	intents := readFile(t, filepath.Join(saved, "intents.csv"))
+	if !strings.Contains(intents, ",i301,T1021.004,") {
+		t.Errorf("intents.csv does not give i301 the technique of ssh:\n%s", intents)
+	}
+	moved, mitigated := false, 0
+	for _, row := range rows(t, filepath.Join(saved, "report.json")) {
+		attack, _ := row["attack"].(string)
+		switch {
+		case row["section"] == sectionImpact && row["item"] == "Movement to other systems":
+			moved = attack == "T1021.004"
+		case row["section"] == sectionMitigation && strings.Contains(attack, "T1021.004"):
+			mitigated++
+			if row["files"] != "i301_move.sh" || row["basis"] != nil {
+				t.Errorf("the mitigation %v is of the files %v for %v, want of the script and for no activity", row["item"], row["files"], row["basis"])
+			}
+		}
+	}
+	if !moved || mitigated == 0 {
+		t.Errorf("the impact names the technique of ssh: %t, and %d mitigations address it, want both", moved, mitigated)
+	}
+}
+
+// An account the scripts collected shows a technique by its shape, at the
+// output that holds it first. An account a script brought shows none, nor
+// does an output that holds again what an earlier one held.
+func TestCollectedAccountsShowDiscovery(t *testing.T) {
+	folder := t.TempDir()
+	for name, text := range map[string]string{
+		"20261101_090000_step01_look.sh":   "#!/bin/bash\nssh ops@10.0.0.5 uptime\n",
+		"20261101_090100_step01_out.txt":   "root:x:0:0:root:/root:/bin/bash\ndeploy:x:1000:1000::/home/deploy:/bin/bash\nuid=1000(deploy) gid=1000(deploy)\nusername: ops\n",
+		"20261101_090200_step02_out.txt":   "CORP\\jsmith\nSamAccountName : mhall\nuserPrincipalName: alice@contoso.onmicrosoft.com\nmail: bob@partner.example\nusername: carol\n",
+		"20261101_090300_step03_again.txt": "root:x:0:0:root:/root:/bin/bash\nCORP\\jsmith\n",
+	} {
+		if err := os.WriteFile(filepath.Join(folder, name), []byte(text), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	readout, saved := report(t, folder, "tactics", "timeline", "findings")
+	shown := map[string]string{}
+	for _, row := range rows(t, filepath.Join(saved, "findings.json")) {
+		if name, _ := row["finding"].(string); strings.HasSuffix(name, "Discovery") {
+			lines, _ := row["evidence"].([]any)
+			shown[name] = fmt.Sprint(row["attack"], " of ", row["tactic"], " in ", row["files"], ", ", len(lines))
+		}
+	}
+	// A line shows what the shape of its account says: the listing of deploy
+	// is one thing and what its own identity says another.
+	want := map[string]string{
+		"LocalAccountDiscovery":  "T1087.001 of Discovery in 20261101_090100_step01_out.txt, 2",
+		"SystemUserDiscovery":    "T1033 of Discovery in 20261101_090100_step01_out.txt, 1",
+		"DomainAccountDiscovery": "T1087.002 of Discovery in 20261101_090200_step02_out.txt, 2",
+		"CloudAccountDiscovery":  "T1087.004 of Discovery in 20261101_090200_step02_out.txt, 1",
+		"EmailAccountDiscovery":  "T1087.003 of Discovery in 20261101_090200_step02_out.txt, 1",
+		"AccountDiscovery":       "T1087 of Discovery in 20261101_090200_step02_out.txt, 1",
+	}
+	if !maps.Equal(shown, want) {
+		t.Errorf("the outputs show\n  %v, want\n  %v", shown, want)
+	}
+	// The outputs stand under the tactic of their techniques, and the techniques in their block.
+	tactics, timeline, _ := strings.Cut(readout, "\nTimeline")
+	if !regexp.MustCompile(`\n  \[i\] Discovery +TA0007, AML\.TA0008  20261101_090100_step01_out\.txt, 20261101_090200_step02_out\.txt\n`).MatchString(tactics) {
+		t.Errorf("the tactics do not list the two outputs, and those alone, under Discovery:\n%s", tactics)
+	}
+	for _, row := range []string{"T1087.001  Account Discovery: Local Account", "T1033      System Owner/User Discovery", "T1087.004  Account Discovery: Cloud Account", "T1087      Account Discovery "} {
+		if !strings.Contains(timeline, "\n      "+row) {
+			t.Errorf("the timeline lacks the row %q:\n%s", row, timeline)
+		}
+	}
+}
+
+// A security identifier an output holds first shows what its authority and
+// its relative identifier say it is of, and a listing by relative identifier
+// what it lists. One a script brought shows nothing, nor does one seen before.
+func TestIdentifiersShowDiscovery(t *testing.T) {
+	const domain = "S-1-5-21-1111111111-2222222222-3333333333"
+	folder := t.TempDir()
+	for name, text := range map[string]string{
+		"20261101_090000_step01_look.sh": "#!/bin/bash\nssh ops@10.0.0.5 uptime\necho " + domain + "-519\n",
+		"20261101_090100_groups.txt": strings.Join([]string{
+			`BUILTIN\Administrators   Alias   S-1-5-32-544   Mandatory group, Enabled by default`,
+			`CORP\Domain Admins   Group   ` + domain + `-512   Mandatory group`,
+			`CORP\Enterprise Admins   Group   ` + domain + `-519   Mandatory group`,
+			`CORP\App Owners   Group   ` + domain + `-1109   Mandatory group`,
+			`corp\jdoe   ` + domain + `-1105`,
+			`SID : ` + domain + `-1150`,
+			`Administrator   ` + domain + `-500`,
+			`krbtgt   ` + domain + `-502`,
+		}, "\n") + "\n",
+		"20261101_090200_rids.txt": strings.Join([]string{
+			`user:[svc_sql] rid:[0x451]`,
+			`group:[Domain Admins] rid:[0x200]`,
+			`1105: CORP\jsmith (SidTypeUser)`,
+			`544: BUILTIN\Administrators (SidTypeAlias)`,
+			`S-1-5-32-544`,
+		}, "\n") + "\n",
+	} {
+		if err := os.WriteFile(filepath.Join(folder, name), []byte(text), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	_, saved := report(t, folder, "findings")
+	shown := map[string]string{}
+	for _, row := range rows(t, filepath.Join(saved, "findings.json")) {
+		if name, _ := row["finding"].(string); strings.HasSuffix(name, "Discovery") {
+			var lines []string
+			evidence, _ := row["evidence"].([]any)
+			for _, e := range evidence {
+				line, _ := e.(map[string]any)
+				lines = append(lines, fmt.Sprint(strings.TrimPrefix(strings.TrimSuffix(fmt.Sprint(line["file"]), ".txt"), "20261101_0"), ":", line["line"]))
+			}
+			shown[name] = fmt.Sprint(row["attack"], " ", strings.Join(lines, " "))
+		}
+	}
+	// The group a script named is brought, and the group of the machine is
+	// found once; the identifier of jdoe says less than its name on that line.
+	want := map[string]string{
+		"LocalGroupDiscovery":    "T1069.001 90100_groups:1 90200_rids:4",
+		"DomainGroupDiscovery":   "T1069.002 90100_groups:2 90100_groups:4 90200_rids:2",
+		"DomainAccountDiscovery": "T1087.002 90100_groups:5 90100_groups:8 90200_rids:1 90200_rids:3",
+		"AccountDiscovery":       "T1087 90100_groups:6 90100_groups:7",
+	}
+	if !maps.Equal(shown, want) {
+		t.Errorf("the outputs show\n  %v, want\n  %v", shown, want)
 	}
 }

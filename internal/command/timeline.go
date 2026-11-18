@@ -2,9 +2,11 @@ package command
 
 import (
 	"slices"
+	"sort"
 	"strconv"
 	"strings"
 
+	"github.com/get-sybers/slopmop/internal/activity"
 	"github.com/get-sybers/slopmop/internal/render"
 	"github.com/get-sybers/slopmop/internal/trace"
 )
@@ -19,9 +21,51 @@ type period struct {
 	first, last trace.Step
 	// tactics are those of the first file, in the order of the tactic table.
 	tactics []string
-	// attack and atlas are the techniques its files show, each once, in the
-	// order it is first shown, and hits the watchlist matches.
-	attack, atlas, hits []string
+	// techniques are those of the activities its files show, tools what
+	// its files run, and hits the watchlist matches.
+	techniques
+	tools, hits []string
+}
+
+// techniques are the ATT&CK techniques some files show, each once, in the
+// order it is first shown, and the ATLAS techniques they infer. Each has its
+// parents: the tactics of what shows it that ATT&CK files it under.
+type techniques struct {
+	attack, atlas []string
+	parents       map[string][]string
+}
+
+// add takes in the techniques of an activity a file shows.
+func (t *techniques) add(p pipeline, hit activity.Hit) {
+	if t.parents == nil {
+		t.parents = map[string][]string{}
+	}
+	for _, id := range hit.Attack {
+		t.attack = appendUnique(t.attack, id)
+		for _, name := range hit.Tactics {
+			if slices.Contains(p.catalogue.Attack.TacticsOf(id), p.tactics.Attack(name)) {
+				t.parents[id] = appendUnique(t.parents[id], name)
+			}
+		}
+	}
+	t.atlas = appendUnique(t.atlas, p.atlasOf(hit)...)
+}
+
+// run takes in the techniques the commands of a file are. A command is filed
+// under its technique, and the tactic that holds the technique is its parent.
+func (t *techniques) run(p pipeline, tools []string) {
+	for _, tool := range tools {
+		id := p.tactics.Technique(tool)
+		if id == "" {
+			continue
+		}
+		if t.parents == nil {
+			t.parents = map[string][]string{}
+		}
+		t.attack = appendUnique(t.attack, id)
+		t.parents[id] = appendUnique(t.parents[id], p.tactics.Classify(tool))
+		t.atlas = appendUnique(t.atlas, p.catalogue.AtlasFor([]string{id})...)
+	}
 }
 
 // periods cuts the timeline into its periods, and counts the files that are
@@ -49,10 +93,11 @@ func (w reportRun) periods() (all []period, quiet int) {
 		}
 		p := &all[len(all)-1]
 		p.last = s
+		p.tools = appendUnique(p.tools, s.Tools...)
 		for _, a := range s.Activities {
-			p.attack = appendUnique(p.attack, a.Attack...)
-			p.atlas = appendUnique(p.atlas, w.pipe.atlasOf(a)...)
+			p.add(w.pipe, a)
 		}
+		p.run(w.pipe, s.Tools)
 		for _, h := range s.IntelHits {
 			p.hits = appendUnique(p.hits, h.Attribution+": "+h.Value)
 		}
@@ -70,7 +115,7 @@ func counted(n int, one, more string) string {
 
 // timeline is a line of blocks in the order of time: one for each intent
 // where the files name intents, and one for each period otherwise. A block
-// lists its techniques by name; the saved trace holds every file.
+// lists its techniques and what follows from each; the saved trace holds every file.
 func (w reportRun) timeline() []render.Group {
 	if len(w.result.intents) > 0 {
 		return w.intentBlocks()
@@ -89,19 +134,20 @@ func (w reportRun) timeline() []render.Group {
 		if len(p.tactics) > 0 {
 			name, level = strings.Join(p.tactics, ", "), string(w.pipe.highest(p.tactics))
 		}
-		entries[i] = render.Entry{Level: level, Cells: []string{name, when}, Detail: w.named(p.attack, p.atlas, p.hits)}
+		entries[i] = render.Entry{Level: level, Cells: []string{name, when}}
+		entries[i].Rows, entries[i].Detail = w.block(p.tactics, p.techniques, p.tools, p.hits)
 	}
 	// A line that is no block stands in a group of its own.
 	note := func(text string) render.Group {
 		return render.Group{Entries: []render.Entry{{Cells: []string{text}}}}
 	}
-	groups := []render.Group{{Blocks: true, Entries: entries}}
+	groups := []render.Group{{Blocks: true, Heads: heads(), Entries: entries}}
 	if more := len(entries) - fewPeriods; more > 0 {
 		half := fewPeriods / 2
 		groups = []render.Group{
-			{Blocks: true, Entries: entries[:half]},
+			{Blocks: true, Heads: heads(), Entries: entries[:half]},
 			note("and " + counted(more, "more period", "more periods") + " here, in the saved trace"),
-			{Blocks: true, Entries: entries[len(entries)-half:]},
+			{Blocks: true, Heads: heads(), Entries: entries[len(entries)-half:]},
 		}
 	}
 	if quiet > 0 {
@@ -110,24 +156,82 @@ func (w reportRun) timeline() []render.Group {
 	return groups
 }
 
-// noTechnique stands in a block whose files show no technique.
+// noTechnique stands where the files of a block show no technique.
 const noTechnique = "no MITRE ATT&CK technique identified"
 
-// named lists techniques by identifier and name, those of ATT&CK first, or
-// says that none was identified, and then the watchlist matches, if any.
-func (w reportRun) named(attack, atlas, hits []string) []render.Detail {
-	var out []render.Detail
-	for _, id := range attack {
-		out = append(out, render.Detail{Label: id, Text: or(w.pipe.catalogue.Attack.NameOf(id), "-")})
+// fewTools is how many tools a row of a block names in full.
+const fewTools = 6
+
+// heads names what a row of a block names, in its order.
+func heads() render.Heads {
+	return render.Heads{"ATT&CK technique", "tactic", "ATLAS technique"}
+}
+
+// block lists what a block shows, in the order of the tactic table. A row is
+// an ATT&CK technique and what follows from it, its tactics and its ATLAS
+// techniques; the tools of a tactic that no technique is named for are a row.
+func (w reportRun) block(shown []string, found techniques, tools, hits []string) ([]render.Row, []render.Detail) {
+	every := w.pipe.tactics.Names()
+	type part struct {
+		at   int
+		rows []render.Row
 	}
-	for _, id := range atlas {
-		out = append(out, render.Detail{Label: id, Text: or(w.pipe.catalogue.Atlas.NameOf(id), "-")})
+	var parts []part
+	var given []string
+	for _, id := range found.attack {
+		// The tactics of a technique are those its activities claim; where
+		// they claim none, those ATT&CK files it under.
+		var parents []string
+		for _, name := range every {
+			claimed := slices.Contains(found.parents[id], name)
+			filed := len(found.parents[id]) == 0 && slices.Contains(w.pipe.catalogue.Attack.TacticsOf(id), w.pipe.tactics.Attack(name))
+			if claimed || filed {
+				parents = append(parents, name)
+			}
+		}
+		given = appendUnique(given, parents...)
+		atlas := w.pipe.catalogue.AtlasFor([]string{id})
+		rows := make([]render.Row, max(1, len(parents), len(atlas)))
+		rows[0][0] = render.Named{ID: id, Name: or(w.pipe.catalogue.Attack.NameOf(id), "-")}
+		for i, name := range parents {
+			rows[i][1] = render.Named{ID: w.pipe.tactics.Attack(name), Name: name}
+		}
+		for i, a := range atlas {
+			rows[i][2] = render.Named{ID: a, Name: or(w.pipe.catalogue.Atlas.NameOf(a), "-")}
+		}
+		at := len(every)
+		if len(parents) > 0 {
+			at = slices.Index(every, parents[0])
+		}
+		parts = append(parts, part{at, rows})
 	}
-	if len(out) == 0 {
-		out = []render.Detail{{Text: noTechnique}}
+	for at, name := range every {
+		var of []string
+		for _, tool := range tools {
+			if w.pipe.tactics.Classify(tool) == name && w.pipe.tactics.Technique(tool) == "" {
+				of = append(of, tool)
+			}
+		}
+		row := render.Row{1: {ID: w.pipe.tactics.Attack(name), Name: name}}
+		switch {
+		case len(of) > 0:
+			row[0] = render.Named{Kind: "tools", Name: fewOf(of, fewTools, ", ")}
+		case !slices.Contains(shown, name) || slices.Contains(given, name):
+			continue
+		}
+		parts = append(parts, part{at, []render.Row{row}})
+	}
+	sort.SliceStable(parts, func(i, j int) bool { return parts[i].at < parts[j].at })
+	var rows []render.Row
+	for _, p := range parts {
+		rows = append(rows, p.rows...)
+	}
+	var detail []render.Detail
+	if len(found.attack) == 0 {
+		detail = append(detail, render.Detail{Text: noTechnique})
 	}
 	if len(hits) > 0 {
-		out = append(out, render.Detail{Label: "watchlist", Text: fewOf(hits, fewFiles, ", ")})
+		detail = append(detail, render.Detail{Label: "watchlist", Text: fewOf(hits, fewFiles, ", ")})
 	}
-	return out
+	return rows, detail
 }

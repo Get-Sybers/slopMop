@@ -107,16 +107,62 @@ func TestDecodeRejectsEmpty(t *testing.T) {
 	}
 }
 
-func TestDecodeRejectsDuplicate(t *testing.T) {
-	data := []byte(`[{"tactic":"A","commands":["x"]},{"tactic":"B","commands":["x"]}]`)
-	_, err := decode(data)
-	if err != nil {
-		t.Log(err)
+// tacticOf is a tactic of a made-up table, with the fields every tactic needs.
+func tacticOf(name, rest string) string {
+	return `{"tactic":"` + name + `","severity":"low","id":"TA1","atlas":"AML.TA1",` + rest + `}`
+}
+
+// A command stands once in the table: in one tactic, under one technique or under none.
+func TestParseRejectsDuplicate(t *testing.T) {
+	for name, data := range map[string]string{
+		"in two tactics":                   `[` + tacticOf("A", `"commands":["x"]`) + `,` + tacticOf("B", `"commands":["x"]`) + `]`,
+		"under two techniques":             `[` + tacticOf("A", `"techniques":{"T1":["x"],"T2":["x"]}`) + `]`,
+		"under a technique and under none": `[` + tacticOf("A", `"techniques":{"T1":["x"]},"commands":["x"]`) + `]`,
+		"under a technique of two tactics": `[` + tacticOf("A", `"techniques":{"T1":["x"]}`) + `,` + tacticOf("B", `"techniques":{"T1":["x"]}`) + `]`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			if _, err := Parse([]byte(data)); err == nil {
+				t.Error("Parse gave no error")
+			}
+		})
 	}
-	// duplicate detected at LoadTactics level
-	_, err = LoadTactics()
-	if err != nil {
+	if _, err := LoadTactics(); err != nil {
 		t.Fatal("embedded file should not have duplicates:", err)
+	}
+}
+
+// A command is filed under the technique it is, and its tactic is the one
+// that holds the technique. A command under no technique has its tactic alone.
+func TestTechnique(t *testing.T) {
+	tab, err := Parse([]byte(`[` + tacticOf("A", `"techniques":{"T2":["y"],"T1":["x","w.py"]},"commands":["z"]`) + `,` + tacticOf("B", `"techniques":{"T3":["v"]}`) + `]`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tt := range []struct{ command, technique, tactic string }{
+		{"x", "T1", "A"}, {"X.EXE", "T1", "A"}, {"w.py", "T1", "A"}, {"y", "T2", "A"}, {"v", "T3", "B"},
+		{"z", "", "A"}, {"w", "", ""}, {"unknown", "", ""}, {"", "", ""},
+	} {
+		if got := tab.Technique(tt.command); got != tt.technique {
+			t.Errorf("Technique(%q) = %q, want %q", tt.command, got, tt.technique)
+		}
+		if got := tab.Classify(tt.command); got != tt.tactic {
+			t.Errorf("Classify(%q) = %q, want %q", tt.command, got, tt.tactic)
+		}
+	}
+	if got := tab.Techniques("A"); len(got) != 2 || got[0] != "T1" || got[1] != "T2" {
+		t.Errorf("Techniques(A) = %q, want T1 and T2 in order", got)
+	}
+	if got := tab.Techniques("C"); got != nil {
+		t.Errorf("Techniques of an unknown tactic = %q", got)
+	}
+	for name, data := range map[string]string{
+		"a technique with no command": `[` + tacticOf("A", `"techniques":{"T1":[]}`) + `]`,
+		"a technique with no name":    `[` + tacticOf("A", `"techniques":{"":["x"]}`) + `]`,
+		"a tactic with nothing":       `[` + tacticOf("A", `"techniques":{}`) + `]`,
+	} {
+		if _, err := Parse([]byte(data)); err == nil {
+			t.Errorf("%s: Parse gave no error", name)
+		}
 	}
 }
 

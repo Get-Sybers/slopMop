@@ -408,10 +408,10 @@
     "severity": "high",
     "tactic": "CredentialAccess",
     "indicator": null,
-    "files": "20261015_093000_step05_vault.sh",
+    "files": "20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl",
     "attribution": null,
     "first": "2026-10-15T09:30:00Z",
-    "last": "2026-10-15T09:30:00Z",
+    "last": "2026-10-15T09:35:00Z",
     "attack": "TA0006",
     "atlas": "AML.TA0013",
     "evidence": null
@@ -434,10 +434,10 @@
     "severity": "high",
     "tactic": "Persistence",
     "indicator": null,
-    "files": "20261015_091000_step03_escalate.ps1",
+    "files": "20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl",
     "attribution": null,
     "first": "2026-10-15T09:10:00Z",
-    "last": "2026-10-15T09:10:00Z",
+    "last": "2026-10-15T09:35:00Z",
     "attack": "TA0003",
     "atlas": "AML.TA0006",
     "evidence": null
@@ -447,10 +447,10 @@
     "severity": "high",
     "tactic": "PrivilegeEscalation",
     "indicator": null,
-    "files": "20261015_091000_step03_escalate.ps1",
+    "files": "20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl",
     "attribution": null,
     "first": "2026-10-15T09:10:00Z",
-    "last": "2026-10-15T09:10:00Z",
+    "last": "2026-10-15T09:35:00Z",
     "attack": "TA0004",
     "atlas": "AML.TA0012",
     "evidence": null
@@ -485,7 +485,7 @@
     "first": "2026-10-15T09:20:00Z",
     "last": "2026-10-15T09:20:00Z",
     "attack": "T1213.002",
-    "atlas": "AML.T0126, AML.T0036",
+    "atlas": "AML.T0036, AML.T0126",
     "evidence": [
       {
         "time": "2026-10-15T09:20:00Z",
@@ -511,7 +511,7 @@
     "first": "2026-10-15T09:20:00Z",
     "last": "2026-10-15T09:20:00Z",
     "attack": "T1213.005",
-    "atlas": "AML.T0126, AML.T0036",
+    "atlas": "AML.T0036, AML.T0126",
     "evidence": [
       {
         "time": "2026-10-15T09:20:00Z",
@@ -672,6 +672,26 @@
     ]
   },
   {
+    "finding": "EmailAccountDiscovery",
+    "severity": "low",
+    "tactic": "Discovery",
+    "indicator": null,
+    "files": "directory_20261015_090530.txt",
+    "attribution": null,
+    "first": "2026-10-15T09:05:30Z",
+    "last": "2026-10-15T09:05:30Z",
+    "attack": "T1087.003",
+    "atlas": null,
+    "evidence": [
+      {
+        "time": "2026-10-15T09:05:30Z",
+        "file": "directory_20261015_090530.txt",
+        "line": 1,
+        "text": "{\"value\":[{\"userPrincipalName\":\"alice@corp.example\"},{\"userPrincipalName\":\"bob@corp.example\"}]}"
+      }
+    ]
+  },
+  {
     "finding": "GraphDirectoryEnumeration",
     "severity": "low",
     "tactic": "Discovery",
@@ -779,10 +799,10 @@
     "severity": "low",
     "tactic": "Discovery",
     "indicator": null,
-    "files": "20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh",
+    "files": "20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl, directory_20261015_090530.txt",
     "attribution": null,
     "first": "2026-10-15T09:00:00Z",
-    "last": "2026-10-15T09:30:00Z",
+    "last": "2026-10-15T09:35:00Z",
     "attack": "TA0007",
     "atlas": "AML.TA0008",
     "evidence": null

@@ -35,7 +35,11 @@ func hostileReadout(hostile string) Readout {
 		Sections: []Section{{Title: hostile, Note: hostile, Groups: []Group{
 			{Title: hostile, Columns: []string{hostile}, Entries: []Entry{{Level: LevelHigh, Cells: []string{hostile, hostile}}}},
 			{Entries: []Entry{{Cells: []string{hostile}, Detail: []Detail{{Label: hostile, Text: hostile}, {Text: hostile}}}}},
-			{Blocks: true, Entries: []Entry{{Level: LevelHigh, Cells: []string{hostile, hostile}, Detail: []Detail{{Label: hostile, Text: hostile}, {Text: hostile}}}}},
+			{Blocks: true, Heads: Heads{hostile, hostile, hostile}, Entries: []Entry{{
+				Level: LevelHigh, Cells: []string{hostile, hostile},
+				Rows:   []Row{{{ID: hostile, Name: hostile}, {Kind: hostile, Name: hostile}, {ID: hostile}}},
+				Detail: []Detail{{Label: hostile, Text: hostile}, {Text: hostile}},
+			}}},
 		}}},
 		Hints: []string{hostile},
 	}
@@ -131,7 +135,7 @@ func TestWriteHTMLEscapesEvidence(t *testing.T) {
 			t.Errorf("the page holds %q as markup:\n%s", raw, page)
 		}
 	}
-	if got, want := strings.Count(page, "&lt;script&gt;alert(1)&lt;/script&gt;"), 20; got != want {
+	if got, want := strings.Count(page, "&lt;script&gt;alert(1)&lt;/script&gt;"), 28; got != want {
 		t.Errorf("the text is on the page %d times, want %d:\n%s", got, want, page)
 	}
 }
@@ -174,6 +178,79 @@ func TestWriteHTMLSharesALabel(t *testing.T) {
 	}
 	if got := strings.Count(out.String(), `class="value"`); got != 2 {
 		t.Errorf("%d labelled lines, want 2: an empty detail is left out", got)
+	}
+}
+
+// rowed is a block with every kind of row: a technique of two tactics, one
+// with an ATLAS technique, a tactic that tools give, and its detail lines.
+func rowed() Readout {
+	return Readout{Title: "t", Sections: []Section{{Title: "S", Groups: []Group{{
+		Blocks: true, Heads: Heads{"technique", "tactic", "ATLAS technique"},
+		Entries: []Entry{{
+			Level: LevelHigh, Cells: []string{"one"},
+			Rows: []Row{
+				{{ID: "T1053.005", Name: "first"}, {ID: "TA0002", Name: "Execution"}},
+				{{}, {ID: "TA0003", Name: "Persistence"}},
+				{{ID: "T1552", Name: "second"}, {ID: "TA0006", Name: "CredentialAccess"}, {ID: "AML.T0055", Name: "third"}},
+				{{Kind: "tools", Name: "nmap, id"}, {ID: "TA0007", Name: "Discovery"}},
+			},
+			Detail: []Detail{{Label: "watchlist", Text: "fourth"}, {Text: "a sentence"}},
+		}},
+	}}}}}
+}
+
+// The rows of a block are lines of six cells, an identifier and a name for
+// each of the three things, so every line fills the columns the blocks share.
+func TestWriteHTMLLinesOfABlock(t *testing.T) {
+	var out bytes.Buffer
+	if err := WriteHTML(&out, rowed()); err != nil {
+		t.Fatal(err)
+	}
+	const none = `<span class="id"></span><span class="what"></span>`
+	for _, want := range []string{
+		`<ol class="blocks marked">`,
+		`<li class="heads"><div class="line"><span>technique</span><span>tactic</span><span>ATLAS technique</span></div></li>`,
+		`<div class="line"><span class="id">T1053.005</span><span class="what">first</span><span class="id far">TA0002</span><span class="what">Execution</span>` + none + `</div>`,
+		`<div class="line"><span class="id"></span><span class="what"></span><span class="id far">TA0003</span><span class="what">Persistence</span>` + none + `</div>`,
+		`<div class="line begins"><span class="id">T1552</span><span class="what">second</span><span class="id far">TA0006</span><span class="what">CredentialAccess</span><span class="id">AML.T0055</span><span class="what">third</span></div>`,
+		`<div class="line begins"><span class="id kind">tools</span><span class="what">nmap, id</span><span class="id far">TA0007</span><span class="what">Discovery</span>` + none + `</div>`,
+		`<div class="line more"><span class="tag">watchlist</span><span class="value">fourth</span></div>`,
+		`<div class="line more"><span class="said">a sentence</span></div>`,
+	} {
+		if !strings.Contains(out.String(), want) {
+			t.Errorf("the page lacks %s:\n%s", want, out.String())
+		}
+	}
+	// A group that names no columns has no line of heads.
+	bare := rowed()
+	bare.Sections[0].Groups[0].Heads = Heads{}
+	out.Reset()
+	if err := WriteHTML(&out, bare); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(out.String(), `class="heads"`) {
+		t.Errorf("the page heads columns that have no name:\n%s", out.String())
+	}
+}
+
+// Markdown writes a row as an item: the thing it names and what follows from
+// it, with the rows after it that name no thing of their own.
+func TestWriteMarkdownListsRows(t *testing.T) {
+	var out bytes.Buffer
+	if err := WriteMarkdown(&out, rowed()); err != nil {
+		t.Fatal(err)
+	}
+	want := strings.Join([]string{"# t", "", "\\[x\\] high   \\[!\\] medium   \\[i\\] low", "", "## S", "",
+		"- **\\[x\\] high** · `one`",
+		"  - `T1053.005  first` · `TA0002  Execution` · `TA0003  Persistence`",
+		"  - `T1552  second` · `TA0006  CredentialAccess` · `AML.T0055  third`",
+		"  - tools `nmap, id` · `TA0007  Discovery`",
+		"  - **watchlist:** `fourth`",
+		"  - a sentence",
+		"",
+	}, "\n")
+	if out.String() != want {
+		t.Errorf("markdown =\n%s\nwant\n%s", out.String(), want)
 	}
 }
 

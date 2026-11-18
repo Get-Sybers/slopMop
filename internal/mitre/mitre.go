@@ -16,6 +16,9 @@ import (
 //go:embed catalogue.json
 var raw []byte
 
+//go:embed analogues.json
+var rawAnalogues []byte
+
 // Framework is one knowledge base: ATT&CK or ATLAS.
 type Framework struct {
 	Version     string                `json:"version"`
@@ -41,6 +44,16 @@ type technique struct {
 type Catalogue struct {
 	Attack Framework `json:"attack"`
 	Atlas  Framework `json:"atlas"`
+	// inferred gives an ATT&CK technique its ATLAS techniques: those whose
+	// ATT&CK reference in ATLAS it is, and those analogues.json gives it.
+	inferred map[string][]string
+}
+
+// analogue is the ATLAS technique that stands for an ATT&CK technique
+// which no technique of ATLAS refers to.
+type analogue struct {
+	Attack string `json:"attack"`
+	Atlas  string `json:"atlas"`
 }
 
 // Mitigation is a mitigation and the techniques, of those asked about, that
@@ -52,9 +65,16 @@ type Mitigation struct {
 	Techniques []string
 }
 
-// Load decodes and validates the embedded catalogue.
+// Load decodes and validates the embedded catalogue and its analogues.
 func Load() (Catalogue, error) {
-	return decode(raw)
+	c, err := decode(raw)
+	if err != nil {
+		return Catalogue{}, err
+	}
+	if err := c.pair(rawAnalogues); err != nil {
+		return Catalogue{}, err
+	}
+	return c, nil
 }
 
 func decode(data []byte) (Catalogue, error) {
@@ -72,7 +92,39 @@ func decode(data []byte) (Catalogue, error) {
 			return Catalogue{}, fmt.Errorf("catalogue.json %s: %w", name, err)
 		}
 	}
+	c.inferred = map[string][]string{}
+	for id, t := range c.Atlas.Techniques {
+		if t.Attack != "" {
+			c.inferred[t.Attack] = append(c.inferred[t.Attack], id)
+		}
+	}
 	return c, nil
+}
+
+// pair reads analogues.json into the catalogue. An analogue names two
+// techniques the catalogue lists, and says nothing ATLAS says itself.
+func (c Catalogue) pair(data []byte) error {
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.DisallowUnknownFields()
+	var pairs []analogue
+	if err := dec.Decode(&pairs); err != nil {
+		return fmt.Errorf("analogues.json: %w", err)
+	}
+	if dec.More() {
+		return fmt.Errorf("analogues.json: trailing data")
+	}
+	for i, p := range pairs {
+		switch {
+		case !c.Attack.HasTechnique(p.Attack):
+			return fmt.Errorf("analogues.json[%d]: the catalogue lacks the ATT&CK technique %q", i, p.Attack)
+		case !c.Atlas.HasTechnique(p.Atlas):
+			return fmt.Errorf("analogues.json[%d]: the catalogue lacks the ATLAS technique %q", i, p.Atlas)
+		case slices.Contains(c.AtlasFor([]string{p.Attack}), p.Atlas):
+			return fmt.Errorf("analogues.json[%d]: %s has %s already", i, p.Attack, p.Atlas)
+		}
+		c.inferred[p.Attack] = append(c.inferred[p.Attack], p.Atlas)
+	}
+	return nil
 }
 
 func (f Framework) check() error {
@@ -154,14 +206,14 @@ func (f Framework) MitigationsFor(techniques []string) []Mitigation {
 	return found
 }
 
-// AtlasFor returns the ATLAS techniques that refer to one of the ATT&CK
-// techniques or to the technique it is a part of, by identifier.
+// AtlasFor returns the ATLAS techniques the ATT&CK techniques infer, by
+// identifier: those of each technique and of the technique it is a part of.
 func (c Catalogue) AtlasFor(attack []string) []string {
 	var found []string
-	for id, t := range c.Atlas.Techniques {
-		for _, a := range attack {
-			parent, _, _ := strings.Cut(a, ".")
-			if t.Attack != "" && (t.Attack == a || t.Attack == parent) && !slices.Contains(found, id) {
+	for _, a := range attack {
+		parent, _, _ := strings.Cut(a, ".")
+		for _, id := range slices.Concat(c.inferred[a], c.inferred[parent]) {
+			if !slices.Contains(found, id) {
 				found = append(found, id)
 			}
 		}

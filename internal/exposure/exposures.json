@@ -89,6 +89,33 @@
     "shown": ["upn", "unique_name", "preferred_username", "email", "name", "appid", "azp", "client_id", "app_displayname", "aud", "scp", "scope", "roles", "exp", "tid", "iss", "sub"],
     "times": ["exp", "iat", "nbf", "auth_time"]
   },
+  "accounts": [
+    {"activity": "DomainAccountDiscovery", "technique": "T1087.002", "line": "(?i)(?:^|[\\s\\\"'=:,;(\\[])[a-z0-9][a-z0-9.-]{0,62}\\\\(?P<account>[a-z0-9._$-]+)"},
+    {"activity": "DomainAccountDiscovery", "technique": "T1087.002", "line": "(?i)\\bsamaccountname\\b[\\\"']?\\s*[:=]\\s*[\\\"']?(?P<account>[a-z0-9._$-]+)"},
+    {"activity": "DomainAccountDiscovery", "technique": "T1087.002", "value": "(?i)@(?:[a-z0-9-]+\\.)*(?:local|lan|internal|corp|intranet)$"},
+    {"activity": "CloudAccountDiscovery", "technique": "T1087.004", "service": true},
+    {"activity": "CloudAccountDiscovery", "technique": "T1087.004", "line": "arn:aws[\\w-]*:iam::\\d*:user/(?:[\\w+=,.@-]+/)*(?P<account>[\\w+=,.@-]+)"},
+    {"activity": "EmailAccountDiscovery", "technique": "T1087.003", "value": "@"},
+    {"activity": "LocalAccountDiscovery", "technique": "T1087.001", "line": "^(?P<account>[a-z_][a-z0-9_-]*):[^:]*:\\d+:\\d+:"},
+    {"activity": "SystemUserDiscovery", "technique": "T1033", "line": "\\buid=\\d+\\((?P<account>[^)\\s]+)\\)"},
+    {"activity": "SystemUserDiscovery", "technique": "T1033", "line": "^(?P<account>[a-z_][a-z0-9_-]{0,31})\\s+(?:pts/\\d+|tty\\d+)\\s"},
+    {"activity": "AccountDiscovery", "technique": "T1087"}
+  ],
+  "identifiers": [
+    {"activity": "LocalGroupDiscovery", "technique": "T1069.001", "needs": ["s-1-5-32-"], "group": true, "line": "\\b(?P<found>S-1-5-32-\\d{3,4})\\b"},
+    {"activity": "DomainGroupDiscovery", "technique": "T1069.002", "needs": ["s-1-5-21-"], "group": true, "line": "\\b(?P<found>S-1-5-21(?:-\\d{1,10}){3}-(?:498|512|51[4-9]|52[0-25-7]|553|57[12]))\\b"},
+    {"activity": "GroupDiscovery", "technique": "T1069", "needs": ["s-1-5-21-"], "group": true, "line": "\\b(?P<found>S-1-5-21(?:-\\d{1,10}){3}-513)\\b"},
+    {"activity": "DomainAccountDiscovery", "technique": "T1087.002", "needs": ["s-1-5-21-"], "line": "\\b(?P<found>S-1-5-21(?:-\\d{1,10}){3}-502)\\b"},
+    {"activity": "AccountDiscovery", "technique": "T1087", "needs": ["s-1-5-21-"], "line": "\\b(?P<found>S-1-5-21(?:-\\d{1,10}){3}-50[0134])\\b"},
+    {"activity": "LocalGroupDiscovery", "technique": "T1069.001", "needs": ["s-1-5-21-"], "group": true, "line": "(?i)\\balias\\b.*?\\b(?P<found>S-1-5-21(?:-\\d{1,10}){3}-\\d{4,10})\\b"},
+    {"activity": "DomainGroupDiscovery", "technique": "T1069.002", "needs": ["s-1-5-21-"], "group": true, "line": "(?i)\\bgroup\\b.*?\\b(?P<found>S-1-5-21(?:-\\d{1,10}){3}-\\d{4,10})\\b"},
+    {"activity": "AccountDiscovery", "technique": "T1087", "needs": ["s-1-5-21-"], "plain": true, "line": "\\b(?P<found>S-1-5-21(?:-\\d{1,10}){3}-\\d{4,10})\\b"},
+    {"activity": "DomainAccountDiscovery", "technique": "T1087.002", "needs": ["rid:["], "line": "(?i)\\buser:\\[(?P<found>[^\\]\\r\\n]+)\\]\\s+rid:\\[0x[0-9a-f]+\\]"},
+    {"activity": "DomainGroupDiscovery", "technique": "T1069.002", "needs": ["rid:["], "group": true, "line": "(?i)\\bgroup:\\[(?P<found>[^\\]\\r\\n]+)\\]\\s+rid:\\[0x[0-9a-f]+\\]"},
+    {"activity": "DomainAccountDiscovery", "technique": "T1087.002", "needs": ["(sidtypeuser)"], "line": "(?i)\\b\\d{3,10}:\\s+(?P<found>\\S[^()\\r\\n]*?)\\s+\\(SidTypeUser\\)"},
+    {"activity": "DomainGroupDiscovery", "technique": "T1069.002", "needs": ["(sidtypegroup)"], "group": true, "line": "(?i)\\b\\d{3,10}:\\s+(?P<found>\\S[^()\\r\\n]*?)\\s+\\(SidTypeGroup\\)"},
+    {"activity": "LocalGroupDiscovery", "technique": "T1069.001", "needs": ["(sidtypealias)"], "group": true, "line": "(?i)\\b\\d{3,10}:\\s+(?P<found>\\S[^()\\r\\n]*?)\\s+\\(SidTypeAlias\\)"}
+  ],
   "kinds": [
     {
       "name": "password",

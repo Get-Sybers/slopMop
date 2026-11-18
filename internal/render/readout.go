@@ -47,16 +47,44 @@ type Group struct {
 	Columns []string
 	Entries []Entry
 	// Blocks sets each entry apart as a block, one under another: a timeline.
-	// The first cell names the block and its detail lines are a list, each
-	// label the identifier of what its text names.
+	// The first cell names the block, and its rows are a table whose columns
+	// every block of the group shares; Heads names what each column holds.
 	Blocks bool
+	Heads  Heads
 }
 
-// Entry is one line of cells and the detail lines under it.
+// Heads names the three things a row of a block names, for a format that
+// heads its columns.
+type Heads [3]string
+
+// Entry is one line of cells and what stands under it: the rows of a block,
+// and then the detail lines.
 type Entry struct {
 	Level  string
 	Cells  []string
+	Rows   []Row
 	Detail []Detail
+}
+
+// Row is a line of a block. It names a thing and what follows from it, one
+// beside another: a place that names nothing stays empty.
+type Row [3]Named
+
+// Named is a thing by its identifier and its name.
+type Named struct {
+	ID   string
+	Name string
+	// Kind stands where a thing has no identifier and says what it is, such
+	// as tools. Its name is then what the evidence holds.
+	Kind string
+}
+
+// first is what stands before the name: the identifier, or the kind.
+func (n Named) first() string {
+	if n.ID != "" {
+		return shown(n.ID)
+	}
+	return shown(n.Kind)
 }
 
 // Detail is one indented line under an entry; the label may be empty.
@@ -200,6 +228,7 @@ func (p *pen) section(s Section) {
 
 func (p *pen) group(g Group, indent string) {
 	var widths []int
+	var ids, names [3]int
 	marked, label := 0, 0
 	for _, e := range g.Entries {
 		glyph, _ := mark(e.Level)
@@ -215,7 +244,16 @@ func (p *pen) group(g Group, indent string) {
 				label = max(label, utf8.RuneCountInString(d.Label))
 			}
 		}
+		// Every row of the group has its identifiers and its names in the same columns.
+		for _, row := range e.Rows {
+			for i, n := range row {
+				ids[i] = max(ids[i], utf8.RuneCountInString(n.first()))
+				names[i] = min(widest, max(names[i], utf8.RuneCountInString(shown(n.Name))))
+			}
+		}
 	}
+	// The labels of a block stand in the column of the first identifiers.
+	label, ids[0] = max(label, ids[0]), max(label, ids[0])
 	under := indent + strings.Repeat(" ", 2*len(gap))
 	named, labelled := "", sgrGrey
 	if g.Blocks {
@@ -243,6 +281,21 @@ func (p *pen) group(g Group, indent string) {
 			}
 		}
 		p.line(parts...)
+		for _, row := range e.Rows {
+			parts := []string{under}
+			for i, n := range row {
+				// A column that no row of the group fills takes no room.
+				if ids[i] == 0 && names[i] == 0 {
+					continue
+				}
+				id, name := n.first(), shown(n.Name)
+				if n.ID == "" {
+					id = p.paint(sgrGrey, id)
+				}
+				parts = append(parts, id, spaces(ids[i], n.first()), gap, name, spaces(names[i], name), gap, gap)
+			}
+			p.line(parts...)
+		}
 		last := ""
 		for _, d := range e.Detail {
 			if d.Text == "" {
@@ -250,6 +303,7 @@ func (p *pen) group(g Group, indent string) {
 			}
 			if d.Label == "" {
 				p.line(under, Escape(d.Text))
+				last = ""
 				continue
 			}
 			// A label is written once; the lines under it that share it stand in its column.
@@ -258,10 +312,14 @@ func (p *pen) group(g Group, indent string) {
 				name = ""
 			}
 			last = d.Label
-			pad := strings.Repeat(" ", label-utf8.RuneCountInString(name))
-			p.line(under, p.paint(labelled, name), pad, gap, Escape(d.Text))
+			p.line(under, p.paint(labelled, name), spaces(label, name), gap, Escape(d.Text))
 		}
 	}
+}
+
+// spaces fills a column of a width after the text that stands in it.
+func spaces(width int, text string) string {
+	return strings.Repeat(" ", max(0, width-utf8.RuneCountInString(text)))
 }
 
 // shown escapes a cell; an empty cell stays empty, where Escape quotes it.

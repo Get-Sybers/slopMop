@@ -1,0 +1,15 @@
+[
+  {"attack": "T1012", "atlas": "AML.T0089"},
+  {"attack": "T1048", "atlas": "AML.T0025"},
+  {"attack": "T1069.003", "atlas": "AML.T0075"},
+  {"attack": "T1087.002", "atlas": "AML.T0075"},
+  {"attack": "T1087.004", "atlas": "AML.T0075"},
+  {"attack": "T1095", "atlas": "AML.T0072"},
+  {"attack": "T1105", "atlas": "AML.T0072"},
+  {"attack": "T1114.002", "atlas": "AML.T0126"},
+  {"attack": "T1213.002", "atlas": "AML.T0126"},
+  {"attack": "T1213.005", "atlas": "AML.T0126"},
+  {"attack": "T1547.001", "atlas": "AML.T0142"},
+  {"attack": "T1580", "atlas": "AML.T0075"},
+  {"attack": "T1685.005", "atlas": "AML.T0138"}
+]

@@ -176,6 +176,39 @@
     "evidence": null
   },
   {
+    "finding": "tactic",
+    "severity": "medium",
+    "tactic": "Execution",
+    "indicator": null,
+    "files": "staged_20250302_093100.cmd",
+    "attribution": null,
+    "first": "2025-03-02T09:31:00Z",
+    "last": "2025-03-02T09:31:00Z",
+    "attack": "TA0002",
+    "atlas": "AML.TA0005",
+    "evidence": null
+  },
+  {
+    "finding": "AccountDiscovery",
+    "severity": "low",
+    "tactic": "Discovery",
+    "indicator": null,
+    "files": "sync_10.20.1.17_retry_20250302_090930.txt",
+    "attribution": null,
+    "first": "2025-03-02T09:09:30Z",
+    "last": "2025-03-02T09:09:30Z",
+    "attack": "T1087",
+    "atlas": null,
+    "evidence": [
+      {
+        "time": "2025-03-02T09:09:30Z",
+        "file": "sync_10.20.1.17_retry_20250302_090930.txt",
+        "line": 9,
+        "text": "ConnectorAccount : MSOL_0a1b2c3d4e5f"
+      }
+    ]
+  },
+  {
     "finding": "Base64Blob",
     "severity": "low",
     "tactic": null,
@@ -191,7 +224,7 @@
   {
     "finding": "Domain",
     "severity": "low",
-    "tactic": null,
+    "tactic": "Discovery",
     "indicator": "contoso.onmicrosoft.com",
     "files": "sync_10.20.1.17_retry_20250302_090930.txt",
     "attribution": null,
@@ -219,7 +252,7 @@
     "severity": "low",
     "tactic": "Discovery",
     "indicator": null,
-    "files": "20250302_090000_step01_inventory.ps1, 20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1, 20250302_091500_step04_certs.ps1",
+    "files": "20250302_090000_step01_inventory.ps1, 20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1, 20250302_091500_step04_certs.ps1, sync_10.20.1.17_retry_20250302_090930.txt",
     "attribution": null,
     "first": "2025-03-02T09:00:00Z",
     "last": "2025-03-02T09:15:00Z",

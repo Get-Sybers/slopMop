@@ -261,9 +261,55 @@
     "evidence": null
   },
   {
+    "finding": "AccountDiscovery",
+    "severity": "low",
+    "tactic": "Discovery",
+    "indicator": null,
+    "files": "20250301_101910_step02_users.tsv",
+    "attribution": null,
+    "first": "2025-03-01T10:19:10Z",
+    "last": "2025-03-01T10:19:10Z",
+    "attack": "T1087",
+    "atlas": null,
+    "evidence": [
+      {
+        "time": "2025-03-01T10:19:10Z",
+        "file": "20250301_101910_step02_users.tsv",
+        "line": 3,
+        "text": "svc_adsync AADC01 ADSync service"
+      }
+    ]
+  },
+  {
+    "finding": "CloudAccountDiscovery",
+    "severity": "low",
+    "tactic": "Discovery",
+    "indicator": null,
+    "files": "20250301_101910_step02_users.tsv, adsync_1740824865.txt",
+    "attribution": null,
+    "first": "2025-03-01T10:19:10Z",
+    "last": "2025-03-01T10:27:45Z",
+    "attack": "T1087.004",
+    "atlas": "AML.T0075",
+    "evidence": [
+      {
+        "time": "2025-03-01T10:19:10Z",
+        "file": "20250301_101910_step02_users.tsv",
+        "line": 2,
+        "text": "MSOL_0a1b2c3d4e5f AADC01 Account created by Microsoft Azure Active Directory Connect"
+      },
+      {
+        "time": "2025-03-01T10:27:45Z",
+        "file": "adsync_1740824865.txt",
+        "line": 3,
+        "text": "Username: Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com"
+      }
+    ]
+  },
+  {
     "finding": "Domain",
     "severity": "low",
-    "tactic": null,
+    "tactic": "Discovery",
     "indicator": "CORP.EXAMPLE",
     "files": "adsync_1740824865.txt",
     "attribution": null,
@@ -289,7 +335,7 @@
   {
     "finding": "Domain",
     "severity": "low",
-    "tactic": null,
+    "tactic": "Discovery",
     "indicator": "corpexample.onmicrosoft.com",
     "files": "adsync_1740824865.txt",
     "attribution": null,
@@ -328,7 +374,7 @@
   {
     "finding": "Email",
     "severity": "low",
-    "tactic": null,
+    "tactic": "Discovery",
     "indicator": "Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com",
     "files": "adsync_1740824865.txt",
     "attribution": null,
@@ -369,10 +415,10 @@
     "severity": "low",
     "tactic": "Discovery",
     "indicator": null,
-    "files": "20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh",
+    "files": "20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh, 20250301_101910_step02_users.tsv, adsync_1740824865.txt",
     "attribution": null,
     "first": "2025-03-01T10:15:00Z",
-    "last": "2025-03-01T10:18:00Z",
+    "last": "2025-03-01T10:27:45Z",
     "attack": "TA0007",
     "atlas": "AML.TA0008",
     "evidence": null

@@ -341,11 +341,11 @@ func TestDetectKeepsTableOrder(t *testing.T) {
 		t.Errorf("Detect = %q, want %q", got, want)
 	}
 	hits := table.Detect(text)
-	if !slices.Equal(hits[0].Attack, []string{"T1098.001"}) || !slices.Equal(hits[1].Atlas, []string{"AML.T0075"}) {
-		t.Errorf("techniques = %q and %q, want those of the data file", hits[0].Attack, hits[1].Atlas)
+	if !slices.Equal(hits[0].Attack, []string{"T1098.001"}) || !slices.Equal(hits[1].Attack, []string{"T1580"}) {
+		t.Errorf("techniques = %q and %q, want those of the data file", hits[0].Attack, hits[1].Attack)
 	}
 	visited := 0
-	table.Each(func(name string, tactics, attack, _ []string) {
+	table.Each(func(name string, tactics, attack []string) {
 		visited++
 		if name == "" || len(tactics) == 0 || len(attack) == 0 {
 			t.Errorf("Each gave %q with tactics %q and techniques %q", name, tactics, attack)

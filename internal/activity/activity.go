@@ -56,10 +56,9 @@ type Listing struct {
 type entry struct {
 	Name    string   `json:"name"`
 	Tactics []string `json:"tactics"`
-	// Attack and Atlas name the techniques of ATT&CK and of ATLAS. An ATLAS
-	// technique that refers to one of Attack need not be listed.
+	// Attack names the ATT&CK techniques the activity shows. Its tactics
+	// and its ATLAS techniques follow from them: internal/mitre.
 	Attack   []string `json:"attack"`
-	Atlas    []string `json:"atlas,omitempty"`
 	Patterns []string `json:"patterns,omitempty"`
 	// Paths count only in a text that matches the entry's context: a script
 	// often holds a host in one variable and builds each address from it.
@@ -83,7 +82,6 @@ type Hit struct {
 	Name    string
 	Tactics []string
 	Attack  []string
-	Atlas   []string
 	// Lines is the number of distinct lines that show the activity.
 	Lines int
 	// Evidence holds the first of those lines, in the order of the text.
@@ -118,7 +116,6 @@ type compiled struct {
 	name     string
 	tactics  []string
 	attack   []string
-	atlas    []string
 	patterns []pattern
 	context  string
 	paths    []pattern
@@ -190,7 +187,7 @@ func decode(data []byte) (Table, error) {
 			return Table{}, fmt.Errorf("activities.json[%d] %s: unknown context %q", i, e.Name, e.Context)
 		}
 		seen[e.Name] = true
-		c := compiled{name: e.Name, tactics: e.Tactics, attack: e.Attack, atlas: e.Atlas, context: e.Context}
+		c := compiled{name: e.Name, tactics: e.Tactics, attack: e.Attack, context: e.Context}
 		var err error
 		if c.patterns, err = compileAll(e.Patterns); err != nil {
 			return Table{}, fmt.Errorf("activities.json[%d] %s: %w", i, e.Name, err)
@@ -328,9 +325,9 @@ func (t Table) Names() []string {
 
 // Each calls visit with every activity, in the order of the data file, so a
 // caller that holds the other tables can check what an activity refers to.
-func (t Table) Each(visit func(name string, tactics, attack, atlas []string)) {
+func (t Table) Each(visit func(name string, tactics, attack []string)) {
 	for _, a := range t.activities {
-		visit(a.name, a.tactics, a.attack, a.atlas)
+		visit(a.name, a.tactics, a.attack)
 	}
 }
 
@@ -414,7 +411,7 @@ func (t Table) Detect(text string) []Hit {
 		if variables == nil && len(a.subjects) > 0 {
 			variables = vars.Read(text)
 		}
-		hit := Hit{Name: a.name, Tactics: a.tactics, Attack: a.attack, Atlas: a.atlas, Lines: len(lines)}
+		hit := Hit{Name: a.name, Tactics: a.tactics, Attack: a.attack, Lines: len(lines)}
 		hit.Evidence = a.evidence(text, joined, lines, variables)
 		hits = append(hits, hit)
 	}

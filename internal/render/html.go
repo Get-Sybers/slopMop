@@ -31,8 +31,10 @@ type htmlGroup struct {
 	Title   string
 	Columns []string
 	Marked  bool
-	// Blocks lays the rows out as blocks on a line, not as a table.
+	// Blocks lays the rows out as blocks on a line, not as a table, and
+	// Heads names the columns of the lines of the blocks.
 	Blocks bool
+	Heads  []string
 	Rows   []htmlRow
 }
 
@@ -40,9 +42,25 @@ type htmlRow struct {
 	Marked      bool
 	Level, Mark string
 	Cells       []string
-	Detail      []htmlDetail
+	// Lines are the rows of a block.
+	Lines  []htmlLine
+	Detail []htmlDetail
 	// Span is how many columns the detail of the row lies across.
 	Span int
+}
+
+// htmlLine is a row of a block. One that Begins names a thing of its own,
+// after another line of the block.
+type htmlLine struct {
+	Things [3]htmlThing
+	Begins bool
+}
+
+// htmlThing is a thing a line names: what stands first, and its name. One
+// that is Seen has no identifier, and its name is what the evidence holds.
+type htmlThing struct {
+	First, Name string
+	Seen        bool
 }
 
 // htmlDetail is a detail line. A label is written once: the lines under it
@@ -94,6 +112,11 @@ func htmlOf(s Section, id string) htmlSection {
 		out.Empty = false
 		marked, width := g.marked(), g.width()
 		group := htmlGroup{Title: shown(g.Title), Marked: marked, Blocks: g.Blocks}
+		if g.Heads != (Heads{}) {
+			for _, h := range g.Heads {
+				group.Heads = append(group.Heads, shown(h))
+			}
+		}
 		for _, c := range g.Columns {
 			group.Columns = append(group.Columns, Escape(c))
 		}
@@ -109,6 +132,13 @@ func htmlOf(s Section, id string) htmlSection {
 			}
 			for i, c := range e.Cells {
 				row.Cells[i] = shown(c)
+			}
+			for _, r := range e.Rows {
+				line := htmlLine{Begins: len(row.Lines) > 0 && r[0] != (Named{})}
+				for i, n := range r {
+					line.Things[i] = htmlThing{First: n.first(), Name: shown(n.Name), Seen: n.ID == "" && n.Kind != ""}
+				}
+				row.Lines = append(row.Lines, line)
 			}
 			last := ""
 			for _, d := range e.Detail {

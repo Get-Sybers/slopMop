@@ -5,50 +5,52 @@ slopmop report   <folder>
 Summary
   files       11  5 scripts, 6 outputs
   indicators  32  6 Domain, 2 Email, 1 EntraLoginEndpoint, 4 GUID, 11 GraphEndpoint, 2 IPv4, 3 KeyVaultEndpoint, 1 OAuthScope, 2 URL
-  activities  12
+  activities  13
   tactics     6
   targeted    5   Email addresses 2, Hostnames 2, IP addresses 1
   exposed     7   Email addresses 2, Tenants 1, Applications 1, Cloud resources 1, IP addresses 2
   intel hits  0
 
 Tactics   (tactic, identifiers, files)
-  [x] CredentialAccess     TA0006, AML.TA0013  20261015_093000_step05_vault.sh
+  [x] CredentialAccess     TA0006, AML.TA0013  20261015_093000_step05_vault.sh, agent_20261015_093500.jsonl
   [x] InitialAccess        TA0001, AML.TA0004  20261015_090000_step01_token.sh
-  [x] Persistence          TA0003, AML.TA0006  20261015_091000_step03_escalate.ps1
-  [x] PrivilegeEscalation  TA0004, AML.TA0012  20261015_091000_step03_escalate.ps1
+  [x] Persistence          TA0003, AML.TA0006  20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl
+  [x] PrivilegeEscalation  TA0004, AML.TA0012  20261015_091000_step03_escalate.ps1, agent_20261015_093500.jsonl
   [!] Collection           TA0009, AML.TA0009  20261015_092000_step04_collect.py
-  [i] Discovery            TA0007, AML.TA0008  20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh
+  [i] Discovery            TA0007, AML.TA0008  20261015_090000_step01_token.sh, 20261015_090500_step02_recon.ps1, 20261015_093000_step05_vault.sh and 2 more
 
-Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the techniques its files show)
-  [x] InitialAccess, Discovery                                      2026-10-15T09:00:00Z to 2026-10-15T09:05:00Z
-      T1078.004  Valid Accounts: Cloud Accounts
-      T1087.004  Account Discovery: Cloud Account
-      T1069.003  Permission Groups Discovery: Cloud Groups
-      AML.T0012  Valid Accounts
-      AML.T0075  Enterprise Resource Discovery
+Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools of a tactic that no technique is named for)
+  [x] InitialAccess, Discovery                                      2026-10-15T09:00:00Z to 2026-10-15T09:05:30Z
+      T1078.004  Valid Accounts: Cloud Accounts                                  TA0001  InitialAccess          AML.T0012  Valid Accounts
+      T1087.004  Account Discovery: Cloud Account                                TA0007  Discovery              AML.T0075  Enterprise Resource Discovery
+      T1069.003  Permission Groups Discovery: Cloud Groups                       TA0007  Discovery              AML.T0075  Enterprise Resource Discovery
+      T1087.003  Account Discovery: Email Account                                TA0007  Discovery
+      tools      az, get-mgapplication                                           TA0007  Discovery
 
   [x] PrivilegeEscalation, Persistence                              2026-10-15T09:10:00Z
-      T1098.003  Account Manipulation: Additional Cloud Roles
-      T1098.001  Account Manipulation: Additional Cloud Credentials
+      T1098.003  Account Manipulation: Additional Cloud Roles                    TA0004  PrivilegeEscalation
+                                                                                 TA0003  Persistence
+      T1098.001  Account Manipulation: Additional Cloud Credentials              TA0003  Persistence
 
   [!] Collection                                                    2026-10-15T09:20:00Z
-      T1114.002  Email Collection: Remote Email Collection
-      T1213.005  Data from Information Repositories: Messaging Applications
-      T1213.002  Data from Information Repositories: Sharepoint
-      AML.T0126  Automated Collection
-      AML.T0036  Data from Information Repositories
+      T1114.002  Email Collection: Remote Email Collection                       TA0009  Collection             AML.T0126  Automated Collection
+      T1213.005  Data from Information Repositories: Messaging Applications      TA0009  Collection             AML.T0036  Data from Information Repositories
+                                                                                                                AML.T0126  Automated Collection
+      T1213.002  Data from Information Repositories: Sharepoint                  TA0009  Collection             AML.T0036  Data from Information Repositories
+                                                                                                                AML.T0126  Automated Collection
 
   [x] Discovery, CredentialAccess                                   2026-10-15T09:30:00Z
-      T1555.006  Credentials from Password Stores: Cloud Secrets Management Stores
-      T1580      Cloud Infrastructure Discovery
-      AML.T0075  Enterprise Resource Discovery
+      T1580      Cloud Infrastructure Discovery                                  TA0007  Discovery              AML.T0075  Enterprise Resource Discovery
+      tools      az                                                              TA0007  Discovery
+      T1555.006  Credentials from Password Stores: Cloud Secrets Management Stores    TA0006  CredentialAccess
 
   [x] Discovery, CredentialAccess, PrivilegeEscalation, Persistence  2026-10-15T09:35:00Z
-      T1098.003  Account Manipulation: Additional Cloud Roles
-      T1555.006  Credentials from Password Stores: Cloud Secrets Management Stores
-      T1580      Cloud Infrastructure Discovery
-      AML.T0075  Enterprise Resource Discovery
-  and 5 files that show no tactic, in the saved trace
+      T1580      Cloud Infrastructure Discovery                                  TA0007  Discovery              AML.T0075  Enterprise Resource Discovery
+      tools      az                                                              TA0007  Discovery
+      T1555.006  Credentials from Password Stores: Cloud Secrets Management Stores    TA0006  CredentialAccess
+      T1098.003  Account Manipulation: Additional Cloud Roles                    TA0004  PrivilegeEscalation
+                                                                                 TA0003  Persistence
+  and 4 files that show no tactic, in the saved trace
 
 Findings
   activities
@@ -70,13 +72,15 @@ Findings
               az login --service-principal -u "$APP" -p "$SECRET" --tenant "$TENANT" (20261015_090000_step01_token.sh:8)
     [!] MailboxAccess                  1 line   Collection                        T1114.002, AML.T0126
         what  mail = requests.get("https://graph.microsoft.com/v1.0/users/" + user + "/messages?$top=500", headers=headers) (20261015_092000_step04_collect.py:8)
-    [!] SharePointEnumeration          2 lines  Collection                        T1213.002, AML.T0126, AML.T0036
+    [!] SharePointEnumeration          2 lines  Collection                        T1213.002, AML.T0036, AML.T0126
         what  sites = requests.get("https://graph.microsoft.com/v1.0/sites?search=*", headers=headers) (20261015_092000_step04_collect.py:10)
               drive = requests.get("https://graph.microsoft.com/v1.0/sites/root/drives", headers=headers) (20261015_092000_step04_collect.py:11)
-    [!] TeamsMessageAccess             1 line   Collection                        T1213.005, AML.T0126, AML.T0036
+    [!] TeamsMessageAccess             1 line   Collection                        T1213.005, AML.T0036, AML.T0126
         what  chat = requests.get("https://graph.microsoft.com/v1.0/users/" + user + "/mailFolders/TeamsMessagesData/messages", headers=headers) (20261015_092000_step04_collect.py:9)
     [i] AzureResourceEnumeration       1 line   Discovery                         T1580, AML.T0075
         what  az keyvault list --query "[].name" -o tsv > vaults_20261015_093010.txt (20261015_093000_step05_vault.sh:2)
+    [i] EmailAccountDiscovery          1 line   Discovery                         T1087.003
+        what  {"value":[{"userPrincipalName":"alice@corp.example"},{"userPrincipalName":"bob@corp.example"}]} (directory_20261015_090530.txt:1)
     [i] GraphDirectoryEnumeration      4 lines  Discovery                         T1087.004, T1069.003, AML.T0075
         what  Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/users?`$top=999" | ConvertTo-Json | Out-File directory_20261015_090530.txt (20261015_090500_step02_recon.ps1:2)
               Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/servicePrincipals?`$top=999" (20261015_090500_step02_recon.ps1:3)

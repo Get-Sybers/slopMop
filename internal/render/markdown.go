@@ -58,9 +58,12 @@ func WriteMarkdown(w io.Writer, r Readout) error {
 	return nil
 }
 
-// detailed reports whether any entry of the group has a detail line to show.
+// detailed reports whether any entry of the group has a row or a detail line to show.
 func (g Group) detailed() bool {
 	for _, e := range g.Entries {
+		if len(e.Rows) > 0 {
+			return true
+		}
 		for _, d := range e.Detail {
 			if d.Text != "" {
 				return true
@@ -132,6 +135,26 @@ func mdList(b *bytes.Buffer, g Group) {
 			}
 		}
 		b.WriteString("- " + strings.Join(parts, " · ") + "\n")
+		// A row that names a thing of its own is an item; what the rows after
+		// it name follows from that thing and stands in the same item.
+		var item []string
+		write := func() {
+			if len(item) > 0 {
+				b.WriteString("  - " + strings.Join(item, " · ") + "\n")
+			}
+			item = nil
+		}
+		for _, row := range e.Rows {
+			if row[0] != (Named{}) {
+				write()
+			}
+			for _, n := range row {
+				if n != (Named{}) {
+					item = append(item, mdNamed(n))
+				}
+			}
+		}
+		write()
 		for _, d := range e.Detail {
 			switch {
 			case d.Text == "":
@@ -143,6 +166,18 @@ func mdList(b *bytes.Buffer, g Group) {
 			}
 		}
 	}
+}
+
+// mdNamed writes a thing: its identifier and its name in one code span, or
+// the word for what it is before its name.
+func mdNamed(n Named) string {
+	switch {
+	case n.Name == "":
+		return mdText(n.ID + n.Kind)
+	case n.ID == "":
+		return strings.TrimSpace(mdText(n.Kind) + " " + mdCode(n.Name, false))
+	}
+	return mdCode(n.ID+gap+n.Name, false)
 }
 
 // mdEscaped lists what Markdown would read as markup in running text.

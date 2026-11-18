@@ -99,7 +99,6 @@
       "name": "GraphDirectoryEnumeration",
       "tactics": ["Discovery"],
       "attack": ["T1087.004", "T1069.003"],
-      "atlas": ["AML.T0075"],
       "patterns": [
         "(?i)\\bget-(?:mg|azuread)(?:user|group|application|serviceprincipal|directoryrole|organization|domain|device)\\b",
         "(?i)\\baz\\s+ad\\s+(?:user|group|app|sp)\\s+(?:list|show)\\b"
@@ -119,7 +118,6 @@
       "name": "MailboxAccess",
       "tactics": ["Collection"],
       "attack": ["T1114.002"],
-      "atlas": ["AML.T0126"],
       "patterns": [
         "(?i)\\bget-mguser(?:message|mailfolder)\\w*",
         "(?i)outlook\\.office(?:365)?\\.com/(?:EWS/Exchange\\.asmx|api/)",
@@ -140,7 +138,6 @@
       "name": "TeamsMessageAccess",
       "tactics": ["Collection"],
       "attack": ["T1213.005"],
-      "atlas": ["AML.T0126"],
       "patterns": [
         "(?i)TeamsMessagesData",
         "(?i)\\b(?:chats|channels)/getAllMessages\\b",
@@ -158,7 +155,6 @@
       "name": "SharePointEnumeration",
       "tactics": ["Collection"],
       "attack": ["T1213.002"],
-      "atlas": ["AML.T0126"],
       "patterns": [
         "(?i)\\.sharepoint\\.(?:com|us)/[^\\s'\\\"]*_api/",
         "(?i)\\bget-mg(?:site|drive|userdrive|groupdrive)\\w*",
@@ -219,7 +215,6 @@
       "name": "KeyVaultKeyEnumeration",
       "tactics": ["Discovery"],
       "attack": ["T1580"],
-      "atlas": ["AML.T0075"],
       "patterns": [
         "(?i)\\.vault\\.(?:azure\\.net|usgovcloudapi\\.net)/keys\\b",
         "(?i)\\baz\\s+keyvault\\s+key\\s+(?:list|show|download|backup)\\b",
@@ -242,7 +237,6 @@
       "name": "AzureResourceEnumeration",
       "tactics": ["Discovery"],
       "attack": ["T1580"],
-      "atlas": ["AML.T0075"],
       "patterns": [
         "(?i)management\\.(?:azure\\.com|usgovcloudapi\\.net)/subscriptions\\b",
         "(?i)\\baz\\s+(?:resource|account|group|keyvault|vm|storage\\s+account)\\s+list\\b",
@@ -264,7 +258,6 @@
       "name": "FileDownload",
       "tactics": ["CommandAndControl"],
       "attack": ["T1105"],
-      "atlas": ["AML.T0072"],
       "patterns": [
         "(?i)\\bcertutil(?:\\.exe)?\\b.*[-/](?:urlcache|verifyctl)\\b",
         "(?i)\\bbitsadmin(?:\\.exe)?\\b.*/(?:transfer|addfile)\\b",
@@ -288,7 +281,6 @@
       "name": "FileUpload",
       "tactics": ["Exfiltration"],
       "attack": ["T1048"],
-      "atlas": ["AML.T0025"],
       "patterns": [
         "(?i)\\bbitsadmin(?:\\.exe)?\\b.*/upload\\b",
         "(?i)\\bstart-bitstransfer\\b.*-transfertype\\s+upload\\b",
@@ -310,7 +302,6 @@
       "name": "DownloadAndExecute",
       "tactics": ["Execution", "CommandAndControl"],
       "attack": ["T1059.001", "T1105"],
-      "atlas": ["AML.T0072"],
       "patterns": [
         "(?i)\\b(?:iex|invoke-expression)\\b.*\\.Download(?:String|Data)\\(",
         "(?i)\\.Download(?:String|Data)\\(.*\\|\\s*(?:iex|invoke-expression)\\b",
@@ -381,7 +372,6 @@
       "name": "NetworkSocket",
       "tactics": ["CommandAndControl"],
       "attack": ["T1095"],
-      "atlas": ["AML.T0072"],
       "patterns": [
         "(?i)\\bSockets\\.(?:TcpClient|UdpClient|Socket|TcpListener)\\b",
         "(?i)\\bnew\\s+(?:TcpClient|UdpClient|TcpListener)\\("
@@ -415,7 +405,6 @@
       "name": "RunKeyPersistence",
       "tactics": ["Persistence"],
       "attack": ["T1547.001"],
-      "atlas": ["AML.T0142"],
       "patterns": [
         "(?i)\\breg(?:\\.exe)?\\b\\s+add\\b.*\\\\CurrentVersion\\\\Run(?:Once)?\\b",
         "(?i)\\b(?:set-itemproperty|new-itemproperty|sp)\\b.*\\\\CurrentVersion\\\\Run(?:Once)?\\b",
@@ -465,7 +454,6 @@
       "name": "EventLogClearing",
       "tactics": ["DefenseImpairment"],
       "attack": ["T1685.005"],
-      "atlas": ["AML.T0138"],
       "patterns": [
         "(?i)\\bwevtutil(?:\\.exe)?\\b\\s+(?:cl|clear-log)\\b",
         "(?i)\\b(?:clear-eventlog|remove-eventlog)\\b",
@@ -505,7 +493,6 @@
       "name": "RegistryQuery",
       "tactics": ["Discovery"],
       "attack": ["T1012"],
-      "atlas": ["AML.T0089"],
       "patterns": [
         "(?i)\\breg(?:\\.exe)?\\b\\s+query\\b"
       ],
@@ -538,7 +525,6 @@
       "name": "DirectorySearch",
       "tactics": ["Discovery"],
       "attack": ["T1087.002"],
-      "atlas": ["AML.T0075"],
       "patterns": [
         "(?i)\\bDirectoryServices\\.(?:DirectorySearcher|DirectoryEntry)\\b",
         "(?i)\\[adsi(?:searcher)?\\]",
@@ -945,7 +931,6 @@
       "name": "ShellDownloadAndExecute",
       "tactics": ["Execution", "CommandAndControl"],
       "attack": ["T1059.004", "T1105"],
-      "atlas": ["AML.T0072"],
       "patterns": [
         "(?i)\\b(?:curl|wget)(?:\\.exe)?\\b.*\\|\\s*(?:sudo\\s+)?(?:ba|z|da)?sh\\b",
         "(?i)\\b(?:curl|wget)\\b.*\\|\\s*(?:sudo\\s+)?(?:python[23]?|perl)\\b",

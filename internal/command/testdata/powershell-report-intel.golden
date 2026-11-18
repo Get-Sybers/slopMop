@@ -5,7 +5,7 @@ slopmop report   <folder>
 Summary
   files       16  6 scripts, 9 outputs
   indicators  13  1 Base64Blob, 4 Domain, 1 EncodedCommand, 1 GUID, 3 IPv4, 3 SHA1
-  activities  1
+  activities  2
   tactics     4
   targeted    6   Hostnames 3, IP addresses 3
   exposed     10  Usernames 2, Tenants 2, Devices 3, IP addresses 3
@@ -14,28 +14,37 @@ Summary
 Tactics   (tactic, identifiers, files)
   [x] CredentialAccess  TA0006, AML.TA0013  20250302_090900_step03_sync_retry.ps1, 20250302_092200_step05_export.ps1
   [x] LateralMovement   TA0008, AML.TA0015  20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1, 20250302_091500_step04_certs.ps1
-  [i] Discovery         TA0007, AML.TA0008  20250302_090000_step01_inventory.ps1, 20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1 and 1 more
+  [!] Execution         TA0002, AML.TA0005  staged_20250302_093100.cmd
+  [i] Discovery         TA0007, AML.TA0008  20250302_090000_step01_inventory.ps1, 20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1 and 2 more
 
-Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics, with the techniques its files show)
+Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools of a tactic that no technique is named for)
   [i] Discovery                                     2025-03-02T09:00:00Z to 2025-03-02T09:00:30Z
+      tools      get-adcomputer                                             TA0007  Discovery
       no MITRE ATT&CK technique identified
       watchlist  STORM-0940: 10.20.1.5
 
   [x] Discovery, LateralMovement                    2025-03-02T09:05:00Z
-      no MITRE ATT&CK technique identified
+      tools      get-adsyncconnector, get-adsyncscheduler                   TA0007  Discovery
+      T1021.006  Remote Services: Windows Remote Management                 TA0008  LateralMovement
 
   [x] Discovery, CredentialAccess, LateralMovement  2025-03-02T09:09:00Z to 2025-03-02T09:22:00Z
-      T1649      Steal or Forge Authentication Certificates
+      T1087      Account Discovery                                          TA0007  Discovery
+      tools      get-adsyncconnector, get-adsyncscheduler, get-childitem    TA0007  Discovery
+      T1649      Steal or Forge Authentication Certificates                 TA0006  CredentialAccess
+      tools      get-credential, new-selfsignedcertificate                  TA0006  CredentialAccess
+      T1021.006  Remote Services: Windows Remote Management                 TA0008  LateralMovement
       watchlist  STORM-0940: 10.20.1.5
 
   [!] Execution                                     2025-03-02T09:31:00Z
-      no MITRE ATT&CK technique identified
-  and 9 files that show no tactic, in the saved trace
+      T1059.001  Command and Scripting Interpreter: PowerShell              TA0002  Execution           AML.T0050  Command and Scripting Interpreter
+  and 8 files that show no tactic, in the saved trace
 
 Findings
   activities
     [x] CertificateExport  1 line  CredentialAccess  T1649
         what  Export-Certificate -Cert $Store -FilePath ca01_20250302_092210.cer | Out-Null (20250302_092200_step05_export.ps1:5)
+    [i] AccountDiscovery   1 line  Discovery         T1087
+        what  ConnectorAccount : MSOL_0a1b2c3d4e5f (sync_10.20.1.17_retry_20250302_090930.txt:9)
 
 Targeted   (hardcoded values: prior means no earlier output holds it, discovered means one does; subjects: each entity an activity acted on)
   Hostnames (3)
@@ -116,22 +125,42 @@ Remediation   (most urgent first)
 Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1015 Active Directory Configuration        T1649
       Implement robust Active Directory (AD) configurations using group policies to secure user accounts, control access, and minimize the attack surface.
-      for  CertificateExport
+      for      CertificateExport
+  [x] M1026 Privileged Account Management         T1021.006, T1059.001
+      Privileged Account Management focuses on implementing policies, controls, and tools to securely manage privileged accounts (e.g., SYSTEM, root, or administrative accounts).
+  [x] M1030 Network Segmentation                  T1021.006
+      Network segmentation involves dividing a network into smaller, isolated segments to control and limit the flow of traffic between devices, systems, and applications.
   [x] M1041 Encrypt Sensitive Information         T1649
       Protect sensitive information at rest, in transit, and during processing by using strong encryption algorithms.
-      for  CertificateExport
-  [x] M1042 Disable or Remove Feature or Program  T1649
+      for      CertificateExport
+  [x] M1042 Disable or Remove Feature or Program  T1021.006, T1059.001, T1649
       Disable or remove unnecessary and potentially vulnerable software, features, or services to reduce the attack surface and prevent abuse by adversaries.
-      for  CertificateExport
+      for      CertificateExport
   [x] M1047 Audit                                 T1649
       Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.
-      for  CertificateExport
+      for      CertificateExport
+  [!] M1038 Execution Prevention                  T1059.001
+      Prevent the execution of unauthorized or malicious code on systems by implementing application control, script blocking, and other execution prevention mechanisms.
+  [!] M1045 Code Signing                          T1059.001
+      Code Signing is a security process that ensures the authenticity and integrity of software by digitally signing executables, scripts, and other code artifacts.
+  [!] M1049 Antivirus/Antimalware                 T1059.001
+      Antivirus/Antimalware solutions utilize signatures, heuristics, and behavioral analysis to detect, block, and remediate malicious software, including viruses, trojans, ransomware, and spyware.
+  [i] M1018 User Account Management               T1087
+      User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.
+      exposed  username: MSOL_0a1b2c3d4e5f
+      for      AccountDiscovery
+  [i] M1028 Operating System Configuration        T1087
+      Operating System Configuration involves adjusting system settings and hardening the default configurations of an operating system (OS) to mitigate adversary exploitation and prevent abuse of system functionality.
+      exposed  username: MSOL_0a1b2c3d4e5f
+      for      AccountDiscovery
+  [!] AML.M0011 Restrict Library Loading          AML.T0050
+      Prevent abuse of library loading mechanisms in the operating system and software to load untrusted code by configuring appropriate library loading mechanisms and investigating potential vulnerable software.
   [i] AML.M0020 Generative AI Guardrails          AML.T0102
       Guardrails are safety controls placed between users, tools, and generative AI models to evaluate prompts, retrieved context, model outputs, and agent actions before they are accepted, executed, or shown to a user.
-      for  Commands generated by an AI agent
+      for      Commands generated by an AI agent
   [i] AML.M0022 Generative AI Model Alignment     AML.T0102
       Generative AI Model Alignment is the process of training or fine-tuning a generative model to guide its output toward a set of human values, goals, or ethical principles.
-      for  Commands generated by an AI agent
+      for      Commands generated by an AI agent
 
 [x] HIGH - 5 impacts: 3 high, 2 low
 -> saved to <out>: report.txt, report.md, report.html, files.csv, trace.json, intents.csv, findings.json, targeted.json, exposure.csv, report.json

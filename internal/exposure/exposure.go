@@ -35,9 +35,13 @@ type document struct {
 	// Vendors are the hosts of vendors that any script reaches for, and that
 	// say nothing of what it aims at. One that begins with a dot stands for
 	// every host that ends in it; any other for itself alone.
-	Vendors []string    `json:"vendors,omitempty"`
-	Token   tokenEntry  `json:"token"`
-	Kinds   []kindEntry `json:"kinds"`
+	Vendors []string   `json:"vendors,omitempty"`
+	Token   tokenEntry `json:"token"`
+	// Accounts say what collecting an account shows, by its shape, and
+	// Identifiers what an identifier that an output holds shows.
+	Accounts    []accountEntry    `json:"accounts,omitempty"`
+	Identifiers []identifierEntry `json:"identifiers,omitempty"`
+	Kinds       []kindEntry       `json:"kinds"`
 }
 
 type kindEntry struct {
@@ -193,6 +197,10 @@ type Table struct {
 	user, app int
 	// token names the claims that are read from a JSON web token.
 	token tokenEntry
+	// accounts are the shapes of an account, each with what collecting one
+	// shows, and identifiers the shapes of an identifier.
+	accounts    []shape
+	identifiers []finder
 	// vendors are the hosts of vendors, and vendorEnds what such a host ends in.
 	vendors    map[string]bool
 	vendorEnds []string
@@ -326,6 +334,12 @@ func decode(data []byte) (Table, error) {
 	}
 	var err error
 	if t.finder, err = sift.NewFinder(texts); err != nil {
+		return Table{}, fmt.Errorf("exposures.json: %w", err)
+	}
+	if t.accounts, err = shapes(doc.Accounts); err != nil {
+		return Table{}, fmt.Errorf("exposures.json: %w", err)
+	}
+	if t.identifiers, err = finders(doc.Identifiers, t.accounts); err != nil {
 		return Table{}, fmt.Errorf("exposures.json: %w", err)
 	}
 	t.ascii = !slices.ContainsFunc(t.patterns, func(p pattern) bool {
@@ -622,7 +636,7 @@ func (t Table) Extract(text string) []Item {
 	for i, line := range lines {
 		s.line(line, i+1)
 	}
-	return s.items
+	return t.ungrouped(s.items, lines)
 }
 
 // source is what the rule that found a value says of it: whose it is, what
