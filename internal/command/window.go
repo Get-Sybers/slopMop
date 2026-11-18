@@ -8,23 +8,24 @@ import (
 )
 
 // window is the stretch of time a run reads: a file whose time is outside it
-// is not opened. A zero time leaves that side open.
+// is not opened. With a start alone the run looks forward from it, and with
+// a stop alone it looks back: a zero time leaves that side open.
 type window struct {
-	from, until time.Time
+	start, stop time.Time
 }
 
 // set reports whether either side of the window is given.
-func (w window) set() bool { return !w.from.IsZero() || !w.until.IsZero() }
+func (w window) set() bool { return !w.start.IsZero() || !w.stop.IsZero() }
 
 // String says what the window leaves out, as the summary writes it.
 func (w window) String() string {
 	switch {
-	case !w.from.IsZero() && !w.until.IsZero():
-		return "before " + render.Stamp(w.from, nil) + " or after " + render.Stamp(w.until, nil)
-	case !w.from.IsZero():
-		return "before " + render.Stamp(w.from, nil)
-	case !w.until.IsZero():
-		return "after " + render.Stamp(w.until, nil)
+	case !w.start.IsZero() && !w.stop.IsZero():
+		return "before " + render.Stamp(w.start, nil) + " or after " + render.Stamp(w.stop, nil)
+	case !w.start.IsZero():
+		return "before " + render.Stamp(w.start, nil)
+	case !w.stop.IsZero():
+		return "after " + render.Stamp(w.stop, nil)
 	}
 	return ""
 }
@@ -37,19 +38,19 @@ const (
 	secondLayout = "2006-01-02T15:04:05"
 )
 
-// readWindow reads -from and -until. A day alone stands for the whole day:
+// readWindow reads -start and -stop. A day alone stands for the whole day:
 // it begins the window at its first instant and ends it at its last.
 func readWindow(a *cli.Args) (window, error) {
 	var w window
 	var err error
-	if w.from, err = readTime(a, fromOption, false); err != nil {
+	if w.start, err = readTime(a, startOption, false); err != nil {
 		return window{}, err
 	}
-	if w.until, err = readTime(a, untilOption, true); err != nil {
+	if w.stop, err = readTime(a, stopOption, true); err != nil {
 		return window{}, err
 	}
-	if !w.from.IsZero() && !w.until.IsZero() && w.until.Before(w.from) {
-		return window{}, cli.Usagef("-%s %s is before -%s %s", untilOption, a.Options[untilOption], fromOption, a.Options[fromOption])
+	if !w.start.IsZero() && !w.stop.IsZero() && w.stop.Before(w.start) {
+		return window{}, cli.Usagef("-%s %s is before -%s %s", stopOption, a.Options[stopOption], startOption, a.Options[startOption])
 	}
 	return w, nil
 }

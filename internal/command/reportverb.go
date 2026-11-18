@@ -122,7 +122,7 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 		return nil, err
 	}
 	options := doc.options(v)
-	for _, name := range []string{inputDir, intelFile, outDir, secrets, coresOption, memoryOption, progressOption, fromOption, untilOption} {
+	for _, name := range []string{inputDir, intelFile, outDir, secrets, coresOption, memoryOption, progressOption, startOption, stopOption} {
 		if !slices.ContainsFunc(options, func(o cli.Option) bool { return o.Name == name }) {
 			return nil, fmt.Errorf("commands.json: it reads the option %q, which it does not name", name)
 		}

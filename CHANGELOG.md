@@ -8,8 +8,9 @@ All notable changes to this project are recorded in this file. The format follow
 
 ### Added
 
-- `-from <time>` and `-until <time>` set a window of time on what a run reads. A file whose time
-  is outside the window is not opened, so it is not hashed, not analysed and in no saved file.
+- `-start <time>` and `-stop <time>` set a window of time on what a run reads. `-start` alone
+  looks forward from its time and `-stop` alone looks back from it. A file whose time is
+  outside the window is not opened, so it is not hashed, not analysed and in no saved file.
   The time of a file is the one the timeline places it at: the time in its name, or else when
   it was last modified. A time is a day or a day and a time, UTC unless it names a zone; a day
   alone is the whole day, and a file named by a day alone is in the window when any part of

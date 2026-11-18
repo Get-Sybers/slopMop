@@ -195,7 +195,7 @@ func loadAssessment(tactics tactic.Table, activities activity.Table, patterns in
 // any. plain writes secrets out as they are; otherwise each is masked.
 func (p pipeline) read(folder string, levels int, period window, path string, plain bool, meter *progress.Meter) (analysis, error) {
 	meter.Stage(stageRead, 0, 0)
-	res, err := inventory.Scope{Depth: levels, From: period.from, Until: period.until, Watch: meter.Begin}.ReadAll(folder)
+	res, err := inventory.Scope{Depth: levels, From: period.start, Until: period.stop, Watch: meter.Begin}.ReadAll(folder)
 	if err != nil {
 		return analysis{}, err
 	}

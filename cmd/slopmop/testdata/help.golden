@@ -11,7 +11,7 @@ options (one dash or two; each takes a value):
   -cores <percent>        how much of the processors of this machine the run may use, 1 to 100; all of them when not given
   -memory <percent>       how much of the memory of this machine the run tries to stay within, 1 to 100; 75 when not given
   -progress shown|hidden  whether the run says what it is doing as it goes, on the error stream; shown on a terminal when not given
-  -from <time>            reads only the files of this time or later, such as 2026-10-22 or 2026-10-22T09:30:00Z; every file when not given
-  -until <time>           reads only the files of this time or earlier; a day alone is counted to its end
+  -start <time>           reads only the files of this time or later, such as 2026-10-22 or 2026-10-22T09:30:00Z; alone, it looks forward from this time
+  -stop <time>            reads only the files of this time or earlier, a day alone counted to its end; alone, it looks back from this time
 
 next: slopmop -inputdir <folder> --help

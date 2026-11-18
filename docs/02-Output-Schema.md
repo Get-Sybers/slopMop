@@ -351,7 +351,7 @@ One row per line of the report, in seven sections.
 
 | Section | A row is |
 | --- | --- |
-| `summary` | a count: `files`, `scripts`, `outputs`, `left out` with `-from` or `-until`, `indicators` and one per type, `activities` and one per activity, `tactics`, `targeted` and one per kind, `exposed` and one per kind, `intents` when a file belongs to one, and `intel hits` with `-intelfile` |
+| `summary` | a count: `files`, `scripts`, `outputs`, `left out` with `-start` or `-stop`, `indicators` and one per type, `activities` and one per activity, `tactics`, `targeted` and one per kind, `exposed` and one per kind, `intents` when a file belongs to one, and `intel hits` with `-intelfile` |
 | `script`, `output`, `other` | a notable file, under its role: one that holds a finding of high severity |
 | `targeted` | a value a script names outright, as the `targeted` class holds it: `item` is the value, `value` is `medium` for a prior one and `low` for a discovered one, `detail` the kind, the origin, the scope and the place that held it first, `files` the places in the scripts and `evidence` the lines |
 | `exposure` | an exposed value, as the `exposure` class holds it: `item` is the value, `value` the severity, `detail` the kind, whose a secret is and whether it was collected or used, and `files` its places |

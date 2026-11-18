@@ -26,8 +26,8 @@ const (
 	coresOption    = "cores"
 	memoryOption   = "memory"
 	progressOption = "progress"
-	fromOption     = "from"
-	untilOption    = "until"
+	startOption    = "start"
+	stopOption     = "stop"
 )
 
 // The values of the secrets option.
