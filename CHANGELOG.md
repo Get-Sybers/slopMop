@@ -17,16 +17,23 @@ All notable changes to this project are recorded in this file. The format follow
   `; ` between them.
 - A finding has `targets`, what its lines act on, each with its kind, as an impact has in
   `report.json`.
-- A finding has the columns `ip`, `host`, `url`, `account`, `tenant`, `application`, `task` and
-  `service`, which list what it names of each: what its lines act on, what the exposure holds on
-  those lines, and what the indicators of each command are of. A command is read on every line
-  it is continued on, with each variable the file sets given its value, so an address that a
-  script holds in a variable is in `ip`. An indicator names itself in the column of its type, and
-  a tactic names nothing.
+- A finding has a column for each kind of thing it names: `ip`, `host`, `port`, `url`, `share`,
+  `account`, `tenant`, `application`, `role`, `resource`, `vault`, `secret`, `key`, `task`,
+  `service`, `process`, `command`, `file`, `archive`, `log` and `registry`. They list what its
+  lines act on, what the exposure holds on those lines, and what the indicators of each command
+  are of. Every kind of target of the Targeted section has a column. A command is read on every
+  line it is continued on, with each variable the file sets given its value, so an address that
+  a script holds in a variable is in `ip`. An indicator names itself in the column of its type,
+  and a tactic names nothing.
+- A finding names the shares on its lines, in `share`. A share is found by how a command writes
+  it: a path of Windows, also in a string that doubles each backslash, the path a tool of SMB
+  or `mount` is given, and an address of `smb://`. It is written one way, `\\host\share`,
+  whichever way its slashes lean.
 - `commands.json` lists those columns as the `entities` of the `finding` class, each with the
-  labels of the targets, the kinds of exposure and the indicator types it holds. The tables are
-  refused when an entity is no column, reads nothing, or reads what its table lacks or another
-  entity reads.
+  labels of the targets, the kinds of exposure and the indicator types it holds, and the
+  patterns that find a value by how a command writes it. The tables are refused when an entity
+  is no column, reads nothing, reads what its table lacks or another entity reads, or has a
+  pattern whose value names a group the pattern lacks.
 - `render.Lines` is a value of lines of text: one string in JSON and one cell in CSV. A line of
   evidence of `internal/activity` has `Last`, the line a command continued over lines ends on.
 

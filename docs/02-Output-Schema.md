@@ -339,12 +339,25 @@ $ cat slopmop-ai_workdir/findings.json
     "targets": "file ca01_20250302_092210.cer",
     "ip": null,
     "host": null,
+    "port": null,
     "url": null,
+    "share": null,
     "account": null,
     "tenant": null,
     "application": null,
+    "role": null,
+    "resource": null,
+    "vault": null,
+    "secret": null,
+    "key": null,
     "task": null,
-    "service": null
+    "service": null,
+    "process": null,
+    "command": null,
+    "file": "ca01_20250302_092210.cer",
+    "archive": null,
+    "log": null,
+    "registry": null
   }
 ]
 ```
@@ -442,12 +455,25 @@ One row per activity, per distinct indicator and per tactic.
 | `targets` | on an activity, what those lines act on, each with its kind, as the `targets` of the `report` class: `account svc; unit sync.service`; `null` otherwise |
 | `ip` | the IP addresses the lines name; on an `IPv4` indicator, its value |
 | `host` | the hosts the lines act on or name: a device, and a domain that a script names; on a `Domain` indicator, its value |
+| `port` | the ports the lines act on |
 | `url` | the URLs the lines act on or name; on an indicator that is a URL or an endpoint, its value |
+| `share` | the shares the lines name, each as `\\host\share` |
 | `account` | the accounts the lines act on or name: an account, a principal, a mailbox, a username and an email address; on an `Email` indicator, its value |
 | `tenant` | the tenants the lines act on or name |
 | `application` | the applications and clients the lines act on or name |
+| `role` | the roles and permissions the lines act on |
+| `resource` | the cloud resources the lines act on or name: a path of an API, a site, a subscription, a namespace, a chat, a project and a bucket |
+| `vault` | the vaults the lines act on |
+| `secret` | the secrets of a vault the lines act on, by name |
+| `key` | the keys the lines act on: a key of a vault, by name, and a key of the registry |
 | `task` | the scheduled tasks and timers the lines act on |
 | `service` | the services and units the lines act on |
+| `process` | the processes, programs and binaries the lines act on |
+| `command` | what the lines run, call or add: what a task, a service or a run key runs, a command that lists, a call, a function, a line a profile is given, a rule of `sudo` and a setting of the shell |
+| `file` | the files and folders the lines act on: a file, where a download is saved, an output, a job file, a library, a module, a socket, a mount and a folder that is searched. The files that show the finding are `files` |
+| `archive` | the archives the lines make |
+| `log` | the logs the lines act on |
+| `registry` | the hives and values of the registry the lines act on |
 
 Each line of `evidence` is an object.
 
@@ -462,15 +488,23 @@ Sort: severity from `high` to `low`, then activities, indicators and tactics, ea
 
 - A tactic row lists every file that shows the tactic: a script, and an output or any other
   file that shows it. The tactics of a file are those of its `trace` row.
-- The columns from `ip` to `service` say what a finding names, each value once whatever its
+- The columns from `ip` to `registry` say what a finding names, each value once whatever its
   case, in the order of the lines, and are `null` where it names none; a tactic row names
   nothing. `commands.json` lists them as the `entities` of the class: each with the labels of
-  the targets, the kinds of exposure and the indicator types it holds.
-- What the lines act on is a target of `targets`, in the column that holds its label. What
-  they name beside is what the `exposure` class holds on those lines and what the indicators of
-  each command are of, read as the `exposure` and the `targeted` classes read them: a loopback
-  address, the host of a vendor and a domain in an output are left out. A password, a key and
-  a token are in no column.
+  the targets, the kinds of exposure, the indicator types and the patterns it holds.
+- What the lines act on is a target of `targets`, in the column that holds its label: every
+  kind of target has a column, so the Targeted section of the report lists nothing that these
+  columns lack. What the lines name beside is what the `exposure` class holds on them and what
+  the indicators of each command are of, read as the `exposure` and the `targeted` classes read
+  them: a loopback address, the host of a vendor and a domain in an output are left out. A
+  password and a token are in no column, and neither is the value of a secret or of a key.
+- A share is found by how a command writes it: a path of Windows, `\\fs01\finance\q3.xlsx`,
+  also in a string that doubles each backslash; the path `smbclient`, `smbget`, `smbcacls`,
+  `smbtar` or `mount` is given, `//fs01/finance`; and an address of `smb://`. It is written one
+  way, `\\fs01\finance`, whichever way its slashes lean, without what stands below the share.
+  A host that is a variable no file sets keeps its name, `\\$h\C$`. A host alone is no share,
+  and neither is a path after a colon, as a drive or a namespace of WMI is, nor a pipe or a
+  device.
 - A command is read on every line it is continued on, 8 KiB of it at most, with each variable
   the file sets given its value: `http://$PROXY:8080` is `http://203.0.113.9:8080`. A target is
   read too, so the address in `url http://203.0.113.40/s.sh` is in `ip`. A value in these

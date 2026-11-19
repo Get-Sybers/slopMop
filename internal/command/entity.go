@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+	"regexp"
 	"slices"
 	"strings"
 
@@ -32,6 +33,16 @@ type entities struct {
 	// apart are the types whose indicators the exposure does not read: on a
 	// line, such an indicator is filed by its type.
 	apart map[string]bool
+	// shapes find the values no other table names, by how a command writes them.
+	shapes []shape
+}
+
+// shape is an expression that finds a value of a column, and what writes the
+// value from the groups the expression names.
+type shape struct {
+	column string
+	rx     *regexp.Regexp
+	value  string
 }
 
 // loadEntities reads the entities of the finding class and checks that each
@@ -56,10 +67,17 @@ func loadEntities(doc commandsDoc, p pipeline) (entities, error) {
 			return entities{}, fmt.Errorf("commands.json: the entity %q is no column of the class %s", e.Column, findingClass)
 		case slices.Contains(t.columns, e.Column):
 			return entities{}, fmt.Errorf("commands.json: the entity %q is named twice", e.Column)
-		case len(e.Labels)+len(e.Kinds)+len(e.Indicators) == 0:
+		case len(e.Labels)+len(e.Kinds)+len(e.Indicators)+len(e.Patterns) == 0:
 			return entities{}, fmt.Errorf("commands.json: the entity %q reads nothing", e.Column)
 		}
 		t.columns = append(t.columns, e.Column)
+		for _, spec := range e.Patterns {
+			found, err := compileShape(e.Column, spec)
+			if err != nil {
+				return entities{}, err
+			}
+			t.shapes = append(t.shapes, found)
+		}
 		sources := []struct {
 			what   string
 			names  []string
@@ -88,11 +106,36 @@ func loadEntities(doc commandsDoc, p pipeline) (entities, error) {
 	return t, nil
 }
 
+// compileShape checks that a pattern compiles and that its value is written
+// from groups the pattern names, each as ${name}, and from nothing else it finds.
+func compileShape(column string, spec shapeSpec) (shape, error) {
+	rx, err := regexp.Compile(spec.Pattern)
+	if err != nil {
+		return shape{}, fmt.Errorf("commands.json: the entity %q: %w", column, err)
+	}
+	named := false
+	for rest := spec.Value; ; named = true {
+		at := strings.IndexByte(rest, '$')
+		if at < 0 {
+			break
+		}
+		end := strings.IndexByte(rest[at:], '}')
+		if !strings.HasPrefix(rest[at:], "${") || end < 3 || !slices.Contains(rx.SubexpNames(), rest[at+2:at+end]) {
+			return shape{}, fmt.Errorf("commands.json: the entity %q writes %q, which names a group its pattern lacks", column, spec.Value)
+		}
+		rest = rest[at+end+1:]
+	}
+	if !named {
+		return shape{}, fmt.Errorf("commands.json: the entity %q writes %q, which names no group of its pattern", column, spec.Value)
+	}
+	return shape{column: column, rx: rx, value: spec.Value}, nil
+}
+
 // mention is one thing a line of evidence names: what it acts on, by its
-// label, a value of a kind of exposure, or an indicator of a type the
-// exposure does not read.
+// label, a value of a kind of exposure, an indicator of a type the exposure
+// does not read, or a value a shape found, by its column.
 type mention struct {
-	label, kind, typ, value string
+	label, kind, typ, column, value string
 }
 
 // file lists what a line of evidence names in the columns of the finding
@@ -100,6 +143,8 @@ type mention struct {
 func (t entities) file(f *finding, named []mention) {
 	for _, m := range named {
 		switch {
+		case m.column != "":
+			f.name(m.column, m.value)
 		case m.label != "":
 			f.name(t.byLabel[m.label], m.value)
 		case m.typ != "":
@@ -126,7 +171,8 @@ func (f *finding) name(column, value string) {
 }
 
 // mentions lists what a text names: the values the exposure found in it,
-// what its indicators are of, and the indicators the exposure does not read.
+// what its indicators are of, the indicators the exposure does not read,
+// and what the shapes of the table find.
 func (p pipeline) mentions(text string, items []exposure.Item, script bool) []mention {
 	var out []mention
 	logins := map[cite]bool{}
@@ -150,6 +196,11 @@ func (p pipeline) mentions(text string, items []exposure.Item, script bool) []me
 	for _, m := range matches {
 		if p.entities.apart[m.Type] {
 			out = append(out, mention{typ: m.Type, value: m.Value})
+		}
+	}
+	for _, s := range p.entities.shapes {
+		for _, found := range s.rx.FindAllStringSubmatchIndex(text, -1) {
+			out = append(out, mention{column: s.column, value: string(s.rx.ExpandString(nil, s.value, text, found))})
 		}
 	}
 	return out

