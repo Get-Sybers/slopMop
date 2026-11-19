@@ -6,6 +6,8 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+## [0.6.5] - 2026-11-19
+
 ### Added
 
 - A command of Discovery shows its technique. The techniques, their commands and the flags that
