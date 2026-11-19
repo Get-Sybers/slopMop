@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | `files` | `14` | `7 scripts, 7 outputs` |
 | `indicators` | `15` | `4 Domain, 1 Email, 7 IPv4, 3 URL` |
-| `activities` | `31` |  |
+| `activities` | `34` |  |
 | `tactics` | `11` |  |
 | `targeted` | `5` | `Hostnames 1, IP addresses 4` |
 | `exposed` | `18` | `Passwords and secrets 3, Usernames 6, Email addresses 1, Devices 2, IP addresses 6` |
@@ -41,8 +41,10 @@ _a block for each intent, from the first of its files to be created until the la
   - `T1083  File and Directory Discovery` · `TA0007  Discovery`
   - `T1007  System Service Discovery` · `TA0007  Discovery`
   - `T1018  Remote System Discovery` · `TA0007  Discovery`
-  - `T1087.001  Account Discovery: Local Account` · `TA0007  Discovery`
   - `T1033  System Owner/User Discovery` · `TA0007  Discovery`
+  - `T1087  Account Discovery` · `TA0007  Discovery`
+  - `T1087.001  Account Discovery: Local Account` · `TA0007  Discovery`
+  - `T1518.001  Software Discovery: Security Software Discovery` · `TA0007  Discovery`
   - `T1069  Permission Groups Discovery` · `TA0007  Discovery`
   - `T1069.001  Permission Groups Discovery: Local Groups` · `TA0007  Discovery`
   - `T1082  System Information Discovery` · `TA0007  Discovery`
@@ -173,6 +175,9 @@ _a block for each intent, from the first of its files to be created until the la
   - **what:** `history -c (20261022_092000_step05_evade.sh:7)`
 - **\[!\] medium** · `Timestomp` · `1 line` · `Stealth` · `T1070.006, AML.T0138`
   - **what:** `touch -r /bin/ls "$F" (20261022_092000_step05_evade.sh:8)`
+- **\[i\] low** · `AccountEnumeration` · `2 lines` · `Discovery` · `T1087`
+  - **what:** `cat /etc/passwd | cut -d: -f1 (20261022_090000_step01_recon.sh:4)`
+  - **what:** `cat /etc/passwd > passwd_20261022_090020.txt (20261022_090000_step01_recon.sh:5)`
 - **\[i\] low** · `EmailAccountDiscovery` · `1 line` · `Discovery` · `T1087.003`
   - **what:** `SMTP_USER=alerts@corp.example (env_20261022_090540.txt:4)`
 - **\[i\] low** · `LocalAccountDiscovery` · `4 lines` · `Discovery` · `T1087.001`
@@ -183,10 +188,15 @@ _a block for each intent, from the first of its files to be created until the la
 - **\[i\] low** · `LocalAccountEnumeration` · `2 lines` · `Discovery` · `T1087.001`
   - **what:** `cat /etc/passwd | cut -d: -f1 (20261022_090000_step01_recon.sh:4)`
   - **what:** `cat /etc/passwd > passwd_20261022_090020.txt (20261022_090000_step01_recon.sh:5)`
+- **\[i\] low** · `LoggedOnUserDiscovery` · `2 lines` · `Discovery` · `T1033`
+  - **what:** `cat /etc/passwd | cut -d: -f1 (20261022_090000_step01_recon.sh:4)`
+  - **what:** `cat /etc/passwd > passwd_20261022_090020.txt (20261022_090000_step01_recon.sh:5)`
 - **\[i\] low** · `NetworkServiceDiscovery` · `1 line` · `Discovery` · `T1046`
   - **what:** `subprocess.run(["sh", "-c", "nc -zv 203.0.113.41 443"]) (20261022_093000_step07_channel.py:7)`
 - **\[i\] low** · `RemoteSystemDiscovery` · `1 line` · `Discovery` · `T1018`
   - **what:** `cat /etc/hosts > hosts_20261022_090025.txt (20261022_090000_step01_recon.sh:6)`
+- **\[i\] low** · `SecuritySoftwareDiscovery` · `1 line` · `Discovery` · `T1518.001`
+  - **what:** `systemctl status sshd (20261022_090000_step01_recon.sh:7)`
 - **\[i\] low** · `ServiceDiscovery` · `1 line` · `Discovery` · `T1007`
   - **what:** `systemctl status sshd (20261022_090000_step01_recon.sh:7)`
 - **\[i\] low** · `SetuidFileSearch` · `1 line` · `Discovery` · `T1083`
@@ -412,7 +422,7 @@ _collected: first seen in an output; used: first seen in a script; a token or a 
   - **exposed:** `username: root`
   - **exposed:** `username: ops`
   - **exposed:** `email: alerts@corp.example`
-  - **basis:** `SetuidFileSearch, ServiceDiscovery, RemoteSystemDiscovery, NetworkServiceDiscovery, LocalAccountEnumeration, Discovery tools, exposed username, exposed email, exposed device, exposed ip`
+  - **basis:** `SetuidFileSearch, ServiceDiscovery, RemoteSystemDiscovery, LoggedOnUserDiscovery, NetworkServiceDiscovery, AccountEnumeration, LocalAccountEnumeration, SecuritySoftwareDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip`
 
 ## Remediation
 
@@ -458,7 +468,7 @@ _most urgent first_
   - **exposed:** `username: root`
   - **exposed:** `username: ops`
   - **exposed:** `email: alerts@corp.example`
-  - **basis:** `SetuidFileSearch, ServiceDiscovery, RemoteSystemDiscovery, NetworkServiceDiscovery, LocalAccountEnumeration, Discovery tools, exposed username, exposed email, exposed device, exposed ip`
+  - **basis:** `SetuidFileSearch, ServiceDiscovery, RemoteSystemDiscovery, LoggedOnUserDiscovery, NetworkServiceDiscovery, AccountEnumeration, LocalAccountEnumeration, SecuritySoftwareDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip`
 
 ## Mitigation
 
@@ -467,9 +477,9 @@ _MITRE ATT&amp;CK and ATLAS, for the techniques found_
 - **\[x\] high** · `M1017 User Training` · `T1552.001`
   - User Training involves educating employees and contractors on recognizing, reporting, and preventing cyber threats that rely on human interaction, such as phishing, social engineering, and other manipulative techniques.
   - **for:** `CredentialFileRead`
-- **\[x\] high** · `M1018 User Account Management` · `T1021.004, T1048, T1053.002, T1053.003, T1053.006, T1098.004, T1543.002, T1552.007, T1654, T1685, T1685.004, T1686`
+- **\[x\] high** · `M1018 User Account Management` · `T1021.004, T1048, T1053.002, T1053.003, T1053.006, T1087, T1098.004, T1543.002, T1552.007, T1654, T1685, T1685.004, T1686`
   - User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.
-  - **for:** `FileUpload, ScheduledJobCreation, SshKeyPersistence, SystemdUnitCreation, ClusterSecretRead, SecurityToolDisabling, FirewallDisabling`
+  - **for:** `FileUpload, ScheduledJobCreation, AccountEnumeration, SshKeyPersistence, SystemdUnitCreation, ClusterSecretRead, SecurityToolDisabling, FirewallDisabling`
 - **\[x\] high** · `M1022 Restrict File and Directory Permissions` · `T1048, T1053.006, T1070.003, T1098.004, T1543.002, T1546.004, T1548.003, T1552.001, T1552.004, T1685, T1685.006, T1686`
   - Restricting file and directory permissions involves setting access controls at the file system level to limit which users, groups, or processes can read, write, or execute files.
   - **for:** `FileUpload, ScheduledJobCreation, HistoryClearing, SshKeyPersistence, SystemdUnitCreation, ShellProfilePersistence, SudoersModification, CredentialFileRead, PrivateKeyRead, SecurityToolDisabling, LogDeletion, FirewallDisabling`
@@ -483,13 +493,13 @@ _MITRE ATT&amp;CK and ATLAS, for the techniques found_
 - **\[x\] high** · `M1027 Password Policies` · `T1003.008, T1552.001, T1552.004`
   - Set and enforce secure password policies for accounts to reduce the likelihood of unauthorized access.
   - **for:** `ShadowFileRead, CredentialFileRead, PrivateKeyRead`
-- **\[x\] high** · `M1028 Operating System Configuration` · `T1053.002, T1087.001, T1548.001, T1548.003, T1552.003, T1690`
+- **\[x\] high** · `M1028 Operating System Configuration` · `T1053.002, T1087, T1087.001, T1548.001, T1548.003, T1552.003, T1690`
   - Operating System Configuration involves adjusting system settings and hardening the default configurations of an operating system (OS) to mitigate adversary exploitation and prevent abuse of system functionality.
   - **exposed:** `username: app_rw`
   - **exposed:** `username: daemon`
   - **exposed:** `username: deploy`
   - **exposed:** `username: root`
-  - **for:** `ScheduledJobCreation, LocalAccountEnumeration, LocalAccountDiscovery, SetuidBit, SudoersModification, ShellHistoryRead, HistoryDisabling`
+  - **for:** `ScheduledJobCreation, AccountEnumeration, LocalAccountEnumeration, LocalAccountDiscovery, SetuidBit, SudoersModification, ShellHistoryRead, HistoryDisabling`
 - **\[x\] high** · `M1029 Remote Data Storage` · `T1070.003, T1685.006`
   - Remote Data Storage focuses on moving critical data, such as security logs and sensitive files, to secure, off-host locations to minimize unauthorized access, tampering, or destruction by adversaries.
   - **for:** `HistoryClearing, LogDeletion`

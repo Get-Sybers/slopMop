@@ -833,6 +833,61 @@
     "registry": null
   },
   {
+    "finding": "NetworkServiceDiscovery",
+    "severity": "low",
+    "tactic": "Discovery",
+    "indicator": null,
+    "files": "20250301_101530_step01_recon.txt",
+    "attribution": null,
+    "first": "2025-03-01T10:15:30Z",
+    "last": "2025-03-01T10:15:30Z",
+    "attack": "T1046",
+    "atlas": null,
+    "evidence": [
+      {
+        "time": "2025-03-01T10:15:30Z",
+        "file": "20250301_101530_step01_recon.txt",
+        "line": 2,
+        "text": "Nmap scan report for dc01.corp.example (10.20.1.5)"
+      },
+      {
+        "time": "2025-03-01T10:15:30Z",
+        "file": "20250301_101530_step01_recon.txt",
+        "line": 4,
+        "text": "Nmap scan report for aadc01.corp.example (10.20.1.17)"
+      },
+      {
+        "time": "2025-03-01T10:15:30Z",
+        "file": "20250301_101530_step01_recon.txt",
+        "line": 6,
+        "text": "Nmap scan report for ca01.corp.example (10.20.1.23)"
+      }
+    ],
+    "what": "Nmap scan report for dc01.corp.example (10.20.1.5) (20250301_101530_step01_recon.txt:2)\nNmap scan report for aadc01.corp.example (10.20.1.17) (20250301_101530_step01_recon.txt:4)\nNmap scan report for ca01.corp.example (10.20.1.23) (20250301_101530_step01_recon.txt:6)",
+    "targets": null,
+    "ip": "10.20.1.5, 10.20.1.17, 10.20.1.23",
+    "host": "dc01.corp.example, aadc01.corp.example, ca01.corp.example",
+    "port": null,
+    "url": null,
+    "share": null,
+    "account": null,
+    "tenant": null,
+    "application": null,
+    "role": null,
+    "resource": null,
+    "vault": null,
+    "secret": null,
+    "key": null,
+    "task": null,
+    "service": null,
+    "process": null,
+    "command": null,
+    "file": null,
+    "archive": null,
+    "log": null,
+    "registry": null
+  },
+  {
     "finding": "NetworkShareDiscovery",
     "severity": "low",
     "tactic": "Discovery",
@@ -914,7 +969,7 @@
   {
     "finding": "Domain",
     "severity": "low",
-    "tactic": null,
+    "tactic": "Discovery",
     "indicator": "aadc01.corp.example",
     "files": "20250301_101530_step01_recon.txt",
     "attribution": null,
@@ -986,7 +1041,7 @@
   {
     "finding": "Domain",
     "severity": "low",
-    "tactic": null,
+    "tactic": "Discovery",
     "indicator": "dc01.corp.example",
     "files": "20250301_101530_step01_recon.txt",
     "attribution": null,
@@ -1022,7 +1077,7 @@
   {
     "finding": "Domain",
     "severity": "low",
-    "tactic": null,
+    "tactic": "Discovery",
     "indicator": "nmap.org",
     "files": "20250301_101530_step01_recon.txt",
     "attribution": null,
@@ -1130,7 +1185,7 @@
   {
     "finding": "URL",
     "severity": "low",
-    "tactic": null,
+    "tactic": "Discovery",
     "indicator": "https://nmap.org",
     "files": "20250301_101530_step01_recon.txt",
     "attribution": null,
@@ -1168,7 +1223,7 @@
     "severity": "low",
     "tactic": "Discovery",
     "indicator": null,
-    "files": "20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh, 20250301_101910_step02_users.tsv, 20250301_102300_step03_adsync.sh, 20250301_102700_step03_adsync_v2.sh, 20250301_103200_step05_certs.sh, 20250301_104500_step07_exfil.sh, adsync_1740824865.txt",
+    "files": "20250301_101500_step01_recon.sh, 20250301_101530_step01_recon.txt, 20250301_101800_step02_enum.sh, 20250301_101910_step02_users.tsv, 20250301_102300_step03_adsync.sh, 20250301_102700_step03_adsync_v2.sh, 20250301_103200_step05_certs.sh, 20250301_104500_step07_exfil.sh, adsync_1740824865.txt",
     "attribution": null,
     "first": "2025-03-01T10:15:00Z",
     "last": "2025-03-01T10:45:00Z",

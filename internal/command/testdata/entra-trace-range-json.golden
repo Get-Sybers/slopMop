@@ -38,7 +38,7 @@
     "tools": "invoke-restmethod, convertto-json, out-file, get-mgapplication",
     "tactics": "Discovery",
     "transforms": null,
-    "activities": "GraphDirectoryEnumeration",
+    "activities": "GraphDirectoryEnumeration, CloudServiceDiscovery",
     "outputs": "directory_20261015_090530.txt",
     "indicators": 4,
     "intel": null,

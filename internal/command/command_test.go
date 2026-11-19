@@ -323,7 +323,7 @@ func TestReportIntents(t *testing.T) {
 	if row["from"] != first || row["until"] != last || row["seconds"] != "40" {
 		t.Errorf("i1041 runs from %v to %v, %v seconds, want %s to %s, 40", row["from"], row["until"], row["seconds"], first, last)
 	}
-	if row["attack"] != "T1083, T1552.005, T1007, T1018, T1087.001, T1033, T1069, T1069.001, T1082, T1654, T1518.002, T1016.001, T1046" || row["atlas"] != "AML.T0055" {
+	if row["attack"] != "T1083, T1552.005, T1007, T1018, T1033, T1087, T1087.001, T1518.001, T1069, T1069.001, T1082, T1654, T1518.002, T1016.001, T1046" || row["atlas"] != "AML.T0055" {
 		t.Errorf("i1041 has ATT&CK %v and ATLAS %v", row["attack"], row["atlas"])
 	}
 	if session := find(t, table, map[string]string{"intent": "i1051"}); session["task"] != nil || session["files"] != "data/noa/exp3-worker-i1051.sh, i1051_audit_20261022_093500.jsonl" {
@@ -402,7 +402,7 @@ func TestReportWithoutIntents(t *testing.T) {
 		"\n  [x] Discovery, CredentialAccess, Exfiltration  2025-03-01T10:45:00Z\n",
 		"      T1649      Steal or Forge Authentication Certificates                      TA0006  CredentialAccess\n",
 		"      T1048      Exfiltration Over Alternative Protocol                          TA0010  Exfiltration        AML.T0025  Exfiltration via Cyber Means\n",
-		"\n  and 8 files that show no tactic, in the saved trace\n",
+		"\n  and 7 files that show no tactic, in the saved trace\n",
 	} {
 		if !strings.Contains(timeline, block) {
 			t.Errorf("the timeline lacks %q:\n%s", block, readout)

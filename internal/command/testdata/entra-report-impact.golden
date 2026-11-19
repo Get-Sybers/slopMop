@@ -25,7 +25,7 @@ Impact
       Identities, resources or configuration were listed. Later steps were probably aimed with the result.
       exposed  email: alice@corp.example
                email: bob@corp.example
-      basis    GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, Discovery tools, exposed email, exposed resource, exposed ip
+      basis    GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, CloudServiceDiscovery, Discovery tools, exposed email, exposed resource, exposed ip
 
 Remediation   (most urgent first)
   [x] Revoke sessions and reset identities
@@ -47,7 +47,7 @@ Remediation   (most urgent first)
       Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
       exposed  email: alice@corp.example
                email: bob@corp.example
-      basis    GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, Discovery tools, exposed email, exposed resource, exposed ip
+      basis    GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, CloudServiceDiscovery, Discovery tools, exposed email, exposed resource, exposed ip
 
 [x] HIGH - 7 impacts: 5 high, 2 low
 -> saved to <out>: report.txt, report.md, report.html, files.csv, trace.json, intents.csv, findings.csv, findings.json, targeted.json, exposure.csv, report.json

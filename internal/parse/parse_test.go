@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 	"testing"
 )
 
@@ -361,6 +362,73 @@ func TestWaitsAndWAreCommands(t *testing.T) {
 	}
 	if got := toolNames(ExtractPython("import time\nfrom time import sleep as nap\ntime.sleep(5)\nnap(1)\n")); !slices.Equal(got, []string{"time.sleep", "time.sleep"}) {
 		t.Errorf("ExtractPython tools = %q, want time.sleep twice", got)
+	}
+}
+
+// An audit log of Linux records the commands that ran: the arguments of an
+// EXECVE record, in quotes or in hexadecimal, the command sudo was given,
+// and the title of a process where its event has no EXECVE record.
+func TestAudited(t *testing.T) {
+	log := strings.Join([]string{
+		`type=SYSCALL msg=audit(1677650400.123:4567): arch=c000003e syscall=59 success=yes a0=55d0c1 a1=55d0c2 comm="chage" exe="/usr/bin/chage"`,
+		`type=EXECVE msg=audit(1677650400.123:4567): argc=3 a0="chage" a1="-l" a2="root"`,
+		`type=PROCTITLE msg=audit(1677650400.123:4567): proctitle=6368616765002D6C00726F6F74`,
+		`type=EXECVE msg=audit(1677650401.200:4568): argc=3 a0="grep" a1=5E50415353205F4D4158 a2="/etc/login.defs"`,
+		`type=EXECVE msg=audit(1677650402.300:4569): argc=2 a0="sh" a1_len=14 a1[0]=6964203B20 a1[1]=756E616D65`,
+		`type=PROCTITLE msg=audit(1677650403.400:4570): proctitle=636174002F6574632F706173737764`,
+		`type=PROCTITLE msg=audit(1677650403.500:4571): proctitle=636174002F6574632F706173737764`,
+		`type=USER_CMD msg=audit(1677650404.600:4572): pid=911 uid=1000 auid=1000 ses=3 msg='cwd="/home/deploy" cmd=7461696C202D6E203530202F7661722F6C6F672F617574682E6C6F67 exe="/usr/bin/sudo" terminal=pts/0 res=success'`,
+		`type=EXECVE msg=audit(03/01/2025 10:00:05.700:4573) : argc=3 a0=getent a1=group a2=sudo`,
+		`type=PROCTITLE msg=audit(03/01/2025 10:00:06.800:4574) : proctitle=dscl . -list /Users`,
+		`type=EXECVE msg=audit(03/01/2025 10:00:07.900:4575) : argc=3 a0=kill a1=-9 a2=4242`,
+		`type=EXECVE msg=audit(03/01/2025 10:00:08.000:4576) : argc=3 a0=sh a1=-c a2=cafe /etc/hosts`,
+		`type=CWD msg=audit(1677650400.123:4567): cwd="/root"`,
+		`a line that is no record`,
+	}, "\n")
+	want := []string{
+		"chage -l root",
+		`grep "^PASS _MAX" /etc/login.defs`,
+		`sh "id ; uname"`,
+		"cat /etc/passwd",
+		"tail -n 50 /var/log/auth.log",
+		"getent group sudo",
+		"dscl . -list /Users",
+		"kill -9 4242",
+		`sh -c "cafe /etc/hosts"`,
+	}
+	if got := Audited(log); !slices.Equal(got, want) {
+		t.Errorf("Audited = %q, want %q", got, want)
+	}
+	for _, text := range []string{"", "no audit here", "msg=audit(1:2): nothing", `type=EXECVE msg=audit(1:2): argc=0`} {
+		if got := Audited(text); len(got) != 0 {
+			t.Errorf("Audited(%q) = %q, want none", text, got)
+		}
+	}
+}
+
+func TestTraced(t *testing.T) {
+	trace := strings.Join([]string{
+		`execve("/usr/bin/chage", ["chage", "-l", "root"], 0x7ffd5c3e1b40 /* 23 vars */) = 0`,
+		`[pid  4242] execve("/bin/sh", ["sh", "-c", "grep ^PASS_MAX_DAYS /etc/login.defs"], 0x55d0 /* 9 vars */) = 0`,
+		`4243  execve("/usr/local/bin/id", ["id"], 0x7ffc /* 9 vars */) = -1 ENOENT (No such file or directory)`,
+		`4243  execve("/usr/bin/id", ["id"], 0x7ffc /* 9 vars */) = 0`,
+		`execve("/usr/bin/id", ["id"], 0x7ffc /* 9 vars */) = 0`,
+		`execve("/usr/bin/printf", ["printf", "a\tb \"c\" \101"], 0x7ffc /* 9 vars */ <unfinished ...>`,
+		`openat(AT_FDCWD, "/etc/login.defs", O_RDONLY) = 3`,
+	}, "\n")
+	want := []string{
+		"chage -l root",
+		`sh -c "grep ^PASS_MAX_DAYS /etc/login.defs"`,
+		"id",
+		`printf "a b \"c\" A"`,
+	}
+	if got := Traced(trace); !slices.Equal(got, want) {
+		t.Errorf("Traced = %q, want %q", got, want)
+	}
+	for _, text := range []string{"", "no trace here", `execve("/bin/true", [], 0x1) = 0`, `os.execve("/bin/sh", args, env)`} {
+		if got := Traced(text); len(got) != 0 {
+			t.Errorf("Traced(%q) = %q, want none", text, got)
+		}
 	}
 }
 

@@ -5,7 +5,7 @@ slopmop report   <folder>
 Summary
   files       11  5 scripts, 6 outputs
   indicators  32  6 Domain, 2 Email, 1 EntraLoginEndpoint, 4 GUID, 11 GraphEndpoint, 2 IPv4, 3 KeyVaultEndpoint, 1 OAuthScope, 2 URL
-  activities  13
+  activities  14
   tactics     6
   targeted    5   Email addresses 2, Hostnames 2, IP addresses 1
   exposed     7   Email addresses 2, Tenants 1, Applications 1, Cloud resources 1, IP addresses 2
@@ -44,6 +44,7 @@ Timeline   (a block for each intent, from the first of its files to be created u
 
   [x] Discovery, CredentialAccess                                   2026-10-15T09:30:00Z
       T1580      Cloud Infrastructure Discovery                                  TA0007  Discovery              AML.T0075  Enterprise Resource Discovery
+      T1526      Cloud Service Discovery                                         TA0007  Discovery
       T1654      Log Enumeration                                                 TA0007  Discovery
       T1016.001  System Network Configuration Discovery: Internet Connection Discovery    TA0007  Discovery
       T1046      Network Service Discovery                                       TA0007  Discovery
@@ -83,8 +84,10 @@ Findings
               drive = requests.get("https://graph.microsoft.com/v1.0/sites/root/drives", headers=headers) (20261015_092000_step04_collect.py:11)
     [!] TeamsMessageAccess             1 line   Collection                        T1213.005, AML.T0036, AML.T0126
         what  chat = requests.get("https://graph.microsoft.com/v1.0/users/" + user + "/mailFolders/TeamsMessagesData/messages", headers=headers) (20261015_092000_step04_collect.py:9)
-    [i] AzureResourceEnumeration       1 line   Discovery                         T1580, AML.T0075
+    [i] AzureResourceEnumeration       1 line   Discovery                         T1580, T1526, AML.T0075
         what  az keyvault list --query "[].name" -o tsv > vaults_20261015_093010.txt (20261015_093000_step05_vault.sh:2)
+    [i] CloudServiceDiscovery          1 line   Discovery                         T1526
+        what  Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/servicePrincipals?`$top=999" (20261015_090500_step02_recon.ps1:3)
     [i] EmailAccountDiscovery          1 line   Discovery                         T1087.003
         what  {"value":[{"userPrincipalName":"alice@corp.example"},{"userPrincipalName":"bob@corp.example"}]} (directory_20261015_090530.txt:1)
     [i] GraphDirectoryEnumeration      4 lines  Discovery                         T1087.004, T1069.003, AML.T0075
@@ -208,7 +211,7 @@ Impact
       Identities, resources or configuration were listed. Later steps were probably aimed with the result.
       exposed  email: alice@corp.example
                email: bob@corp.example
-      basis    GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, Discovery tools, exposed email, exposed resource, exposed ip
+      basis    GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, CloudServiceDiscovery, Discovery tools, exposed email, exposed resource, exposed ip
 
 Remediation   (most urgent first)
   [x] Revoke sessions and reset identities
@@ -230,7 +233,7 @@ Remediation   (most urgent first)
       Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
       exposed  email: alice@corp.example
                email: bob@corp.example
-      basis    GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, Discovery tools, exposed email, exposed resource, exposed ip
+      basis    GraphDirectoryEnumeration, AzureResourceEnumeration, KeyVaultKeyEnumeration, CloudServiceDiscovery, Discovery tools, exposed email, exposed resource, exposed ip
 
 Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1015 Active Directory Configuration                          T1078.004

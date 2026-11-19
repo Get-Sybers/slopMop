@@ -5,7 +5,7 @@ slopmop report   <folder>
 Summary
   files       11  7 scripts, 3 outputs
   indicators  20  5 Domain, 1 EncodedCommand, 3 IPv4, 11 URL
-  activities  15
+  activities  16
   tactics     6
   targeted    4   Hostnames 1, IP addresses 3
   exposed     4   Usernames 1, IP addresses 3
@@ -23,6 +23,7 @@ Timeline   (a block for each intent, from the first of its files to be created u
   [i] Discovery                                                     2026-10-20T10:00:00Z to 2026-10-20T10:00:30Z
       T1018      Remote System Discovery                                         TA0007  Discovery
       T1057      Process Discovery                                               TA0007  Discovery
+      T1069      Permission Groups Discovery                                     TA0007  Discovery
       T1069.002  Permission Groups Discovery: Domain Groups                      TA0007  Discovery
       T1033      System Owner/User Discovery                                     TA0007  Discovery
       T1087.002  Account Discovery: Domain Account                               TA0007  Discovery            AML.T0075  Enterprise Resource Discovery
@@ -130,6 +131,8 @@ Findings
     [i] DomainAccountDiscovery      1 line   Discovery                     T1087.002, AML.T0075
         what  corp\svc_build S-1-5-21-1111111111-2222222222-3333333333-1105 (recon_20261020_100030.txt:2)
     [i] DomainGroupEnumeration      1 line   Discovery                     T1069.002
+        what  net.exe group "Domain Admins" /domain >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:3)
+    [i] GroupEnumeration            1 line   Discovery                     T1069
         what  net.exe group "Domain Admins" /domain >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:3)
     [i] ProcessDiscovery            1 line   Discovery                     T1057
         what  wmic.exe process list brief (20261020_100000_step01_recon.ps1:4)
@@ -256,7 +259,7 @@ Impact
   [i] Environment mapped
       Identities, resources or configuration were listed. Later steps were probably aimed with the result.
       exposed  username: svc_build
-      basis    RemoteSystemDiscovery, ProcessDiscovery, DomainGroupEnumeration, Discovery tools, exposed username
+      basis    RemoteSystemDiscovery, ProcessDiscovery, GroupEnumeration, DomainGroupEnumeration, Discovery tools, exposed username
 
 Remediation   (most urgent first)
   [x] Remove persistence
@@ -274,7 +277,7 @@ Remediation   (most urgent first)
   [i] Follow what was enumerated
       Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
       exposed  username: svc_build
-      basis    RemoteSystemDiscovery, ProcessDiscovery, DomainGroupEnumeration, Discovery tools, exposed username
+      basis    RemoteSystemDiscovery, ProcessDiscovery, GroupEnumeration, DomainGroupEnumeration, Discovery tools, exposed username
 
 Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1018 User Account Management                              T1047, T1053.005

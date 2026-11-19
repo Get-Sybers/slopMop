@@ -29,9 +29,14 @@
         "ping", "tracert", "traceroute", "arp", "fping", "arp-scan", "nbtscan",
         "netstat", "net", "net1", "get-adcomputer", "get-addomaincontroller"
       ],
-      "T1033": ["whoami", "id", "w", "who", "last", "quser", "qwinsta"],
+      "T1033": [
+        "whoami", "id", "w", "who", "last", "quser", "qwinsta", "users"
+      ],
       "T1040": ["tcpdump", "tshark", "wireshark", "pfctl", "osascript"],
-      "T1046": ["nmap", "masscan", "rustscan", "nc", "ncat", "netcat", "curl"],
+      "T1046": [
+        "nmap", "masscan", "rustscan", "nc", "ncat", "netcat", "curl", "zmap",
+        "naabu", "unicornscan", "hping3"
+      ],
       "T1049": ["netstat", "ss", "get-nettcpconnection"],
       "T1057": ["ps", "top", "htop", "tasklist", "get-process"],
       "T1069": ["id", "groups", "dscl", "dscacheutil"],
@@ -40,7 +45,11 @@
       "T1069.003": [
         "get-mggroup", "get-azureadgroup", "get-mgdirectoryrole",
         "get-azureaddirectoryrole", "get-msolrole", "get-azroleassignment",
-        "get-rolegroup"
+        "get-rolegroup", "get-rolegroupmember", "get-managementroleassignment",
+        "get-distributiongroup", "get-distributiongroupmember",
+        "get-unifiedgroup", "get-team", "get-spositegroup", "get-pnpgroup",
+        "get-msolgroup", "get-azadgroup", "get-mggroupmember",
+        "get-azureadgroupmember"
       ],
       "T1082": [
         "systeminfo", "hostname", "uname", "df", "uptime", "lscpu", "sw_vers",
@@ -52,7 +61,9 @@
       ],
       "T1087.001": ["id", "groups", "dscacheutil", "get-localuser"],
       "T1087.002": ["ldapsearch", "dscl", "get-aduser", "get-adserviceaccount"],
-      "T1087.003": ["get-globaladdresslist"],
+      "T1087.003": [
+        "get-globaladdresslist", "get-addresslist", "get-offlineaddressbook"
+      ],
       "T1087.004": [
         "get-mguser", "get-azureaduser", "get-msoluser", "get-azaduser",
         "get-msolrolemember", "get-recipient", "get-mailbox", "get-user"
@@ -72,15 +83,22 @@
       "T1497": ["dmesg", "lscpu", "lspci", "kextstat"],
       "T1497.001": ["dmidecode", "lscpu", "lspci", "kextstat"],
       "T1497.003": ["sleep", "usleep", "start-sleep", "time.sleep"],
+      "T1518": ["get-package", "get-appxpackage"],
       "T1518.001": ["tasklist", "netsh"],
       "T1518.002": [
         "tasklist", "ls", "find", "grep", "dpkg", "rpm", "systemctl",
-        "launchctl", "mdfind", "system_profiler"
+        "launchctl", "mdfind", "system_profiler", "backup"
       ],
       "T1526": [
         "get-mgapplication", "get-mgserviceprincipal", "get-azureadapplication",
         "get-azureadserviceprincipal", "get-azadapplication",
-        "get-azadserviceprincipal"
+        "get-azadserviceprincipal", "get-mgorganization",
+        "get-msolcompanyinformation", "get-azureadtenantdetail", "get-mgdomain",
+        "get-msoldomain", "get-azureaddomain", "get-aztenant", "get-spotenant",
+        "get-sposite", "get-pnptenantsite", "get-cstenant",
+        "get-accepteddomain", "roadrecon", "get-azresource",
+        "get-azresourcegroup", "get-azresourceprovider", "get-azsubscription",
+        "get-azlocation"
       ],
       "T1580": ["get-azresource", "get-azkeyvault", "get-azsubscription"],
       "T1614": ["timedatectl", "locale"],
@@ -105,14 +123,12 @@
       "get-addomain", "get-adforest", "get-adobject", "get-adsyncconnector",
       "get-adsyncscheduler", "get-adsyncglobalsettings",
       "get-adsyncserverconfiguration", "get-adsyncconnectorstatistics",
-      "get-mgorganization", "get-mgcontext", "get-azureadtenantdetail",
-      "get-msolcompanyinformation", "get-azcontext", "get-aztenant", "get-item",
-      "get-itemproperty", "get-itempropertyvalue", "get-ciminstance",
-      "get-wmiobject", "gwmi", "get-acl", "get-command", "get-module",
-      "get-certificationauthority", "get-certificatetemplate",
-      "test-connection", "resolve-dnsname", "nltest", "dsquery", "dsget",
-      "query", "wmic", "sc", "setspn", "klist", "dsregcmd", "cmdkey", "where",
-      "get-mgsecurityalert", "get-mgdomain", "get-mgoauth2permissiongrant",
+      "get-mgcontext", "get-azcontext", "get-item", "get-itemproperty",
+      "get-itempropertyvalue", "get-ciminstance", "get-wmiobject", "gwmi",
+      "get-acl", "get-command", "get-module", "get-certificationauthority",
+      "get-certificatetemplate", "test-connection", "resolve-dnsname", "nltest",
+      "dsquery", "dsget", "query", "wmic", "sc", "setspn", "klist", "dsregcmd",
+      "cmdkey", "where", "get-mgsecurityalert", "get-mgoauth2permissiongrant",
       "get-mgserviceprincipalapproleassignment"
     ]
   },

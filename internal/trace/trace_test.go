@@ -3,6 +3,7 @@ package trace
 import (
 	"encoding/base64"
 	"encoding/binary"
+	"encoding/hex"
 	"reflect"
 	"slices"
 	"sync"
@@ -398,6 +399,49 @@ func TestBuildReadsEncodedPayloads(t *testing.T) {
 	}
 	if s := steps["plain.ps1"]; len(s.Activities) != 0 || !slices.Equal(s.Tools, []string{"get-date"}) {
 		t.Errorf("plain.ps1 = %+v, want it untouched", s)
+	}
+}
+
+// The commands an audit log and a trace of system calls record are read as
+// those of a script are. A script that quotes a record ran none of them.
+func TestBuildReadsRecordedCommands(t *testing.T) {
+	audit := `type=EXECVE msg=audit(1677650400.123:4567): argc=3 a0="chage" a1="-l" a2="root"` + "\n" +
+		`type=EXECVE msg=audit(1677650401.200:4568): argc=3 a0="grep" a1="PASS_MAX_DAYS" a2="/etc/login.defs"` + "\n" +
+		`type=PROCTITLE msg=audit(1677650402.300:4569): proctitle=` + hex.EncodeToString([]byte("cat\x00/etc/passwd")) + "\n"
+	traced := `execve("/usr/bin/nmap", ["nmap", "-sV", "10.0.0.5"], 0x7ffd5c3e1b40 /* 9 vars */) = 0` + "\n"
+	files := []evidence.File{
+		{Path: "audit.log", Role: evidence.Output},
+		{Path: "strace.txt", Role: evidence.Output},
+		{Path: "notes.sh", Role: evidence.Script},
+	}
+	texts := map[string]string{"audit.log": audit, "strace.txt": traced, "notes.sh": "# " + audit}
+	steps := map[string]Step{}
+	for _, s := range Build(files, texts, loadTables(t)).Steps {
+		steps[s.File.Path] = s
+	}
+	held := func(s Step) []string {
+		var names []string
+		for _, a := range s.Activities {
+			names = append(names, a.Name)
+		}
+		return names
+	}
+	log := steps["audit.log"]
+	for _, tool := range []string{"chage", "grep", "cat"} {
+		if !slices.Contains(log.Tools, tool) {
+			t.Errorf("audit.log tools = %q, want %s", log.Tools, tool)
+		}
+	}
+	for _, name := range []string{"PasswordPolicyDiscovery", "AccountEnumeration", "LocalAccountEnumeration"} {
+		if !slices.Contains(held(log), name) {
+			t.Errorf("audit.log activities = %q, want %s", held(log), name)
+		}
+	}
+	if s := steps["strace.txt"]; !slices.Contains(s.Tools, "nmap") || !slices.Contains(s.Tactics, "Discovery") {
+		t.Errorf("strace.txt = tools %q of %q, want nmap of Discovery", s.Tools, s.Tactics)
+	}
+	if s := steps["notes.sh"]; len(s.Activities) != 0 || len(s.Tools) != 0 {
+		t.Errorf("notes.sh = tools %q and %q, want a quoted record to count for nothing", s.Tools, held(s))
 	}
 }
 

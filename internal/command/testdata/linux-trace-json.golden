@@ -8,7 +8,7 @@
     "tools": "id, uname, cat, cut, systemctl, find, curl",
     "tactics": "Discovery, CredentialAccess",
     "transforms": null,
-    "activities": "SetuidFileSearch, CloudMetadataAccess, ServiceDiscovery, RemoteSystemDiscovery, LocalAccountEnumeration",
+    "activities": "SetuidFileSearch, CloudMetadataAccess, ServiceDiscovery, RemoteSystemDiscovery, LoggedOnUserDiscovery, AccountEnumeration, LocalAccountEnumeration, SecuritySoftwareDiscovery",
     "outputs": "passwd_20261022_090020.txt, hosts_20261022_090025.txt, suid_20261022_090030.txt, meta_20261022_090040.txt",
     "indicators": 2,
     "intel": null,
