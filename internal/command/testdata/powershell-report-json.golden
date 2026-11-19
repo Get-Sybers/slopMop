@@ -539,7 +539,7 @@
     "detail": "Identities, resources or configuration were listed. Later steps were probably aimed with the result.",
     "basis": "Discovery tools, exposed username, exposed tenant, exposed device, exposed ip",
     "files": "20250302_090000_step01_inventory.ps1, 20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1, 20250302_091500_step04_certs.ps1, hosts_20250302_090030.csv, sync_10.20.1.17_20250302_090530.txt, sync_10.20.1.17_retry_20250302_090930.txt",
-    "attack": null,
+    "attack": "T1018, T1083",
     "atlas": null,
     "targets": null,
     "evidence": "get-adcomputer: Get-ADComputer -Filter * -Server $Domain -Properties IPv4Address | (20250302_090000_step01_inventory.ps1:10)\nget-adsyncconnector: Get-ADSyncConnector | Select-Object Name, Type (20250302_090500_step02_sync.ps1:5)\nget-adsyncscheduler: Get-ADSyncScheduler (20250302_090500_step02_sync.ps1:6)\nget-adsyncconnector: Get-ADSyncConnector | Select-Object Name, Type (20250302_090900_step03_sync_retry.ps1:11)\nget-adsyncscheduler: Get-ADSyncScheduler (20250302_090900_step03_sync_retry.ps1:12)\nget-childitem: Invoke-Command -ComputerName $h -ScriptBlock { Get-ChildItem Cert:\\LocalMachine\\My } >> cert_store_20250302_091530.txt (20250302_091500_step04_certs.ps1:5)",

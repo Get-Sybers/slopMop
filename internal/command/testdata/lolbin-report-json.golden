@@ -106,7 +106,7 @@
   {
     "item": "activities",
     "section": "summary",
-    "value": 12,
+    "value": 15,
     "detail": null,
     "basis": null,
     "files": null,
@@ -118,6 +118,19 @@
   },
   {
     "item": "activities DomainAccountDiscovery",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null,
+    "exposed": null
+  },
+  {
+    "item": "activities DomainGroupEnumeration",
     "section": "summary",
     "value": 1,
     "detail": null,
@@ -195,6 +208,19 @@
     "exposed": null
   },
   {
+    "item": "activities ProcessDiscovery",
+    "section": "summary",
+    "value": 1,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null,
+    "exposed": null
+  },
+  {
     "item": "activities ProcessStart",
     "section": "summary",
     "value": 1,
@@ -211,6 +237,19 @@
     "item": "activities ReflectiveCodeLoading",
     "section": "summary",
     "value": 3,
+    "detail": null,
+    "basis": null,
+    "files": null,
+    "attack": null,
+    "atlas": null,
+    "targets": null,
+    "evidence": null,
+    "exposed": null
+  },
+  {
+    "item": "activities RemoteSystemDiscovery",
+    "section": "summary",
+    "value": 1,
     "detail": null,
     "basis": null,
     "files": null,
@@ -537,12 +576,12 @@
     "section": "impact",
     "value": "low",
     "detail": "Identities, resources or configuration were listed. Later steps were probably aimed with the result.",
-    "basis": "Discovery tools, exposed username",
+    "basis": "RemoteSystemDiscovery, ProcessDiscovery, DomainGroupEnumeration, Discovery tools, exposed username",
     "files": "20261020_100000_step01_recon.ps1, 20261020_102500_step06_pinvoke.ps1, recon_20261020_100030.txt",
-    "attack": null,
+    "attack": "T1018, T1057, T1069.002, T1033",
     "atlas": null,
     "targets": null,
-    "evidence": "whoami: whoami /all (20261020_100000_step01_recon.ps1:1)\nnltest: nltest /dclist:corp.example >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:2)\nnet.exe: net.exe group \"Domain Admins\" /domain >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:3)\nwmic.exe: wmic.exe process list brief (20261020_100000_step01_recon.ps1:4)\nwhoami: whoami (20261020_102500_step06_pinvoke.ps1:11)",
+    "evidence": "RemoteSystemDiscovery: nltest /dclist:corp.example >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:2)\nProcessDiscovery: wmic.exe process list brief (20261020_100000_step01_recon.ps1:4)\nDomainGroupEnumeration: net.exe group \"Domain Admins\" /domain >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:3)\nwhoami: whoami /all (20261020_100000_step01_recon.ps1:1)\nwhoami: whoami (20261020_102500_step06_pinvoke.ps1:11)",
     "exposed": "username: svc_build"
   },
   {
@@ -602,12 +641,12 @@
     "section": "remediation",
     "value": "low",
     "detail": "Use what was listed to predict targets: check those identities, vaults and hosts for later activity.",
-    "basis": "Discovery tools, exposed username",
+    "basis": "RemoteSystemDiscovery, ProcessDiscovery, DomainGroupEnumeration, Discovery tools, exposed username",
     "files": "20261020_100000_step01_recon.ps1, 20261020_102500_step06_pinvoke.ps1, recon_20261020_100030.txt",
     "attack": null,
     "atlas": null,
     "targets": null,
-    "evidence": "whoami: whoami /all (20261020_100000_step01_recon.ps1:1)\nnltest: nltest /dclist:corp.example >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:2)\nnet.exe: net.exe group \"Domain Admins\" /domain >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:3)\nwmic.exe: wmic.exe process list brief (20261020_100000_step01_recon.ps1:4)\nwhoami: whoami (20261020_102500_step06_pinvoke.ps1:11)",
+    "evidence": "RemoteSystemDiscovery: nltest /dclist:corp.example >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:2)\nProcessDiscovery: wmic.exe process list brief (20261020_100000_step01_recon.ps1:4)\nDomainGroupEnumeration: net.exe group \"Domain Admins\" /domain >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:3)\nwhoami: whoami /all (20261020_100000_step01_recon.ps1:1)\nwhoami: whoami (20261020_102500_step06_pinvoke.ps1:11)",
     "exposed": "username: svc_build"
   },
   {

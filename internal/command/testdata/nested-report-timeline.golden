@@ -4,14 +4,13 @@ slopmop report   <folder>
 
 Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools of a tactic that no technique is named for)
   [i] Discovery                       2025-03-01T10:15:00Z
-      tools      nmap                                          TA0007  Discovery
-      no MITRE ATT&CK technique identified
+      T1046      Network Service Discovery                     TA0007  Discovery
 
   [x] Discovery, CredentialAccess     2025-03-01T10:18:00Z to 2025-03-01T10:23:00Z
       T1135      Network Share Discovery                       TA0007  Discovery
+      T1087.002  Account Discovery: Domain Account             TA0007  Discovery           AML.T0075  Enterprise Resource Discovery
       T1087.004  Account Discovery: Cloud Account              TA0007  Discovery           AML.T0075  Enterprise Resource Discovery
       T1087      Account Discovery                             TA0007  Discovery
-      tools      ldapsearch                                    TA0007  Discovery
       tools      nxc, adconnectdump.py                         TA0006  CredentialAccess
 
   [!] Execution                       2025-03-01T10:27:00Z

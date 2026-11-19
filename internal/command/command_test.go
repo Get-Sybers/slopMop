@@ -322,7 +322,7 @@ func TestReportIntents(t *testing.T) {
 	if row["from"] != first || row["until"] != last || row["seconds"] != "40" {
 		t.Errorf("i1041 runs from %v to %v, %v seconds, want %s to %s, 40", row["from"], row["until"], row["seconds"], first, last)
 	}
-	if row["attack"] != "T1083, T1552.005, T1007, T1087.001" || row["atlas"] != "AML.T0055" {
+	if row["attack"] != "T1083, T1552.005, T1007, T1018, T1087.001, T1033, T1082" || row["atlas"] != "AML.T0055" {
 		t.Errorf("i1041 has ATT&CK %v and ATLAS %v", row["attack"], row["atlas"])
 	}
 	if session := find(t, table, map[string]string{"intent": "i1051"}); session["task"] != nil || session["files"] != "data/noa/exp3-worker-i1051.sh, i1051_audit_20261022_093500.jsonl" {

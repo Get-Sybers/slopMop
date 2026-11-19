@@ -8,7 +8,7 @@
     "tools": "out-file, whoami, nltest, net.exe, wmic.exe",
     "tactics": "Discovery",
     "transforms": null,
-    "activities": null,
+    "activities": "RemoteSystemDiscovery, ProcessDiscovery, DomainGroupEnumeration",
     "outputs": "recon_20261020_100030.txt",
     "indicators": 1,
     "intel": null,

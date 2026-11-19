@@ -309,6 +309,36 @@ the operations it shows.
   `Copy-Item` from a share collect what it holds, and to a share they carry a file to another
   system, as `get` and `put` of `smbclient` do. A copy between two shares collects. A copy on
   one machine is no activity, and neither is a share that is made, `net share name=path`.
+- What a system, its network and its cloud are is learnt by the commands ATT&CK files under
+  Discovery, and the two tables share them. A command whose name alone says what it learns is
+  filed under its technique in `tactics.json`: `whoami` is `T1033`, `systeminfo` `T1082`,
+  `ipconfig` `T1016`, `netstat` `T1049` and `tasklist` `T1057`. A command that a flag, a
+  subcommand or a path decides is an activity: `net user` lists the accounts of a system and
+  `net user /domain` those of a domain, and `esxcli`, `aws`, `az`, `gcloud`, `docker` and
+  `kubectl` are read by their subcommand.
+- A subcommand of `net` is read with what it may be given, to the end of the command.
+  `net accounts` and `net accounts /domain` show the password policy; `net accounts /minpwlen:0`
+  sets it and shows nothing, and neither does the line of a help text that sets out the syntax.
+- A file is read by the command that reads it: `cat`, `less`, `more`, `head`, `tail`, `cut` and
+  `sort` before their options and paths, and `grep` and `awk` anywhere before the path.
+  `/etc/passwd` gives the accounts of a system, `/etc/group` its groups, `/etc/hosts` the other
+  systems, `/etc/os-release` what the system is, `/etc/login.defs` the password policy and a
+  file of `/var/log` its logs. A sentence that names the path shows nothing.
+- A command of a network device, `show version` or `show ip route`, is read where it begins a
+  line, stands in quotes or follows a prompt.
+- Security software and backup software are discovered where a command that lists processes,
+  services, packages or paths names a product: `tasklist | findstr MsMpEng`,
+  `systemctl status falcon-sensor`, `sc query VeeamBackupSvc`. The command stands where a
+  command begins, and one that stops the product is no discovery.
+- A check for a virtual machine names what it looks for: a file of `/sys/class/dmi/id`,
+  `systemd-detect-virt`, or a maker of virtual machines beside `dmidecode`, `lspci`, `dmesg`,
+  `systeminfo` and the like. `dmidecode` alone is `T1082`.
+- A reachable Internet is tested by `ping`, `tracert`, `Test-NetConnection`, `curl` or `wget`
+  against a public resolver, a large site or an address made for the test. The same command
+  against any other host shows no activity.
+- A technique has two activities where a command and an output each show it:
+  `LocalAccountEnumeration` is the command that lists the accounts, and `LocalAccountDiscovery`
+  the output that holds them.
 
 | Activity | Tactics | ATT&CK |
 | --- | --- | --- |
@@ -377,6 +407,45 @@ the operations it shows.
 | `NetworkShareCollection` | Collection | T1039 |
 | `LateralToolTransfer` | LateralMovement | T1570 |
 | `NetworkShareConnectionRemoval` | Stealth | T1070.005 |
+| `ApplicationWindowDiscovery` | Discovery | T1010 |
+| `NetworkConfigurationDiscovery` | Discovery | T1016 |
+| `InternetConnectionDiscovery` | Discovery | T1016.001 |
+| `WifiDiscovery` | Discovery | T1016.002 |
+| `RemoteSystemDiscovery` | Discovery | T1018 |
+| `LoggedOnUserDiscovery` | Discovery | T1033 |
+| `NetworkSniffing` | Discovery | T1040 |
+| `NetworkServiceDiscovery` | Discovery | T1046 |
+| `NetworkConnectionDiscovery` | Discovery | T1049 |
+| `ProcessDiscovery` | Discovery | T1057 |
+| `LocalGroupEnumeration` | Discovery | T1069.001 |
+| `DomainGroupEnumeration` | Discovery | T1069.002 |
+| `CloudGroupEnumeration` | Discovery | T1069.003 |
+| `SystemInformationDiscovery` | Discovery | T1082 |
+| `FileAndDirectoryDiscovery` | Discovery | T1083 |
+| `LocalAccountEnumeration` | Discovery | T1087.001 |
+| `DomainAccountEnumeration` | Discovery | T1087.002 |
+| `CloudAccountEnumeration` | Discovery | T1087.004 |
+| `PeripheralDeviceDiscovery` | Discovery | T1120 |
+| `SystemTimeDiscovery` | Discovery | T1124 |
+| `PasswordPolicyDiscovery` | Discovery | T1201 |
+| `BrowserInformationDiscovery` | Discovery | T1217 |
+| `DomainTrustDiscovery` | Discovery | T1482 |
+| `VirtualMachineCheck` | Discovery | T1497.001 |
+| `UserActivityCheck` | Discovery | T1497.002 |
+| `SoftwareDiscovery` | Discovery | T1518 |
+| `SecuritySoftwareDiscovery` | Discovery | T1518.001 |
+| `BackupSoftwareDiscovery` | Discovery | T1518.002 |
+| `CloudServiceDiscovery` | Discovery | T1526 |
+| `CloudInfrastructureDiscovery` | Discovery | T1580 |
+| `ContainerResourceDiscovery` | Discovery | T1613 |
+| `SystemLocationDiscovery` | Discovery | T1614 |
+| `SystemLanguageDiscovery` | Discovery | T1614.001 |
+| `CloudStorageObjectDiscovery` | Discovery | T1619 |
+| `DebuggerCheck` | Discovery | T1622 |
+| `DeviceDriverDiscovery` | Discovery | T1652 |
+| `LogEnumeration` | Discovery | T1654 |
+| `VirtualMachineDiscovery` | Discovery | T1673 |
+| `LocalStorageDiscovery` | Discovery | T1680 |
 
 ## 11. Watchlist
 

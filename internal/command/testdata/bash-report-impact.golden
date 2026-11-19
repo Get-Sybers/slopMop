@@ -27,7 +27,7 @@ Impact
                username: svc_adsync
                username: svc_backup@corp.example
                email, Microsoft 365: Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com
-      basis    NetworkShareDiscovery, Discovery tools, exposed username, exposed email, exposed tenant, exposed device, exposed ip
+      basis    NetworkShareDiscovery, DomainAccountEnumeration, Discovery tools, exposed username, exposed email, exposed tenant, exposed device, exposed ip
 
 Remediation   (most urgent first)
   [x] Rotate what was read
@@ -56,7 +56,7 @@ Remediation   (most urgent first)
                username: svc_adsync
                username: svc_backup@corp.example
                email, Microsoft 365: Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com
-      basis    NetworkShareDiscovery, Discovery tools, exposed username, exposed email, exposed tenant, exposed device, exposed ip
+      basis    NetworkShareDiscovery, DomainAccountEnumeration, Discovery tools, exposed username, exposed email, exposed tenant, exposed device, exposed ip
 
 [x] HIGH - 4 impacts: 2 high, 2 low
 -> saved to <out>: report.txt, report.md, report.html, files.csv, trace.json, intents.csv, findings.csv, findings.json, targeted.json, exposure.csv, report.json

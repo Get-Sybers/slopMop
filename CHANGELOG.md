@@ -6,6 +6,78 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Added
+
+- A command of Discovery shows its technique. The techniques, their commands and the flags that
+  tell them apart are those of the detection analytics ATT&CK 20.1 gives for the 49 techniques
+  of Discovery, and 44 of the 49 are found by a command.
+- `tactics.json` files 119 commands of Discovery under 30 techniques by their names: `whoami`,
+  `id` and `quser` are `T1033`, `systeminfo`, `uname` and `hostname` `T1082`, `ipconfig`,
+  `ifconfig` and `route` `T1016`, `netstat` and `ss` `T1049`, `ps` and `tasklist` `T1057`, `ls`,
+  `dir` and `find` `T1083`, `nmap` `T1046`, and a cmdlet of Active Directory, Entra ID or Azure
+  the technique of what it lists. The timeline has a row for the technique where it listed the
+  command as a tool, and the mitigations address it. The table files 329 of its 518 commands,
+  under 94 techniques.
+- 37 commands are new to the table, all of Discovery: `tcpdump`, `tshark` and `wireshark`
+  (`T1040`), `top`, `htop`, `uptime`, `lscpu`, `lspci`, `dmidecode`, `sw_vers`, `tree`,
+  `groups`, `nmblookup`, `ioreg`, `timedatectl`, `hwclock`, `locale`, `gpresult`,
+  `driverquery`, `lsmod`, `modinfo`, `kextstat`, `kextfind`, `journalctl`, `Get-TimeZone`,
+  `Get-VM`, `Get-PSDrive`, `Get-DomainGPO`, `Get-DomainGPOLocalGroup`,
+  `Get-ADDefaultDomainPasswordPolicy`, `Get-MsolPasswordPolicy`, `Get-GlobalAddressList`,
+  `Get-MsolRoleMember`, `Get-RoleGroup`, `Get-Recipient`, `Get-Mailbox` and `Get-User`. A script
+  that runs one of them shows Discovery.
+- A command that a flag, a subcommand or a path makes a discovery is an activity, with its
+  lines as evidence. `net`, `wmic`, `netsh`, `nltest`, `esxcli`, `aws`, `az`, `gcloud`, `docker`
+  and `kubectl` stand under no technique by their names: `net user` is
+  `LocalAccountEnumeration`, `T1087.001`, and `net user /domain` `DomainAccountEnumeration`,
+  `T1087.002`. The 39 activities are `ApplicationWindowDiscovery` (`T1010`),
+  `NetworkConfigurationDiscovery` (`T1016`), `InternetConnectionDiscovery` (`T1016.001`),
+  `WifiDiscovery` (`T1016.002`), `RemoteSystemDiscovery` (`T1018`), `LoggedOnUserDiscovery`
+  (`T1033`), `NetworkSniffing` (`T1040`), `NetworkServiceDiscovery` (`T1046`),
+  `NetworkConnectionDiscovery` (`T1049`), `ProcessDiscovery` (`T1057`), `LocalGroupEnumeration`
+  (`T1069.001`), `DomainGroupEnumeration` (`T1069.002`), `CloudGroupEnumeration` (`T1069.003`),
+  `SystemInformationDiscovery` (`T1082`), `FileAndDirectoryDiscovery` (`T1083`),
+  `LocalAccountEnumeration` (`T1087.001`), `DomainAccountEnumeration` (`T1087.002`),
+  `CloudAccountEnumeration` (`T1087.004`), `PeripheralDeviceDiscovery` (`T1120`),
+  `SystemTimeDiscovery` (`T1124`), `PasswordPolicyDiscovery` (`T1201`),
+  `BrowserInformationDiscovery` (`T1217`), `DomainTrustDiscovery` (`T1482`),
+  `VirtualMachineCheck` (`T1497.001`), `UserActivityCheck` (`T1497.002`), `SoftwareDiscovery`
+  (`T1518`), `SecuritySoftwareDiscovery` (`T1518.001`), `BackupSoftwareDiscovery`
+  (`T1518.002`), `CloudServiceDiscovery` (`T1526`), `CloudInfrastructureDiscovery` (`T1580`),
+  `ContainerResourceDiscovery` (`T1613`), `SystemLocationDiscovery` (`T1614`),
+  `SystemLanguageDiscovery` (`T1614.001`), `CloudStorageObjectDiscovery` (`T1619`),
+  `DebuggerCheck` (`T1622`), `DeviceDriverDiscovery` (`T1652`), `LogEnumeration` (`T1654`),
+  `VirtualMachineDiscovery` (`T1673`) and `LocalStorageDiscovery` (`T1680`). Each is a finding
+  with its lines, a row of the timeline, and in the impact `Environment mapped`, the action
+  `Follow what was enumerated` and the mitigations.
+- The activities read the commands of Windows, Linux, macOS, ESXi, a network device, the clouds
+  and containers: `net`, `wmic`, `netsh`, `nltest`, `dsquery` and `query`; the files of `/etc`,
+  `/proc`, `/sys` and `/var/log` by the command that reads them; `dscl`, `system_profiler` and
+  `networksetup`; `esxcli` and `vim-cmd`; `show` in quotes, at the start of a line or after a
+  prompt; `aws`, `az`, `gcloud` and `gsutil`; `docker` and `kubectl`; and the functions of the
+  Windows API a script declares.
+- `ServiceDiscovery` reads `tasklist /svc`, `net start`, `launchctl list`, a command that lists
+  or reads `/etc/init.d` and `ps` searched for `com.apple.`, and `NetworkShareDiscovery` reads
+  `smbutil view` and `sharing -l`.
+- What a discovery acts on is a target and stands in the columns of its finding: the account
+  `net user` is asked about, the file a command reads, `/etc/passwd` or a history of a browser,
+  the log `wevtutil` queries or the file of `/var/log`, the host `net time` asks, the bucket
+  `aws s3 ls` lists and the namespace of `kubectl`.
+- A check for a virtual machine is `T1497.001` where the line says what it looks for. `lspci`,
+  `dmidecode` and `system_profiler SPHardwareDataType` alone are `T1082`.
+- Five techniques of Discovery are found by no command. `T1069` and `T1087` are found by what
+  an output holds and as their parts, and `T1497` as `T1497.001` and `T1497.002`. `T1538` is
+  the use of a console in a browser and leaves no command, and a wait is no `T1497.003` by
+  its shape.
+
+### Changed
+
+- These lines showed no activity and show one: `net user`, `net view`, `net use`, `docker ps`,
+  `kubectl get pods`, `cat /etc/passwd`, `tail /var/log/syslog`, `nc -zv`, `wevtutil qe` and
+  `az role assignment list`. A listing of the containers through the socket of Docker is
+  `ContainerResourceDiscovery` as well as `ContainerEscape`, and `systemctl status auditd` is
+  `SecuritySoftwareDiscovery` as well as `ServiceDiscovery`.
+
 ## [0.6.4] - 2026-11-19
 
 ### Added

@@ -166,6 +166,45 @@ func TestTechnique(t *testing.T) {
 	}
 }
 
+// A command of Discovery is filed under the technique its name alone gives.
+// One whose flags or subcommand decide what it learns stands under none.
+func TestDiscoveryTechniques(t *testing.T) {
+	tab, err := LoadTactics()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tt := range []struct{ command, want string }{
+		{"Get-Service", "T1007"},
+		{"ipconfig", "T1016"}, {"ifconfig", "T1016"}, {"ip", "T1016"}, {"route.exe", "T1016"},
+		{"arp", "T1018"}, {"Get-ADComputer", "T1018"},
+		{"whoami", "T1033"}, {"id", "T1033"}, {"quser", "T1033"},
+		{"tcpdump", "T1040"}, {"nmap", "T1046"},
+		{"netstat", "T1049"}, {"ss", "T1049"}, {"Get-NetTCPConnection", "T1049"},
+		{"ps", "T1057"}, {"tasklist.exe", "T1057"}, {"Get-Process", "T1057"},
+		{"groups", "T1069.001"}, {"Get-ADGroupMember", "T1069.002"}, {"Get-MgGroup", "T1069.003"},
+		{"systeminfo", "T1082"}, {"uname", "T1082"}, {"dmidecode", "T1082"}, {"Get-ComputerInfo", "T1082"},
+		{"ls", "T1083"}, {"dir", "T1083"}, {"tree", "T1083"}, {"Get-ChildItem", "T1083"},
+		{"Get-LocalUser", "T1087.001"}, {"ldapsearch", "T1087.002"}, {"Get-ADUser", "T1087.002"},
+		{"Get-GlobalAddressList", "T1087.003"}, {"Get-MgUser", "T1087.004"}, {"Get-Mailbox", "T1087.004"},
+		{"ioreg", "T1120"}, {"timedatectl", "T1124"}, {"Get-SmbShare", "T1135"},
+		{"Get-ADDefaultDomainPasswordPolicy", "T1201"}, {"Get-ADTrust", "T1482"},
+		{"Get-MgApplication", "T1526"}, {"Get-AzResource", "T1580"},
+		{"locale", "T1614.001"}, {"gpresult", "T1615"}, {"lsmod", "T1652"},
+		{"journalctl", "T1654"}, {"Get-WinEvent", "T1654"}, {"Get-VM", "T1673"},
+		{"lsblk", "T1680"}, {"Get-PSDrive", "T1680"},
+
+		{"net", ""}, {"nltest", ""}, {"netsh", ""}, {"wmic", ""}, {"sc", ""}, {"query", ""},
+		{"aws", ""}, {"az", ""}, {"gcloud", ""}, {"docker", ""}, {"kubectl", ""}, {"ping", ""}, {"dpkg", ""},
+	} {
+		if got := tab.Technique(tt.command); got != tt.want {
+			t.Errorf("Technique(%q) = %q, want %q", tt.command, got, tt.want)
+		}
+		if got := tab.Classify(tt.command); got != "Discovery" {
+			t.Errorf("Classify(%q) = %q, want Discovery", tt.command, got)
+		}
+	}
+}
+
 func TestDecodeRejectsTrailingData(t *testing.T) {
 	_, err := decode([]byte(`[{"tactic":"A","commands":["x"]}] extra`))
 	if err == nil {

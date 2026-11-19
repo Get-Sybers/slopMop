@@ -24,8 +24,9 @@ Timeline   (a block for each intent, from the first of its files to be created u
       T1078.004  Valid Accounts: Cloud Accounts                                  TA0001  InitialAccess          AML.T0012  Valid Accounts
       T1087.004  Account Discovery: Cloud Account                                TA0007  Discovery              AML.T0075  Enterprise Resource Discovery
       T1069.003  Permission Groups Discovery: Cloud Groups                       TA0007  Discovery              AML.T0075  Enterprise Resource Discovery
+      T1526      Cloud Service Discovery                                         TA0007  Discovery
       T1087.003  Account Discovery: Email Account                                TA0007  Discovery
-      tools      az, get-mgapplication                                           TA0007  Discovery
+      tools      az                                                              TA0007  Discovery
 
   [x] PrivilegeEscalation, Persistence                              2026-10-15T09:10:00Z
       T1098.003  Account Manipulation: Additional Cloud Roles                    TA0004  PrivilegeEscalation
