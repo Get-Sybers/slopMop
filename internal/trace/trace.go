@@ -133,6 +133,21 @@ func readFile(f evidence.File, text string, script *parse.Script, formats struct
 		p := parse.ExtractBatch(r.text)
 		r.parsed = &p
 	}
+	// The commands an audit log records are read as those of a script are,
+	// and stand in the text so that an activity is found in them.
+	if run := audited(f, r.text); len(run) > 0 {
+		var p parse.Script
+		if r.parsed != nil {
+			p = *r.parsed
+		}
+		for _, line := range run {
+			c := parse.ExtractCommand(line)
+			p.Commands = append(p.Commands[:len(p.Commands):len(p.Commands)], c.Commands...)
+			p.Transforms = append(p.Transforms[:len(p.Transforms):len(p.Transforms)], c.Transforms...)
+		}
+		r.parsed = &p
+		r.text += "\n" + strings.Join(run, "\n")
+	}
 	if hidden, extra := decodePayloads(r.text); extra != "" {
 		var p parse.Script
 		if r.parsed != nil {
@@ -249,6 +264,16 @@ func sortByTime(files []evidence.File) []evidence.File {
 // itself carry an encoded command.
 const payloadDepth = 2
 
+// audited returns the commands a file that is no script records as an audit
+// log of Linux or a trace of system calls does. A script that quotes such a
+// record ran none of them.
+func audited(f evidence.File, text string) []string {
+	if f.Role == evidence.Script {
+		return nil
+	}
+	return append(parse.Audited(text), parse.Traced(text)...)
+}
+
 // decodePayloads reads what a text carries encoded. It returns the commands
 // of the PowerShell payloads and the text of every payload, so that the
 // activities and indicators inside them are found too. Nothing is run.
@@ -358,9 +383,11 @@ func classifyTools(tools []string, t tactic.Table) []string {
 	seen := map[string]bool{}
 	var tactics []string
 	for _, tool := range tools {
-		if tac := t.Classify(tool); tac != "" && !seen[tac] {
-			seen[tac] = true
-			tactics = append(tactics, tac)
+		for _, tac := range t.Tactics(tool) {
+			if !seen[tac] {
+				seen[tac] = true
+				tactics = append(tactics, tac)
+			}
 		}
 	}
 	return tactics

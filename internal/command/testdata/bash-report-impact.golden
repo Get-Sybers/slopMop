@@ -22,12 +22,14 @@ Impact
       basis    the premise of the tool
   [i] Environment mapped
       Identities, resources or configuration were listed. Later steps were probably aimed with the result.
-      exposed  password of svc_backup, DC01, AADC01: Winter2025!
-               username, Microsoft 365: MSOL_0a1b2c3d4e5f
+      exposed  password of MSOL_0a1b2c3d4e5f, Microsoft 365, 10.20.1.5: Qw7#fakeMsolSecretValue99
+               hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
+               password: Export1!
+               password of svc_backup, DC01, AADC01: Winter2025!
                username: svc_adsync
                username: svc_backup@corp.example
                email, Microsoft 365: Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com
-      basis    NetworkShareDiscovery, Discovery tools, exposed username, exposed email, exposed tenant, exposed device, exposed ip
+      basis    NetworkShareDiscovery, NetworkServiceDiscovery, DomainAccountEnumeration, Discovery tools, exposed username, exposed email, exposed tenant, exposed device, exposed ip
 
 Remediation   (most urgent first)
   [x] Rotate what was read
@@ -51,12 +53,14 @@ Remediation   (most urgent first)
       basis    FileUpload
   [i] Follow what was enumerated
       Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
-      exposed  password of svc_backup, DC01, AADC01: Winter2025!
-               username, Microsoft 365: MSOL_0a1b2c3d4e5f
+      exposed  password of MSOL_0a1b2c3d4e5f, Microsoft 365, 10.20.1.5: Qw7#fakeMsolSecretValue99
+               hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
+               password: Export1!
+               password of svc_backup, DC01, AADC01: Winter2025!
                username: svc_adsync
                username: svc_backup@corp.example
                email, Microsoft 365: Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com
-      basis    NetworkShareDiscovery, Discovery tools, exposed username, exposed email, exposed tenant, exposed device, exposed ip
+      basis    NetworkShareDiscovery, NetworkServiceDiscovery, DomainAccountEnumeration, Discovery tools, exposed username, exposed email, exposed tenant, exposed device, exposed ip
 
 [x] HIGH - 4 impacts: 2 high, 2 low
 -> saved to <out>: report.txt, report.md, report.html, files.csv, trace.json, intents.csv, findings.csv, findings.json, targeted.json, exposure.csv, report.json

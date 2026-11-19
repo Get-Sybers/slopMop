@@ -19,7 +19,9 @@ var (
 		"requests.request": true, "urllib.request.urlopen": true,
 		"urllib.request.urlretrieve": true, "socket.create_connection": true,
 	}
-	pyCodeCalls      = map[string]bool{"eval": true, "exec": true}
+	pyCodeCalls = map[string]bool{"eval": true, "exec": true}
+	// pyWaitCalls put a script to sleep, which the tactic table files as a technique.
+	pyWaitCalls      = map[string]bool{"time.sleep": true}
 	pyTransformCalls = map[string]string{
 		"base64.b64encode":           "Base64Encode",
 		"base64.urlsafe_b64encode":   "Base64Encode",
@@ -293,7 +295,7 @@ func (p *pyState) extractCalls(l pyLine, masked string) {
 			if len(args) > 0 {
 				p.extractInvocation(args[0], l.no)
 			}
-		case pyNetCalls[name] || pyCodeCalls[name]:
+		case pyNetCalls[name] || pyCodeCalls[name] || pyWaitCalls[name]:
 			p.addCommand(l, name)
 		case p.seen["i:socket"] && (strings.HasSuffix(called, ".connect") || strings.HasSuffix(called, ".connect_ex")):
 			p.addCommand(l, "socket.connect")

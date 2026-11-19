@@ -132,7 +132,7 @@ footer code { font-family: inherit; }
 <tbody>
 <tr class="entry"><td class="cell">files</td><td class="cell">14</td><td class="cell">7 scripts, 7 outputs</td></tr>
 <tr class="entry"><td class="cell">indicators</td><td class="cell">15</td><td class="cell">4 Domain, 1 Email, 7 IPv4, 3 URL</td></tr>
-<tr class="entry"><td class="cell">activities</td><td class="cell">28</td><td class="cell"></td></tr>
+<tr class="entry"><td class="cell">activities</td><td class="cell">34</td><td class="cell"></td></tr>
 <tr class="entry"><td class="cell">tactics</td><td class="cell">11</td><td class="cell"></td></tr>
 <tr class="entry"><td class="cell">targeted</td><td class="cell">5</td><td class="cell">Hostnames 1, IP addresses 4</td></tr>
 <tr class="entry"><td class="cell">exposed</td><td class="cell">18</td><td class="cell">Passwords and secrets 3, Usernames 6, Email addresses 1, Devices 2, IP addresses 6</td></tr>
@@ -157,7 +157,7 @@ footer code { font-family: inherit; }
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">Collection</td><td class="cell">TA0009, AML.TA0009</td><td class="cell">20261022_092500_step06_stage.sh</td></tr>
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">Execution</td><td class="cell">TA0002, AML.TA0005</td><td class="cell">20261022_091500_step04_persist.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py and 1 more</td></tr>
 <tr class="entry"><td class="mark medium">[!]</td><td class="cell">Stealth</td><td class="cell">TA0005, AML.TA0007</td><td class="cell">20261022_092000_step05_evade.sh</td></tr>
-<tr class="entry"><td class="mark low">[i]</td><td class="cell">Discovery</td><td class="cell">TA0007, AML.TA0008</td><td class="cell">20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 3 more</td></tr>
+<tr class="entry"><td class="mark low">[i]</td><td class="cell">Discovery</td><td class="cell">TA0007, AML.TA0008</td><td class="cell">20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 7 more</td></tr>
 </tbody>
 </table>
 </div>
@@ -171,9 +171,20 @@ footer code { font-family: inherit; }
 <div class="head"><span class="mark high">[x]</span><span class="name">Discovery, CredentialAccess</span><span class="rest">2026-10-22T09:00:00Z to 2026-10-22T09:05:40Z</span></div>
 <div class="line"><span class="id">T1083</span><span class="what">File and Directory Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
 <div class="line begins"><span class="id">T1007</span><span class="what">System Service Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1018</span><span class="what">Remote System Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1033</span><span class="what">System Owner/User Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1087</span><span class="what">Account Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
 <div class="line begins"><span class="id">T1087.001</span><span class="what">Account Discovery: Local Account</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1518.001</span><span class="what">Software Discovery: Security Software Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1069</span><span class="what">Permission Groups Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1069.001</span><span class="what">Permission Groups Discovery: Local Groups</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1082</span><span class="what">System Information Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1654</span><span class="what">Log Enumeration</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1518.002</span><span class="what">Software Discovery: Backup Software Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1016.001</span><span class="what">System Network Configuration Discovery: Internet Connection Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1046</span><span class="what">Network Service Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
 <div class="line begins"><span class="id">T1087.003</span><span class="what">Account Discovery: Email Account</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
-<div class="line begins"><span class="id kind">tools</span><span class="what">id, uname, find, kubectl</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id kind">tools</span><span class="what">kubectl</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
 <div class="line begins"><span class="id">T1552.005</span><span class="what">Unsecured Credentials: Cloud Instance Metadata API</span><span class="id far">TA0006</span><span class="what">CredentialAccess</span><span class="id">AML.T0055</span><span class="what">Unsecured Credentials</span></div>
 <div class="line begins"><span class="id">T1003.008</span><span class="what">OS Credential Dumping: /etc/passwd and /etc/shadow</span><span class="id far">TA0006</span><span class="what">CredentialAccess</span><span class="id">AML.T0090</span><span class="what">OS Credential Dumping</span></div>
 <div class="line begins"><span class="id">T1552.004</span><span class="what">Unsecured Credentials: Private Keys</span><span class="id far">TA0006</span><span class="what">CredentialAccess</span><span class="id">AML.T0055</span><span class="what">Unsecured Credentials</span></div>
@@ -189,8 +200,9 @@ footer code { font-family: inherit; }
 <div class="line begins"><span class="id">T1611</span><span class="what">Escape to Host</span><span class="id far">TA0004</span><span class="what">PrivilegeEscalation</span><span class="id">AML.T0105</span><span class="what">Escape to Host</span></div>
 </li>
 <li class="block"><span class="dot high"></span>
-<div class="head"><span class="mark high">[x]</span><span class="name">Execution, PrivilegeEscalation, Persistence</span><span class="rest">2026-10-22T09:15:00Z</span></div>
-<div class="line"><span class="id">T1053.003</span><span class="what">Scheduled Task/Job: Cron</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id"></span><span class="what"></span></div>
+<div class="head"><span class="mark high">[x]</span><span class="name">Discovery, Execution, PrivilegeEscalation, Persistence</span><span class="rest">2026-10-22T09:15:00Z</span></div>
+<div class="line"><span class="id">T1518.002</span><span class="what">Software Discovery: Backup Software Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1053.003</span><span class="what">Scheduled Task/Job: Cron</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id"></span><span class="what"></span></div>
 <div class="line"><span class="id"></span><span class="what"></span><span class="id far">TA0003</span><span class="what">Persistence</span><span class="id"></span><span class="what"></span></div>
 <div class="line begins"><span class="id">T1053.002</span><span class="what">Scheduled Task/Job: At</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id"></span><span class="what"></span></div>
 <div class="line"><span class="id"></span><span class="what"></span><span class="id far">TA0003</span><span class="what">Persistence</span><span class="id"></span><span class="what"></span></div>
@@ -203,8 +215,9 @@ footer code { font-family: inherit; }
 <div class="line begins"><span class="id">T1546.004</span><span class="what">Event Triggered Execution: Unix Shell Configuration Modification</span><span class="id far">TA0003</span><span class="what">Persistence</span><span class="id">AML.T0142</span><span class="what">Event Triggered Execution</span></div>
 </li>
 <li class="block"><span class="dot high"></span>
-<div class="head"><span class="mark high">[x]</span><span class="name">Stealth, DefenseImpairment</span><span class="rest">2026-10-22T09:20:00Z</span></div>
-<div class="line"><span class="id">T1070.003</span><span class="what">Indicator Removal: Clear Command History</span><span class="id far">TA0005</span><span class="what">Stealth</span><span class="id">AML.T0138</span><span class="what">Indicator Removal</span></div>
+<div class="head"><span class="mark high">[x]</span><span class="name">Discovery, Stealth, DefenseImpairment</span><span class="rest">2026-10-22T09:20:00Z</span></div>
+<div class="line"><span class="id">T1518.002</span><span class="what">Software Discovery: Backup Software Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1070.003</span><span class="what">Indicator Removal: Clear Command History</span><span class="id far">TA0005</span><span class="what">Stealth</span><span class="id">AML.T0138</span><span class="what">Indicator Removal</span></div>
 <div class="line begins"><span class="id">T1070.006</span><span class="what">Indicator Removal: Timestomp</span><span class="id far">TA0005</span><span class="what">Stealth</span><span class="id">AML.T0138</span><span class="what">Indicator Removal</span></div>
 <div class="line begins"><span class="id">T1685.006</span><span class="what">Disable or Modify Tools: Clear Linux or Mac System Logs</span><span class="id far">TA0112</span><span class="what">DefenseImpairment</span><span class="id"></span><span class="what"></span></div>
 <div class="line begins"><span class="id">T1690</span><span class="what">Prevent Command History Logging</span><span class="id far">TA0112</span><span class="what">DefenseImpairment</span><span class="id"></span><span class="what"></span></div>
@@ -214,7 +227,16 @@ footer code { font-family: inherit; }
 </li>
 <li class="block"><span class="dot high"></span>
 <div class="head"><span class="mark high">[x]</span><span class="name">Discovery, LateralMovement, Execution, Collection, CommandAndControl, Exfiltration</span><span class="rest">2026-10-22T09:25:00Z to 2026-10-22T09:30:00Z</span></div>
-<div class="line"><span class="id kind">tools</span><span class="what">find, id, uname</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line"><span class="id">T1016.001</span><span class="what">System Network Configuration Discovery: Internet Connection Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1046</span><span class="what">Network Service Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1654</span><span class="what">Log Enumeration</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1083</span><span class="what">File and Directory Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1518.002</span><span class="what">Software Discovery: Backup Software Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1033</span><span class="what">System Owner/User Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1069</span><span class="what">Permission Groups Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1069.001</span><span class="what">Permission Groups Discovery: Local Groups</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1087.001</span><span class="what">Account Discovery: Local Account</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1082</span><span class="what">System Information Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
 <div class="line begins"><span class="id">T1021.004</span><span class="what">Remote Services: SSH</span><span class="id far">TA0008</span><span class="what">LateralMovement</span><span class="id"></span><span class="what"></span></div>
 <div class="line begins"><span class="id">T1059.004</span><span class="what">Command and Scripting Interpreter: Unix Shell</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id">AML.T0050</span><span class="what">Command and Scripting Interpreter</span></div>
 <div class="line begins"><span class="id">T1059</span><span class="what">Command and Scripting Interpreter</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id">AML.T0050</span><span class="what">Command and Scripting Interpreter</span></div>
@@ -225,8 +247,9 @@ footer code { font-family: inherit; }
 <div class="line begins"><span class="id kind">tools</span><span class="what">nc</span><span class="id far">TA0010</span><span class="what">Exfiltration</span><span class="id"></span><span class="what"></span></div>
 </li>
 <li class="block"><span class="dot high"></span>
-<div class="head"><span class="mark high">[x]</span><span class="name">Execution, Persistence, DefenseImpairment</span><span class="rest">2026-10-22T09:35:00Z</span></div>
-<div class="line"><span class="id">T1053.003</span><span class="what">Scheduled Task/Job: Cron</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id"></span><span class="what"></span></div>
+<div class="head"><span class="mark high">[x]</span><span class="name">Discovery, Execution, Persistence, DefenseImpairment</span><span class="rest">2026-10-22T09:35:00Z</span></div>
+<div class="line"><span class="id">T1518.002</span><span class="what">Software Discovery: Backup Software Discovery</span><span class="id far">TA0007</span><span class="what">Discovery</span><span class="id"></span><span class="what"></span></div>
+<div class="line begins"><span class="id">T1053.003</span><span class="what">Scheduled Task/Job: Cron</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id"></span><span class="what"></span></div>
 <div class="line"><span class="id"></span><span class="what"></span><span class="id far">TA0003</span><span class="what">Persistence</span><span class="id"></span><span class="what"></span></div>
 <div class="line begins"><span class="id">T1053.002</span><span class="what">Scheduled Task/Job: At</span><span class="id far">TA0002</span><span class="what">Execution</span><span class="id"></span><span class="what"></span></div>
 <div class="line"><span class="id"></span><span class="what"></span><span class="id far">TA0003</span><span class="what">Persistence</span><span class="id"></span><span class="what"></span></div>
@@ -356,6 +379,11 @@ footer code { font-family: inherit; }
 <tr class="detail"><td colspan="5"><div class="under">
 <div class="pair"><span class="label">what</span><span class="value">touch -r /bin/ls &#34;$F&#34; (20261022_092000_step05_evade.sh:8)</span></div>
 </div></td></tr>
+<tr class="entry"><td class="mark low">[i]</td><td class="cell">AccountEnumeration</td><td class="cell">2 lines</td><td class="cell">Discovery</td><td class="cell">T1087</td></tr>
+<tr class="detail"><td colspan="5"><div class="under">
+<div class="pair"><span class="label">what</span><span class="value">cat /etc/passwd | cut -d: -f1 (20261022_090000_step01_recon.sh:4)</span></div>
+<div class="pair"><span class="label"></span><span class="value">cat /etc/passwd &gt; passwd_20261022_090020.txt (20261022_090000_step01_recon.sh:5)</span></div>
+</div></td></tr>
 <tr class="entry"><td class="mark low">[i]</td><td class="cell">EmailAccountDiscovery</td><td class="cell">1 line</td><td class="cell">Discovery</td><td class="cell">T1087.003</td></tr>
 <tr class="detail"><td colspan="5"><div class="under">
 <div class="pair"><span class="label">what</span><span class="value">SMTP_USER=alerts@corp.example (env_20261022_090540.txt:4)</span></div>
@@ -366,6 +394,28 @@ footer code { font-family: inherit; }
 <div class="pair"><span class="label"></span><span class="value">daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin (passwd_20261022_090020.txt:2)</span></div>
 <div class="pair"><span class="label"></span><span class="value">deploy:x:1000:1000:Deploy:/home/deploy:/bin/bash (passwd_20261022_090020.txt:3)</span></div>
 <div class="pair"><span class="label"></span><span class="value">and 1 more in the saved findings</span></div>
+</div></td></tr>
+<tr class="entry"><td class="mark low">[i]</td><td class="cell">LocalAccountEnumeration</td><td class="cell">2 lines</td><td class="cell">Discovery</td><td class="cell">T1087.001</td></tr>
+<tr class="detail"><td colspan="5"><div class="under">
+<div class="pair"><span class="label">what</span><span class="value">cat /etc/passwd | cut -d: -f1 (20261022_090000_step01_recon.sh:4)</span></div>
+<div class="pair"><span class="label"></span><span class="value">cat /etc/passwd &gt; passwd_20261022_090020.txt (20261022_090000_step01_recon.sh:5)</span></div>
+</div></td></tr>
+<tr class="entry"><td class="mark low">[i]</td><td class="cell">LoggedOnUserDiscovery</td><td class="cell">2 lines</td><td class="cell">Discovery</td><td class="cell">T1033</td></tr>
+<tr class="detail"><td colspan="5"><div class="under">
+<div class="pair"><span class="label">what</span><span class="value">cat /etc/passwd | cut -d: -f1 (20261022_090000_step01_recon.sh:4)</span></div>
+<div class="pair"><span class="label"></span><span class="value">cat /etc/passwd &gt; passwd_20261022_090020.txt (20261022_090000_step01_recon.sh:5)</span></div>
+</div></td></tr>
+<tr class="entry"><td class="mark low">[i]</td><td class="cell">NetworkServiceDiscovery</td><td class="cell">1 line</td><td class="cell">Discovery</td><td class="cell">T1046</td></tr>
+<tr class="detail"><td colspan="5"><div class="under">
+<div class="pair"><span class="label">what</span><span class="value">subprocess.run([&#34;sh&#34;, &#34;-c&#34;, &#34;nc -zv 203.0.113.41 443&#34;]) (20261022_093000_step07_channel.py:7)</span></div>
+</div></td></tr>
+<tr class="entry"><td class="mark low">[i]</td><td class="cell">RemoteSystemDiscovery</td><td class="cell">1 line</td><td class="cell">Discovery</td><td class="cell">T1018</td></tr>
+<tr class="detail"><td colspan="5"><div class="under">
+<div class="pair"><span class="label">what</span><span class="value">cat /etc/hosts &gt; hosts_20261022_090025.txt (20261022_090000_step01_recon.sh:6)</span></div>
+</div></td></tr>
+<tr class="entry"><td class="mark low">[i]</td><td class="cell">SecuritySoftwareDiscovery</td><td class="cell">1 line</td><td class="cell">Discovery</td><td class="cell">T1518.001</td></tr>
+<tr class="detail"><td colspan="5"><div class="under">
+<div class="pair"><span class="label">what</span><span class="value">systemctl status sshd (20261022_090000_step01_recon.sh:7)</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark low">[i]</td><td class="cell">ServiceDiscovery</td><td class="cell">1 line</td><td class="cell">Discovery</td><td class="cell">T1007</td></tr>
 <tr class="detail"><td colspan="5"><div class="under">
@@ -467,11 +517,16 @@ footer code { font-family: inherit; }
 </tbody>
 </table>
 </div>
-<h3>File (10)</h3>
+<h3>File (11)</h3>
 <div class="wrap">
 <table>
 <thead><tr><th></th><th>value</th><th>acted on by</th></tr></thead>
 <tbody>
+<tr class="entry"><td class="mark low">[i]</td><td class="cell">/etc/passwd</td><td class="cell">LocalAccountEnumeration</td></tr>
+<tr class="detail"><td colspan="3"><div class="under">
+<div class="pair"><span class="label">what</span><span class="value">LocalAccountEnumeration: cat /etc/passwd | cut -d: -f1 (20261022_090000_step01_recon.sh:4)</span></div>
+<div class="pair"><span class="label"></span><span class="value">LocalAccountEnumeration: cat /etc/passwd &gt; passwd_20261022_090020.txt (20261022_090000_step01_recon.sh:5)</span></div>
+</div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">/etc/shadow</td><td class="cell">ShadowFileRead</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <div class="pair"><span class="label">what</span><span class="value">ShadowFileRead: sudo cat /etc/shadow &gt; shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)</span></div>
@@ -785,8 +840,9 @@ footer code { font-family: inherit; }
 <div class="pair"><span class="label"></span><span class="value">username: daemon</span></div>
 <div class="pair"><span class="label"></span><span class="value">username: deploy</span></div>
 <div class="pair"><span class="label"></span><span class="value">username: root</span></div>
+<div class="pair"><span class="label"></span><span class="value">username: ops</span></div>
 <div class="pair"><span class="label"></span><span class="value">email: alerts@corp.example</span></div>
-<div class="pair"><span class="label">basis</span><span class="value">SetuidFileSearch, ServiceDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip</span></div>
+<div class="pair"><span class="label">basis</span><span class="value">SetuidFileSearch, ServiceDiscovery, RemoteSystemDiscovery, LoggedOnUserDiscovery, NetworkServiceDiscovery, AccountEnumeration, LocalAccountEnumeration, SecuritySoftwareDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip</span></div>
 </div></td></tr>
 </tbody>
 </table>
@@ -856,8 +912,9 @@ footer code { font-family: inherit; }
 <div class="pair"><span class="label"></span><span class="value">username: daemon</span></div>
 <div class="pair"><span class="label"></span><span class="value">username: deploy</span></div>
 <div class="pair"><span class="label"></span><span class="value">username: root</span></div>
+<div class="pair"><span class="label"></span><span class="value">username: ops</span></div>
 <div class="pair"><span class="label"></span><span class="value">email: alerts@corp.example</span></div>
-<div class="pair"><span class="label">basis</span><span class="value">SetuidFileSearch, ServiceDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip</span></div>
+<div class="pair"><span class="label">basis</span><span class="value">SetuidFileSearch, ServiceDiscovery, RemoteSystemDiscovery, LoggedOnUserDiscovery, NetworkServiceDiscovery, AccountEnumeration, LocalAccountEnumeration, SecuritySoftwareDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip</span></div>
 </div></td></tr>
 </tbody>
 </table>
@@ -875,10 +932,10 @@ footer code { font-family: inherit; }
 <p>User Training involves educating employees and contractors on recognizing, reporting, and preventing cyber threats that rely on human interaction, such as phishing, social engineering, and other manipulative techniques.</p>
 <div class="pair"><span class="label">for</span><span class="value">CredentialFileRead</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1018 User Account Management</td><td class="cell">T1021.004, T1048, T1053.002, T1053.003, T1053.006, T1098.004, T1543.002, T1552.007, T1685, T1685.004, T1686</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1018 User Account Management</td><td class="cell">T1021.004, T1048, T1053.002, T1053.003, T1053.006, T1087, T1098.004, T1543.002, T1552.007, T1654, T1685, T1685.004, T1686</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.</p>
-<div class="pair"><span class="label">for</span><span class="value">FileUpload, ScheduledJobCreation, SshKeyPersistence, SystemdUnitCreation, ClusterSecretRead, SecurityToolDisabling, FirewallDisabling</span></div>
+<div class="pair"><span class="label">for</span><span class="value">FileUpload, ScheduledJobCreation, AccountEnumeration, SshKeyPersistence, SystemdUnitCreation, ClusterSecretRead, SecurityToolDisabling, FirewallDisabling</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1022 Restrict File and Directory Permissions</td><td class="cell">T1048, T1053.006, T1070.003, T1098.004, T1543.002, T1546.004, T1548.003, T1552.001, T1552.004, T1685, T1685.006, T1686</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
@@ -901,29 +958,29 @@ footer code { font-family: inherit; }
 <p>Set and enforce secure password policies for accounts to reduce the likelihood of unauthorized access.</p>
 <div class="pair"><span class="label">for</span><span class="value">ShadowFileRead, CredentialFileRead, PrivateKeyRead</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1028 Operating System Configuration</td><td class="cell">T1053.002, T1087.001, T1548.001, T1548.003, T1552.003, T1690</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1028 Operating System Configuration</td><td class="cell">T1053.002, T1087, T1087.001, T1548.001, T1548.003, T1552.003, T1690</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Operating System Configuration involves adjusting system settings and hardening the default configurations of an operating system (OS) to mitigate adversary exploitation and prevent abuse of system functionality.</p>
 <div class="pair"><span class="label">exposed</span><span class="value">username: app_rw</span></div>
 <div class="pair"><span class="label"></span><span class="value">username: daemon</span></div>
 <div class="pair"><span class="label"></span><span class="value">username: deploy</span></div>
 <div class="pair"><span class="label"></span><span class="value">username: root</span></div>
-<div class="pair"><span class="label">for</span><span class="value">ScheduledJobCreation, LocalAccountDiscovery, SetuidBit, SudoersModification, ShellHistoryRead, HistoryDisabling</span></div>
+<div class="pair"><span class="label">for</span><span class="value">ScheduledJobCreation, AccountEnumeration, LocalAccountEnumeration, LocalAccountDiscovery, SetuidBit, SudoersModification, ShellHistoryRead, HistoryDisabling</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1029 Remote Data Storage</td><td class="cell">T1070.003, T1685.006</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Remote Data Storage focuses on moving critical data, such as security logs and sensitive files, to secure, off-host locations to minimize unauthorized access, tampering, or destruction by adversaries.</p>
 <div class="pair"><span class="label">for</span><span class="value">HistoryClearing, LogDeletion</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1030 Network Segmentation</td><td class="cell">T1048, T1095, T1552.007</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1030 Network Segmentation</td><td class="cell">T1046, T1048, T1095, T1552.007</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Network segmentation involves dividing a network into smaller, isolated segments to control and limit the flow of traffic between devices, systems, and applications.</p>
-<div class="pair"><span class="label">for</span><span class="value">FileUpload, ReverseShell, ClusterSecretRead</span></div>
+<div class="pair"><span class="label">for</span><span class="value">NetworkServiceDiscovery, FileUpload, ReverseShell, ClusterSecretRead</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1031 Network Intrusion Prevention</td><td class="cell">T1048, T1095, T1105</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1031 Network Intrusion Prevention</td><td class="cell">T1046, T1048, T1095, T1105</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Use intrusion detection signatures to block traffic at network boundaries.</p>
-<div class="pair"><span class="label">for</span><span class="value">FileUpload, ReverseShell, ShellDownloadAndExecute</span></div>
+<div class="pair"><span class="label">for</span><span class="value">NetworkServiceDiscovery, FileUpload, ReverseShell, ShellDownloadAndExecute</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1032 Multi-factor Authentication</td><td class="cell">T1021.004, T1136.001</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
@@ -961,10 +1018,10 @@ footer code { font-family: inherit; }
 <p>Protect sensitive information at rest, in transit, and during processing by using strong encryption algorithms.</p>
 <div class="pair"><span class="label">for</span><span class="value">PrivateKeyRead, LogDeletion</span></div>
 </div></td></tr>
-<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1042 Disable or Remove Feature or Program</td><td class="cell">T1021.004, T1059, T1098.004, T1552.005, T1611, T1685</td></tr>
+<tr class="entry"><td class="mark high">[x]</td><td class="cell">M1042 Disable or Remove Feature or Program</td><td class="cell">T1021.004, T1046, T1059, T1098.004, T1552.005, T1611, T1685</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">
 <p>Disable or remove unnecessary and potentially vulnerable software, features, or services to reduce the attack surface and prevent abuse by adversaries.</p>
-<div class="pair"><span class="label">for</span><span class="value">SshKeyPersistence, CloudMetadataAccess, ContainerEscape, SecurityToolDisabling</span></div>
+<div class="pair"><span class="label">for</span><span class="value">NetworkServiceDiscovery, SshKeyPersistence, CloudMetadataAccess, ContainerEscape, SecurityToolDisabling</span></div>
 </div></td></tr>
 <tr class="entry"><td class="mark high">[x]</td><td class="cell">M1047 Audit</td><td class="cell">T1053.002, T1053.003, T1059, T1095, T1552.001, T1552.004, T1560.001, T1685, T1685.004, T1686</td></tr>
 <tr class="detail"><td colspan="3"><div class="under">

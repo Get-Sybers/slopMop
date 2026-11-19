@@ -69,6 +69,16 @@ type entry struct {
 	Unless string `json:"unless,omitempty"`
 	// Subjects name what a matching line acts on: an account, a file, a host.
 	Subjects []subjectEntry `json:"subjects,omitempty"`
+	// Spread holds patterns of a record of connections, whose lines count only together.
+	Spread *spreadEntry `json:"spread,omitempty"`
+}
+
+// spreadEntry is patterns with a group named to, what a line reaches, and one
+// named at, where. The lines count once a text reaches one to at Least places,
+// as a scan of its ports does and a visit to it does not.
+type spreadEntry struct {
+	Least    int      `json:"least"`
+	Patterns []string `json:"patterns"`
 }
 
 // subjectEntry is a label and a pattern whose one group captures the subject.
@@ -123,6 +133,8 @@ type compiled struct {
 	paths    []pattern
 	unless   *regexp.Regexp
 	subjects []subject
+	spread   []pattern
+	least    int
 }
 
 type subject struct {
@@ -200,6 +212,19 @@ func decode(data []byte) (Table, error) {
 		if e.Unless != "" {
 			if c.unless, err = regexp.Compile(e.Unless); err != nil {
 				return Table{}, fmt.Errorf("activities.json[%d] %s unless: %w", i, e.Name, err)
+			}
+		}
+		if e.Spread != nil {
+			if c.spread, err = compileAll(e.Spread.Patterns); err != nil {
+				return Table{}, fmt.Errorf("activities.json[%d] %s spread: %w", i, e.Name, err)
+			}
+			if c.least = e.Spread.Least; c.least < 2 || len(c.spread) == 0 {
+				return Table{}, fmt.Errorf("activities.json[%d] %s: a spread needs a pattern and a least of two or more", i, e.Name)
+			}
+			for _, p := range c.spread {
+				if p.rx.NumSubexp() != 2 || p.rx.SubexpIndex("to") < 0 || p.rx.SubexpIndex("at") < 0 {
+					return Table{}, fmt.Errorf("activities.json[%d] %s: a spread pattern needs the groups to and at, and no other", i, e.Name)
+				}
 			}
 		}
 		for _, sub := range e.Subjects {
@@ -281,6 +306,9 @@ func (t *Table) number() error {
 		}
 		for i := range a.paths {
 			a.paths[i] = number(a.paths[i])
+		}
+		for i := range a.spread {
+			a.spread[i] = number(a.spread[i])
 		}
 	}
 	var err error
@@ -408,6 +436,11 @@ func (t Table) Detect(text string) []Hit {
 				lines[start] = true
 			}
 		}
+		for _, p := range a.spread {
+			for _, start := range p.reached(joined, lower, held, a.unless, a.least) {
+				lines[start] = true
+			}
+		}
 		found[i] = lines
 	}
 	if len(text) < small {
@@ -531,6 +564,66 @@ func (p pattern) lines(text string, lower []byte, held [][]int, unless *regexp.R
 				return found
 			}
 			try(start)
+		}
+	}
+	return found
+}
+
+// maxReached is how many lines of a record of connections one pattern keeps from one text.
+const maxReached = 200000
+
+// reached returns the start of each line that reaches what the text reaches
+// at least places or more: the lines a scan leaves, and not those of a visit.
+func (p pattern) reached(text string, lower []byte, held [][]int, unless *regexp.Regexp, least int) []int {
+	to, at := p.rx.SubexpIndex("to"), p.rx.SubexpIndex("at")
+	type reach struct {
+		start int
+		to    string
+	}
+	var lines []reach
+	places := map[string]map[string]bool{}
+	tried := map[int]bool{}
+	try := func(pos int) (next int) {
+		start, end := lineAround(text, pos)
+		if tried[start] {
+			return end
+		}
+		tried[start] = true
+		line := text[start:end]
+		if lower != nil && !sift.Holds(lower[start:end], p.sets) {
+			return end
+		}
+		m := p.rx.FindStringSubmatch(line)
+		if m == nil || (unless != nil && unless.MatchString(line)) {
+			return end
+		}
+		if places[m[to]] == nil {
+			places[m[to]] = map[string]bool{}
+		}
+		places[m[to]][m[at]] = true
+		lines = append(lines, reach{start: start, to: m[to]})
+		return end
+	}
+	if len(p.found) == 0 || lower == nil {
+		for pos := 0; pos < len(text) && len(lines) < maxReached; pos++ {
+			pos = try(pos)
+		}
+	}
+	for _, n := range p.found {
+		if lower == nil {
+			break
+		}
+		for _, start := range held[n] {
+			if len(lines) == maxReached {
+				break
+			}
+			try(start)
+		}
+	}
+	var found []int
+	for _, l := range lines {
+		if len(places[l.to]) >= least {
+			found = append(found, l.start)
 		}
 	}
 	return found

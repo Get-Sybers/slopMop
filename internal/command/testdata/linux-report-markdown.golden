@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | `files` | `14` | `7 scripts, 7 outputs` |
 | `indicators` | `15` | `4 Domain, 1 Email, 7 IPv4, 3 URL` |
-| `activities` | `28` |  |
+| `activities` | `34` |  |
 | `tactics` | `11` |  |
 | `targeted` | `5` | `Hostnames 1, IP addresses 4` |
 | `exposed` | `18` | `Passwords and secrets 3, Usernames 6, Email addresses 1, Devices 2, IP addresses 6` |
@@ -31,7 +31,7 @@ _tactic, identifiers, files_
 | `[!]` | `Collection` | `TA0009, AML.TA0009` | `20261022_092500_step06_stage.sh` |
 | `[!]` | `Execution` | `TA0002, AML.TA0005` | `20261022_091500_step04_persist.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py and 1 more` |
 | `[!]` | `Stealth` | `TA0005, AML.TA0007` | `20261022_092000_step05_evade.sh` |
-| `[i]` | `Discovery` | `TA0007, AML.TA0008` | `20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 3 more` |
+| `[i]` | `Discovery` | `TA0007, AML.TA0008` | `20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 7 more` |
 
 ## Timeline
 
@@ -40,9 +40,20 @@ _a block for each intent, from the first of its files to be created until the la
 - **\[x\] high** · `Discovery, CredentialAccess` · `2026-10-22T09:00:00Z to 2026-10-22T09:05:40Z`
   - `T1083  File and Directory Discovery` · `TA0007  Discovery`
   - `T1007  System Service Discovery` · `TA0007  Discovery`
+  - `T1018  Remote System Discovery` · `TA0007  Discovery`
+  - `T1033  System Owner/User Discovery` · `TA0007  Discovery`
+  - `T1087  Account Discovery` · `TA0007  Discovery`
   - `T1087.001  Account Discovery: Local Account` · `TA0007  Discovery`
+  - `T1518.001  Software Discovery: Security Software Discovery` · `TA0007  Discovery`
+  - `T1069  Permission Groups Discovery` · `TA0007  Discovery`
+  - `T1069.001  Permission Groups Discovery: Local Groups` · `TA0007  Discovery`
+  - `T1082  System Information Discovery` · `TA0007  Discovery`
+  - `T1654  Log Enumeration` · `TA0007  Discovery`
+  - `T1518.002  Software Discovery: Backup Software Discovery` · `TA0007  Discovery`
+  - `T1016.001  System Network Configuration Discovery: Internet Connection Discovery` · `TA0007  Discovery`
+  - `T1046  Network Service Discovery` · `TA0007  Discovery`
   - `T1087.003  Account Discovery: Email Account` · `TA0007  Discovery`
-  - tools `id, uname, find, kubectl` · `TA0007  Discovery`
+  - tools `kubectl` · `TA0007  Discovery`
   - `T1552.005  Unsecured Credentials: Cloud Instance Metadata API` · `TA0006  CredentialAccess` · `AML.T0055  Unsecured Credentials`
   - `T1003.008  OS Credential Dumping: /etc/passwd and /etc/shadow` · `TA0006  CredentialAccess` · `AML.T0090  OS Credential Dumping`
   - `T1552.004  Unsecured Credentials: Private Keys` · `TA0006  CredentialAccess` · `AML.T0055  Unsecured Credentials`
@@ -54,7 +65,8 @@ _a block for each intent, from the first of its files to be created until the la
   - `T1548.003  Abuse Elevation Control Mechanism: Sudo and Sudo Caching` · `TA0004  PrivilegeEscalation`
   - `T1548.001  Abuse Elevation Control Mechanism: Setuid and Setgid` · `TA0004  PrivilegeEscalation`
   - `T1611  Escape to Host` · `TA0004  PrivilegeEscalation` · `AML.T0105  Escape to Host`
-- **\[x\] high** · `Execution, PrivilegeEscalation, Persistence` · `2026-10-22T09:15:00Z`
+- **\[x\] high** · `Discovery, Execution, PrivilegeEscalation, Persistence` · `2026-10-22T09:15:00Z`
+  - `T1518.002  Software Discovery: Backup Software Discovery` · `TA0007  Discovery`
   - `T1053.003  Scheduled Task/Job: Cron` · `TA0002  Execution` · `TA0003  Persistence`
   - `T1053.002  Scheduled Task/Job: At` · `TA0002  Execution` · `TA0003  Persistence`
   - `T1053.006  Scheduled Task/Job: Systemd Timers` · `TA0002  Execution` · `TA0003  Persistence`
@@ -62,7 +74,8 @@ _a block for each intent, from the first of its files to be created until the la
   - `T1136.001  Create Account: Local Account` · `TA0003  Persistence` · `AML.T0125  Create Account`
   - `T1098.004  Account Manipulation: SSH Authorized Keys` · `TA0003  Persistence`
   - `T1546.004  Event Triggered Execution: Unix Shell Configuration Modification` · `TA0003  Persistence` · `AML.T0142  Event Triggered Execution`
-- **\[x\] high** · `Stealth, DefenseImpairment` · `2026-10-22T09:20:00Z`
+- **\[x\] high** · `Discovery, Stealth, DefenseImpairment` · `2026-10-22T09:20:00Z`
+  - `T1518.002  Software Discovery: Backup Software Discovery` · `TA0007  Discovery`
   - `T1070.003  Indicator Removal: Clear Command History` · `TA0005  Stealth` · `AML.T0138  Indicator Removal`
   - `T1070.006  Indicator Removal: Timestomp` · `TA0005  Stealth` · `AML.T0138  Indicator Removal`
   - `T1685.006  Disable or Modify Tools: Clear Linux or Mac System Logs` · `TA0112  DefenseImpairment`
@@ -71,7 +84,16 @@ _a block for each intent, from the first of its files to be created until the la
   - `T1685.004  Disable or Modify Tools: Disable or Modify Linux Audit System Log` · `TA0112  DefenseImpairment`
   - `T1686  Disable or Modify System Firewall` · `TA0112  DefenseImpairment`
 - **\[x\] high** · `Discovery, LateralMovement, Execution, Collection, CommandAndControl, Exfiltration` · `2026-10-22T09:25:00Z to 2026-10-22T09:30:00Z`
-  - tools `find, id, uname` · `TA0007  Discovery`
+  - `T1016.001  System Network Configuration Discovery: Internet Connection Discovery` · `TA0007  Discovery`
+  - `T1046  Network Service Discovery` · `TA0007  Discovery`
+  - `T1654  Log Enumeration` · `TA0007  Discovery`
+  - `T1083  File and Directory Discovery` · `TA0007  Discovery`
+  - `T1518.002  Software Discovery: Backup Software Discovery` · `TA0007  Discovery`
+  - `T1033  System Owner/User Discovery` · `TA0007  Discovery`
+  - `T1069  Permission Groups Discovery` · `TA0007  Discovery`
+  - `T1069.001  Permission Groups Discovery: Local Groups` · `TA0007  Discovery`
+  - `T1087.001  Account Discovery: Local Account` · `TA0007  Discovery`
+  - `T1082  System Information Discovery` · `TA0007  Discovery`
   - `T1021.004  Remote Services: SSH` · `TA0008  LateralMovement`
   - `T1059.004  Command and Scripting Interpreter: Unix Shell` · `TA0002  Execution` · `AML.T0050  Command and Scripting Interpreter`
   - `T1059  Command and Scripting Interpreter` · `TA0002  Execution` · `AML.T0050  Command and Scripting Interpreter`
@@ -80,7 +102,8 @@ _a block for each intent, from the first of its files to be created until the la
   - `T1095  Non-Application Layer Protocol` · `TA0011  CommandAndControl` · `AML.T0072  Cyber Communication Channel`
   - `T1048  Exfiltration Over Alternative Protocol` · `TA0010  Exfiltration` · `AML.T0025  Exfiltration via Cyber Means`
   - tools `nc` · `TA0010  Exfiltration`
-- **\[x\] high** · `Execution, Persistence, DefenseImpairment` · `2026-10-22T09:35:00Z`
+- **\[x\] high** · `Discovery, Execution, Persistence, DefenseImpairment` · `2026-10-22T09:35:00Z`
+  - `T1518.002  Software Discovery: Backup Software Discovery` · `TA0007  Discovery`
   - `T1053.003  Scheduled Task/Job: Cron` · `TA0002  Execution` · `TA0003  Persistence`
   - `T1053.002  Scheduled Task/Job: At` · `TA0002  Execution` · `TA0003  Persistence`
   - `T1053.006  Scheduled Task/Job: Systemd Timers` · `TA0002  Execution` · `TA0003  Persistence`
@@ -152,6 +175,9 @@ _a block for each intent, from the first of its files to be created until the la
   - **what:** `history -c (20261022_092000_step05_evade.sh:7)`
 - **\[!\] medium** · `Timestomp` · `1 line` · `Stealth` · `T1070.006, AML.T0138`
   - **what:** `touch -r /bin/ls "$F" (20261022_092000_step05_evade.sh:8)`
+- **\[i\] low** · `AccountEnumeration` · `2 lines` · `Discovery` · `T1087`
+  - **what:** `cat /etc/passwd | cut -d: -f1 (20261022_090000_step01_recon.sh:4)`
+  - **what:** `cat /etc/passwd > passwd_20261022_090020.txt (20261022_090000_step01_recon.sh:5)`
 - **\[i\] low** · `EmailAccountDiscovery` · `1 line` · `Discovery` · `T1087.003`
   - **what:** `SMTP_USER=alerts@corp.example (env_20261022_090540.txt:4)`
 - **\[i\] low** · `LocalAccountDiscovery` · `4 lines` · `Discovery` · `T1087.001`
@@ -159,6 +185,18 @@ _a block for each intent, from the first of its files to be created until the la
   - **what:** `daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin (passwd_20261022_090020.txt:2)`
   - **what:** `deploy:x:1000:1000:Deploy:/home/deploy:/bin/bash (passwd_20261022_090020.txt:3)`
   - **what:** `and 1 more in the saved findings`
+- **\[i\] low** · `LocalAccountEnumeration` · `2 lines` · `Discovery` · `T1087.001`
+  - **what:** `cat /etc/passwd | cut -d: -f1 (20261022_090000_step01_recon.sh:4)`
+  - **what:** `cat /etc/passwd > passwd_20261022_090020.txt (20261022_090000_step01_recon.sh:5)`
+- **\[i\] low** · `LoggedOnUserDiscovery` · `2 lines` · `Discovery` · `T1033`
+  - **what:** `cat /etc/passwd | cut -d: -f1 (20261022_090000_step01_recon.sh:4)`
+  - **what:** `cat /etc/passwd > passwd_20261022_090020.txt (20261022_090000_step01_recon.sh:5)`
+- **\[i\] low** · `NetworkServiceDiscovery` · `1 line` · `Discovery` · `T1046`
+  - **what:** `subprocess.run(["sh", "-c", "nc -zv 203.0.113.41 443"]) (20261022_093000_step07_channel.py:7)`
+- **\[i\] low** · `RemoteSystemDiscovery` · `1 line` · `Discovery` · `T1018`
+  - **what:** `cat /etc/hosts > hosts_20261022_090025.txt (20261022_090000_step01_recon.sh:6)`
+- **\[i\] low** · `SecuritySoftwareDiscovery` · `1 line` · `Discovery` · `T1518.001`
+  - **what:** `systemctl status sshd (20261022_090000_step01_recon.sh:7)`
 - **\[i\] low** · `ServiceDiscovery` · `1 line` · `Discovery` · `T1007`
   - **what:** `systemctl status sshd (20261022_090000_step01_recon.sh:7)`
 - **\[i\] low** · `SetuidFileSearch` · `1 line` · `Discovery` · `T1083`
@@ -206,8 +244,11 @@ _hardcoded values: prior means no earlier output holds it, discovered means one 
   - **what:** `SecurityToolDisabling: systemctl stop auditd (20261022_092000_step05_evade.sh:4)`
   - **what:** `SecurityToolDisabling: systemctl stop auditd (audit_20261022_093500.jsonl)`
 
-### File (10)
+### File (11)
 
+- **\[i\] low** · `/etc/passwd` · `LocalAccountEnumeration`
+  - **what:** `LocalAccountEnumeration: cat /etc/passwd | cut -d: -f1 (20261022_090000_step01_recon.sh:4)`
+  - **what:** `LocalAccountEnumeration: cat /etc/passwd > passwd_20261022_090020.txt (20261022_090000_step01_recon.sh:5)`
 - **\[x\] high** · `/etc/shadow` · `ShadowFileRead`
   - **what:** `ShadowFileRead: sudo cat /etc/shadow > shadow_20261022_090530.txt (20261022_090500_step02_creds.sh:6)`
 - **\[x\] high** · `~/.ssh/id_rsa` · `PrivateKeyRead`
@@ -379,8 +420,9 @@ _collected: first seen in an output; used: first seen in a script; a token or a 
   - **exposed:** `username: daemon`
   - **exposed:** `username: deploy`
   - **exposed:** `username: root`
+  - **exposed:** `username: ops`
   - **exposed:** `email: alerts@corp.example`
-  - **basis:** `SetuidFileSearch, ServiceDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip`
+  - **basis:** `SetuidFileSearch, ServiceDiscovery, RemoteSystemDiscovery, LoggedOnUserDiscovery, NetworkServiceDiscovery, AccountEnumeration, LocalAccountEnumeration, SecuritySoftwareDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip`
 
 ## Remediation
 
@@ -424,8 +466,9 @@ _most urgent first_
   - **exposed:** `username: daemon`
   - **exposed:** `username: deploy`
   - **exposed:** `username: root`
+  - **exposed:** `username: ops`
   - **exposed:** `email: alerts@corp.example`
-  - **basis:** `SetuidFileSearch, ServiceDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip`
+  - **basis:** `SetuidFileSearch, ServiceDiscovery, RemoteSystemDiscovery, LoggedOnUserDiscovery, NetworkServiceDiscovery, AccountEnumeration, LocalAccountEnumeration, SecuritySoftwareDiscovery, Discovery tools, exposed username, exposed email, exposed device, exposed ip`
 
 ## Mitigation
 
@@ -434,9 +477,9 @@ _MITRE ATT&amp;CK and ATLAS, for the techniques found_
 - **\[x\] high** · `M1017 User Training` · `T1552.001`
   - User Training involves educating employees and contractors on recognizing, reporting, and preventing cyber threats that rely on human interaction, such as phishing, social engineering, and other manipulative techniques.
   - **for:** `CredentialFileRead`
-- **\[x\] high** · `M1018 User Account Management` · `T1021.004, T1048, T1053.002, T1053.003, T1053.006, T1098.004, T1543.002, T1552.007, T1685, T1685.004, T1686`
+- **\[x\] high** · `M1018 User Account Management` · `T1021.004, T1048, T1053.002, T1053.003, T1053.006, T1087, T1098.004, T1543.002, T1552.007, T1654, T1685, T1685.004, T1686`
   - User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.
-  - **for:** `FileUpload, ScheduledJobCreation, SshKeyPersistence, SystemdUnitCreation, ClusterSecretRead, SecurityToolDisabling, FirewallDisabling`
+  - **for:** `FileUpload, ScheduledJobCreation, AccountEnumeration, SshKeyPersistence, SystemdUnitCreation, ClusterSecretRead, SecurityToolDisabling, FirewallDisabling`
 - **\[x\] high** · `M1022 Restrict File and Directory Permissions` · `T1048, T1053.006, T1070.003, T1098.004, T1543.002, T1546.004, T1548.003, T1552.001, T1552.004, T1685, T1685.006, T1686`
   - Restricting file and directory permissions involves setting access controls at the file system level to limit which users, groups, or processes can read, write, or execute files.
   - **for:** `FileUpload, ScheduledJobCreation, HistoryClearing, SshKeyPersistence, SystemdUnitCreation, ShellProfilePersistence, SudoersModification, CredentialFileRead, PrivateKeyRead, SecurityToolDisabling, LogDeletion, FirewallDisabling`
@@ -450,22 +493,22 @@ _MITRE ATT&amp;CK and ATLAS, for the techniques found_
 - **\[x\] high** · `M1027 Password Policies` · `T1003.008, T1552.001, T1552.004`
   - Set and enforce secure password policies for accounts to reduce the likelihood of unauthorized access.
   - **for:** `ShadowFileRead, CredentialFileRead, PrivateKeyRead`
-- **\[x\] high** · `M1028 Operating System Configuration` · `T1053.002, T1087.001, T1548.001, T1548.003, T1552.003, T1690`
+- **\[x\] high** · `M1028 Operating System Configuration` · `T1053.002, T1087, T1087.001, T1548.001, T1548.003, T1552.003, T1690`
   - Operating System Configuration involves adjusting system settings and hardening the default configurations of an operating system (OS) to mitigate adversary exploitation and prevent abuse of system functionality.
   - **exposed:** `username: app_rw`
   - **exposed:** `username: daemon`
   - **exposed:** `username: deploy`
   - **exposed:** `username: root`
-  - **for:** `ScheduledJobCreation, LocalAccountDiscovery, SetuidBit, SudoersModification, ShellHistoryRead, HistoryDisabling`
+  - **for:** `ScheduledJobCreation, AccountEnumeration, LocalAccountEnumeration, LocalAccountDiscovery, SetuidBit, SudoersModification, ShellHistoryRead, HistoryDisabling`
 - **\[x\] high** · `M1029 Remote Data Storage` · `T1070.003, T1685.006`
   - Remote Data Storage focuses on moving critical data, such as security logs and sensitive files, to secure, off-host locations to minimize unauthorized access, tampering, or destruction by adversaries.
   - **for:** `HistoryClearing, LogDeletion`
-- **\[x\] high** · `M1030 Network Segmentation` · `T1048, T1095, T1552.007`
+- **\[x\] high** · `M1030 Network Segmentation` · `T1046, T1048, T1095, T1552.007`
   - Network segmentation involves dividing a network into smaller, isolated segments to control and limit the flow of traffic between devices, systems, and applications.
-  - **for:** `FileUpload, ReverseShell, ClusterSecretRead`
-- **\[x\] high** · `M1031 Network Intrusion Prevention` · `T1048, T1095, T1105`
+  - **for:** `NetworkServiceDiscovery, FileUpload, ReverseShell, ClusterSecretRead`
+- **\[x\] high** · `M1031 Network Intrusion Prevention` · `T1046, T1048, T1095, T1105`
   - Use intrusion detection signatures to block traffic at network boundaries.
-  - **for:** `FileUpload, ReverseShell, ShellDownloadAndExecute`
+  - **for:** `NetworkServiceDiscovery, FileUpload, ReverseShell, ShellDownloadAndExecute`
 - **\[x\] high** · `M1032 Multi-factor Authentication` · `T1021.004, T1136.001`
   - Multi-Factor Authentication (MFA) enhances security by requiring users to provide at least two forms of verification to prove their identity before granting access.
   - **exposed:** `username: svc`
@@ -488,9 +531,9 @@ _MITRE ATT&amp;CK and ATLAS, for the techniques found_
 - **\[x\] high** · `M1041 Encrypt Sensitive Information` · `T1552.004, T1685.006`
   - Protect sensitive information at rest, in transit, and during processing by using strong encryption algorithms.
   - **for:** `PrivateKeyRead, LogDeletion`
-- **\[x\] high** · `M1042 Disable or Remove Feature or Program` · `T1021.004, T1059, T1098.004, T1552.005, T1611, T1685`
+- **\[x\] high** · `M1042 Disable or Remove Feature or Program` · `T1021.004, T1046, T1059, T1098.004, T1552.005, T1611, T1685`
   - Disable or remove unnecessary and potentially vulnerable software, features, or services to reduce the attack surface and prevent abuse by adversaries.
-  - **for:** `SshKeyPersistence, CloudMetadataAccess, ContainerEscape, SecurityToolDisabling`
+  - **for:** `NetworkServiceDiscovery, SshKeyPersistence, CloudMetadataAccess, ContainerEscape, SecurityToolDisabling`
 - **\[x\] high** · `M1047 Audit` · `T1053.002, T1053.003, T1059, T1095, T1552.001, T1552.004, T1560.001, T1685, T1685.004, T1686`
   - Auditing is the process of recording activity and systematically reviewing and analyzing the activity and system configurations.
   - **for:** `ScheduledJobCreation, ReverseShell, CredentialFileRead, PrivateKeyRead, ArchiveCreation, SecurityToolDisabling, FirewallDisabling`

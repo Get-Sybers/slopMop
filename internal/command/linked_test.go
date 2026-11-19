@@ -231,7 +231,7 @@ func TestTacticsAndTimelineAgree(t *testing.T) {
 	for _, want := range []string{
 		"  [x] CredentialAccess   TA0006, AML.TA0013  cmd-i201.stdout.txt, i203_creds.sh\n      intents  i203, i201\n",
 		"  [x] LateralMovement    TA0008, AML.TA0015  i202-move.sh\n      intents  i202\n",
-		"  [i] Discovery          TA0007, AML.TA0008  i201_scan.sh, i202-move.sh, notes.sh\n      intents  i201, i202\n",
+		"  [i] Discovery          TA0007, AML.TA0008  cmd-i201.stdout.txt, i201_scan.sh, i202-move.sh and 2 more\n      intents  i203, i201, i202\n",
 	} {
 		if !strings.Contains(tactics, want) {
 			t.Errorf("the tactics lack %q:\n%s", want, tactics)
@@ -299,7 +299,7 @@ func TestTacticsAndTimelineAgree(t *testing.T) {
 // impact of its tactic and the mitigations of the technique are said of.
 func TestACommandShowsItsTechnique(t *testing.T) {
 	folder := t.TempDir()
-	if err := os.WriteFile(filepath.Join(folder, "i301_move.sh"), []byte("#!/bin/bash\nssh ops@10.0.0.5 uptime\n"), 0o600); err != nil {
+	if err := os.WriteFile(filepath.Join(folder, "i301_move.sh"), []byte("#!/bin/bash\nssh ops@10.0.0.5 true\n"), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	readout, saved := report(t, folder)
@@ -339,7 +339,7 @@ func TestACommandShowsItsTechnique(t *testing.T) {
 func TestCollectedAccountsShowDiscovery(t *testing.T) {
 	folder := t.TempDir()
 	for name, text := range map[string]string{
-		"20261101_090000_step01_look.sh":   "#!/bin/bash\nssh ops@10.0.0.5 uptime\n",
+		"20261101_090000_step01_look.sh":   "#!/bin/bash\nssh ops@10.0.0.5 true\n",
 		"20261101_090100_step01_out.txt":   "root:x:0:0:root:/root:/bin/bash\ndeploy:x:1000:1000::/home/deploy:/bin/bash\nuid=1000(deploy) gid=1000(deploy)\nusername: ops\n",
 		"20261101_090200_step02_out.txt":   "CORP\\jsmith\nSamAccountName : mhall\nuserPrincipalName: alice@contoso.onmicrosoft.com\nmail: bob@partner.example\nusername: carol\n",
 		"20261101_090300_step03_again.txt": "root:x:0:0:root:/root:/bin/bash\nCORP\\jsmith\n",
@@ -388,7 +388,7 @@ func TestIdentifiersShowDiscovery(t *testing.T) {
 	const domain = "S-1-5-21-1111111111-2222222222-3333333333"
 	folder := t.TempDir()
 	for name, text := range map[string]string{
-		"20261101_090000_step01_look.sh": "#!/bin/bash\nssh ops@10.0.0.5 uptime\necho " + domain + "-519\n",
+		"20261101_090000_step01_look.sh": "#!/bin/bash\nssh ops@10.0.0.5 true\necho " + domain + "-519\n",
 		"20261101_090100_groups.txt": strings.Join([]string{
 			`BUILTIN\Administrators   Alias   S-1-5-32-544   Mandatory group, Enabled by default`,
 			`CORP\Domain Admins   Group   ` + domain + `-512   Mandatory group`,

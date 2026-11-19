@@ -5,7 +5,7 @@ slopmop report   <folder>
 Summary
   files       11  7 scripts, 3 outputs
   indicators  20  5 Domain, 1 EncodedCommand, 3 IPv4, 11 URL
-  activities  12
+  activities  16
   tactics     6
   targeted    4   Hostnames 1, IP addresses 3
   exposed     4   Usernames 1, IP addresses 3
@@ -16,17 +16,23 @@ Tactics   (tactic, identifiers, files)
   [x] Persistence        TA0003, AML.TA0006  20261020_101500_step04_persist.ps1, proc_20261020_103500.jsonl
   [!] Execution          TA0002, AML.TA0005  20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102500_step06_pinvoke.ps1 and 1 more
   [!] Stealth            TA0005, AML.TA0007  20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102000_step05_dotnet.ps1 and 3 more
-  [i] Discovery          TA0007, AML.TA0008  20261020_100000_step01_recon.ps1, 20261020_102500_step06_pinvoke.ps1, recon_20261020_100030.txt
+  [i] Discovery          TA0007, AML.TA0008  20261020_100000_step01_recon.ps1, 20261020_101000_step03_exec.ps1, 20261020_102500_step06_pinvoke.ps1 and 2 more
 
 Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools of a tactic that no technique is named for)
   [i] Discovery                                                     2026-10-20T10:00:00Z to 2026-10-20T10:00:30Z
+      T1018      Remote System Discovery                                         TA0007  Discovery
+      T1057      Process Discovery                                               TA0007  Discovery
+      T1069      Permission Groups Discovery                                     TA0007  Discovery
+      T1069.002  Permission Groups Discovery: Domain Groups                      TA0007  Discovery
+      T1033      System Owner/User Discovery                                     TA0007  Discovery
       T1087.002  Account Discovery: Domain Account                               TA0007  Discovery            AML.T0075  Enterprise Resource Discovery
-      tools      whoami, nltest, net.exe, wmic.exe                               TA0007  Discovery
+      tools      nltest, wmic.exe                                                TA0007  Discovery
 
   [x] CommandAndControl                                             2026-10-20T10:05:00Z
       T1105      Ingress Tool Transfer                                           TA0011  CommandAndControl    AML.T0072  Cyber Communication Channel
 
-  [!] Execution, Stealth                                            2026-10-20T10:10:00Z
+  [!] Discovery, Execution, Stealth                                 2026-10-20T10:10:00Z
+      T1217      Browser Information Discovery                                   TA0007  Discovery
       T1127      Trusted Developer Utilities Proxy Execution                     TA0002  Execution
                                                                                  TA0005  Stealth
       T1127.001  Trusted Developer Utilities Proxy Execution: MSBuild            TA0002  Execution
@@ -53,7 +59,8 @@ Timeline   (a block for each intent, from the first of its files to be created u
       T1105      Ingress Tool Transfer                                           TA0011  CommandAndControl    AML.T0072  Cyber Communication Channel
 
   [x] Discovery, Execution, Stealth, CommandAndControl              2026-10-20T10:25:00Z to 2026-10-20T10:26:00Z
-      tools      whoami                                                          TA0007  Discovery
+      T1217      Browser Information Discovery                                   TA0007  Discovery
+      T1033      System Owner/User Discovery                                     TA0007  Discovery
       T1059.001  Command and Scripting Interpreter: PowerShell                   TA0002  Execution            AML.T0050  Command and Scripting Interpreter
       T1106      Native API                                                      TA0002  Execution
       T1059      Command and Scripting Interpreter                               TA0002  Execution            AML.T0050  Command and Scripting Interpreter
@@ -71,7 +78,8 @@ Timeline   (a block for each intent, from the first of its files to be created u
       tools      wevtutil                                                        TA0112  DefenseImpairment
       T1105      Ingress Tool Transfer                                           TA0011  CommandAndControl    AML.T0072  Cyber Communication Channel
 
-  [x] Execution, Persistence, Stealth, DefenseImpairment, CommandAndControl  2026-10-20T10:35:00Z
+  [x] Discovery, Execution, Persistence, Stealth, DefenseImpairment, CommandAndControl  2026-10-20T10:35:00Z
+      T1217      Browser Information Discovery                                   TA0007  Discovery
       T1127      Trusted Developer Utilities Proxy Execution                     TA0002  Execution
                                                                                  TA0005  Stealth
       T1053.005  Scheduled Task/Job: Scheduled Task                              TA0002  Execution
@@ -121,6 +129,14 @@ Findings
               and 6 more in the saved findings
     [i] DomainAccountDiscovery      1 line   Discovery                     T1087.002, AML.T0075
         what  corp\svc_build S-1-5-21-1111111111-2222222222-3333333333-1105 (recon_20261020_100030.txt:2)
+    [i] DomainGroupEnumeration      1 line   Discovery                     T1069.002
+        what  net.exe group "Domain Admins" /domain >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:3)
+    [i] GroupEnumeration            1 line   Discovery                     T1069
+        what  net.exe group "Domain Admins" /domain >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:3)
+    [i] ProcessDiscovery            1 line   Discovery                     T1057
+        what  wmic.exe process list brief (20261020_100000_step01_recon.ps1:4)
+    [i] RemoteSystemDiscovery       1 line   Discovery                     T1018
+        what  nltest /dclist:corp.example >> recon_20261020_100030.txt (20261020_100000_step01_recon.ps1:2)
 
 Targeted   (hardcoded values: prior means no earlier output holds it, discovered means one does; subjects: each entity an activity acted on)
   Hostnames (1)
@@ -242,7 +258,7 @@ Impact
   [i] Environment mapped
       Identities, resources or configuration were listed. Later steps were probably aimed with the result.
       exposed  username: svc_build
-      basis    Discovery tools, exposed username
+      basis    RemoteSystemDiscovery, ProcessDiscovery, GroupEnumeration, DomainGroupEnumeration, Discovery tools, exposed username
 
 Remediation   (most urgent first)
   [x] Remove persistence
@@ -260,7 +276,7 @@ Remediation   (most urgent first)
   [i] Follow what was enumerated
       Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
       exposed  username: svc_build
-      basis    Discovery tools, exposed username
+      basis    RemoteSystemDiscovery, ProcessDiscovery, GroupEnumeration, DomainGroupEnumeration, Discovery tools, exposed username
 
 Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1018 User Account Management                              T1047, T1053.005

@@ -26,7 +26,7 @@ var (
 		"shopt": true, "true": true, "false": true, "test": true,
 		"[": true, "[[": true, "wait": true, "trap": true,
 		"shift": true, "return": true, "exit": true, "break": true,
-		"continue": true, "let": true, "sleep": true, "read": true,
+		"continue": true, "let": true, "read": true,
 		"mapfile": true, "readarray": true, ":": true, "unset": true,
 	}
 	declKeywords = map[string]bool{
@@ -543,7 +543,8 @@ func findToolAt(words []string) (string, int) {
 			strings.HasPrefix(w, "'") || strings.HasPrefix(w, "\"") {
 			continue
 		}
-		if !hasLetter(w) || len(w) < 2 {
+		// A word of one letter is data, but for w, which lists who is signed in.
+		if !hasLetter(w) || (len(w) < 2 && w != "w") {
 			continue
 		}
 		if w[0] >= '0' && w[0] <= '9' {

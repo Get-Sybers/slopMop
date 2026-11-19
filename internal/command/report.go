@@ -457,21 +457,26 @@ func (p pipeline) gather(a analysis) (assess.Evidence, []shownActivity, map[stri
 			}
 		}
 		for _, tool := range s.Tools {
-			name := p.tactics.Classify(tool)
-			if name != "" && tacFiles.fresh(name, path) {
-				found.Tactics[name] = append(found.Tactics[name], path)
-			}
-			if id := p.tactics.Technique(tool); id != "" {
+			for _, at := range p.tactics.Classify(tool) {
+				if tacFiles.fresh(at.Tactic, path) {
+					found.Tactics[at.Tactic] = append(found.Tactics[at.Tactic], path)
+				}
+				id := at.Technique
+				if id == "" {
+					continue
+				}
 				run.ids = appendUnique(run.ids, id)
-				run.tactics[id] = appendUnique(run.tactics[id], name)
+				run.tactics[id] = appendUnique(run.tactics[id], at.Tactic)
 				for _, of := range append([]string{id}, p.catalogue.AtlasFor([]string{id})...) {
 					run.files[of] = appendUnique(run.files[of], path)
 				}
 			}
 		}
 		for _, c := range s.Commands {
-			if name := p.tactics.Classify(c.Tool); name != "" && len(tools[name]) < maxCited {
-				tools[name] = append(tools[name], cited{cite: cite{path, c.Line}, text: c.Tool + ": " + c.Text, command: c.Text})
+			for _, name := range p.tactics.Tactics(c.Tool) {
+				if len(tools[name]) < maxCited {
+					tools[name] = append(tools[name], cited{cite: cite{path, c.Line}, text: c.Tool + ": " + c.Text, command: c.Text})
+				}
 			}
 		}
 		for _, hit := range s.IntelHits {

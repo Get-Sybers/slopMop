@@ -15,28 +15,29 @@ Tactics   (tactic, identifiers, files)
   [x] CredentialAccess  TA0006, AML.TA0013  20250302_090900_step03_sync_retry.ps1, 20250302_092200_step05_export.ps1
   [x] LateralMovement   TA0008, AML.TA0015  20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1, 20250302_091500_step04_certs.ps1
   [!] Execution         TA0002, AML.TA0005  staged_20250302_093100.cmd
-  [i] Discovery         TA0007, AML.TA0008  20250302_090000_step01_inventory.ps1, 20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1 and 2 more
+  [i] Discovery         TA0007, AML.TA0008  20250302_090000_step01_inventory.ps1, 20250302_090500_step02_sync.ps1, 20250302_090900_step03_sync_retry.ps1 and 3 more
 
 Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools of a tactic that no technique is named for)
   [i] Discovery                                     2025-03-02T09:00:00Z to 2025-03-02T09:00:30Z
-      tools      get-adcomputer                                             TA0007  Discovery
-      no MITRE ATT&CK technique identified
+      T1018      Remote System Discovery                          TA0007  Discovery
       watchlist  STORM-0940: 10.20.1.5
 
   [x] Discovery, LateralMovement                    2025-03-02T09:05:00Z
-      tools      get-adsyncconnector, get-adsyncscheduler                   TA0007  Discovery
-      T1021.006  Remote Services: Windows Remote Management                 TA0008  LateralMovement
+      tools      get-adsyncconnector, get-adsyncscheduler         TA0007  Discovery
+      T1021.006  Remote Services: Windows Remote Management       TA0008  LateralMovement
 
   [x] Discovery, CredentialAccess, LateralMovement  2025-03-02T09:09:00Z to 2025-03-02T09:22:00Z
-      T1087      Account Discovery                                          TA0007  Discovery
-      tools      get-adsyncconnector, get-adsyncscheduler, get-childitem    TA0007  Discovery
-      T1649      Steal or Forge Authentication Certificates                 TA0006  CredentialAccess
-      tools      get-credential, new-selfsignedcertificate                  TA0006  CredentialAccess
-      T1021.006  Remote Services: Windows Remote Management                 TA0008  LateralMovement
+      T1087      Account Discovery                                TA0007  Discovery
+      T1083      File and Directory Discovery                     TA0007  Discovery
+      tools      get-adsyncconnector, get-adsyncscheduler         TA0007  Discovery
+      T1649      Steal or Forge Authentication Certificates       TA0006  CredentialAccess
+      tools      get-credential, new-selfsignedcertificate        TA0006  CredentialAccess
+      T1021.006  Remote Services: Windows Remote Management       TA0008  LateralMovement
       watchlist  STORM-0940: 10.20.1.5
 
-  [!] Execution                                     2025-03-02T09:31:00Z
-      T1059.001  Command and Scripting Interpreter: PowerShell              TA0002  Execution           AML.T0050  Command and Scripting Interpreter
+  [!] Discovery, Execution                          2025-03-02T09:31:00Z
+      T1217      Browser Information Discovery                    TA0007  Discovery
+      T1059.001  Command and Scripting Interpreter: PowerShell    TA0002  Execution           AML.T0050  Command and Scripting Interpreter
   and 8 files that show no tactic, in the saved trace
 
 Findings

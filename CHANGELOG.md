@@ -6,6 +6,165 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+### Added
+
+- A command of Discovery shows its technique. The techniques, their commands and the flags that
+  tell them apart are those of the detection analytics ATT&CK 20.1 gives for the 49 techniques
+  of Discovery, and each of the 49 is found by a command.
+- A command the analytics name alone is filed under every technique they give it, and every
+  use of it shows them. `tactics.json` files 200 commands of Discovery under 42 techniques:
+  `whoami` is `T1033`, `systeminfo`, `uname` and `hostname` `T1082`, `ipconfig`, `ifconfig` and
+  `route` `T1016`, `ps` `T1057`, `nmap` `T1046`, `date` `T1124`, `cat` and `less` `T1654`,
+  `sleep` `T1497.003`, `dmidecode` `T1497.001`, and a cmdlet of Active Directory, Entra ID or
+  Azure the technique of what it lists. The timeline has a row for each technique where it
+  listed the command as a tool, and the mitigations address it. The table files 407 of its 579
+  commands, under 106 techniques.
+- A command stands under several techniques. 22 commands of Discovery do: `ping`, `tracert`
+  and `traceroute` are `T1016.001` and `T1018`, `curl` `T1016.001` and `T1046`, `netstat`
+  `T1018` and `T1049`, `id` `T1033`, `T1069`, `T1069.001` and `T1087.001`, `tasklist` `T1057`,
+  `T1518.001` and `T1518.002`, `ls` and `find` `T1083` and `T1518.002`, `grep` `T1518.002` and
+  `T1654`, and `lscpu` `T1082`, `T1497` and `T1497.001`. `tactics.json` lists a command under
+  each of its techniques: once under a technique, and under no technique in one tactic at
+  most and in none that files it under one.
+- A command stands in several tactics. `nc`, `ncat` and `netcat` are tools of Exfiltration and
+  `T1046` of Discovery, and `powershell`, `pwsh` and `cmd` are of Execution and `T1217` of
+  Discovery.
+- 98 commands are new to the table, all of Discovery: `curl`, `wget`, `tracert`, `vmkping` and
+  `scutil`, `cat`, `less` and `grep`, `date`, `sleep`, `usleep`, `Start-Sleep` and `time.sleep`,
+  `systemctl`, `launchctl`, `mdfind`, `system_profiler`, `systemsetup`, `sysctl`, `dscl`,
+  `dscacheutil`, `osascript`, `pfctl`, `fs_usage`, `parted`, `mount_smbfs`, `nmblookup`,
+  `tcpdump`, `tshark` and `wireshark`, `top`, `htop`, `uptime`, `lscpu`, `lspci`, `dmidecode`,
+  `dmesg`, `sw_vers`, `tree`, `groups`, `ioreg`, `timedatectl`, `hwclock`, `locale`,
+  `gpresult`, `driverquery`, `lsmod`, `modinfo`, `kextstat`, `kextfind`, `journalctl`,
+  `Get-TimeZone`, `Get-VM`, `Get-PSDrive`, `Get-DomainGPO`, `Get-DomainGPOLocalGroup`,
+  `Get-ADDefaultDomainPasswordPolicy`, `Get-MsolPasswordPolicy`, `Get-OrganizationConfig`,
+  `Get-GlobalAddressList`, `Get-MsolRoleMember`, `Get-RoleGroup`, `Get-Recipient`,
+  `Get-Mailbox` and `Get-User`; `users`, `backup`, `zmap`, `naabu`, `unicornscan`, `hping3` and
+  `roadrecon`; `Get-Package`, `Get-AppxPackage`, `Get-AddressList` and
+  `Get-OfflineAddressBook`; and the cmdlets of Exchange, SharePoint, Teams, Entra ID and Azure
+  that list groups, tenants and domains, `Get-DistributionGroup`, `Get-UnifiedGroup`,
+  `Get-Team`, `Get-SPOSite`, `Get-MgOrganization` and `Get-AzTenant` among them. A script that
+  runs one of them shows Discovery: `curl`, `wget` and `systemctl` had no tactic by their
+  names.
+- A command that a flag, a subcommand or a path makes a discovery is an activity, with its
+  lines as evidence. `net user` is `LocalAccountEnumeration`, `T1087.001`, and
+  `net user /domain` `DomainAccountEnumeration`, `T1087.002`. The 45 activities are
+  `ApplicationWindowDiscovery` (`T1010`), `NetworkConfigurationDiscovery` (`T1016`),
+  `InternetConnectionDiscovery` (`T1016.001`), `WifiDiscovery` (`T1016.002`),
+  `RemoteSystemDiscovery` (`T1018`), `LoggedOnUserDiscovery` (`T1033`), `NetworkSniffing`
+  (`T1040`), `NetworkServiceDiscovery` (`T1046`), `NetworkConnectionDiscovery` (`T1049`),
+  `ProcessDiscovery` (`T1057`), `GroupEnumeration` (`T1069`), `LocalGroupEnumeration`
+  (`T1069.001`),
+  `DomainGroupEnumeration` (`T1069.002`), `CloudGroupEnumeration` (`T1069.003`),
+  `SystemInformationDiscovery` (`T1082`), `FileAndDirectoryDiscovery` (`T1083`),
+  `AccountEnumeration` (`T1087`), `LocalAccountEnumeration` (`T1087.001`),
+  `DomainAccountEnumeration` (`T1087.002`),
+  `EmailAccountEnumeration` (`T1087.003`), `CloudAccountEnumeration` (`T1087.004`),
+  `PeripheralDeviceDiscovery` (`T1120`), `SystemTimeDiscovery` (`T1124`),
+  `PasswordPolicyDiscovery` (`T1201`), `BrowserInformationDiscovery` (`T1217`),
+  `DomainTrustDiscovery` (`T1482`), `VirtualMachineCheck` (`T1497.001`, `T1497`),
+  `UserActivityCheck` (`T1497.002`), `TimeBasedCheck` (`T1497.003`), `SoftwareDiscovery` (`T1518`),
+  `SecuritySoftwareDiscovery` (`T1518.001`), `BackupSoftwareDiscovery` (`T1518.002`),
+  `CloudServiceDiscovery` and `HostedServiceDiscovery` (`T1526`), `CloudServiceDashboard`
+  (`T1538`),
+  `CloudInfrastructureDiscovery` (`T1580`), `ContainerResourceDiscovery` (`T1613`),
+  `SystemLocationDiscovery` (`T1614`), `SystemLanguageDiscovery` (`T1614.001`),
+  `CloudStorageObjectDiscovery` (`T1619`), `DebuggerCheck` (`T1622`), `DeviceDriverDiscovery`
+  (`T1652`), `LogEnumeration` (`T1654`), `VirtualMachineDiscovery` (`T1673`) and
+  `LocalStorageDiscovery` (`T1680`). Each is a finding with its lines, a row of the timeline,
+  and in the impact `Environment mapped`, the action `Follow what was enumerated` and the
+  mitigations.
+- The activities read the commands of Windows, Linux, macOS, ESXi, a network device, the clouds
+  and containers: `net`, `wmic`, `netsh`, `nltest`, `dsquery` and `query`; the files of `/etc`,
+  `/proc`, `/sys` and `/var/log` by the command that reads them; `dscl`, `system_profiler` and
+  `networksetup`; `esxcli` and `vim-cmd`; `show` in quotes, at the start of a line or after a
+  prompt; `aws`, `az`, `gcloud` and `gsutil`; `docker` and `kubectl`.
+- A function, a library or an operation the analytics name alone is an activity where a file
+  names it: `EnumWindows`, `CreateToolhelp32Snapshot`, `IsDebuggerPresent`,
+  `NtQueryInformationProcess`, `OutputDebugString`, `Sleep(`, `WaitForSingleObject`, `usleep(`,
+  `nanosleep`, `NSTimer`, `pcap_open_live`, and `DescribeInstances`, `ListBuckets`,
+  `GetAccountPasswordPolicy`, `ListInventory`, `GetLogEvents` and `ListObjectsV2` as an
+  interface or a log of AWS writes them. The address of a console of a cloud is
+  `CloudServiceDashboard`, and the address list of Outlook `EmailAccountEnumeration`.
+- `ServiceDiscovery` reads `tasklist /svc`, `net start`, `launchctl list`, a command that lists
+  or reads `/etc/init.d` and `ps` searched for `com.apple.`, and `NetworkShareDiscovery` reads
+  `smbutil view` and `sharing -l`.
+- What a discovery acts on is a target and stands in the columns of its finding: the account
+  `net user` is asked about, the file a command reads, `/etc/passwd` or a history of a browser,
+  the log `wevtutil` queries or the file of `/var/log`, the host `net time` asks, the bucket
+  `aws s3 ls` lists and the namespace of `kubectl`.
+- A command with a flag that the analytics file under several techniques shows each of them.
+  `cat /etc/passwd` is `T1033`, `T1087` and `T1087.001`; `net user` `T1033` and `T1087.001`;
+  `sc query` `T1007`, `T1518.001` and `T1518.002`; `ps aux` `T1518.001` and `T1518.002`;
+  `reg query` `T1012` and `T1518.002`; `systemsetup -gettimezone` `T1124`, `T1614` and
+  `T1614.001`; `getent group` `T1069` and `T1069.001`; `show arp` `T1016` and `T1018`;
+  `vim-cmd vmsvc/getallvms` `T1673` and `T1680`; `aws ec2 describe-instances` `T1082`, `T1526`
+  and `T1580`. `netsh wlan` is `T1016.002` whatever follows, and `net view` `T1135` with a host
+  or without.
+- Where the analytics name what a sensor records and no tool, the activity is what a script or
+  a log holds of it:
+  - `execve`: the commands an audit log of Linux records are read as those of a script are. The
+    arguments of an `EXECVE` record, the command of a `USER_CMD` record and the title of a
+    `PROCTITLE` record are decoded, hexadecimal and pieces included, and so are the `execve`
+    calls of an `strace` output. `chage -l root` in an audit log is `PasswordPolicyDiscovery`.
+  - A record of connections is read together. A host reached at ten ports or more is
+    `NetworkServiceDiscovery`, in the lines of `tcpdump`, netfilter, Sysmon event 3, auditd,
+    Zeek, the Windows firewall, netflow and `strace`; a host reached at one port, however
+    often, is not. `activities.json` declares the forms under `spread`.
+  - A scan is also what a script writes, a loop over ports with `connect_ex`, `TcpClient` over
+    a range or `/dev/tcp/$host/$port`; what a scanner answers, `Nmap scan report for` and
+    `22/tcp open`; and what a sensor names, `ET SCAN` and `(portscan)`.
+  - The functions, classes and keys of Windows: `GetVersionEx`, `GetNativeSystemInfo` and the
+    key of the processor for `T1082`; `NetUserEnum`, `LookupAccountSid`, `DirectorySearcher`
+    and `[adsisearcher]` for `T1087`; `Win32_Keyboard`, `SetupDiGetClassDevs` and the key
+    `USBSTOR` for `T1120`; `winget list` and `Win32Reg_AddRemovePrograms` for `T1518`.
+  - What a guest of a hypervisor leaves, for `T1497` and `T1497.001`: the keys, drivers,
+    services, processes and libraries of VirtualBox, VMware, Hyper-V, QEMU, Parallels and
+    Sandboxie, the first bytes of the address of a network card, and the classes and functions
+    that give the number of processors and the size of memory.
+  - What a person at a system leaves, for `T1497.002`: `GetLastInputInfo`, `GetCursorPos`, the
+    keys `RecentDocs` and `UserAssist`, and a count of the files of a desktop.
+  - The sign-in to a console, for `T1538`: `ConsoleLogin` of CloudTrail, the application
+    `Azure Portal` of Entra ID, `user.session.access_admin_app` of Okta, and the admin pages of
+    Salesforce, Slack, Zoom, Exchange and SharePoint.
+- Accounts and groups are found where a function, a macro or an address lists them:
+  `AccountEnumeration` reads the directory classes of macOS, `GetObject("WinNT://")`,
+  `ADSystemInfo`, `WScript.Network`, `Application.UserName` and `Environ("USERNAME")` of a
+  macro of Office, `ListUsers` and `GetAccountAuthorizationDetails` of AWS, the users of Auth0,
+  OneLogin, Duo, JumpCloud, Keycloak, Jira, GitHub and Zoom, `users.list` of Slack and
+  `SELECT ... FROM User` of Salesforce. `CloudGroupEnumeration` reads the groups and roles of
+  AWS, Azure, Google Cloud, Okta, Google Workspace, Slack, Zoom, GitHub, Jira and Salesforce.
+- The services of a cloud are found at the address each is asked at: Azure Resource Manager,
+  Microsoft Graph, the Okta API, Microsoft 365, the Admin SDK of Google Workspace and the Zoom
+  API, and the commands of AADInternals, ROADtools and GAM. A request that writes shows none.
+  `HostedServiceDiscovery` reads Salesforce and Slack by the question, however it is sent: the
+  objects and the tooling interface of Salesforce, `sf org list`, `team.info`,
+  `conversations.list` and `admin.apps.approved.list`. `AzureResourceEnumeration` shows `T1526`
+  beside `T1580`.
+- More of what the analytics name: AppleScript that lists windows or runs a capture, with
+  `osascript` or in a file of its own; the mirror of a cloud, `New-AzVirtualNetworkTap`; the
+  address list of Exchange, `AddressEntries`, `ResolveNames` and `oab.xml`; `ls /Users`;
+  `fsutil fsinfo drives`; a wait by `ping -n`, `ping -c N -i N`, `timeout /t`, `WScript.Sleep`
+  and `nanosleep`; backup software by `wbadmin get versions`, `vssadmin list shadows`,
+  `tmutil listbackups`, `Get-VBRJob`, `/etc/rsnapshot.conf` and the word `backup` beside a
+  command that lists; the instance metadata of Azure for `T1614`; `PTRACE_TRACEME`.
+
+### Changed
+
+- `tactic.Table.Classify` returns the places of a command, each a tactic and a technique, and
+  `Tactics` its tactics. `Technique` is gone.
+- A wait is a command. `sleep` of a shell, `Start-Sleep` and `sleep` of PowerShell and
+  `time.sleep` of Python were read as nothing, and so was `w`, as every word of one letter is.
+- These lines showed no activity and show one: `net user`, `net view`, `net use`, `docker ps`,
+  `kubectl get pods`, `cat /etc/passwd`, `tail /var/log/syslog`, `nc -zv`, `wevtutil qe` and
+  `az role assignment list`. A listing of the containers through the socket of Docker is
+  `ContainerResourceDiscovery` as well as `ContainerEscape`, and `systemctl status auditd` is
+  `SecuritySoftwareDiscovery` as well as `ServiceDiscovery`.
+- `$USER` and `$LOGNAME` show who is signed in where a line prints one, keeps it or tests it.
+  As an argument of another command, `-u "$USER"`, either shows nothing.
+- An output that holds the answer of a scanner shows Discovery: a file of `nmap` results had
+  no tactic, and the period of its script now runs to it.
+
 ## [0.6.4] - 2026-11-19
 
 ### Added

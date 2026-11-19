@@ -138,7 +138,8 @@ Timeline   (a block for each intent, from the first of its files to be created u
   relative identifier say whether it is of a group of the machine, a group of a domain or an
   account.
 - A command is a technique too, where `tactics.json` files it under one: its row is that
-  technique and the tactic that holds it. A command whose technique is not named is a tool:
+  technique and the tactic that holds it, and a command filed under several has a row for
+  each. A command whose technique is not named is a tool:
   the tools of a tactic are a row of their own, `tools` and the first 6 of them where a
   technique would stand, whether or not a technique gives the tactic as well.
 - A tactic that neither a technique nor a tool of the block gives stands in a row alone.
