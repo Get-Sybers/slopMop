@@ -1,8 +1,12 @@
 # slopMop
 
-`slopmop` is a static-analysis tool for a folder of scripts an AI agent wrote and the outputs those
-scripts produced. It reads the folder. It never executes anything from it, never hands a script to
-an interpreter and never writes into it.
+<p align="center">
+  <img src="docs/slopmop.png" alt="slopMop banner" width="85%">
+</p>
+
+`slopmop` is a static-analysis tool for incident response. It reads a folder of scripts an
+attacker's AI agent, such as ARTEX, wrote and the outputs those scripts produced. It never
+executes anything from it, never hands a script to an interpreter and never writes into it.
 
 ## Build
 
@@ -110,6 +114,7 @@ so the output folder is to be kept as the evidence is.
 - [Output schema](docs/02-Output-Schema.md)
 - [Architecture](docs/03-Architecture.md)
 - [Conformance](docs/04-Conformance.md)
+- [ARTEX records](docs/artex/records.md)
 - [Rules for contributors and agents](AGENTS.md)
 - [Changelog](CHANGELOG.md)
 
