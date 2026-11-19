@@ -30,5 +30,5 @@ Timeline   (a block for each intent, from the first of its files to be created u
       T1048      Exfiltration Over Alternative Protocol        TA0010  Exfiltration        AML.T0025  Exfiltration via Cyber Means
   and 8 files that show no tactic, in the saved trace
 
--> saved to <out>: report.txt, report.md, report.html, files.csv, trace.json, intents.csv, findings.json, targeted.json, exposure.csv, report.json
+-> saved to <out>: report.txt, report.md, report.html, files.csv, trace.json, intents.csv, findings.csv, findings.json, targeted.json, exposure.csv, report.json
 -> one section: slopmop -inputdir <folder> report impact

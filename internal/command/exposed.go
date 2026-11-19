@@ -173,34 +173,16 @@ func (p pipeline) collectExposed(steps []trace.Step, texts map[string]string, he
 				logins[cite{strings.ToLower(it.Value), it.Line}] = true
 			}
 		}
-		text := texts[s.File.Path]
-		for _, m := range s.Matches {
-			// "$USER@corp.example" reads as an address and is a variable and a domain.
-			if m.Line > 0 && m.Start > 0 && m.Start <= len(text) && text[m.Start-1] == '$' {
-				continue
-			}
-			if _, host, found := strings.Cut(m.Value, "@"); found && logins[cite{strings.ToLower(host), m.Line}] {
-				continue
-			}
-			if it, ok := p.exposures.FromIndicator(m.Type, m.Value, m.Line); ok {
+		p.indicated(texts[s.File.Path], s.Matches, logins, func(it exposure.Item, exposed bool) {
+			switch {
+			case exposed:
 				add(it, s)
-				// Whose a token is said to be is an account the evidence holds.
-				if owner, owned := p.exposures.Owner(it); owned {
-					add(owner, s)
-				}
+			case s.File.Role == evidence.Script:
+				named.script(it, p.exposures.Kinds()[kinds[it.Kind]], s.File.Path)
+			default:
+				named.output(it, s.File.Path)
 			}
-			// A domain is a host only where a script names it; it is no exposure.
-			if inPath(text, m.Start, m.Line) {
-				continue
-			}
-			if it, ok := p.exposures.FromHardcoded(m.Type, m.Value, m.Line); ok {
-				if s.File.Role == evidence.Script {
-					named.script(it, p.exposures.Kinds()[kinds[it.Kind]], s.File.Path)
-				} else {
-					named.output(it, s.File.Path)
-				}
-			}
-		}
+		})
 	}
 	all = mergeKinds(mergeOwned(all), kinds)
 	for i, e := range all {

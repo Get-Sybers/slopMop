@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 	"unicode/utf16"
 	"unicode/utf8"
 )
@@ -163,6 +164,12 @@ func (v Value) raw() any {
 		return v.when.UTC().Format(utcLayout)
 	case kindNotApplicable, kindNever:
 		return nil
+	case kindLines:
+		lines := make([]string, len(v.items))
+		for i, item := range v.items {
+			lines[i] = item[0].Value.text
+		}
+		return strings.Join(lines, "\n")
 	default:
 		return v.text
 	}

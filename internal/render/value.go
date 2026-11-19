@@ -25,6 +25,7 @@ const (
 	kindNotApplicable
 	kindNever
 	kindList
+	kindLines
 )
 
 // Value is one cell of a table; the zero Value is the empty text.
@@ -68,6 +69,16 @@ func Never() Value { return Value{kind: kindNever} }
 // lines of evidence behind a finding. JSON writes it as an array of objects.
 func List(items [][]Field) Value { return Value{kind: kindList, items: items} }
 
+// Lines is lines of text that stand one under another, such as the lines
+// that show a finding. JSON writes them as one string, a line to each.
+func Lines(lines []string) Value {
+	items := make([][]Field, len(lines))
+	for i, line := range lines {
+		items[i] = []Field{{Value: Text(line)}}
+	}
+	return Value{kind: kindLines, items: items}
+}
+
 // style is how the views meant for reading write a cell.
 type style struct {
 	raw bool // byte counts and whole hashes
@@ -98,7 +109,7 @@ func (v Value) cell(s style) string {
 		return notApplicable
 	case kindNever:
 		return never
-	case kindList:
+	case kindList, kindLines:
 		// One cell holds the list: the values of an item side by side, item after item.
 		items := make([]string, len(v.items))
 		for i, item := range v.items {

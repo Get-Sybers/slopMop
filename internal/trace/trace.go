@@ -184,8 +184,10 @@ func numberLines(text string, known int, hits []activity.Hit, matches []indicato
 	for _, h := range hits {
 		for i := range h.Evidence {
 			if known == 0 || h.Evidence[i].Line > lines {
-				h.Evidence[i].Line = 0
+				h.Evidence[i].Line, h.Evidence[i].Last = 0, 0
 			}
+			// A command that runs on past the file ends on its last line.
+			h.Evidence[i].Last = min(h.Evidence[i].Last, lines)
 		}
 	}
 	if len(matches) == 0 || known == 0 {

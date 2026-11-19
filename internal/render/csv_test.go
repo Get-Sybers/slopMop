@@ -56,6 +56,7 @@ func TestCSVWritesKeysThenRows(t *testing.T) {
 			{{Key: "file", Value: render.Text("a.sh")}, {Key: "line", Value: render.Int(3)}},
 			{{Key: "file", Value: render.Text("b.sh")}, {Key: "line", Value: render.Int(9)}},
 		}), render.Text("x")}, "a.sh 3; b.sh 9,x\n"},
+		{"lines", []render.Value{render.Lines([]string{"id (a.sh:3)", "tar czf a, b (b.sh:9)"}), render.Text("x")}, "\"id (a.sh:3); tar czf a, b (b.sh:9)\",x\n"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -79,6 +80,7 @@ func TestCSVGuardsFormulas(t *testing.T) {
 		{"an at sign", render.Text("@SUM(A1)"), "'@SUM(A1)"},
 		{"a digest that is none", render.Hash("=1+1"), "'=1+1"},
 		{"a list", render.List([][]render.Field{{{Key: "text", Value: render.Text("=1+1")}}}), "'=1+1"},
+		{"lines", render.Lines([]string{"=1+1", "id"}), "'=1+1; id"},
 		{"a sign inside the text", render.Text("a=b"), "a=b"},
 		{"a number below zero", render.Int(-5), "-5"},
 		{"text in quotes", render.Text("\t=1+1"), `"\t=1+1"`},
@@ -114,6 +116,31 @@ func TestCSVHostileTextIsOneRow(t *testing.T) {
 				if err != nil || len(records) != 2 || !slices.Equal(records[1], []string{want, "1"}) {
 					t.Errorf("Text(%q) reads back as %q (%v), want %q", text, records, err, want)
 				}
+			}
+		})
+	}
+}
+
+// Lines of hostile text are one row, each line of them the cell the report shows.
+func TestCSVHostileLinesAreOneRow(t *testing.T) {
+	for _, group := range hostile() {
+		t.Run(group.name, func(t *testing.T) {
+			got := sheet(t, []render.Value{render.Lines(group.values), render.Int(1)})
+			checkPrintable(t, got)
+			if strings.Count(got, "\n") != 2 {
+				t.Errorf("Lines(%q) are written as %q, want one line under the keys", group.values, got)
+			}
+			shown := make([]string, len(group.values))
+			for i, text := range group.values {
+				shown[i] = render.Escape(text)
+			}
+			want := strings.Join(shown, "; ")
+			if strings.ContainsRune("=+-@", rune(want[0])) {
+				want = "'" + want
+			}
+			records, err := csv.NewReader(strings.NewReader(got)).ReadAll()
+			if err != nil || len(records) != 2 || !slices.Equal(records[1], []string{want, "1"}) {
+				t.Errorf("Lines(%q) read back as %q (%v), want %q", group.values, records, err, want)
 			}
 		})
 	}

@@ -65,5 +65,5 @@ Timeline   (a block for each intent, from the first of its files to be created u
   12 of 12 files are timed by name or last change: their creation time is not recorded, or is that of a copy, which is after the last change
 
 [x] HIGH - 12 impacts: 8 high, 2 medium, 2 low
--> saved to <out>: report.txt, report.md, report.html, files.csv, trace.json, intents.csv, findings.json, targeted.json, exposure.csv, report.json
+-> saved to <out>: report.txt, report.md, report.html, files.csv, trace.json, intents.csv, findings.csv, findings.json, targeted.json, exposure.csv, report.json
 -> one section: slopmop -inputdir <folder> report impact

