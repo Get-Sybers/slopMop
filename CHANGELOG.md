@@ -167,8 +167,8 @@ All notable changes to this project are recorded in this file. The format follow
 
 ### Changed
 
-- The README says in its first lines what the tool is for: incident response to an attack by an
-  AI agent such as ARTEX. It gives the `go install` line and lists the ARTEX notes.
+- The README says in its first lines that the tool is for incident response and that the AI
+  agent is an attacker's, such as ARTEX, and it lists the ARTEX records.
 - What stands where a secret would is no longer reported as one. `exposures.json` declares it
   under `placeholder`: code that fetches a secret, `get_token()` and `os.getenv(`; a reference
   to one, `args.secret` and `var.db_password`; the name of an option's value, `PASSWORD`; a
