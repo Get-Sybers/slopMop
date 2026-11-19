@@ -942,6 +942,106 @@
         {"label": "url", "pattern": "(?i)((?:https?|ftp)://[^\\s\"'<>)]+)"},
         {"label": "url", "pattern": "(?i)\\b(?:curl|wget)\\b(?:\\s+-\\S+)*\\s+(\"?\\$\\{?\\w+\\}?\"?)"}
       ]
+    },
+    {
+      "name": "NetworkShareDiscovery",
+      "tactics": ["Discovery"],
+      "attack": ["T1135"],
+      "patterns": [
+        "(?i)\\bnet1?(?:\\.exe)?\\s+view\\s+(?:/\\S+\\s+)*[\"']?\\\\\\\\\\S",
+        "(?i)\\bnet1?(?:\\.exe)?\\s+share\\s*(?:$|[|>&;)])",
+        "(?i)\\bget-(?:smbshare|smbshareaccess|fileshare)\\b",
+        "(?i)\\bwin32_share\\b",
+        "(?i)\\bwmic(?:\\.exe)?\\b.*\\bshare\\s+(?:get|list)\\b",
+        "(?i)\\b(?:invoke-sharefinder|find-domainshare|get-netshare|get-domainshare|find-interestingdomainsharefile|invoke-filefinder)\\b",
+        "(?:^|[\\s;&|(/])smbclient\\b.*\\s(?:-L|--list)(?:[\\s=]|$)",
+        "(?i)\\b(?:nxc|netexec|crackmapexec|cme)\\s+smb\\b.*\\s--shares\\b",
+        "(?:^|[\\s;&|(/])smbmap\\b.*\\s(?:-H|--host(?:-file)?)[\\s=]",
+        "\\benum4linux(?:-ng)?\\b.*\\s-(?:[A-Za-z]*S[A-Za-z]*|a|A)(?:\\s|$)",
+        "(?i)\\bnetshareenum(?:all)?\\b",
+        "\\bshowmount\\b.*\\s(?:-e|--exports|-a|--all)\\b",
+        "(?i)\\bsmb-enum-shares\\b",
+        "(?i)\\b(?:snaffler|sharpshares)(?:\\.exe)?\\b"
+      ],
+      "unless": "\\bsmbmap\\b.*\\s(?:-x|--download|--upload|--delete)\\b",
+      "subjects": [
+        {"label": "host", "pattern": "(?i)\\bnet1?(?:\\.exe)?\\s+view\\s+(?:/\\S+\\s+)*[\"']?\\\\\\\\([^\\\\\\s\"']+)"},
+        {"label": "host", "pattern": "\\s(?:-L|--list)[\\s=]+[\"']?(?://)?([^\\s/\"']+)"},
+        {"label": "host", "pattern": "\\bsmbmap\\b.*\\s-H\\s+[\"']?([^\\s\"']+)"},
+        {"label": "host", "pattern": "(?i)\\b(?:nxc|netexec|crackmapexec|cme)\\s+smb\\s+(\"[^\"]+\"|'[^']+'|\\S+)"},
+        {"label": "host", "pattern": "\\bshowmount\\s+(?:-\\S+\\s+)*([^\\s-]\\S*)"},
+        {"label": "host", "pattern": "(?i)\\s-(?:ComputerName|CimSession)\\s+[\"']?([^\\s\"',;|)]+)"}
+      ]
+    },
+    {
+      "name": "NetworkShareConnection",
+      "tactics": ["LateralMovement"],
+      "attack": ["T1021.002"],
+      "patterns": [
+        "(?i)\\bnet1?(?:\\.exe)?\\s+use\\b.*\\\\\\\\[^\\\\\\s]+\\\\[^\\\\\\s]",
+        "(?i)\\bnew-(?:psdrive|smbmapping|smbglobalmapping)\\b.*\\\\\\\\[^\\\\\\s]+\\\\[^\\\\\\s]",
+        "(?i)\\bpushd\\s+[\"']?\\\\\\\\[^\\\\\\s]+\\\\[^\\\\\\s]",
+        "(?i)\\.MapNetworkDrive\\(",
+        "\\bmount(?:\\.cifs)?\\s+(?:\\S+\\s+)*[\"']?//[^/\\s\"']+/[^/\\s\"']",
+        "(?:^|[\\s;&|(/])smbclient\\b.*\\s[\"']?//[^/\\s\"']+/[^/\\s\"']"
+      ],
+      "unless": "(?i)\\bnet1?(?:\\.exe)?\\s+use\\b.*\\s/d(?:el(?:ete)?)?\\b",
+      "subjects": [
+        {"label": "share", "pattern": "(\\\\\\\\[^\\\\\\s\"']+\\\\[^\\\\\\s\"',;)]+)"},
+        {"label": "share", "pattern": "[\\s\"'=](//[^/\\s\"']+/[^/\\s\"',;)]+)"},
+        {"label": "account", "pattern": "(?i)/user:[\"']?(?:[^\\\\\\s\"']+\\\\)?([^\\s\"']+)"},
+        {"label": "account", "pattern": "\\s-U\\s+[\"']?(?:[^/\\\\%\\s\"']+[/\\\\])?([^%\\s\"']+)"},
+        {"label": "account", "pattern": "(?i)\\busername=([^,\\s\"']+)"}
+      ]
+    },
+    {
+      "name": "NetworkShareCollection",
+      "tactics": ["Collection"],
+      "attack": ["T1039"],
+      "patterns": [
+        "(?i)(?:^|[\\s;&|(\\\"'`])(?:copy|xcopy|robocopy|move)(?:\\.exe)?\\s+(?:/\\S+\\s+)*[\"']?\\\\\\\\[^\\\\\\s]+\\\\[^\\\\\\s]",
+        "(?i)\\bcopy-item\\s+[\"']?\\\\\\\\[^\\\\\\s]+\\\\[^\\\\\\s]",
+        "(?i)\\bcopy-item\\b.*\\s-(?:path|literalpath)\\s+[\"']?\\\\\\\\[^\\\\\\s]+\\\\[^\\\\\\s]",
+        "(?:^|[\\s;&|(/])smbclient\\b.*\\s(?:-c|--command)[\\s=]+[\"'][^\"']*\\b(?:m?get|tar\\s+c)\\b",
+        "(?:^|[\\s;&|(/])smbget\\s",
+        "(?i)\\b(?:nxc|netexec|crackmapexec|cme)\\s+smb\\b.*\\s(?:--get-file|--spider|-M\\s+spider_plus)\\b",
+        "\\bsmbmap\\b.*\\s--download\\b"
+      ],
+      "subjects": [
+        {"label": "share", "pattern": "(\\\\\\\\[^\\\\\\s\"']+\\\\[^\\\\\\s\"',;)]+)"},
+        {"label": "share", "pattern": "[\\s\"'=](//[^/\\s\"']+/[^/\\s\"',;)]+)"},
+        {"label": "share", "pattern": "(?i)(smb://[^\\s\"']+)"}
+      ]
+    },
+    {
+      "name": "LateralToolTransfer",
+      "tactics": ["LateralMovement"],
+      "attack": ["T1570"],
+      "patterns": [
+        "(?i)(?:^|[\\s;&|(\\\"'`])(?:copy|xcopy|robocopy|move)(?:\\.exe)?\\s+(?:/\\S+\\s+)*(?:\"[^\"]+\"|'[^']+'|[^\\s\\\\/\"']\\S*)\\s+[\"']?\\\\\\\\[^\\\\\\s]+\\\\[^\\\\\\s]",
+        "(?i)\\bcopy-item\\b.*\\s-destination\\s+[\"']?\\\\\\\\[^\\\\\\s]+\\\\[^\\\\\\s]",
+        "(?i)\\bcopy-item\\s+(?:\"[^\"]+\"|'[^']+'|[^\\s\\\\\"'-]\\S*)\\s+[\"']?\\\\\\\\[^\\\\\\s]+\\\\[^\\\\\\s]",
+        "(?:^|[\\s;&|(/])smbclient\\b.*\\s(?:-c|--command)[\\s=]+[\"'][^\"']*\\bm?put\\b",
+        "(?i)\\b(?:nxc|netexec|crackmapexec|cme)\\s+smb\\b.*\\s--put-file\\b",
+        "\\bsmbmap\\b.*\\s--upload\\b"
+      ],
+      "subjects": [
+        {"label": "share", "pattern": "(\\\\\\\\[^\\\\\\s\"']+\\\\[^\\\\\\s\"',;)]+)"},
+        {"label": "share", "pattern": "[\\s\"'=](//[^/\\s\"']+/[^/\\s\"',;)]+)"},
+        {"label": "file", "pattern": "(?i)(?:^|[\\s;&|(\\\"'`])(?:copy|xcopy|robocopy|move|copy-item)(?:\\.exe)?\\s+(?:/\\S+\\s+)*(\"[^\"]+\"|'[^']+'|[^\\s\\\\/\"'-]\\S*)\\s"}
+      ]
+    },
+    {
+      "name": "NetworkShareConnectionRemoval",
+      "tactics": ["Stealth"],
+      "attack": ["T1070.005"],
+      "patterns": [
+        "(?i)\\bnet1?(?:\\.exe)?\\s+use\\b.*\\s/d(?:el(?:ete)?)?\\b",
+        "(?i)\\bremove-(?:smbmapping|smbglobalmapping)\\b"
+      ],
+      "subjects": [
+        {"label": "share", "pattern": "(\\\\\\\\[^\\\\\\s\"']+\\\\[^\\\\\\s\"',;)]+)"}
+      ]
     }
   ]
 }

@@ -38,7 +38,7 @@
     "tools": "nxc, tee, ldapsearch",
     "tactics": "CredentialAccess, Discovery",
     "transforms": null,
-    "activities": null,
+    "activities": "NetworkShareDiscovery",
     "outputs": "20250301_101845_step02_enum.log, 20250301_101910_step02_users.tsv",
     "indicators": 5,
     "intel": null,

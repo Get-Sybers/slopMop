@@ -3,7 +3,7 @@
     "name": "Revoke sessions and reset identities",
     "priority": "high",
     "action": "Revoke the sessions and tokens of every identity in the evidence and reset its credentials.",
-    "activities": ["TokenRequest"],
+    "activities": ["TokenRequest", "NetworkShareConnection"],
     "tactics": ["InitialAccess", "LateralMovement"]
   },
   {
@@ -58,7 +58,7 @@
     "name": "Scope the data taken",
     "priority": "high",
     "action": "Establish from audit logs which mailboxes, chats, sites and files were read or sent out, and assess that data as breached.",
-    "activities": ["MailboxAccess", "TeamsMessageAccess", "SharePointEnumeration", "FileUpload", "ArchiveCreation"],
+    "activities": ["MailboxAccess", "TeamsMessageAccess", "SharePointEnumeration", "FileUpload", "ArchiveCreation", "NetworkShareCollection"],
     "tactics": ["Collection", "Exfiltration"]
   },
   {
@@ -71,20 +71,20 @@
     "name": "Find the delivered files",
     "priority": "medium",
     "action": "Collect the files that were downloaded, dropped or loaded, hash them, and search every host for the same hashes.",
-    "activities": ["FileDownload", "DownloadAndExecute", "ShellDownloadAndExecute", "ReflectiveCodeLoading", "SignedBinaryProxyExecution", "RuntimeCompilation", "NativeApiCall", "ProcessStart"]
+    "activities": ["FileDownload", "DownloadAndExecute", "ShellDownloadAndExecute", "ReflectiveCodeLoading", "SignedBinaryProxyExecution", "RuntimeCompilation", "NativeApiCall", "ProcessStart", "LateralToolTransfer"]
   },
   {
     "name": "Recover the missing logs",
     "priority": "medium",
     "action": "Treat local logs as incomplete, and recover the period from a central collector or a backup.",
-    "activities": ["EventLogClearing", "AmsiBypass", "LogDeletion", "HistoryClearing", "HistoryDisabling", "Timestomp"],
+    "activities": ["EventLogClearing", "AmsiBypass", "LogDeletion", "HistoryClearing", "HistoryDisabling", "Timestomp", "NetworkShareConnectionRemoval"],
     "tactics": ["DefenseImpairment", "Stealth"]
   },
   {
     "name": "Follow what was enumerated",
     "priority": "low",
     "action": "Use what was listed to predict targets: check those identities, vaults and hosts for later activity.",
-    "activities": ["GraphDirectoryEnumeration", "AzureResourceEnumeration", "KeyVaultKeyEnumeration", "DirectorySearch", "RegistryQuery", "SetuidFileSearch", "ServiceDiscovery"],
+    "activities": ["GraphDirectoryEnumeration", "AzureResourceEnumeration", "KeyVaultKeyEnumeration", "DirectorySearch", "RegistryQuery", "SetuidFileSearch", "ServiceDiscovery", "NetworkShareDiscovery"],
     "tactics": ["Discovery"],
     "exposed": ["username", "email", "tenant", "application", "resource", "device", "ip"]
   }

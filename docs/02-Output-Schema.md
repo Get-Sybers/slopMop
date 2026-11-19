@@ -500,11 +500,12 @@ Sort: severity from `high` to `low`, then activities, indicators and tactics, ea
   password and a token are in no column, and neither is the value of a secret or of a key.
 - A share is found by how a command writes it: a path of Windows, `\\fs01\finance\q3.xlsx`,
   also in a string that doubles each backslash; the path `smbclient`, `smbget`, `smbcacls`,
-  `smbtar` or `mount` is given, `//fs01/finance`; and an address of `smb://`. It is written one
-  way, `\\fs01\finance`, whichever way its slashes lean, without what stands below the share.
-  A host that is a variable no file sets keeps its name, `\\$h\C$`. A host alone is no share,
-  and neither is a path after a colon, as a drive or a namespace of WMI is, nor a pipe or a
-  device.
+  `smbtar` or `mount` is given, `//fs01/finance`; an address of `smb://`; and the host and the
+  share `smbmap` and `nxc` are given apart. It is written one way, `\\fs01\finance`, whichever
+  way its slashes lean, without what stands below the share: a `share` of `targets` stands as
+  the command writes it, and in this column as any other share. A host that is a variable no
+  file sets keeps its name, `\\$h\C$`. A host alone is no share, and neither is a path after a
+  colon, as a drive or a namespace of WMI is, nor a pipe or a device.
 - A command is read on every line it is continued on, 8 KiB of it at most, with each variable
   the file sets given its value: `http://$PROXY:8080` is `http://203.0.113.9:8080`. A target is
   read too, so the address in `url http://203.0.113.40/s.sh` is in `ip`. A value in these

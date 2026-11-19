@@ -33,8 +33,10 @@ type entities struct {
 	// apart are the types whose indicators the exposure does not read: on a
 	// line, such an indicator is filed by its type.
 	apart map[string]bool
-	// shapes find the values no other table names, by how a command writes them.
+	// shapes find the values no other table names, by how a command writes
+	// them, and shaped are the columns they fill.
 	shapes []shape
+	shaped map[string]bool
 }
 
 // shape is an expression that finds a value of a column, and what writes the
@@ -49,7 +51,10 @@ type shape struct {
 // fills a column of its own from labels, kinds and types the other tables
 // declare, and that no two read the same.
 func loadEntities(doc commandsDoc, p pipeline) (entities, error) {
-	t := entities{byLabel: map[string]string{}, byKind: map[string]string{}, byType: map[string]string{}, apart: map[string]bool{}}
+	t := entities{
+		byLabel: map[string]string{}, byKind: map[string]string{}, byType: map[string]string{},
+		apart: map[string]bool{}, shaped: map[string]bool{},
+	}
 	for _, c := range doc.Classes {
 		if c.Name != findingClass && len(c.Entities) > 0 {
 			return entities{}, fmt.Errorf("commands.json: the class %s names entities, which only the class %s holds", c.Name, findingClass)
@@ -77,6 +82,7 @@ func loadEntities(doc commandsDoc, p pipeline) (entities, error) {
 				return entities{}, err
 			}
 			t.shapes = append(t.shapes, found)
+			t.shaped[e.Column] = true
 		}
 		sources := []struct {
 			what   string
@@ -145,6 +151,8 @@ func (t entities) file(f *finding, named []mention) {
 		switch {
 		case m.column != "":
 			f.name(m.column, m.value)
+		case m.label != "" && t.shaped[t.byLabel[m.label]]:
+			// A share is written one way: what a target names is read by its shape, not listed as it stands.
 		case m.label != "":
 			f.name(t.byLabel[m.label], m.value)
 		case m.typ != "":
