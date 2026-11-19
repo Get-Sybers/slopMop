@@ -301,6 +301,14 @@ the operations it shows.
   activity found on the line gives one.
 - A write to a path is read from the command that makes it: a redirection, `tee`, `cp`, `mv`,
   `install` or `sed -i`. Reading the same path is a different activity or none.
+- A share is an activity by what a command does with it. `net view \\host`, `net share`,
+  `Get-SmbShare`, `smbclient -L`, `smbmap`, `--shares`, `showmount -e` and the like list the
+  shares of a host. `net use`, `New-PSDrive`, `New-SmbMapping`, `pushd`, `mount` and
+  `smbclient` open one. `net use /delete` and `Remove-SmbMapping` close one.
+- A copy is read by where the share stands: `copy`, `xcopy`, `robocopy`, `move` and
+  `Copy-Item` from a share collect what it holds, and to a share they carry a file to another
+  system, as `get` and `put` of `smbclient` do. A copy between two shares collects. A copy on
+  one machine is no activity, and neither is a share that is made, `net share name=path`.
 
 | Activity | Tactics | ATT&CK |
 | --- | --- | --- |
@@ -364,6 +372,11 @@ the operations it shows.
 | `ArchiveCreation` | Collection | T1560.001 |
 | `ServiceDiscovery` | Discovery | T1007 |
 | `ShellDownloadAndExecute` | Execution, CommandAndControl | T1059.004, T1105 |
+| `NetworkShareDiscovery` | Discovery | T1135 |
+| `NetworkShareConnection` | LateralMovement | T1021.002 |
+| `NetworkShareCollection` | Collection | T1039 |
+| `LateralToolTransfer` | LateralMovement | T1570 |
+| `NetworkShareConnectionRemoval` | Stealth | T1070.005 |
 
 ## 11. Watchlist
 

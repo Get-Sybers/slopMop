@@ -6,6 +6,8 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+## [0.6.4] - 2026-11-19
+
 ### Added
 
 - The findings are saved as CSV as well, `findings.csv`, beside `findings.json`: the same rows
@@ -25,10 +27,22 @@ All notable changes to this project are recorded in this file. The format follow
   line it is continued on, with each variable the file sets given its value, so an address that
   a script holds in a variable is in `ip`. An indicator names itself in the column of its type,
   and a tactic names nothing.
+- A command that uses a share is an activity. `NetworkShareDiscovery`, `T1135`, is a command
+  that lists the shares of a host: `net view \\host`, `net share`, `Get-SmbShare`,
+  `smbclient -L`, `smbmap`, `--shares` of `nxc`, `showmount -e` and others.
+  `NetworkShareConnection`, `T1021.002`, opens a share: `net use`, `New-PSDrive`,
+  `New-SmbMapping`, `pushd`, `mount` and `smbclient`. `NetworkShareCollection`, `T1039`, copies
+  from a share, and `LateralToolTransfer`, `T1570`, copies to one: `copy`, `xcopy`, `robocopy`,
+  `move`, `Copy-Item`, and `get` and `put` of `smbclient`. `NetworkShareConnectionRemoval`,
+  `T1070.005`, closes one: `net use /delete` and `Remove-SmbMapping`. Each is a finding with
+  its lines, a row of the timeline of its intent, and in the impacts, the actions and the
+  mitigations. A share that is made, `net share name=path`, is no activity.
+- The share a command acts on is a target: the Targeted section lists the shares, each with
+  the activities that acted on it, as the command writes it.
 - A finding names the shares on its lines, in `share`. A share is found by how a command writes
   it: a path of Windows, also in a string that doubles each backslash, the path a tool of SMB
-  or `mount` is given, and an address of `smb://`. It is written one way, `\\host\share`,
-  whichever way its slashes lean.
+  or `mount` is given, an address of `smb://`, and the host and the share `smbmap` and `nxc`
+  are given apart. It is written one way, `\\host\share`, whichever way its slashes lean.
 - `commands.json` lists those columns as the `entities` of the `finding` class, each with the
   labels of the targets, the kinds of exposure and the indicator types it holds, and the
   patterns that find a value by how a command writes it. The tables are refused when an entity

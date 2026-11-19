@@ -127,11 +127,15 @@
         {"column": "host", "labels": ["host"], "kinds": ["device"], "indicators": ["Domain"]},
         {"column": "port", "labels": ["port"]},
         {"column": "url", "labels": ["url"], "indicators": ["URL", "GraphEndpoint", "AzureManagementEndpoint", "EntraLoginEndpoint", "KeyVaultEndpoint"]},
-        {"column": "share", "patterns": [
+        {"column": "share", "labels": ["share"], "patterns": [
           {"pattern": "(?m:^|[^\\w:\\\\])\\\\\\\\(?P<host>(?:[A-Za-z0-9][A-Za-z0-9._-]*|\\$\\{?[A-Za-z_]\\w*\\}?|%\\w+%))\\\\(?P<share>(?:[A-Za-z0-9_$-]+(?:\\.[A-Za-z0-9_$-]+)*|%\\w+%))", "value": "\\\\${host}\\${share}"},
           {"pattern": "(?m:^|[^\\w:\\\\])\\\\\\\\\\\\\\\\(?P<host>(?:[A-Za-z0-9][A-Za-z0-9._-]*|\\$\\{?[A-Za-z_]\\w*\\}?|%\\w+%))\\\\\\\\(?P<share>(?:[A-Za-z0-9_$-]+(?:\\.[A-Za-z0-9_$-]+)*|%\\w+%))", "value": "\\\\${host}\\${share}"},
           {"pattern": "(?i)\\b(?:smbclient|smbget|smbcacls|smbtar|mount(?:\\.cifs)?)\\b[^\\n|;&]*?[\\s'\"=]//(?P<host>(?:[A-Za-z0-9][A-Za-z0-9._-]*|\\$\\{?[A-Za-z_]\\w*\\}?|%\\w+%))/(?P<share>(?:[A-Za-z0-9_$-]+(?:\\.[A-Za-z0-9_$-]+)*|%\\w+%))", "value": "\\\\${host}\\${share}"},
-          {"pattern": "(?i)\\bsmb://(?:[^/@\\s]+@)?(?P<host>(?:[A-Za-z0-9][A-Za-z0-9._-]*|\\$\\{?[A-Za-z_]\\w*\\}?|%\\w+%))/(?P<share>(?:[A-Za-z0-9_$-]+(?:\\.[A-Za-z0-9_$-]+)*|%\\w+%))", "value": "\\\\${host}\\${share}"}
+          {"pattern": "(?i)\\bsmb://(?:[^/@\\s]+@)?(?P<host>(?:[A-Za-z0-9][A-Za-z0-9._-]*|\\$\\{?[A-Za-z_]\\w*\\}?|%\\w+%))/(?P<share>(?:[A-Za-z0-9_$-]+(?:\\.[A-Za-z0-9_$-]+)*|%\\w+%))", "value": "\\\\${host}\\${share}"},
+          {"pattern": "\\A[\"']?//(?P<host>(?:[A-Za-z0-9][A-Za-z0-9._-]*|\\$\\{?[A-Za-z_]\\w*\\}?|%\\w+%))/(?P<share>(?:[A-Za-z0-9_$-]+(?:\\.[A-Za-z0-9_$-]+)*|%\\w+%))", "value": "\\\\${host}\\${share}"},
+          {"pattern": "\\bsmbmap\\b[^\\n|;&]*?\\s-H\\s+[\"']?(?P<host>(?:[A-Za-z0-9][A-Za-z0-9._-]*|\\$\\{?[A-Za-z_]\\w*\\}?|%\\w+%))[\"']?[^\\n|;&]*?\\s(?:-[rsR]|--download)\\s+[\"']?(?P<share>(?:[A-Za-z0-9_$-]+(?:\\.[A-Za-z0-9_$-]+)*|%\\w+%))", "value": "\\\\${host}\\${share}"},
+          {"pattern": "\\bsmbmap\\b[^\\n|;&]*?\\s-H\\s+[\"']?(?P<host>(?:[A-Za-z0-9][A-Za-z0-9._-]*|\\$\\{?[A-Za-z_]\\w*\\}?|%\\w+%))[\"']?[^\\n|;&]*?\\s--upload\\s+(?:\"[^\"]+\"|'[^']+'|\\S+)\\s+[\"']?(?P<share>(?:[A-Za-z0-9_$-]+(?:\\.[A-Za-z0-9_$-]+)*|%\\w+%))", "value": "\\\\${host}\\${share}"},
+          {"pattern": "(?i)\\b(?:nxc|netexec|crackmapexec|cme)\\s+smb\\s+[\"']?(?P<host>(?:[A-Za-z0-9][A-Za-z0-9._-]*|\\$\\{?[A-Za-z_]\\w*\\}?|%\\w+%))[\"']?[^\\n|;&]*?\\s--(?:share|spider)\\s+[\"']?(?P<share>(?:[A-Za-z0-9_$-]+(?:\\.[A-Za-z0-9_$-]+)*|%\\w+%))", "value": "\\\\${host}\\${share}"}
         ]},
         {"column": "account", "labels": ["account", "principal", "mailbox"], "kinds": ["username", "email"], "indicators": ["Email"]},
         {"column": "tenant", "labels": ["tenant"], "kinds": ["tenant"]},

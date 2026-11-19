@@ -169,6 +169,11 @@ func TestFindingsNameWhatTheirLinesHold(t *testing.T) {
 			"ip":      "10.20.1.5", "host": "fs01.corp.local", "share": `\\fs01.corp.local\finance, \\10.20.1.5\loot$`,
 			"archive": `\\fs01.corp.local\finance\loot.zip, /tmp/fin.tgz`,
 		}},
+		// A share that a target names is written as any other, and not as the command wrote it.
+		{"NetworkShareConnection", "", map[string]string{
+			"targets": "share //10.20.1.5/loot$; account svc", "ip": "10.20.1.5", "share": `\\10.20.1.5\loot$`, "account": "svc",
+		}},
+		{"LateralToolTransfer", "", map[string]string{"targets": "share //10.20.1.5/loot$", "ip": "10.20.1.5", "share": `\\10.20.1.5\loot$`}},
 		// A line names the share of any path on it, whatever the activity acts on.
 		{"SignedBinaryProxyExecution", "", map[string]string{
 			"targets": "binary rundll32", "ip": "10.20.1.9", "share": `\\10.20.1.9\stage`, "process": "rundll32",
@@ -245,6 +250,13 @@ func TestSharesAreFoundByTheirShape(t *testing.T) {
 		{"the path smbclient is given", `smbclient //10.20.1.5/C$ -U 'corp/administrator%P@ss' -c 'get x'`, []string{`\\10.20.1.5\C$`}},
 		{"the path mount is given", `mount -t cifs //fs01.corp.local/finance /mnt/fin -o username=svc`, []string{`\\fs01.corp.local\finance`}},
 		{"an address of smb", `smbget -R smb://svc@fs01/hr$/payroll`, []string{`\\fs01\hr$`}},
+		{"a target that is the path a tool was given", `//10.20.1.5/C$`, []string{`\\10.20.1.5\C$`}},
+		{"the host and the folder smbmap is given", `smbmap -H 10.20.1.17 -u svc -p "$P" -r 'finance/2026'`, []string{`\\10.20.1.17\finance`}},
+		{"what smbmap fetches", `smbmap -H 10.20.1.17 -u svc --download 'C$\Users\x.txt'`, []string{`\\10.20.1.17\C$`}},
+		{"where smbmap puts a file", `smbmap -H 10.20.1.17 -u svc --upload a.exe 'ADMIN$\a.exe'`, []string{`\\10.20.1.17\ADMIN$`}},
+		{"the share nxc searches", `nxc smb 10.20.1.5 -u svc -p "$P" --spider C$ --pattern pass`, []string{`\\10.20.1.5\C$`}},
+		{"the shares of a host, listed", `nxc smb 10.20.1.5 -u svc -p "$P" --shares`, nil},
+		{"two slashes inside a line", `echo see //10.20.1.5/C$ for more`, nil},
 		{"a host alone", `net view \\dc01.corp.local /all`, nil},
 		{"a listing of the shares of a host", `smbclient -L //10.20.1.5 -U svc`, nil},
 		{"a key of the registry", `reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v Updater`, nil},

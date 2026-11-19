@@ -538,7 +538,89 @@ func corpus() []string {
 	for _, c := range linuxCases {
 		lines = append(lines, c.line)
 	}
+	for _, c := range shareCases {
+		lines = append(lines, c.line)
+	}
 	return lines
+}
+
+// shareCases are the commands that list, open, read, fill and close a
+// share. They also feed the corpus that checks every pattern's literals.
+//
+//nolint:gochecknoglobals // a table shared by two tests
+var shareCases = []struct {
+	line string
+	want []string
+}{
+	{`net view \\dc01.corp.local /all`, []string{"NetworkShareDiscovery"}},
+	{`net share`, []string{"NetworkShareDiscovery"}},
+	{`Get-SmbShare -CimSession fs01`, []string{"NetworkShareDiscovery"}},
+	{`Get-WmiObject -Class Win32_Share -ComputerName fs01`, []string{"NetworkShareDiscovery"}},
+	{`wmic /node:fs01 share get name,path`, []string{"NetworkShareDiscovery"}},
+	{`Invoke-ShareFinder -CheckShareAccess`, []string{"NetworkShareDiscovery"}},
+	{`smbclient -L //10.20.1.5 -U 'corp/svc%Winter2025!'`, []string{"NetworkShareDiscovery"}},
+	{`nxc smb 10.20.1.0/24 -u svc -p "$P" --shares`, []string{"NetworkShareDiscovery"}},
+	{`smbmap -H 10.20.1.17 -u svc -p "$P"`, []string{"NetworkShareDiscovery"}},
+	{`enum4linux -S 10.20.1.5`, []string{"NetworkShareDiscovery"}},
+	{`rpcclient -U "svc%$P" 10.20.1.5 -c netshareenumall`, []string{"NetworkShareDiscovery"}},
+	{`showmount -e 10.20.1.40`, []string{"NetworkShareDiscovery"}},
+	{`nmap --script smb-enum-shares -p445 10.20.1.5`, []string{"NetworkShareDiscovery"}},
+	{`Snaffler.exe -s -o snaffler.log`, []string{"NetworkShareDiscovery"}},
+	{`net view`, nil},
+	{`net share loot=C:\loot /grant:everyone,full`, nil},
+	{`smbmap -H 10.20.1.17 -u svc -p "$P" -x 'whoami'`, nil},
+	{`enum4linux -U 10.20.1.5`, nil},
+	{`enum4linux-ng -U 10.20.1.5 -oA out`, nil},
+	{`apt-get install -y smbmap`, nil},
+
+	{`net use Z: \\fs01.corp.local\finance /user:corp\svc Winter2025!`, []string{"NetworkShareConnection"}},
+	{`New-PSDrive -Name X -PSProvider FileSystem -Root "\\10.20.1.23\ADMIN$" -Credential $c`, []string{"NetworkShareConnection"}},
+	{`pushd \\10.20.1.5\C$`, []string{"NetworkShareConnection"}},
+	{`$net.MapNetworkDrive("Z:", "\\fs01\finance")`, []string{"NetworkShareConnection"}},
+	{`mount -t cifs //fs01.corp.local/finance /mnt/fin -o username=svc,password="$P"`, []string{"NetworkShareConnection"}},
+	{`smbclient //10.20.1.5/C$ -U 'corp/administrator%P@ss'`, []string{"NetworkShareConnection"}},
+	{`net use`, nil},
+	{`mount /dev/sdb1 /mnt/usb`, nil},
+	{`mount -t nfs 10.20.1.40:/export /mnt/nfs`, nil},
+	{`mount -t davfs https://dav.example.net/files /mnt/dav`, nil},
+
+	{`robocopy \\fs01.corp.local\finance C:\Users\Public\loot /E`, []string{"NetworkShareCollection"}},
+	{`Copy-Item "\\fs01.corp.local\hr$\payroll.xlsx" C:\Users\Public\loot`, []string{"NetworkShareCollection"}},
+	{`Copy-Item -Destination C:\Users\Public\loot -Path \\fs01.corp.local\hr$\payroll.xlsx`, []string{"NetworkShareCollection"}},
+	{`smbclient //10.20.1.5/C$ -U 'corp/administrator%P@ss' -c 'get Windows\NTDS\ntds.dit'`, []string{"NetworkShareConnection", "NetworkShareCollection"}},
+	{`smbget -R smb://fs01/finance`, []string{"NetworkShareCollection"}},
+	{`nxc smb 10.20.1.5 -u svc -p "$P" --spider C$ --pattern pass`, []string{"NetworkShareCollection"}},
+	{`smbmap -H 10.20.1.17 -u svc -p "$P" --download 'finance\q3.xlsx'`, []string{"NetworkShareCollection"}},
+	{`robocopy \\fs01\finance \\10.20.1.9\stage /E`, []string{"NetworkShareCollection"}},
+	{`copy C:\a.txt C:\b.txt`, nil},
+	{`xcopy /s C:\src D:\dst`, nil},
+
+	{`copy C:\Users\Public\a.exe \\10.20.1.5\C$\Windows\Temp\a.exe`, []string{"LateralToolTransfer"}},
+	{`Copy-Item a.exe -Destination \\10.20.1.5\C$\Windows\Temp`, []string{"LateralToolTransfer"}},
+	{`Copy-Item C:\Users\Public\a.exe \\10.20.1.5\ADMIN$\a.exe`, []string{"LateralToolTransfer"}},
+	{`smbclient //10.20.1.5/C$ -U 'corp/administrator%P@ss' -c 'put a.exe Windows\Temp\a.exe'`, []string{"NetworkShareConnection", "LateralToolTransfer"}},
+	{`nxc smb 10.20.1.5 -u svc -p "$P" --put-file a.exe \\Windows\\Temp\\a.exe`, []string{"LateralToolTransfer"}},
+	{`smbmap -H 10.20.1.17 -u svc -p "$P" --upload a.exe 'C$\a.exe'`, []string{"LateralToolTransfer"}},
+
+	{`net use Z: /delete`, []string{"NetworkShareConnectionRemoval"}},
+	{`net use \\10.20.1.5\C$ /delete /y`, []string{"NetworkShareConnectionRemoval"}},
+	{`Remove-SmbMapping -RemotePath \\fs01\finance -Force`, []string{"NetworkShareConnectionRemoval"}},
+}
+
+// A command that lists the shares of a host, opens one, copies from it or
+// to it, or closes it shows what it does; a copy on one machine shows nothing.
+func TestDetectShares(t *testing.T) {
+	table, err := LoadActivities()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tt := range shareCases {
+		t.Run(tt.line, func(t *testing.T) {
+			if got := names(table.Detect(tt.line)); !slices.Equal(got, tt.want) {
+				t.Errorf("Detect(%q) = %q, want %q", tt.line, got, tt.want)
+			}
+		})
+	}
 }
 
 // A pattern is tried only on the lines that hold one of its literals, so a
@@ -821,6 +903,19 @@ func TestDetectSubjects(t *testing.T) {
 		{"KeyVaultSecretRead", `curl -s "https://corpvault.vault.azure.net/secrets/db-password?api-version=7.4"`, []Subject{{"vault", "corpvault"}, {"secret", "db-password"}}},
 		{"TokenRequest", "$TENANT = '11111111-2222-4333-8444-555555555555'\naz login --service-principal -u app1 -p $S --tenant $TENANT", []Subject{{"tenant", "11111111-2222-4333-8444-555555555555 ($TENANT)"}, {"client", "app1"}}},
 		{"HistoryClearing", `history -c`, nil},
+		{"NetworkShareDiscovery", `net view \\dc01.corp.local /all`, []Subject{{"host", "dc01.corp.local"}}},
+		{"NetworkShareDiscovery", `smbclient -L //10.20.1.5 -U 'corp/svc%Winter2025!'`, []Subject{{"host", "10.20.1.5"}}},
+		{"NetworkShareDiscovery", "H=10.20.1.17\nsmbmap -H \"$H\" -u svc -p x", []Subject{{"host", "10.20.1.17 ($H)"}}},
+		{"NetworkShareDiscovery", `nxc smb "$h" -u svc -p x --shares`, []Subject{{"host", "$h"}}},
+		{"NetworkShareDiscovery", `showmount -e 10.20.1.40`, []Subject{{"host", "10.20.1.40"}}},
+		{"NetworkShareDiscovery", `Get-SmbShare -CimSession fs01 | Format-Table`, []Subject{{"host", "fs01"}}},
+		{"NetworkShareConnection", `net use Z: \\fs01.corp.local\finance /user:corp\svc Winter2025!`, []Subject{{"share", `\\fs01.corp.local\finance`}, {"account", "svc"}}},
+		{"NetworkShareConnection", `smbclient //10.20.1.5/C$ -U 'corp/administrator%P@ss'`, []Subject{{"share", "//10.20.1.5/C$"}, {"account", "administrator"}}},
+		{"NetworkShareConnection", `mount -t cifs //fs01/finance /mnt/fin -o username=svc,password=x`, []Subject{{"share", "//fs01/finance"}, {"account", "svc"}}},
+		{"NetworkShareCollection", `Copy-Item "\\fs01\hr$\payroll.xlsx" C:\loot`, []Subject{{"share", `\\fs01\hr$`}}},
+		{"NetworkShareCollection", `smbget -R smb://fs01/finance`, []Subject{{"share", "smb://fs01/finance"}}},
+		{"LateralToolTransfer", `copy C:\Users\Public\a.exe \\10.20.1.5\C$\Windows\Temp\a.exe`, []Subject{{"share", `\\10.20.1.5\C$`}, {"file", `C:\Users\Public\a.exe`}}},
+		{"NetworkShareConnectionRemoval", `net use \\10.20.1.5\C$ /delete /y`, []Subject{{"share", `\\10.20.1.5\C$`}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.text, func(t *testing.T) {

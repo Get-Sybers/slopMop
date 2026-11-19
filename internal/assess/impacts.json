@@ -39,7 +39,7 @@
     "name": "Data collected",
     "severity": "high",
     "statement": "Mail, chat, documents or files were gathered in bulk. Treat their content as disclosed.",
-    "activities": ["MailboxAccess", "TeamsMessageAccess", "SharePointEnumeration", "ArchiveCreation"],
+    "activities": ["MailboxAccess", "TeamsMessageAccess", "SharePointEnumeration", "ArchiveCreation", "NetworkShareCollection"],
     "tactics": ["Collection"],
     "affected": ["Email"]
   },
@@ -62,6 +62,7 @@
     "name": "Movement to other systems",
     "severity": "high",
     "statement": "Tools that reach other systems were run. Hosts beyond this one may be affected.",
+    "activities": ["NetworkShareConnection", "LateralToolTransfer"],
     "tactics": ["LateralMovement"]
   },
   {
@@ -87,7 +88,7 @@
     "name": "Traces hidden",
     "severity": "medium",
     "statement": "Files or history were removed or disguised. What is left on the host is incomplete.",
-    "activities": ["HistoryClearing", "Timestomp"],
+    "activities": ["HistoryClearing", "Timestomp", "NetworkShareConnectionRemoval"],
     "tactics": ["Stealth"]
   },
   {
@@ -101,7 +102,7 @@
     "name": "Environment mapped",
     "severity": "low",
     "statement": "Identities, resources or configuration were listed. Later steps were probably aimed with the result.",
-    "activities": ["GraphDirectoryEnumeration", "AzureResourceEnumeration", "KeyVaultKeyEnumeration", "DirectorySearch", "RegistryQuery", "SetuidFileSearch", "ServiceDiscovery"],
+    "activities": ["GraphDirectoryEnumeration", "AzureResourceEnumeration", "KeyVaultKeyEnumeration", "DirectorySearch", "RegistryQuery", "SetuidFileSearch", "ServiceDiscovery", "NetworkShareDiscovery"],
     "tactics": ["Discovery"],
     "exposed": ["username", "email", "tenant", "application", "resource", "device", "ip"]
   }
