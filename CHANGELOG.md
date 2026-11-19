@@ -170,7 +170,7 @@ All notable changes to this project are recorded in this file. The format follow
 - The README says in its first lines that the tool is for incident response and that the AI
   agent is an attacker's, such as ARTEX, and it lists the ARTEX records. It shows the banner of
   the project, `docs/slopmop.png`.
-- The README no longer says where the Go standard and the gate standard are kept.
+- The README's reference to where the standard documents are kept is amended.
 - What stands where a secret would is no longer reported as one. `exposures.json` declares it
   under `placeholder`: code that fetches a secret, `get_token()` and `os.getenv(`; a reference
   to one, `args.secret` and `var.db_password`; the name of an option's value, `PASSWORD`; a
