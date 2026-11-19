@@ -118,9 +118,6 @@ so the output folder is to be kept as the evidence is.
 - [Rules for contributors and agents](AGENTS.md)
 - [Changelog](CHANGELOG.md)
 
-The Go standard and the gate standard this repository follows are kept in the VelociSacci
-repository: `docs/04-Go-Standards.md` and `docs/05-Linting-and-Conformance.md`.
-
 ## Licence
 
 Licence: MIT. The text is in [LICENSE](LICENSE).
