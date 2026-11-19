@@ -1,5 +1,9 @@
 # slopMop
 
+<p align="center">
+  <img src="docs/slopmop.png" alt="slopMop banner" width="85%">
+</p>
+
 `slopmop` is a static-analysis tool for incident response. It reads a folder of scripts an
 attacker's AI agent, such as ARTEX, wrote and the outputs those scripts produced. It never
 executes anything from it, never hands a script to an interpreter and never writes into it.
