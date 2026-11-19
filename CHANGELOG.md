@@ -6,6 +6,8 @@ All notable changes to this project are recorded in this file. The format follow
 
 ## [Unreleased]
 
+## [0.6.4] - 2026-11-19
+
 ### Added
 
 - The findings are saved as CSV as well, `findings.csv`, beside `findings.json`: the same rows
