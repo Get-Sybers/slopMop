@@ -1,8 +1,11 @@
 # slopMop
 
-`slopmop` is a static-analysis tool for a folder of scripts an AI agent wrote and the outputs those
-scripts produced. It reads the folder. It never executes anything from it, never hands a script to
-an interpreter and never writes into it.
+`slopmop` is a static-analysis tool for incident response (DFIR) to an agentic attack: an intrusion
+carried out by an attacker's AI agent, such as the ARTEX (아르텍스) AI autonomous penetration-testing
+framework and its forks. It reads the folder of scripts the agent wrote and the outputs those
+scripts produced, and reports a timeline, the MITRE ATT&CK and MITRE ATLAS techniques, the
+indicators of compromise (IOCs) and the exposed credentials. It never executes anything from the
+folder, never hands a script to an interpreter and never writes into it.
 
 ## Build
 
@@ -11,6 +14,7 @@ The module needs Go 1.27.4; the `go` command fetches that toolchain when the ins
 ```sh
 make build      # writes bin/slopmop
 make conform    # the gate CI runs
+go install github.com/get-sybers/slopmop/cmd/slopmop@latest    # builds the latest release
 ```
 
 Each GitHub release carries a Windows x64 binary, `slopmop-<version>-windows-amd64.exe`, and its
@@ -110,6 +114,8 @@ so the output folder is to be kept as the evidence is.
 - [Output schema](docs/02-Output-Schema.md)
 - [Architecture](docs/03-Architecture.md)
 - [Conformance](docs/04-Conformance.md)
+- [ARTEX records](docs/artex/records.md): the files ARTEX leaves, and
+  [what holds across its forks](docs/artex/report.md)
 - [Rules for contributors and agents](AGENTS.md)
 - [Changelog](CHANGELOG.md)
 

@@ -1,4 +1,5 @@
-// Command slopmop reads a folder of scripts an AI agent wrote and the outputs they produced.
+// Command slopmop is a static-analysis tool for incident response: it reads the
+// scripts an attacker's AI agent wrote and the outputs they produced, and runs none.
 package main
 
 import (
