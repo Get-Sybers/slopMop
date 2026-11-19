@@ -149,8 +149,30 @@ All notable changes to this project are recorded in this file. The format follow
   `tmutil listbackups`, `Get-VBRJob`, `/etc/rsnapshot.conf` and the word `backup` beside a
   command that lists; the instance metadata of Azure for `T1614`; `PTRACE_TRACEME`.
 
+- More of the secrets an application keeps are found. By the name of a field: a passphrase, and
+  the keys `AccountKey`, `SharedKey`, `ENCRYPTION_KEY`, `SIGNING_KEY`, `MASTER_KEY`, `APP_KEY`
+  and `SECRET_KEY_BASE`. By where a value stands: a flag such as `--client-secret`, `--token`
+  or `--api-key`; an argument of a call, `Client(api_key="...")`; a part of a connection
+  string inside another value, `Pwd=...`; a setting of `web.config`; a password of
+  `unattend.xml`; a value of the registry, read or written; the key of a wireless network in
+  the output of `netsh`; a line of `.netrc`, `.pgpass` or `htpasswd`; the `auth` of a Docker or
+  npm configuration; an address with a password and no user, `redis://:pw@host`; and `:=` of Go
+  and `=>` of PHP between a name and its value.
+- A key is found by its shape where no field names it: the secret of an application of Entra ID,
+  the signature of a shared access address of Azure, a webhook of Slack, Discord or Teams, a
+  token of a Telegram bot, and the keys of Groq, Replicate, xAI, Perplexity, LangSmith,
+  Pinecone, Tavily, E2B, HashiCorp Vault, Databricks, Docker Hub, Atlassian, Shopify, New
+  Relic, Sentry, Grafana, Postman, Notion, Figma, Linear, Square, Doppler and Supabase, with
+  the service each is of. A private key block of PGP is a private key.
+
 ### Changed
 
+- What stands where a secret would is no longer reported as one. `exposures.json` declares it
+  under `placeholder`: code that fetches a secret, `get_token()` and `os.getenv(`; a reference
+  to one, `args.secret` and `var.db_password`; the name of an option's value, `PASSWORD`; a
+  word that says a value comes here, `your_api_key_here`; a type or a state, `string` and
+  `expired`. A field that only ends as a secret does is excepted: `boarding_pass`, `nextToken`
+  and `csrf_token`. `changeme` is still reported: systems ship with it.
 - `tactic.Table.Classify` returns the places of a command, each a tactic and a technique, and
   `Tactics` its tactics. `Technique` is gone.
 - A wait is a command. `sleep` of a shell, `Start-Sleep` and `sleep` of PowerShell and

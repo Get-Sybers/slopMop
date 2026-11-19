@@ -30,6 +30,7 @@ func TestExtract(t *testing.T) {
 		{"url", "curl https://transfer.example.net/upload", "URL", "https://transfer.example.net/upload"},
 		{"cve", "exploit for CVE-2016-6662", "CVE", "CVE-2016-6662"},
 		{"private key", "-----BEGIN RSA PRIVATE KEY-----", "PrivateKey", "-----BEGIN RSA PRIVATE KEY-----"},
+		{"private key of PGP", "-----BEGIN PGP PRIVATE KEY BLOCK-----", "PrivateKey", "-----BEGIN PGP PRIVATE KEY BLOCK-----"},
 		{"email", "user admin@corp.example", "Email", "admin@corp.example"},
 		{"domain", "host ca01.corp.example", "Domain", "ca01.corp.example"},
 		{"guid", "-TenantId 8F3C2A10-7b6d-4e21-9a55-0c1d2e3f4a5b", "GUID", "8F3C2A10-7b6d-4e21-9a55-0c1d2e3f4a5b"},

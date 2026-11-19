@@ -93,7 +93,7 @@ func TestEveryPatternNamesItsPlaces(t *testing.T) {
 	}
 	for typ, want := range map[string]string{
 		"URL": "://", "CVE": "cve-", "JWT": ".eyj",
-		"AWSKey": "kia sia", "PrivateKey": "private key-----", "EncodedCommand": "-enc",
+		"AWSKey": "kia sia", "PrivateKey": "-----begin ", "EncodedCommand": "-enc",
 		"Email": "shape", "IPv4": "shape", "Domain": "shape", "GUID": "shape", "MD5": "shape",
 		"SHA1": "shape", "SHA256": "shape", "Base64Blob": "shape",
 	} {

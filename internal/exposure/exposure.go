@@ -41,7 +41,10 @@ type document struct {
 	// Identifiers what an identifier that an output holds shows.
 	Accounts    []accountEntry    `json:"accounts,omitempty"`
 	Identifiers []identifierEntry `json:"identifiers,omitempty"`
-	Kinds       []kindEntry       `json:"kinds"`
+	// Placeholder is what stands where a secret would: a call, a reference to
+	// a variable, a word that says a value comes here. Such a value is no secret.
+	Placeholder string      `json:"placeholder,omitempty"`
+	Kinds       []kindEntry `json:"kinds"`
 }
 
 type kindEntry struct {
@@ -197,6 +200,8 @@ type Table struct {
 	user, app int
 	// token names the claims that are read from a JSON web token.
 	token tokenEntry
+	// placeholder matches what stands where a secret would and is none; nil for no such rule.
+	placeholder *regexp.Regexp
 	// accounts are the shapes of an account, each with what collecting one
 	// shows, and identifiers the shapes of an identifier.
 	accounts    []shape
@@ -224,8 +229,9 @@ type suffix struct {
 	rule rule
 }
 
-// rxPair is KEY: value or KEY = value, with either side quoted or not.
-var rxPair = regexp.MustCompile(`["']?([A-Za-z_][\w. -]{0,40}?[\w])["']?[ \t]*[:=][ \t]*(?:"([^"\r\n]*)"|'([^'\r\n]*)'|([^\s,;&"']+))`)
+// rxPair is KEY: value or KEY = value, with either side quoted or not. The
+// sign between them is also := as Go writes it and => as PHP and Ruby do.
+var rxPair = regexp.MustCompile(`["']?([A-Za-z_][\w. -]{0,40}?[\w])["']?[ \t]*(?::=|=>|[:=])[ \t]*(?:"([^"\r\n]*)"|'([^'\r\n]*)'|([^\s,;&"']+))`)
 
 // Load decodes exposures.json and compiles each rule.
 func Load() (Table, error) {
@@ -252,6 +258,11 @@ func decode(data []byte) (Table, error) {
 	if err := doc.Token.check(); err != nil {
 		return Table{}, fmt.Errorf("exposures.json: %w", err)
 	}
+	placeholder, bad := optional(doc.Placeholder)
+	if bad != nil {
+		return Table{}, fmt.Errorf("exposures.json placeholder: %w", bad)
+	}
+	t.placeholder = placeholder
 	if err := t.addVendors(doc.Vendors); err != nil {
 		return Table{}, fmt.Errorf("exposures.json: %w", err)
 	}
@@ -672,7 +683,9 @@ func (s *scanner) emit(kind int, value string, by source, line int) (string, boo
 	}
 	// A hash is taken as it stands: crypt hashes begin with "$", as a placeholder does.
 	rejected := k.reject != nil && form != formHash && k.reject.MatchString(value)
-	if value == "" || rejected || (k.valid != nil && !k.valid.MatchString(value)) {
+	// What stands where a secret would is none: get_token(), args.secret, PASSWORD, string.
+	standsIn := k.Secret && form != formHash && s.t.placeholder != nil && s.t.placeholder.MatchString(value)
+	if value == "" || rejected || standsIn || (k.valid != nil && !k.valid.MatchString(value)) {
 		return "", false
 	}
 	item := Item{Kind: k.Name, Value: value, Form: form, Line: line}
@@ -967,17 +980,24 @@ func (s *scanner) pairs(line string, number int) {
 		key, value string
 	}
 	var fields []found
-	for _, m := range rxPair.FindAllStringSubmatchIndex(line, -1) {
-		key := line[m[2]:m[3]]
-		r, ok := s.t.lookup(key, nil)
-		if !ok {
-			continue
+	for line != "" {
+		m := rxPair.FindStringSubmatchIndex(line)
+		if m == nil {
+			break
 		}
-		value := ""
+		key := line[m[2]:m[3]]
+		value, begins := "", m[1]
 		for _, group := range []int{2, 3, 4} {
 			if m[2*group] >= 0 {
-				value = line[m[2*group]:m[2*group+1]]
+				value, begins = line[m[2*group]:m[2*group+1]], m[2*group]
 			}
+		}
+		r, ok := s.t.lookup(key, nil)
+		if !ok {
+			// A name of no kind may hold fields of its own: the arguments of
+			// a call, or the parts of a connection string. They are read next.
+			line = line[begins:]
+			continue
 		}
 		// A value that stands bare is one word of a field, and not the first
 		// word of a sentence about it. A secret is left out only when it is
@@ -985,6 +1005,7 @@ func (s *scanner) pairs(line string, number int) {
 		if bare, secret := m[8] >= 0, s.t.kinds[r.kind].Secret; bare {
 			spaced := strings.ContainsAny(line[m[3]:m[8]], " \t")
 			if spaced && goesOn(line[m[9]:]) && (!secret || plainWord(value)) {
+				line = line[m[1]:]
 				continue
 			}
 			if !secret {
@@ -992,6 +1013,7 @@ func (s *scanner) pairs(line string, number int) {
 			}
 		}
 		fields = append(fields, found{r, key, value})
+		line = line[m[1]:]
 	}
 	for _, f := range fields {
 		if s.t.kinds[f.rule.kind].Secret {
