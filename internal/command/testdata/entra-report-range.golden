@@ -22,6 +22,8 @@ Tactics   (tactic, identifiers, files)
 Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools of a tactic that no technique is named for)
   [x] InitialAccess, Discovery                                      2026-10-15T09:00:00Z to 2026-10-15T09:05:30Z
       T1078.004  Valid Accounts: Cloud Accounts                                  TA0001  InitialAccess          AML.T0012  Valid Accounts
+      T1016.001  System Network Configuration Discovery: Internet Connection Discovery    TA0007  Discovery
+      T1046      Network Service Discovery                                       TA0007  Discovery
       T1087.004  Account Discovery: Cloud Account                                TA0007  Discovery              AML.T0075  Enterprise Resource Discovery
       T1069.003  Permission Groups Discovery: Cloud Groups                       TA0007  Discovery              AML.T0075  Enterprise Resource Discovery
       T1526      Cloud Service Discovery                                         TA0007  Discovery
@@ -43,6 +45,9 @@ Timeline   (a block for each intent, from the first of its files to be created u
 
   [x] Discovery, CredentialAccess                                   2026-10-15T09:30:00Z
       T1580      Cloud Infrastructure Discovery                                  TA0007  Discovery              AML.T0075  Enterprise Resource Discovery
+      T1654      Log Enumeration                                                 TA0007  Discovery
+      T1016.001  System Network Configuration Discovery: Internet Connection Discovery    TA0007  Discovery
+      T1046      Network Service Discovery                                       TA0007  Discovery
       tools      az                                                              TA0007  Discovery
       T1555.006  Credentials from Password Stores: Cloud Secrets Management Stores    TA0006  CredentialAccess
 
@@ -242,7 +247,7 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1017 User Training                                           T1078.004, T1213.002, T1213.005
       User Training involves educating employees and contractors on recognizing, reporting, and preventing cyber threats that rely on human interaction, such as phishing, social engineering, and other manipulative techniques.
       for  TokenRequest, SharePointEnumeration, TeamsMessageAccess
-  [x] M1018 User Account Management                                 T1078.004, T1087.004, T1098.001, T1098.003, T1213.002, T1580
+  [x] M1018 User Account Management                                 T1078.004, T1087.004, T1098.001, T1098.003, T1213.002, T1580, T1654
       User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.
       for  TokenRequest, GraphDirectoryEnumeration, AppCredentialAddition, GlobalAdministratorAssignment, AppRoleAssignment, SharePointEnumeration, KeyVaultKeyEnumeration, AzureResourceEnumeration
   [x] M1026 Privileged Account Management                           T1078.004, T1098.001, T1098.003, T1555.006
@@ -251,7 +256,7 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1027 Password Policies                                       T1078.004
       Set and enforce secure password policies for accounts to reduce the likelihood of unauthorized access.
       for  TokenRequest
-  [x] M1030 Network Segmentation                                    T1098.001
+  [x] M1030 Network Segmentation                                    T1046, T1098.001
       Network segmentation involves dividing a network into smaller, isolated segments to control and limit the flow of traffic between devices, systems, and applications.
       for  AppCredentialAddition
   [x] M1032 Multi-factor Authentication                             T1078.004, T1098.001, T1098.003, T1114.002
@@ -260,7 +265,7 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1036 Account Use Policies                                    T1078.004
       Account Use Policies help mitigate unauthorized access by configuring and enforcing rules that govern how and when accounts can be used.
       for  TokenRequest
-  [x] M1042 Disable or Remove Feature or Program                    T1098.001
+  [x] M1042 Disable or Remove Feature or Program                    T1046, T1098.001
       Disable or remove unnecessary and potentially vulnerable software, features, or services to reduce the attack surface and prevent abuse by adversaries.
       for  AppCredentialAddition
   [!] M1041 Encrypt Sensitive Information                           T1114.002
@@ -272,6 +277,8 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [!] M1060 Out-of-Band Communications Channel                      T1114.002, T1213.005
       Establish secure out-of-band communication channels to ensure the continuity of critical communications during security incidents, data integrity attacks, or in-network communication failures.
       for  MailboxAccess, TeamsMessageAccess
+  [i] M1031 Network Intrusion Prevention                            T1046
+      Use intrusion detection signatures to block traffic at network boundaries.
   [x] AML.M0005 Control Access to AI Models and Data at Rest        AML.T0012, AML.T0126
       Establish access controls on internal model registries and limit internal access to production models.
       for  TokenRequest, MailboxAccess, TeamsMessageAccess, SharePointEnumeration

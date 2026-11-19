@@ -60,7 +60,7 @@ progress    -> render
 | --- | --- | --- |
 | `internal/inventory/roles.json` | each role's summary, extensions and shebang patterns | the roles are `script`, `output`, `other` in that order; extensions are lower-case, dotted and in one role; patterns compile; `other` takes neither |
 | `internal/command/commands.json` | the usage line, the options, the verbs with their sections, hints and saved files, the columns of each class, and the entities of the `finding` class: the columns that list what a finding names, each with the labels of the targets, the kinds of exposure and the indicator types it holds, and the patterns that find a value by how a command writes it, with what writes the value from their groups | names, hints and summaries present and unique; a verb names only declared options; columns pass the table check; a saved file is a file name of its own; a saved report names a format that has a writer, once; a saved table names a format that has a writer; every declared verb and section has an implementation and every implementation a declaration; a row fills exactly the declared columns; an entity is a column of the `finding` class, named once, and reads a label, a kind of exposure or an indicator type that its table declares and no other entity reads; a pattern of an entity compiles, and its value names groups of the pattern and nothing else |
-| `internal/tactic/tactics.json` | the tactics, the severity of each and its ATT&CK and ATLAS identifiers; under `techniques`, its commands by the ATT&CK technique each one is; under `commands`, its commands whose technique is not named | every tactic has a name, a severity of `low`, `medium` or `high`, both identifiers and at least one command; a technique has a name and a command; a command stands once in the table; `command` rejects an identifier the catalogue lacks and a technique that ATT&CK does not file under the tactic |
+| `internal/tactic/tactics.json` | the tactics, the severity of each and its ATT&CK and ATLAS identifiers; under `techniques`, its commands by the ATT&CK techniques each one is; under `commands`, its commands whose technique is not named | every tactic has a name, a severity of `low`, `medium` or `high`, both identifiers and at least one command; a technique has a name and a command; a command stands once under a technique, and under no technique in one tactic at most and in none that files it under one; `command` rejects an identifier the catalogue lacks and a technique that ATT&CK does not file under the tactic |
 | `internal/activity/activities.json` | each activity's name, tactics, ATT&CK techniques and patterns, the contexts some patterns need, the subjects a matching line acts on, and how the subjects of a label are listed: what heads their column, which labels stand beside them, and whether they stand after the activities that acted on them | names are present and unique; every activity has a tactic, an ATT&CK technique and a pattern; `command` rejects a technique the catalogue lacks, a technique ATT&CK files under none of the tactics of its activity, and a tactic ATT&CK files none of the techniques of its activity under; paths and a known context go together; every pattern compiles and the literal it is found by holds no line break; a subject has a label and a pattern with one group; a label that is listed has a column and stands beside labels that subjects carry; `command` rejects a tactic that `tactics.json` lacks |
 | `internal/assess/impacts.json` | each impact's name, severity and statement, what triggers it, the indicator types to list as affected and the kinds of exposure it concerns | names are present and unique; a statement and a severity of `low`, `medium` or `high`; something triggers each; `command` rejects an activity, a tactic, an indicator type or a kind of exposure the other tables lack |
 | `internal/assess/actions.json` | each remediation's name, priority and text, and what triggers it | as for an impact |
@@ -296,9 +296,11 @@ the operations it shows.
   `$NAME = value`, the last assignment of a name, and the default of `${NAME:-default}`. A value
   that is computed is not read, and a variable that is never set is no subject.
 - A name has a tactic in `tactics.json` only when the name alone says what the command does.
-  `certutil`, `bitsadmin`, `reg`, `systemctl`, `chmod`, `crontab`, `history`, `tar`, `curl`,
-  `wget`, `Invoke-WebRequest`, `Invoke-RestMethod` and the Python `requests` calls have none: the
-  activity found on the line gives one.
+  `certutil`, `bitsadmin`, `reg`, `chmod`, `crontab`, `history`, `tar`, `Invoke-WebRequest`,
+  `Invoke-RestMethod` and the Python `requests` calls have none: the activity found on the
+  line gives one. A name the detection analytics of ATT&CK give a technique by itself has the
+  tactic of that technique: `curl` and `wget` are of Discovery as `T1016.001`, and `systemctl`
+  as `T1518.002`, whatever else the line shows.
 - A write to a path is read from the command that makes it: a redirection, `tee`, `cp`, `mv`,
   `install` or `sed -i`. Reading the same path is a different activity or none.
 - A share is an activity by what a command does with it. `net view \\host`, `net share`,
@@ -310,15 +312,24 @@ the operations it shows.
   system, as `get` and `put` of `smbclient` do. A copy between two shares collects. A copy on
   one machine is no activity, and neither is a share that is made, `net share name=path`.
 - What a system, its network and its cloud are is learnt by the commands ATT&CK files under
-  Discovery, and the two tables share them. A command whose name alone says what it learns is
-  filed under its technique in `tactics.json`: `whoami` is `T1033`, `systeminfo` `T1082`,
-  `ipconfig` `T1016`, `netstat` `T1049` and `tasklist` `T1057`. A command that a flag, a
-  subcommand or a path decides is an activity: `net user` lists the accounts of a system and
-  `net user /domain` those of a domain, and `esxcli`, `aws`, `az`, `gcloud`, `docker` and
-  `kubectl` are read by their subcommand.
+  Discovery, and the two tables share them as the detection analytics of ATT&CK name them. A
+  command the analytics name alone is filed in `tactics.json` under every technique they give
+  it: `whoami` is `T1033`, `ping` `T1016.001` and `T1018`, `id` `T1033`, `T1069`, `T1069.001`
+  and `T1087.001`, `cat` `T1654`, and `ls` `T1083` and `T1518.002`. Every use of the command
+  shows them. What a flag, a subcommand or a path tells apart is an activity: `net user` lists
+  the accounts of a system and `net user /domain` those of a domain, and `esxcli`, `aws`, `az`,
+  `gcloud`, `docker` and `kubectl` are read by their subcommand.
+- A command stands in two tactics where the analytics give it a technique of another:
+  `netcat` is a tool of Exfiltration and `T1046` of Discovery, and `powershell` is `T1059.001`
+  of Execution and `T1217` of Discovery.
+- A function or a library the analytics name alone is an activity where a file names it:
+  `IsDebuggerPresent`, `NtQueryInformationProcess`, `EnumWindows`, `Sleep(`, `WaitForSingleObject`
+  and `pcap_open_live`, and an operation of a cloud by the name its interface gives it,
+  `DescribeInstances` or `describe_instances`.
 - A subcommand of `net` is read with what it may be given, to the end of the command.
   `net accounts` and `net accounts /domain` show the password policy; `net accounts /minpwlen:0`
-  sets it and shows nothing, and neither does the line of a help text that sets out the syntax.
+  sets it and shows no activity, and neither does the line of a help text that sets out the
+  syntax.
 - A file is read by the command that reads it: `cat`, `less`, `more`, `head`, `tail`, `cut` and
   `sort` before their options and paths, and `grep` and `awk` anywhere before the path.
   `/etc/passwd` gives the accounts of a system, `/etc/group` its groups, `/etc/hosts` the other
@@ -326,16 +337,20 @@ the operations it shows.
   file of `/var/log` its logs. A sentence that names the path shows nothing.
 - A command of a network device, `show version` or `show ip route`, is read where it begins a
   line, stands in quotes or follows a prompt.
-- Security software and backup software are discovered where a command that lists processes,
+- Security software and backup software are an activity where a command that lists processes,
   services, packages or paths names a product: `tasklist | findstr MsMpEng`,
   `systemctl status falcon-sensor`, `sc query VeeamBackupSvc`. The command stands where a
-  command begins, and one that stops the product is no discovery.
-- A check for a virtual machine names what it looks for: a file of `/sys/class/dmi/id`,
-  `systemd-detect-virt`, or a maker of virtual machines beside `dmidecode`, `lspci`, `dmesg`,
-  `systeminfo` and the like. `dmidecode` alone is `T1082`.
-- A reachable Internet is tested by `ping`, `tracert`, `Test-NetConnection`, `curl` or `wget`
-  against a public resolver, a large site or an address made for the test. The same command
-  against any other host shows no activity.
+  command begins, and one that stops the product is no such activity.
+- A check for a virtual machine is an activity where the line says what it looks for: a file
+  of `/sys/class/dmi/id`, `systemd-detect-virt`, `system_profiler SPHardwareDataType`,
+  `ioreg -l`, or a maker of virtual machines beside `dmesg`, `systeminfo` and the like.
+  `dmidecode`, `lspci`, `lscpu` and `kextstat` are `T1497.001` by their names.
+- A reachable Internet is an activity where `ping`, `tracert`, `Test-NetConnection`, `curl` or
+  `wget` goes to a public resolver, a large site or an address made for the test. Against any
+  other host the command shows its technique by its name and no activity.
+- The console of a cloud is an activity where a file names its address: the portals of Azure,
+  Entra ID and Microsoft 365, the consoles of AWS and Google Cloud, and the admin pages of
+  Google Workspace and Okta.
 - A technique has two activities where a command and an output each show it:
   `LocalAccountEnumeration` is the command that lists the accounts, and `LocalAccountDiscovery`
   the output that holds them.
@@ -424,6 +439,7 @@ the operations it shows.
 | `FileAndDirectoryDiscovery` | Discovery | T1083 |
 | `LocalAccountEnumeration` | Discovery | T1087.001 |
 | `DomainAccountEnumeration` | Discovery | T1087.002 |
+| `EmailAccountEnumeration` | Discovery | T1087.003 |
 | `CloudAccountEnumeration` | Discovery | T1087.004 |
 | `PeripheralDeviceDiscovery` | Discovery | T1120 |
 | `SystemTimeDiscovery` | Discovery | T1124 |
@@ -432,10 +448,12 @@ the operations it shows.
 | `DomainTrustDiscovery` | Discovery | T1482 |
 | `VirtualMachineCheck` | Discovery | T1497.001 |
 | `UserActivityCheck` | Discovery | T1497.002 |
+| `TimeBasedCheck` | Discovery | T1497.003 |
 | `SoftwareDiscovery` | Discovery | T1518 |
 | `SecuritySoftwareDiscovery` | Discovery | T1518.001 |
 | `BackupSoftwareDiscovery` | Discovery | T1518.002 |
 | `CloudServiceDiscovery` | Discovery | T1526 |
+| `CloudServiceDashboard` | Discovery | T1538 |
 | `CloudInfrastructureDiscovery` | Discovery | T1580 |
 | `ContainerResourceDiscovery` | Discovery | T1613 |
 | `SystemLocationDiscovery` | Discovery | T1614 |
@@ -610,9 +628,10 @@ one-sentence summary of each mitigation, not the full text of either framework.
   are those of its ATT&CK techniques.
 - A command of `tactics.json` is filed under the ATT&CK technique it is by its name, and its
   tactic is the tactic that holds the technique: a tactic is its techniques, and `command`
-  rejects a technique that ATT&CK does not file under that tactic. A command shows its
-  technique as an activity does: in the block and the row of its intent, in the impact of its
-  tactic and in the mitigations.
+  rejects a technique that ATT&CK does not file under that tactic. A command of several
+  techniques is filed under each, in one tactic or in several, and shows them all. A command
+  shows a technique as an activity does: in the block and the row of its intent, in the
+  impact of its tactic and in the mitigations.
 - An account that an output holds first shows a technique by its shape, as section 12 sets
   out: what the scripts collected says what they were looking for.
 - A command whose technique is not named stands under `commands`. It gives its tactic alone,

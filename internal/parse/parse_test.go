@@ -343,6 +343,27 @@ func TestBashContinuedCommandIsOneCommand(t *testing.T) {
 	}
 }
 
+// A wait and the listing of who is signed in are commands: the tactic table
+// files sleep and w under techniques. A word of one letter is data otherwise.
+func TestWaitsAndWAreCommands(t *testing.T) {
+	for script, want := range map[string][]string{
+		"sleep 5\nw | head -3\n":     {"sleep", "w", "head"},
+		"w\n":                        {"w"},
+		"x=w\ngrep -c w notes.txt\n": {"grep"},
+		"for w in $(cat names.txt); do id \"$w\"; done\n": {"cat", "id"},
+	} {
+		if got := toolNames(ExtractBash(script)); !slices.Equal(got, want) {
+			t.Errorf("ExtractBash(%q) tools = %q, want %q", script, got, want)
+		}
+	}
+	if got := toolNames(ExtractPowerShell("Start-Sleep -Seconds 5\nWrite-Host done\n")); !slices.Equal(got, []string{"start-sleep"}) {
+		t.Errorf("ExtractPowerShell tools = %q, want start-sleep alone", got)
+	}
+	if got := toolNames(ExtractPython("import time\nfrom time import sleep as nap\ntime.sleep(5)\nnap(1)\n")); !slices.Equal(got, []string{"time.sleep", "time.sleep"}) {
+		t.Errorf("ExtractPython tools = %q, want time.sleep twice", got)
+	}
+}
+
 func TestBashForListIsNotACommand(t *testing.T) {
 	cases := map[string][]string{
 		"for v in $(cat vaults.txt); do az keyvault secret list --vault-name \"$v\"; done": {"cat", "az"},

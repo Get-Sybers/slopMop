@@ -17,7 +17,7 @@ Tactics   (tactic, identifiers, files)
   [x] Persistence        TA0003, AML.TA0006  20261020_101500_step04_persist.ps1, proc_20261020_103500.jsonl
   [!] Execution          TA0002, AML.TA0005  20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102500_step06_pinvoke.ps1 and 1 more
   [!] Stealth            TA0005, AML.TA0007  20261020_101000_step03_exec.ps1, 20261020_101500_step04_persist.ps1, 20261020_102000_step05_dotnet.ps1 and 3 more
-  [i] Discovery          TA0007, AML.TA0008  20261020_100000_step01_recon.ps1, 20261020_102500_step06_pinvoke.ps1, recon_20261020_100030.txt
+  [i] Discovery          TA0007, AML.TA0008  20261020_100000_step01_recon.ps1, 20261020_101000_step03_exec.ps1, 20261020_102500_step06_pinvoke.ps1 and 2 more
 
 Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools of a tactic that no technique is named for)
   [i] Discovery                                                     2026-10-20T10:00:00Z to 2026-10-20T10:00:30Z
@@ -26,12 +26,13 @@ Timeline   (a block for each intent, from the first of its files to be created u
       T1069.002  Permission Groups Discovery: Domain Groups                      TA0007  Discovery
       T1033      System Owner/User Discovery                                     TA0007  Discovery
       T1087.002  Account Discovery: Domain Account                               TA0007  Discovery            AML.T0075  Enterprise Resource Discovery
-      tools      nltest, net.exe, wmic.exe                                       TA0007  Discovery
+      tools      nltest, wmic.exe                                                TA0007  Discovery
 
   [x] CommandAndControl                                             2026-10-20T10:05:00Z
       T1105      Ingress Tool Transfer                                           TA0011  CommandAndControl    AML.T0072  Cyber Communication Channel
 
-  [!] Execution, Stealth                                            2026-10-20T10:10:00Z
+  [!] Discovery, Execution, Stealth                                 2026-10-20T10:10:00Z
+      T1217      Browser Information Discovery                                   TA0007  Discovery
       T1127      Trusted Developer Utilities Proxy Execution                     TA0002  Execution
                                                                                  TA0005  Stealth
       T1127.001  Trusted Developer Utilities Proxy Execution: MSBuild            TA0002  Execution
@@ -58,6 +59,7 @@ Timeline   (a block for each intent, from the first of its files to be created u
       T1105      Ingress Tool Transfer                                           TA0011  CommandAndControl    AML.T0072  Cyber Communication Channel
 
   [x] Discovery, Execution, Stealth, CommandAndControl              2026-10-20T10:25:00Z to 2026-10-20T10:26:00Z
+      T1217      Browser Information Discovery                                   TA0007  Discovery
       T1033      System Owner/User Discovery                                     TA0007  Discovery
       T1059.001  Command and Scripting Interpreter: PowerShell                   TA0002  Execution            AML.T0050  Command and Scripting Interpreter
       T1106      Native API                                                      TA0002  Execution
@@ -76,7 +78,8 @@ Timeline   (a block for each intent, from the first of its files to be created u
       tools      wevtutil                                                        TA0112  DefenseImpairment
       T1105      Ingress Tool Transfer                                           TA0011  CommandAndControl    AML.T0072  Cyber Communication Channel
 
-  [x] Execution, Persistence, Stealth, DefenseImpairment, CommandAndControl  2026-10-20T10:35:00Z
+  [x] Discovery, Execution, Persistence, Stealth, DefenseImpairment, CommandAndControl  2026-10-20T10:35:00Z
+      T1217      Browser Information Discovery                                   TA0007  Discovery
       T1127      Trusted Developer Utilities Proxy Execution                     TA0002  Execution
                                                                                  TA0005  Stealth
       T1053.005  Scheduled Task/Job: Scheduled Task                              TA0002  Execution

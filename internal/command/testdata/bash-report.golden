@@ -14,34 +14,37 @@ Tactics   (tactic, identifiers, files)
   [x] CredentialAccess  TA0006, AML.TA0013  20250301_101800_step02_enum.sh, 20250301_102300_step03_adsync.sh, 20250301_103200_step05_certs.sh and 2 more
   [x] Exfiltration      TA0010, AML.TA0010  20250301_104500_step07_exfil.sh
   [!] Execution         TA0002, AML.TA0005  20250301_102700_step03_adsync_v2.sh
-  [i] Discovery         TA0007, AML.TA0008  20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh, 20250301_101910_step02_users.tsv and 1 more
+  [i] Discovery         TA0007, AML.TA0008  20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh, 20250301_101910_step02_users.tsv and 5 more
 
 Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools of a tactic that no technique is named for)
-  [i] Discovery                       2025-03-01T10:15:00Z
-      T1046      Network Service Discovery                     TA0007  Discovery
+  [i] Discovery                                  2025-03-01T10:15:00Z
+      T1046      Network Service Discovery                                       TA0007  Discovery
 
-  [x] Discovery, CredentialAccess     2025-03-01T10:18:00Z to 2025-03-01T10:23:00Z
-      T1135      Network Share Discovery                       TA0007  Discovery
-      T1087.002  Account Discovery: Domain Account             TA0007  Discovery           AML.T0075  Enterprise Resource Discovery
-      T1087.004  Account Discovery: Cloud Account              TA0007  Discovery           AML.T0075  Enterprise Resource Discovery
-      T1087      Account Discovery                             TA0007  Discovery
-      tools      nxc, adconnectdump.py                         TA0006  CredentialAccess
+  [x] Discovery, CredentialAccess                2025-03-01T10:18:00Z to 2025-03-01T10:23:00Z
+      T1135      Network Share Discovery                                         TA0007  Discovery
+      T1087.002  Account Discovery: Domain Account                               TA0007  Discovery           AML.T0075  Enterprise Resource Discovery
+      T1087.004  Account Discovery: Cloud Account                                TA0007  Discovery           AML.T0075  Enterprise Resource Discovery
+      T1087      Account Discovery                                               TA0007  Discovery
+      T1124      System Time Discovery                                           TA0007  Discovery
+      tools      nxc, adconnectdump.py                                           TA0006  CredentialAccess
 
-  [!] Execution                       2025-03-01T10:27:00Z
-      T1059.006  Command and Scripting Interpreter: Python     TA0002  Execution           AML.T0050  Command and Scripting Interpreter
+  [!] Discovery, Execution                       2025-03-01T10:27:00Z to 2025-03-01T10:27:45Z
+      T1124      System Time Discovery                                           TA0007  Discovery
+      T1087.004  Account Discovery: Cloud Account                                TA0007  Discovery           AML.T0075  Enterprise Resource Discovery
+      T1059.006  Command and Scripting Interpreter: Python                       TA0002  Execution           AML.T0050  Command and Scripting Interpreter
 
-  [i] Discovery                       2025-03-01T10:27:45Z
-      T1087.004  Account Discovery: Cloud Account              TA0007  Discovery           AML.T0075  Enterprise Resource Discovery
+  [x] Discovery, CredentialAccess                2025-03-01T10:32:00Z to 2025-03-01T10:40:00Z
+      T1654      Log Enumeration                                                 TA0007  Discovery
+      T1649      Steal or Forge Authentication Certificates                      TA0006  CredentialAccess
+      T1003      OS Credential Dumping                                           TA0006  CredentialAccess    AML.T0090  OS Credential Dumping
+      tools      nxc                                                             TA0006  CredentialAccess
 
-  [x] CredentialAccess                2025-03-01T10:32:00Z to 2025-03-01T10:40:00Z
-      T1649      Steal or Forge Authentication Certificates    TA0006  CredentialAccess
-      T1003      OS Credential Dumping                         TA0006  CredentialAccess    AML.T0090  OS Credential Dumping
-      tools      nxc                                           TA0006  CredentialAccess
-
-  [x] CredentialAccess, Exfiltration  2025-03-01T10:45:00Z
-      T1649      Steal or Forge Authentication Certificates    TA0006  CredentialAccess
-      tools      nxc                                           TA0006  CredentialAccess
-      T1048      Exfiltration Over Alternative Protocol        TA0010  Exfiltration        AML.T0025  Exfiltration via Cyber Means
+  [x] Discovery, CredentialAccess, Exfiltration  2025-03-01T10:45:00Z
+      T1016.001  System Network Configuration Discovery: Internet Connection Discovery    TA0007  Discovery
+      T1046      Network Service Discovery                                       TA0007  Discovery
+      T1649      Steal or Forge Authentication Certificates                      TA0006  CredentialAccess
+      tools      nxc                                                             TA0006  CredentialAccess
+      T1048      Exfiltration Over Alternative Protocol                          TA0010  Exfiltration        AML.T0025  Exfiltration via Cyber Means
   and 8 files that show no tactic, in the saved trace
 
 Findings
@@ -165,8 +168,10 @@ Impact
       basis    the premise of the tool
   [i] Environment mapped
       Identities, resources or configuration were listed. Later steps were probably aimed with the result.
-      exposed  password of svc_backup, DC01, AADC01: Winter2025!
-               username, Microsoft 365: MSOL_0a1b2c3d4e5f
+      exposed  password of MSOL_0a1b2c3d4e5f, Microsoft 365, 10.20.1.5: Qw7#fakeMsolSecretValue99
+               hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
+               password: Export1!
+               password of svc_backup, DC01, AADC01: Winter2025!
                username: svc_adsync
                username: svc_backup@corp.example
                email, Microsoft 365: Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com
@@ -194,8 +199,10 @@ Remediation   (most urgent first)
       basis    FileUpload
   [i] Follow what was enumerated
       Use what was listed to predict targets: check those identities, vaults and hosts for later activity.
-      exposed  password of svc_backup, DC01, AADC01: Winter2025!
-               username, Microsoft 365: MSOL_0a1b2c3d4e5f
+      exposed  password of MSOL_0a1b2c3d4e5f, Microsoft 365, 10.20.1.5: Qw7#fakeMsolSecretValue99
+               hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
+               password: Export1!
+               password of svc_backup, DC01, AADC01: Winter2025!
                username: svc_adsync
                username: svc_backup@corp.example
                email, Microsoft 365: Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com
@@ -211,7 +218,7 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1017 User Training                                     T1003
       User Training involves educating employees and contractors on recognizing, reporting, and preventing cyber threats that rely on human interaction, such as phishing, social engineering, and other manipulative techniques.
       exposed  hash of administrator, 10.20.1.5, 10.20.1.23: 8846f7eaee8fb117ad06bdd830b7586c
-  [x] M1018 User Account Management                           T1048, T1087, T1087.004
+  [x] M1018 User Account Management                           T1048, T1087, T1087.004, T1654
       User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.
       exposed  password of MSOL_0a1b2c3d4e5f, Microsoft 365, 10.20.1.5: Qw7#fakeMsolSecretValue99
                password of Sync_AADC01_0a1b2c3d4e5f@corpexample.onmicrosoft.com, Microsoft 365: Zx9!fakeCloudSyncPass

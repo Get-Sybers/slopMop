@@ -1135,7 +1135,9 @@
         "\\baz\\s+network\\s+vnet\\s+tap\\s+create\\b",
         "(?:^|[\"'`(|;]\\s*|\\w[#>]\\s?)(?:monitor\\s+capture|debug\\s+(?:ip\\s+)?packet)\\b",
         "(?i)\\b(?:netsh(?:\\.exe)?\\s+trace\\s+start|pktmon(?:\\.exe)?\\s+start)\\b",
-        "\\b(?:ip\\s+link\\s+set|ifconfig)\\b.*\\bpromisc\\b"
+        "\\b(?:ip\\s+link\\s+set|ifconfig)\\b.*\\bpromisc\\b",
+        "(?i)\\b(?:libpcap|pcap_open_live|pcap_loop|pcap_next(?:_ex)?|pcap_dispatch)\\b",
+        "(?i)\\bcreate_?traffic_?mirror_?(?:session|target|filter)\\b"
       ]
     },
     {
@@ -1229,7 +1231,6 @@
       "patterns": [
         "(?:\\b(?:cat|less|more|head|tail|zcat|strings|cut|sort)\\s+(?:(?:-\\S+|\\d+|'[^']*'|\"[^\"]*\"|[/~.$]\\S*)\\s+)*|\\b(?:grep|egrep|zgrep|awk)\\b[^|;&>]*\\s)[\"']?/etc/(?:os-release|lsb-release|redhat-release|system-release|issue)\\b",
         "\\bsysctl\\s+-a\\b",
-        "\\bsystem_profiler\\b.*\\bSP(?:Hardware|Software)DataType\\b",
         "\\besxcli\\b.*\\b(?:system\\s+(?:hostname|version)\\s+get|hardware\\s+\\w+)\\b",
         "(?:^|[\"'`(|;]\\s*|\\w[#>]\\s?)show\\s+(?:version|hardware|system)\\b",
         "(?i)\\bwin32_(?:operatingsystem|computersystem|bios|processor|quickfixengineering)\\b",
@@ -1246,7 +1247,8 @@
       "patterns": [
         "\\besxcli\\b.*\\bstorage\\s+filesystem\\s+list\\b",
         "(?:^|[\"'`(|;]\\s*|\\w[#>]\\s?)show\\s+(?:flash|bootflash|disk\\d)\\b",
-        "\\bdir\\s+(?:nvram|flash|bootflash|disk\\d):"
+        "\\bdir\\s+(?:nvram|flash|bootflash|disk\\d):",
+        "(?:^|[\\s\"'])nvram:"
       ]
     },
     {
@@ -1282,6 +1284,15 @@
       ],
       "subjects": [
         {"label": "account", "pattern": "(?i)\\bnet1?(?:\\.exe)?\\s+users?\\s+(\"[^\"]+\"|[^/\\s|>&;\"]+)"}
+      ]
+    },
+    {
+      "name": "EmailAccountEnumeration",
+      "tactics": ["Discovery"],
+      "attack": ["T1087.003"],
+      "patterns": [
+        "(?i)\\.getglobaladdresslist\\(",
+        "(?i)/admin/directory/v1/users\\b"
       ]
     },
     {
@@ -1336,6 +1347,7 @@
         "(?:\\b(?:cat|less|more|head|tail|zcat|strings|cut|sort)\\s+(?:(?:-\\S+|\\d+|'[^']*'|\"[^\"]*\"|[/~.$]\\S*)\\s+)*|\\b(?:grep|egrep|zgrep|awk)\\b[^|;&>]*\\s)[\"']?/etc/(?:pam\\.d/(?:common-password|system-auth|password-auth)|security/pwquality\\.conf|login\\.defs)\\b",
         "\\bpwpolicy\\b.*\\bget(?:accountpolicies|globalpolicy|policy)\\b",
         "\\baws\\b.*\\biam\\s+get-account-password-policy\\b",
+        "(?i)\\bget_?account_?password_?policy\\b",
         "(?i)/policies/authenticationmethodspolicy\\b",
         "(?:^|[\"'`(|;]\\s*|\\w[#>]\\s?)show\\s+(?:aaa|password-policy)\\b"
       ],
@@ -1375,7 +1387,9 @@
         "/sys/class/dmi/id/(?:product_name|sys_vendor|board_vendor|bios_vendor|product_version|chassis_vendor)\\b",
         "(?:^\\s*|[|;&(`\"'>]\\s*|\\bsudo\\s+)(?:systemd-detect-virt|virt-what)\\b",
         "(?i)(?:\\b(?:dmesg|lscpu|lspci|lsmod|dmidecode|ioreg|kextstat|system_profiler|sysctl|systeminfo|wmic|get-wmiobject|get-ciminstance|driverquery)\\b|/proc/(?:cpuinfo|scsi/scsi)\\b).*\\b(?:vmware|virtualbox|vbox|qemu|kvm|xen|hyper-?v|parallels|hypervisor)\\b",
-        "(?i)\\bhypervisor\\b.*/proc/cpuinfo\\b"
+        "(?i)\\bhypervisor\\b.*/proc/cpuinfo\\b",
+        "\\bsystem_profiler\\b.*\\bSPHardwareDataType\\b",
+        "\\bioreg\\s+(?:-\\S+\\s+)*-[A-Za-z]*l\\b"
       ]
     },
     {
@@ -1389,6 +1403,17 @@
       ]
     },
     {
+      "name": "TimeBasedCheck",
+      "tactics": ["Discovery"],
+      "attack": ["T1497.003"],
+      "patterns": [
+        "\\bSleep\\s*\\(",
+        "\\bWaitForSingleObject\\b",
+        "\\b(?:usleep|nanosleep)\\s*\\(",
+        "\\bNSTimer\\b"
+      ]
+    },
+    {
       "name": "SoftwareDiscovery",
       "tactics": ["Discovery"],
       "attack": ["T1518"],
@@ -1399,6 +1424,8 @@
         "\\bsystem_profiler\\b.*\\bSPApplicationsDataType\\b",
         "\\besxcli\\b.*\\bsoftware\\s+(?:vib|profile|component)\\s+(?:list|get)\\b",
         "\\baws\\b.*\\bssm\\s+(?:list-inventory|get-inventory|describe-instance-information)\\b",
+        "(?i)\\blist_?inventory\\b",
+        "(?i)\\b(?:az\\s+graph\\s+query|search-azgraph)\\b",
         "(?i)\\bwin32_(?:product|installedwin32program)\\b",
         "(?i)\\bwmic(?:\\.exe)?\\b.*\\bproduct\\s+(?:get|list)\\b",
         "(?i)\\\\currentversion\\\\uninstall\\b"
@@ -1435,10 +1462,22 @@
         "\\bgcloud\\s+(?:projects|services|organizations)\\s+list\\b",
         "\\baws\\s+(?:--[\\w-]+(?:[=\\s]\\S+)?\\s+)*[a-z0-9-]+\\s+describe-[a-z-]+",
         "\\baz\\s+provider\\s+list\\b",
+        "(?i)management\\.(?:azure\\.com|usgovcloudapi\\.net)/providers\\b",
         "(?i)\\.okta(?:preview)?\\.com/api/v1/apps\\b",
         "(?i)\\bget-(?:msolaccountsku|mgsubscribedsku|azureadsubscribedsku)\\b"
       ],
-      "unless": "\\baws\\b.*\\s(?:ec2|rds|ssm|logs)\\s+describe-"
+      "unless": "\\baws\\b.*\\s(?:ec2|rds|ssm|logs)\\s+describe-|(?i:\\b(?:post|patch|put|delete)\\b|--data\\b|\\s-d\\s|-body\\b|--body\\b)"
+    },
+    {
+      "name": "CloudServiceDashboard",
+      "tactics": ["Discovery"],
+      "attack": ["T1538"],
+      "patterns": [
+        "(?i)\\b(?:portal\\.azure\\.(?:com|us)|entra\\.microsoft\\.com|admin\\.microsoft\\.com|console\\.aws\\.amazon\\.com|console\\.cloud\\.google\\.com|admin\\.google\\.com|[a-z0-9-]+-admin\\.okta(?:preview)?\\.com|[a-z0-9-]+\\.okta(?:preview)?\\.com/admin)\\b"
+      ],
+      "subjects": [
+        {"label": "url", "pattern": "(?i)(https?://[^\\s\"'<>)]+)"}
+      ]
     },
     {
       "name": "CloudInfrastructureDiscovery",
@@ -1450,7 +1489,8 @@
         "\\baws\\b.*\\bs3\\s+ls\\s*(?:$|[|>&;)]|--\\S)",
         "\\baws\\b.*\\brds\\s+describe-db-(?:instances|clusters|snapshots)\\b",
         "\\bgcloud\\s+compute\\s+(?:instances|disks|snapshots|images|zones|regions)\\s+list\\b",
-        "\\bgcloud\\s+(?:sql\\s+instances|container\\s+clusters|functions|storage\\s+buckets)\\s+list\\b"
+        "\\bgcloud\\s+(?:sql\\s+instances|container\\s+clusters|functions|storage\\s+buckets)\\s+list\\b",
+        "(?i)\\b(?:describe_?instances|list_?buckets)\\b"
       ],
       "unless": "\\bec2\\s+describe-(?:network-interfaces|vpcs|subnets|vpc-peering-connections|route-tables)\\b|\\bs3\\s+ls\\b.*\\bs3://"
     },
@@ -1503,7 +1543,8 @@
         "\\bgcloud\\s+storage\\s+(?:ls|objects\\s+list)\\b",
         "\\bgsutil\\s+(?:-\\S+\\s+)*ls\\b",
         "(?i)restype=container&comp=list\\b",
-        "(?i)[?&]list-type=2\\b"
+        "(?i)[?&]list-type=2\\b",
+        "(?i)\\blist_?objects_?v2\\b"
       ],
       "subjects": [
         {"label": "url", "pattern": "((?:s3|gs)://[^\\s\"']+)"}
@@ -1515,7 +1556,8 @@
       "attack": ["T1622"],
       "patterns": [
         "(?i)\\b(?:isdebuggerpresent|checkremotedebuggerpresent)\\b",
-        "(?i)\\bntqueryinformationprocess\\b.*\\bprocessdebug\\w+",
+        "(?i)\\bntqueryinformationprocess\\b",
+        "(?i)\\boutputdebugstring[aw]?\\b",
         "\\b(?:grep|awk|sed)\\b.*\\bTracerPid\\b",
         "\\b(?:PT_DENY_ATTACH|P_TRACED)\\b",
         "(?i)\\bdebugger\\]?(?:::|\\.)isattached\\b"
@@ -1541,7 +1583,8 @@
         "(?:\\b(?:cat|less|more|head|tail|zcat|strings|cut|sort)\\s+(?:(?:-\\S+|\\d+|'[^']*'|\"[^\"]*\"|[/~.$]\\S*)\\s+)*|\\b(?:grep|egrep|zgrep|awk)\\b[^|;&>]*\\s)[\"']?/var/log/\\S",
         "(?:^|[;&|(]\\s*|\\bsudo\\s+)log\\s+(?:show|stream|collect)\\b",
         "(?i)\\bcollectguestlogs(?:\\.exe)?\\b",
-        "\\baws\\b.*\\b(?:logs\\s+(?:get-log-events|filter-log-events|describe-log-(?:groups|streams)|tail)|cloudtrail\\s+lookup-events)\\b"
+        "\\baws\\b.*\\b(?:logs\\s+(?:get-log-events|filter-log-events|describe-log-(?:groups|streams)|tail)|cloudtrail\\s+lookup-events)\\b",
+        "(?i)\\bget_?log_?events\\b"
       ],
       "subjects": [
         {"label": "log", "pattern": "(/var/log/\\S+)"},

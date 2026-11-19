@@ -47,6 +47,7 @@ Impact
                username: daemon
                username: deploy
                username: root
+               username: ops
                email: alerts@corp.example
       basis    SetuidFileSearch, ServiceDiscovery, RemoteSystemDiscovery, NetworkServiceDiscovery, LocalAccountEnumeration, Discovery tools, exposed username, exposed email, exposed device, exposed ip
 
@@ -89,6 +90,7 @@ Remediation   (most urgent first)
                username: daemon
                username: deploy
                username: root
+               username: ops
                email: alerts@corp.example
       basis    SetuidFileSearch, ServiceDiscovery, RemoteSystemDiscovery, NetworkServiceDiscovery, LocalAccountEnumeration, Discovery tools, exposed username, exposed email, exposed device, exposed ip
 

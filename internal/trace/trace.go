@@ -358,9 +358,11 @@ func classifyTools(tools []string, t tactic.Table) []string {
 	seen := map[string]bool{}
 	var tactics []string
 	for _, tool := range tools {
-		if tac := t.Classify(tool); tac != "" && !seen[tac] {
-			seen[tac] = true
-			tactics = append(tactics, tac)
+		for _, tac := range t.Tactics(tool) {
+			if !seen[tac] {
+				seen[tac] = true
+				tactics = append(tactics, tac)
+			}
 		}
 	}
 	return tactics

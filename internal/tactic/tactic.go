@@ -28,14 +28,19 @@ type entry struct {
 
 // Table maps command names to techniques and to tactics.
 type Table struct {
-	byCommand map[string]string
-	// technique is the technique a command is filed under, and filed the
-	// techniques of a tactic that have commands.
-	technique map[string]string
-	filed     map[string][]string
-	severity  map[string]Severity
-	ids       map[string][2]string
-	names     []string
+	// places holds where each command stands, and filed the techniques of
+	// a tactic that have commands.
+	places   map[string][]Place
+	filed    map[string][]string
+	severity map[string]Severity
+	ids      map[string][2]string
+	names    []string
+}
+
+// Place is where a command stands in the table: a tactic, and the technique
+// it is filed under there. Technique is "" where its technique is not named.
+type Place struct {
+	Tactic, Technique string
 }
 
 // Severity ranks a tactic; a higher value is more severe.
@@ -86,18 +91,23 @@ func Parse(data []byte) (Table, error) {
 		return Table{}, err
 	}
 	t := Table{
-		byCommand: make(map[string]string, 512), technique: map[string]string{}, filed: map[string][]string{},
+		places: make(map[string][]Place, 512), filed: map[string][]string{},
 		severity: make(map[string]Severity, len(entries)), ids: make(map[string][2]string, len(entries)),
 	}
-	// A command stands once in the table, under one technique or under none.
+	// A command stands once under a technique. Its technique is not named in
+	// one tactic at most, and in none that files it under a technique.
 	place := func(command, tactic, technique string) error {
-		if prev, dup := t.byCommand[command]; dup {
-			return fmt.Errorf("command %q in both %s and %s", command, prev, tactic)
+		for _, at := range t.places[command] {
+			switch {
+			case at == (Place{tactic, technique}):
+				return fmt.Errorf("command %q stands twice in %s%s", command, tactic, under(technique))
+			case at.Tactic == tactic && (at.Technique == "" || technique == ""):
+				return fmt.Errorf("command %q of %s stands under a technique and under none", command, tactic)
+			case at.Technique == "" && technique == "":
+				return fmt.Errorf("command %q in both %s and %s", command, at.Tactic, tactic)
+			}
 		}
-		t.byCommand[command] = tactic
-		if technique != "" {
-			t.technique[command] = technique
-		}
+		t.places[command] = append(t.places[command], Place{tactic, technique})
 		return nil
 	}
 	for _, e := range entries {
@@ -177,27 +187,41 @@ func decode(data []byte) ([]entry, error) {
 	return entries, nil
 }
 
-// Classify returns the tactic for a command, or "" when unknown.
-func (t Table) Classify(command string) string {
-	return t.byCommand[t.known(command)]
+// under names a technique in a message, and says nothing of one not named.
+func under(technique string) string {
+	if technique == "" {
+		return ""
+	}
+	return " under " + technique
 }
 
-// Technique returns the ATT&CK technique a command is, or "" when the table
-// names none for it: the tactic of the command then stands without one.
-func (t Table) Technique(command string) string {
-	return t.technique[t.known(command)]
+// Classify returns where a command stands, in the order of the data file,
+// the techniques of a tactic by their identifiers. An unknown command has no place.
+func (t Table) Classify(command string) []Place {
+	return t.places[t.known(command)]
+}
+
+// Tactics returns the tactics of a command, each once, in the order of the data file.
+func (t Table) Tactics(command string) []string {
+	var names []string
+	for _, at := range t.Classify(command) {
+		if !slices.Contains(names, at.Tactic) {
+			names = append(names, at.Tactic)
+		}
+	}
+	return names
 }
 
 // known returns the name the table holds a command under: the command in
 // lower case, or that name without .exe or .py. An unknown command has none.
 func (t Table) known(command string) string {
 	low := strings.ToLower(command)
-	if _, ok := t.byCommand[low]; ok {
+	if _, ok := t.places[low]; ok {
 		return low
 	}
 	for _, suffix := range []string{".exe", ".py"} {
 		if bare := strings.TrimSuffix(low, suffix); bare != low {
-			if _, ok := t.byCommand[bare]; ok {
+			if _, ok := t.places[bare]; ok {
 				return bare
 			}
 		}

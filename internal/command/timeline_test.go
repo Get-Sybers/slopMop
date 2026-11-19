@@ -45,9 +45,9 @@ func (p period) brief() string {
 // file does not. A file that shows nothing is in none, and ends none.
 func TestPeriods(t *testing.T) {
 	recon := stepAt(0, "recon.sh", "Discovery")
-	recon.Tools = []string{"nmap", "curl"}
+	recon.Tools = []string{"nmap", "tee"}
 	both := stepAt(5, "creds.sh", "CredentialAccess", "Discovery")
-	both.Tools = []string{"cat", "curl"}
+	both.Tools = []string{"echo", "tee"}
 	both.Activities = []activity.Hit{{Name: "ShadowFileRead", Attack: []string{"T1003.008"}}, {Name: "PrivateKeyRead", Attack: []string{"T1552.004"}}}
 	again := stepAt(7, "more.sh", "Discovery")
 	again.Activities = []activity.Hit{{Name: "ShadowFileRead", Attack: []string{"T1003.008"}}, {Name: "ServiceDiscovery", Attack: []string{"T1007"}}}

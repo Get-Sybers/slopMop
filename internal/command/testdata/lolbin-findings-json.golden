@@ -470,7 +470,7 @@
   {
     "finding": "IPv4",
     "severity": "high",
-    "tactic": "CommandAndControl, DefenseImpairment, Execution, Persistence, Stealth",
+    "tactic": "CommandAndControl, DefenseImpairment, Discovery, Execution, Persistence, Stealth",
     "indicator": "203.0.113.10",
     "files": "20261020_100500_step02_download.ps1, 20261020_101000_step03_exec.ps1, 20261020_103000_step07_cleanup.bat, build_20261020_101200.xml, proc_20261020_103500.jsonl",
     "attribution": null,
@@ -578,7 +578,7 @@
   {
     "finding": "URL",
     "severity": "high",
-    "tactic": "CommandAndControl, DefenseImpairment, Execution, Persistence, Stealth",
+    "tactic": "CommandAndControl, DefenseImpairment, Discovery, Execution, Persistence, Stealth",
     "indicator": "http://203.0.113.10/a.b64",
     "files": "20261020_100500_step02_download.ps1, proc_20261020_103500.jsonl",
     "attribution": null,
@@ -758,7 +758,7 @@
   {
     "finding": "URL",
     "severity": "high",
-    "tactic": "CommandAndControl, DefenseImpairment, Execution, Persistence, Stealth",
+    "tactic": "CommandAndControl, DefenseImpairment, Discovery, Execution, Persistence, Stealth",
     "indicator": "http://203.0.113.10/x.sct",
     "files": "20261020_101000_step03_exec.ps1, proc_20261020_103500.jsonl",
     "attribution": null,
@@ -1327,7 +1327,7 @@
   {
     "finding": "Domain",
     "severity": "medium",
-    "tactic": "Execution, Stealth",
+    "tactic": "Discovery, Execution, Stealth",
     "indicator": "Microsoft.NET",
     "files": "20261020_101000_step03_exec.ps1",
     "attribution": null,
@@ -1363,7 +1363,7 @@
   {
     "finding": "URL",
     "severity": "medium",
-    "tactic": "Execution, Stealth",
+    "tactic": "Discovery, Execution, Stealth",
     "indicator": "http://203.0.113.10/a.hta",
     "files": "20261020_101000_step03_exec.ps1",
     "attribution": null,
@@ -1681,10 +1681,10 @@
     "severity": "low",
     "tactic": "Discovery",
     "indicator": null,
-    "files": "20261020_100000_step01_recon.ps1, 20261020_102500_step06_pinvoke.ps1, recon_20261020_100030.txt",
+    "files": "20261020_100000_step01_recon.ps1, 20261020_101000_step03_exec.ps1, 20261020_102500_step06_pinvoke.ps1, proc_20261020_103500.jsonl, recon_20261020_100030.txt",
     "attribution": null,
     "first": "2026-10-20T10:00:00Z",
-    "last": "2026-10-20T10:25:00Z",
+    "last": "2026-10-20T10:35:00Z",
     "attack": "TA0007",
     "atlas": "AML.TA0008",
     "evidence": null,

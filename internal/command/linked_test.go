@@ -231,7 +231,7 @@ func TestTacticsAndTimelineAgree(t *testing.T) {
 	for _, want := range []string{
 		"  [x] CredentialAccess   TA0006, AML.TA0013  cmd-i201.stdout.txt, i203_creds.sh\n      intents  i203, i201\n",
 		"  [x] LateralMovement    TA0008, AML.TA0015  i202-move.sh\n      intents  i202\n",
-		"  [i] Discovery          TA0007, AML.TA0008  i201_scan.sh, i202-move.sh, notes.sh\n      intents  i201, i202\n",
+		"  [i] Discovery          TA0007, AML.TA0008  i201_scan.sh, i202-move.sh, i203_creds.sh and 1 more\n      intents  i203, i201, i202\n",
 	} {
 		if !strings.Contains(tactics, want) {
 			t.Errorf("the tactics lack %q:\n%s", want, tactics)

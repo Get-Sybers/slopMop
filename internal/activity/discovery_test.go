@@ -120,6 +120,8 @@ var discoveryCases = []struct {
 	{`pktmon start --etw`, []string{"NetworkSniffing"}},
 	{`ip link set eth0 promisc on`, []string{"NetworkSniffing"}},
 	{`aws ec2 describe-traffic-mirror-sessions`, []string{"CloudInfrastructureDiscovery"}},
+	{`pcap_t *h = pcap_open_live("eth0", 65535, 1, 1000, errbuf);`, []string{"NetworkSniffing"}},
+	{`{"eventSource": "ec2.amazonaws.com", "eventName": "CreateTrafficMirrorSession"}`, []string{"NetworkSniffing"}},
 	{`netsh trace stop`, nil},
 
 	// T1046: the services of other hosts
@@ -193,7 +195,6 @@ var discoveryCases = []struct {
 	// T1082: what a system is
 	{`cat /etc/os-release`, []string{"SystemInformationDiscovery"}},
 	{`sysctl -a`, []string{"SystemInformationDiscovery"}},
-	{`system_profiler SPHardwareDataType`, []string{"SystemInformationDiscovery"}},
 	{`esxcli system version get`, []string{"SystemInformationDiscovery"}},
 	{`esxcli hardware cpu list`, []string{"SystemInformationDiscovery"}},
 	{`ssh admin@10.0.0.1 "show version"`, []string{"SystemInformationDiscovery"}},
@@ -211,6 +212,7 @@ var discoveryCases = []struct {
 	{`esxcli storage filesystem list`, []string{"FileAndDirectoryDiscovery"}},
 	{`"show flash"`, []string{"FileAndDirectoryDiscovery"}},
 	{`dir nvram:`, []string{"FileAndDirectoryDiscovery"}},
+	{`more nvram:startup-config`, []string{"FileAndDirectoryDiscovery"}},
 	{`dir C:\Users`, nil},
 
 	// T1087.001: the accounts of a system
@@ -244,8 +246,11 @@ var discoveryCases = []struct {
 	{`gcloud iam service-accounts list`, []string{"CloudAccountEnumeration"}},
 	{`curl -H "Authorization: Bearer $T" https://api.slack.com/scim/v1/Users`, []string{"CloudAccountEnumeration"}},
 	{`curl -H "Authorization: SSWS $T" https://corp.okta.com/api/v1/users`, []string{"CloudAccountEnumeration"}},
-	{`curl -H "Authorization: Bearer $T" "https://admin.googleapis.com/admin/directory/v1/users?customer=my_customer"`, []string{"CloudAccountEnumeration"}},
+	{`curl -H "Authorization: Bearer $T" "https://admin.googleapis.com/admin/directory/v1/users?customer=my_customer"`, []string{"EmailAccountEnumeration", "CloudAccountEnumeration"}},
 	{`aws iam create-user --user-name svc`, nil},
+
+	// T1087.003: the addresses of a mail system
+	{`$gal = $outlook.Session.GetGlobalAddressList().AddressEntries`, []string{"EmailAccountEnumeration"}},
 
 	// T1120: the devices that are attached
 	{`udevadm monitor --udev`, []string{"PeripheralDeviceDiscovery"}},
@@ -277,6 +282,7 @@ var discoveryCases = []struct {
 	{`cat /etc/pam.d/common-password`, []string{"PasswordPolicyDiscovery"}},
 	{`pwpolicy -getaccountpolicies`, []string{"PasswordPolicyDiscovery"}},
 	{`aws iam get-account-password-policy`, []string{"PasswordPolicyDiscovery"}},
+	{`policy = iam.get_account_password_policy()`, []string{"PasswordPolicyDiscovery"}},
 	{`Invoke-RestMethod -Headers $h -Uri "https://graph.microsoft.com/v1.0/policies/authenticationMethodsPolicy"`, []string{"PasswordPolicyDiscovery"}},
 	{`"show aaa servers"`, []string{"PasswordPolicyDiscovery"}},
 	{`net accounts /minpwlen:0`, nil},
@@ -305,13 +311,13 @@ var discoveryCases = []struct {
 	{`dmesg | grep -i hypervisor`, []string{"VirtualMachineCheck"}},
 	{`lspci | grep -i vmware`, []string{"VirtualMachineCheck"}},
 	{`grep -c hypervisor /proc/cpuinfo`, []string{"VirtualMachineCheck"}},
-	{`system_profiler SPHardwareDataType | grep -i "vmware\|parallels"`, []string{"VirtualMachineCheck"}},
+	{`system_profiler SPHardwareDataType`, []string{"VirtualMachineCheck"}},
+	{`ioreg -l`, []string{"VirtualMachineCheck"}},
 	{`ioreg -l | grep -i -c "VirtualBox\|VMware"`, []string{"VirtualMachineCheck"}},
 	{`systeminfo | findstr /i "vmware virtualbox"`, []string{"VirtualMachineCheck"}},
 	{`dmesg | tail -20`, nil},
 	{`ii  virt-what  1.19-1  amd64  detect if we are running in a virtual machine`, nil},
 	{`ioreg -p IOUSB`, nil},
-	{`ioreg -l`, nil},
 	{`dmidecode -t memory`, nil},
 
 	// T1497.002: whether a person is at the system
@@ -320,6 +326,14 @@ var discoveryCases = []struct {
 	{`CGEventSourceSecondsSinceLastEventType(kCGEventSourceStateHIDSystemState, kCGAnyInputEventType)`, []string{"UserActivityCheck"}},
 	{`xdotool mousemove 10 10`, nil},
 
+	// T1497.003: a wait that a function makes
+	{`[System.Threading.Thread]::Sleep(600000)`, []string{"TimeBasedCheck"}},
+	{`WaitForSingleObject(h, 300000);`, []string{"TimeBasedCheck"}},
+	{`usleep(5000000);`, []string{"TimeBasedCheck"}},
+	{`[NSTimer scheduledTimerWithTimeInterval:600 target:self selector:@selector(run) userInfo:nil repeats:NO];`, []string{"TimeBasedCheck"}},
+	{`time.sleep(5)`, nil},
+	{`sleep 5`, nil},
+
 	// T1518: the software that is installed
 	{`dpkg -l | grep -i ssh`, []string{"SoftwareDiscovery"}},
 	{`rpm -qa`, []string{"SoftwareDiscovery"}},
@@ -327,6 +341,8 @@ var discoveryCases = []struct {
 	{`system_profiler SPApplicationsDataType`, []string{"SoftwareDiscovery"}},
 	{`esxcli software vib list`, []string{"SoftwareDiscovery"}},
 	{`aws ssm list-inventory --instance-id i-0a1b`, []string{"SoftwareDiscovery"}},
+	{`{"eventSource": "ssm.amazonaws.com", "eventName": "ListInventory"}`, []string{"SoftwareDiscovery"}},
+	{`az graph query -q "Resources | where type =~ \'microsoft.compute/virtualmachines/extensions\'"`, []string{"AzureResourceEnumeration", "SoftwareDiscovery"}},
 	{`Get-WmiObject -Class Win32_Product`, []string{"SoftwareDiscovery"}},
 	{`wmic product get name,version`, []string{"SoftwareDiscovery"}},
 	{`reg query HKLM\Software\Microsoft\Windows\CurrentVersion\Uninstall /s`, []string{"RegistryQuery", "SoftwareDiscovery"}},
@@ -365,7 +381,15 @@ var discoveryCases = []struct {
 	{`az provider list --query "[].namespace"`, []string{"CloudServiceDiscovery"}},
 	{`curl -H "Authorization: SSWS $T" https://corp.okta.com/api/v1/apps`, []string{"CloudServiceDiscovery"}},
 	{`Get-MgSubscribedSku`, []string{"CloudServiceDiscovery"}},
+	{`curl -H "Authorization: Bearer $T" "https://management.azure.com/providers?api-version=2021-04-01"`, []string{"CloudServiceDiscovery"}},
+	{`curl -X PUT -H "Authorization: Bearer $T" https://management.azure.com/providers/Microsoft.Compute/register`, nil},
 	{`gcloud projects create corp-new`, nil},
+
+	// T1538: the console of a cloud
+	{`Start-Process "https://portal.azure.com/#view/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade"`, []string{"CloudServiceDashboard"}},
+	{`page.goto("https://console.aws.amazon.com/iam/home#/users")`, []string{"CloudServiceDashboard"}},
+	{`open https://corp-admin.okta.com/admin/users`, []string{"CloudServiceDashboard"}},
+	{`curl -s https://azure.microsoft.com/en-us/pricing/`, nil},
 
 	// T1580: the infrastructure of a cloud
 	{`aws ec2 describe-instances --query "Reservations[].Instances[].InstanceId"`, []string{"CloudInfrastructureDiscovery"}},
@@ -375,6 +399,8 @@ var discoveryCases = []struct {
 	{`aws rds describe-db-instances`, []string{"CloudInfrastructureDiscovery"}},
 	{`gcloud compute instances list`, []string{"CloudInfrastructureDiscovery"}},
 	{`gcloud sql instances list`, []string{"CloudInfrastructureDiscovery"}},
+	{`{"eventSource": "ec2.amazonaws.com", "eventName": "DescribeInstances"}`, []string{"CloudInfrastructureDiscovery"}},
+	{`for b in s3.list_buckets()["Buckets"]: print(b["Name"])`, []string{"CloudInfrastructureDiscovery"}},
 	{`aws ec2 run-instances --image-id ami-1`, nil},
 	{`gcloud compute instances create vm1`, nil},
 
@@ -412,6 +438,7 @@ var discoveryCases = []struct {
 	{`gsutil ls -r gs://corp-backups`, []string{"CloudStorageObjectDiscovery"}},
 	{`curl "https://corp.blob.core.windows.net/backups?restype=container&comp=list"`, []string{"CloudStorageObjectDiscovery"}},
 	{`curl "https://corp-backups.s3.amazonaws.com/?list-type=2"`, []string{"CloudStorageObjectDiscovery"}},
+	{`{"eventSource": "s3.amazonaws.com", "eventName": "ListObjectsV2"}`, []string{"CloudStorageObjectDiscovery"}},
 	{`aws s3 cp s3://corp-backups/db.sql .`, nil},
 	{`gsutil cp a gs://b/a`, nil},
 
@@ -420,6 +447,8 @@ var discoveryCases = []struct {
 	{`NtQueryInformationProcess(h, ProcessDebugPort, &port, sizeof(port), NULL);`, []string{"DebuggerCheck"}},
 	{`grep TracerPid /proc/self/status`, []string{"DebuggerCheck"}},
 	{`ptrace(PT_DENY_ATTACH, 0, 0, 0);`, []string{"DebuggerCheck"}},
+	{`NtQueryInformationProcess(h, 7, &port, sizeof(port), NULL);`, []string{"DebuggerCheck"}},
+	{`OutputDebugStringW(L"x");`, []string{"DebuggerCheck"}},
 	{`if ([System.Diagnostics.Debugger]::IsAttached) { exit }`, []string{"DebuggerCheck"}},
 	{`grep Cap /proc/self/status`, nil},
 	{`TracerPid:	0`, nil},
@@ -442,6 +471,7 @@ var discoveryCases = []struct {
 	{`C:\WindowsAzure\GuestAgent\CollectGuestLogs.exe -Mode:full`, []string{"LogEnumeration"}},
 	{`aws logs get-log-events --log-group-name g --log-stream-name s`, []string{"LogEnumeration"}},
 	{`aws cloudtrail lookup-events --max-results 50`, []string{"LogEnumeration"}},
+	{`{"eventSource": "logs.amazonaws.com", "eventName": "GetLogEvents"}`, []string{"LogEnumeration"}},
 	{`wevtutil cl Security`, []string{"EventLogClearing"}},
 	{`rm -f /var/log/auth.log`, []string{"LogDeletion"}},
 	{`cat /dev/null > /var/log/auth.log`, []string{"LogDeletion"}},

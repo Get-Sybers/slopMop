@@ -12,8 +12,7 @@ var (
 		"write-warning": true, "write-error": true, "write-debug": true,
 		"write-information": true, "write-progress": true,
 		"out-null": true, "out-host": true, "out-default": true,
-		"start-sleep": true, "sleep": true, "set-strictmode": true,
-		"clear-host": true, "cls": true, "echo": true,
+		"set-strictmode": true, "clear-host": true, "cls": true, "echo": true,
 	}
 	psWriters = map[string]bool{
 		"out-file": true, "set-content": true, "add-content": true,

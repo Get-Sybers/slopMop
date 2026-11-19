@@ -88,7 +88,7 @@
   {
     "finding": "Domain",
     "severity": "high",
-    "tactic": "CredentialAccess",
+    "tactic": "CredentialAccess, Discovery",
     "indicator": "adfs.corp.example",
     "files": "20250301_103200_step05_certs.sh",
     "attribution": null,
@@ -124,7 +124,7 @@
   {
     "finding": "Domain",
     "severity": "high",
-    "tactic": "CredentialAccess",
+    "tactic": "CredentialAccess, Discovery",
     "indicator": "ca01.corp.example",
     "files": "20250301_101530_step01_recon.txt, 20250301_103200_step05_certs.sh, 20250301_103240_certipy_find.txt",
     "attribution": null,
@@ -196,7 +196,7 @@
   {
     "finding": "Domain",
     "severity": "high",
-    "tactic": "CredentialAccess, Exfiltration",
+    "tactic": "CredentialAccess, Discovery, Exfiltration",
     "indicator": "transfer.example.net",
     "files": "20250301_104500_step07_exfil.sh",
     "attribution": null,
@@ -232,7 +232,7 @@
   {
     "finding": "Email",
     "severity": "high",
-    "tactic": "CredentialAccess",
+    "tactic": "CredentialAccess, Discovery",
     "indicator": "MSOL_USER@corp.example",
     "files": "20250301_103200_step05_certs.sh",
     "attribution": null,
@@ -268,7 +268,7 @@
   {
     "finding": "Email",
     "severity": "high",
-    "tactic": "CredentialAccess",
+    "tactic": "CredentialAccess, Discovery",
     "indicator": "administrator@corp.example",
     "files": "20250301_103200_step05_certs.sh, 20250301_103240_certipy_find.txt, 20250301_104010_step06_auth.txt",
     "attribution": null,
@@ -412,7 +412,7 @@
   {
     "finding": "MD5",
     "severity": "high",
-    "tactic": "CredentialAccess, Exfiltration",
+    "tactic": "CredentialAccess, Discovery, Exfiltration",
     "indicator": "8846f7eaee8fb117ad06bdd830b7586c",
     "files": "20250301_104000_step06_auth.sh, 20250301_104010_step06_auth.txt, 20250301_104500_step07_exfil.sh",
     "attribution": null,
@@ -484,7 +484,7 @@
   {
     "finding": "SHA1",
     "severity": "high",
-    "tactic": "CredentialAccess, Exfiltration",
+    "tactic": "CredentialAccess, Discovery, Exfiltration",
     "indicator": "3f2a9c1e7b6d5a4f3e2d1c0b9a8f7e6d5c4b3a29",
     "files": "20250301_104030_ca_store.txt, 20250301_104500_step07_exfil.sh",
     "attribution": null,
@@ -520,7 +520,7 @@
   {
     "finding": "URL",
     "severity": "high",
-    "tactic": "CredentialAccess, Exfiltration",
+    "tactic": "CredentialAccess, Discovery, Exfiltration",
     "indicator": "https://transfer.example.net/upload",
     "files": "20250301_104500_step07_exfil.sh",
     "attribution": null,
@@ -1168,10 +1168,10 @@
     "severity": "low",
     "tactic": "Discovery",
     "indicator": null,
-    "files": "20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh, 20250301_101910_step02_users.tsv, adsync_1740824865.txt",
+    "files": "20250301_101500_step01_recon.sh, 20250301_101800_step02_enum.sh, 20250301_101910_step02_users.tsv, 20250301_102300_step03_adsync.sh, 20250301_102700_step03_adsync_v2.sh, 20250301_103200_step05_certs.sh, 20250301_104500_step07_exfil.sh, adsync_1740824865.txt",
     "attribution": null,
     "first": "2025-03-01T10:15:00Z",
-    "last": "2025-03-01T10:27:45Z",
+    "last": "2025-03-01T10:45:00Z",
     "attack": "TA0007",
     "atlas": "AML.TA0008",
     "evidence": null,

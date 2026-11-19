@@ -231,7 +231,7 @@
     "time": "2025-03-02T09:31:00Z",
     "intent": null,
     "tools": "powershell",
-    "tactics": "Execution",
+    "tactics": "Discovery, Execution",
     "transforms": null,
     "activities": null,
     "outputs": null,

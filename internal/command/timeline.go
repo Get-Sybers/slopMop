@@ -8,6 +8,7 @@ import (
 
 	"github.com/get-sybers/slopmop/internal/activity"
 	"github.com/get-sybers/slopmop/internal/render"
+	"github.com/get-sybers/slopmop/internal/tactic"
 	"github.com/get-sybers/slopmop/internal/trace"
 )
 
@@ -52,19 +53,21 @@ func (t *techniques) add(p pipeline, hit activity.Hit) {
 }
 
 // run takes in the techniques the commands of a file are. A command is filed
-// under its technique, and the tactic that holds the technique is its parent.
+// under its techniques, and the tactic that holds a technique is its parent.
 func (t *techniques) run(p pipeline, tools []string) {
 	for _, tool := range tools {
-		id := p.tactics.Technique(tool)
-		if id == "" {
-			continue
+		for _, at := range p.tactics.Classify(tool) {
+			id := at.Technique
+			if id == "" {
+				continue
+			}
+			if t.parents == nil {
+				t.parents = map[string][]string{}
+			}
+			t.attack = appendUnique(t.attack, id)
+			t.parents[id] = appendUnique(t.parents[id], at.Tactic)
+			t.atlas = appendUnique(t.atlas, p.catalogue.AtlasFor([]string{id})...)
 		}
-		if t.parents == nil {
-			t.parents = map[string][]string{}
-		}
-		t.attack = appendUnique(t.attack, id)
-		t.parents[id] = appendUnique(t.parents[id], p.tactics.Classify(tool))
-		t.atlas = appendUnique(t.atlas, p.catalogue.AtlasFor([]string{id})...)
 	}
 }
 
@@ -208,7 +211,7 @@ func (w reportRun) block(shown []string, found techniques, tools, hits []string)
 	for at, name := range every {
 		var of []string
 		for _, tool := range tools {
-			if w.pipe.tactics.Classify(tool) == name && w.pipe.tactics.Technique(tool) == "" {
+			if slices.Contains(w.pipe.tactics.Classify(tool), tactic.Place{Tactic: name}) {
 				of = append(of, tool)
 			}
 		}

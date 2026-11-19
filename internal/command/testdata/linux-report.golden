@@ -21,7 +21,7 @@ Tactics   (tactic, identifiers, files)
   [!] Collection           TA0009, AML.TA0009  20261022_092500_step06_stage.sh
   [!] Execution            TA0002, AML.TA0005  20261022_091500_step04_persist.sh, 20261022_092500_step06_stage.sh, 20261022_093000_step07_channel.py and 1 more
   [!] Stealth              TA0005, AML.TA0007  20261022_092000_step05_evade.sh
-  [i] Discovery            TA0007, AML.TA0008  20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 4 more
+  [i] Discovery            TA0007, AML.TA0008  20261022_090000_step01_recon.sh, 20261022_090500_step02_creds.sh, 20261022_091000_step03_privesc.sh and 7 more
 
 Timeline   (a block for each intent, from the first of its files to be created until the last, or for each period of files that show the same tactics; a row is an ATT&CK technique, then its tactic and its ATLAS technique, or the tools of a tactic that no technique is named for)
   [x] Discovery, CredentialAccess                                   2026-10-22T09:00:00Z to 2026-10-22T09:05:40Z
@@ -30,7 +30,13 @@ Timeline   (a block for each intent, from the first of its files to be created u
       T1018      Remote System Discovery                                         TA0007  Discovery
       T1087.001  Account Discovery: Local Account                                TA0007  Discovery
       T1033      System Owner/User Discovery                                     TA0007  Discovery
+      T1069      Permission Groups Discovery                                     TA0007  Discovery
+      T1069.001  Permission Groups Discovery: Local Groups                       TA0007  Discovery
       T1082      System Information Discovery                                    TA0007  Discovery
+      T1654      Log Enumeration                                                 TA0007  Discovery
+      T1518.002  Software Discovery: Backup Software Discovery                   TA0007  Discovery
+      T1016.001  System Network Configuration Discovery: Internet Connection Discovery    TA0007  Discovery
+      T1046      Network Service Discovery                                       TA0007  Discovery
       T1087.003  Account Discovery: Email Account                                TA0007  Discovery
       tools      kubectl                                                         TA0007  Discovery
       T1552.005  Unsecured Credentials: Cloud Instance Metadata API              TA0006  CredentialAccess       AML.T0055  Unsecured Credentials
@@ -46,7 +52,8 @@ Timeline   (a block for each intent, from the first of its files to be created u
       T1548.001  Abuse Elevation Control Mechanism: Setuid and Setgid            TA0004  PrivilegeEscalation
       T1611      Escape to Host                                                  TA0004  PrivilegeEscalation    AML.T0105  Escape to Host
 
-  [x] Execution, PrivilegeEscalation, Persistence                   2026-10-22T09:15:00Z
+  [x] Discovery, Execution, PrivilegeEscalation, Persistence        2026-10-22T09:15:00Z
+      T1518.002  Software Discovery: Backup Software Discovery                   TA0007  Discovery
       T1053.003  Scheduled Task/Job: Cron                                        TA0002  Execution
                                                                                  TA0003  Persistence
       T1053.002  Scheduled Task/Job: At                                          TA0002  Execution
@@ -59,7 +66,8 @@ Timeline   (a block for each intent, from the first of its files to be created u
       T1098.004  Account Manipulation: SSH Authorized Keys                       TA0003  Persistence
       T1546.004  Event Triggered Execution: Unix Shell Configuration Modification    TA0003  Persistence            AML.T0142  Event Triggered Execution
 
-  [x] Stealth, DefenseImpairment                                    2026-10-22T09:20:00Z
+  [x] Discovery, Stealth, DefenseImpairment                         2026-10-22T09:20:00Z
+      T1518.002  Software Discovery: Backup Software Discovery                   TA0007  Discovery
       T1070.003  Indicator Removal: Clear Command History                        TA0005  Stealth                AML.T0138  Indicator Removal
       T1070.006  Indicator Removal: Timestomp                                    TA0005  Stealth                AML.T0138  Indicator Removal
       T1685.006  Disable or Modify Tools: Clear Linux or Mac System Logs         TA0112  DefenseImpairment
@@ -69,10 +77,16 @@ Timeline   (a block for each intent, from the first of its files to be created u
       T1686      Disable or Modify System Firewall                               TA0112  DefenseImpairment
 
   [x] Discovery, LateralMovement, Execution, Collection, CommandAndControl, Exfiltration  2026-10-22T09:25:00Z to 2026-10-22T09:30:00Z
-      T1083      File and Directory Discovery                                    TA0007  Discovery
-      T1033      System Owner/User Discovery                                     TA0007  Discovery
-      T1082      System Information Discovery                                    TA0007  Discovery
+      T1016.001  System Network Configuration Discovery: Internet Connection Discovery    TA0007  Discovery
       T1046      Network Service Discovery                                       TA0007  Discovery
+      T1654      Log Enumeration                                                 TA0007  Discovery
+      T1083      File and Directory Discovery                                    TA0007  Discovery
+      T1518.002  Software Discovery: Backup Software Discovery                   TA0007  Discovery
+      T1033      System Owner/User Discovery                                     TA0007  Discovery
+      T1069      Permission Groups Discovery                                     TA0007  Discovery
+      T1069.001  Permission Groups Discovery: Local Groups                       TA0007  Discovery
+      T1087.001  Account Discovery: Local Account                                TA0007  Discovery
+      T1082      System Information Discovery                                    TA0007  Discovery
       T1021.004  Remote Services: SSH                                            TA0008  LateralMovement
       T1059.004  Command and Scripting Interpreter: Unix Shell                   TA0002  Execution              AML.T0050  Command and Scripting Interpreter
       T1059      Command and Scripting Interpreter                               TA0002  Execution              AML.T0050  Command and Scripting Interpreter
@@ -82,7 +96,8 @@ Timeline   (a block for each intent, from the first of its files to be created u
       T1048      Exfiltration Over Alternative Protocol                          TA0010  Exfiltration           AML.T0025  Exfiltration via Cyber Means
       tools      nc                                                              TA0010  Exfiltration
 
-  [x] Execution, Persistence, DefenseImpairment                     2026-10-22T09:35:00Z
+  [x] Discovery, Execution, Persistence, DefenseImpairment          2026-10-22T09:35:00Z
+      T1518.002  Software Discovery: Backup Software Discovery                   TA0007  Discovery
       T1053.003  Scheduled Task/Job: Cron                                        TA0002  Execution
                                                                                  TA0003  Persistence
       T1053.002  Scheduled Task/Job: At                                          TA0002  Execution
@@ -330,6 +345,7 @@ Impact
                username: daemon
                username: deploy
                username: root
+               username: ops
                email: alerts@corp.example
       basis    SetuidFileSearch, ServiceDiscovery, RemoteSystemDiscovery, NetworkServiceDiscovery, LocalAccountEnumeration, Discovery tools, exposed username, exposed email, exposed device, exposed ip
 
@@ -372,6 +388,7 @@ Remediation   (most urgent first)
                username: daemon
                username: deploy
                username: root
+               username: ops
                email: alerts@corp.example
       basis    SetuidFileSearch, ServiceDiscovery, RemoteSystemDiscovery, NetworkServiceDiscovery, LocalAccountEnumeration, Discovery tools, exposed username, exposed email, exposed device, exposed ip
 
@@ -379,7 +396,7 @@ Mitigation   (MITRE ATT&CK and ATLAS, for the techniques found)
   [x] M1017 User Training                                        T1552.001
       User Training involves educating employees and contractors on recognizing, reporting, and preventing cyber threats that rely on human interaction, such as phishing, social engineering, and other manipulative techniques.
       for      CredentialFileRead
-  [x] M1018 User Account Management                              T1021.004, T1048, T1053.002, T1053.003, T1053.006, T1098.004, T1543.002, T1552.007, T1685, T1685.004, T1686
+  [x] M1018 User Account Management                              T1021.004, T1048, T1053.002, T1053.003, T1053.006, T1098.004, T1543.002, T1552.007, T1654, T1685, T1685.004, T1686
       User Account Management involves implementing and enforcing policies for the lifecycle of user accounts, including creation, modification, and deactivation.
       for      FileUpload, ScheduledJobCreation, SshKeyPersistence, SystemdUnitCreation, ClusterSecretRead, SecurityToolDisabling, FirewallDisabling
   [x] M1022 Restrict File and Directory Permissions              T1048, T1053.006, T1070.003, T1098.004, T1543.002, T1546.004, T1548.003, T1552.001, T1552.004, T1685, T1685.006, T1686

@@ -16,20 +16,26 @@
     "atlas": "AML.TA0008",
     "techniques": {
       "T1007": ["get-service"],
+      "T1010": ["osascript"],
       "T1016": [
         "ipconfig", "ifconfig", "ip", "route", "nbtstat",
         "get-netipconfiguration", "get-netipaddress", "get-netadapter"
       ],
+      "T1016.001": [
+        "ping", "tracert", "traceroute", "vmkping", "curl", "wget", "scutil",
+        "system_profiler", "test-netconnection"
+      ],
       "T1018": [
-        "arp", "fping", "arp-scan", "nbtscan", "nmblookup", "get-adcomputer",
-        "get-addomaincontroller"
+        "ping", "tracert", "traceroute", "arp", "fping", "arp-scan", "nbtscan",
+        "netstat", "net", "net1", "get-adcomputer", "get-addomaincontroller"
       ],
       "T1033": ["whoami", "id", "w", "who", "last", "quser", "qwinsta"],
-      "T1040": ["tcpdump", "tshark", "wireshark"],
-      "T1046": ["nmap", "masscan", "rustscan"],
+      "T1040": ["tcpdump", "tshark", "wireshark", "pfctl", "osascript"],
+      "T1046": ["nmap", "masscan", "rustscan", "nc", "ncat", "netcat", "curl"],
       "T1049": ["netstat", "ss", "get-nettcpconnection"],
       "T1057": ["ps", "top", "htop", "tasklist", "get-process"],
-      "T1069.001": ["groups", "get-localgroup", "get-localgroupmember"],
+      "T1069": ["id", "groups", "dscl", "dscacheutil"],
+      "T1069.001": ["id", "groups", "get-localgroup", "get-localgroupmember"],
       "T1069.002": ["get-adgroup", "get-adgroupmember"],
       "T1069.003": [
         "get-mggroup", "get-azureadgroup", "get-mgdirectoryrole",
@@ -37,49 +43,65 @@
         "get-rolegroup"
       ],
       "T1082": [
-        "systeminfo", "hostname", "uname", "df", "uptime", "lscpu", "lspci",
-        "dmidecode", "sw_vers", "get-computerinfo", "get-hotfix"
+        "systeminfo", "hostname", "uname", "df", "uptime", "lscpu", "sw_vers",
+        "systemsetup", "get-computerinfo", "get-hotfix"
       ],
       "T1083": [
         "ls", "find", "locate", "stat", "dir", "tree", "get-childitem", "gci",
         "test-path"
       ],
-      "T1087.001": ["get-localuser"],
-      "T1087.002": ["ldapsearch", "get-aduser", "get-adserviceaccount"],
+      "T1087.001": ["id", "groups", "dscacheutil", "get-localuser"],
+      "T1087.002": ["ldapsearch", "dscl", "get-aduser", "get-adserviceaccount"],
       "T1087.003": ["get-globaladdresslist"],
       "T1087.004": [
         "get-mguser", "get-azureaduser", "get-msoluser", "get-azaduser",
         "get-msolrolemember", "get-recipient", "get-mailbox", "get-user"
       ],
       "T1120": ["ioreg"],
-      "T1124": ["timedatectl", "hwclock", "get-timezone"],
-      "T1135": ["smbmap", "showmount", "get-smbshare"],
-      "T1201": ["get-addefaultdomainpasswordpolicy", "get-msolpasswordpolicy"],
+      "T1124": ["date", "timedatectl", "hwclock", "get-timezone"],
+      "T1135": [
+        "smbmap", "showmount", "rpcclient", "nmblookup", "mount_smbfs",
+        "get-smbshare"
+      ],
+      "T1201": [
+        "get-addefaultdomainpasswordpolicy", "get-msolpasswordpolicy",
+        "get-organizationconfig"
+      ],
+      "T1217": ["powershell", "pwsh", "cmd"],
       "T1482": ["get-adtrust"],
+      "T1497": ["dmesg", "lscpu", "lspci", "kextstat"],
+      "T1497.001": ["dmidecode", "lscpu", "lspci", "kextstat"],
+      "T1497.003": ["sleep", "usleep", "start-sleep", "time.sleep"],
+      "T1518.001": ["tasklist", "netsh"],
+      "T1518.002": [
+        "tasklist", "ls", "find", "grep", "dpkg", "rpm", "systemctl",
+        "launchctl", "mdfind", "system_profiler"
+      ],
       "T1526": [
         "get-mgapplication", "get-mgserviceprincipal", "get-azureadapplication",
         "get-azureadserviceprincipal", "get-azadapplication",
         "get-azadserviceprincipal"
       ],
       "T1580": ["get-azresource", "get-azkeyvault", "get-azsubscription"],
+      "T1614": ["timedatectl", "locale"],
       "T1614.001": ["locale"],
       "T1615": ["gpresult", "get-domaingpo", "get-domaingpolocalgroup"],
+      "T1622": ["sysctl"],
       "T1652": ["driverquery", "lsmod", "modinfo", "kextstat", "kextfind"],
       "T1654": [
-        "journalctl", "get-winevent", "get-eventlog",
-        "get-mgauditlogdirectoryaudit", "get-mgauditlogsignin",
+        "cat", "less", "grep", "journalctl", "fs_usage", "get-winevent",
+        "get-eventlog", "get-mgauditlogdirectoryaudit", "get-mgauditlogsignin",
         "get-azactivitylog"
       ],
       "T1673": ["get-vm"],
-      "T1680": ["lsblk", "get-psdrive"]
+      "T1680": ["lsblk", "parted", "get-psdrive"]
     },
     "commands": [
-      "ping", "dig", "nslookup", "host", "whois", "traceroute", "mount", "env",
-      "printenv", "getent", "dpkg", "rpm", "service", "enum4linux",
-      "enum4linux-ng", "smbclient", "rpcclient", "snmpwalk", "nikto",
-      "gobuster", "ffuf", "dirb", "feroxbuster", "wfuzz", "whatweb", "wpscan",
-      "nuclei", "httpx", "subfinder", "amass", "sslscan", "kubectl", "docker",
-      "aws", "az", "gcloud", "bloodhound-python", "ldapdomaindump",
+      "dig", "nslookup", "host", "whois", "mount", "env", "printenv", "getent",
+      "service", "enum4linux", "enum4linux-ng", "smbclient", "snmpwalk",
+      "nikto", "gobuster", "ffuf", "dirb", "feroxbuster", "wfuzz", "whatweb",
+      "wpscan", "nuclei", "httpx", "subfinder", "amass", "sslscan", "kubectl",
+      "docker", "aws", "az", "gcloud", "bloodhound-python", "ldapdomaindump",
       "get-addomain", "get-adforest", "get-adobject", "get-adsyncconnector",
       "get-adsyncscheduler", "get-adsyncglobalsettings",
       "get-adsyncserverconfiguration", "get-adsyncconnectorstatistics",
@@ -88,10 +110,9 @@
       "get-itemproperty", "get-itempropertyvalue", "get-ciminstance",
       "get-wmiobject", "gwmi", "get-acl", "get-command", "get-module",
       "get-certificationauthority", "get-certificatetemplate",
-      "test-netconnection", "test-connection", "resolve-dnsname", "net", "net1",
-      "nltest", "dsquery", "dsget", "netsh", "query", "wmic", "sc", "setspn",
-      "klist", "dsregcmd", "cmdkey", "where", "get-mgsecurityalert",
-      "get-mgdomain", "get-mgoauth2permissiongrant",
+      "test-connection", "resolve-dnsname", "nltest", "dsquery", "dsget",
+      "query", "wmic", "sc", "setspn", "klist", "dsregcmd", "cmdkey", "where",
+      "get-mgsecurityalert", "get-mgdomain", "get-mgoauth2permissiongrant",
       "get-mgserviceprincipalapproleassignment"
     ]
   },
