@@ -245,6 +245,7 @@ func TestDecodeRejects(t *testing.T) {
 		"an indicator with no type":    one(`,"indicators":[{"form":"x"}]`),
 		"a bad valid":                  one(`,"valid":"("`),
 		"a bad reject":                 one(`,"reject":"("`),
+		"a bad placeholder":            `{"placeholder":"(","kinds":[{"name":"k","title":"K","severity":"low"}]}`,
 		"a bad pattern":                one(`,"patterns":[{"needs":["a"],"pattern":"("}]`),
 		"a pattern without a value":    one(`,"patterns":[{"needs":["a"],"pattern":"(a)"}]`),
 		"a pattern that needs nothing": one(`,"patterns":[{"needs":[],"pattern":"(?P<value>a)"}]`),
